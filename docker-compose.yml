@@ -70,6 +70,13 @@ services:
         condition: service_healthy
     networks:
       - core_net
+    volumes:
+      # The 3-layer filter (run_filter_pipeline.py) reads the harvested Raw
+      # Data Lake + the filter thresholds in scraper_config.yaml. Mounting both
+      # lets `docker compose run --rm --no-deps core-api python run_filter_pipeline.py`
+      # work out-of-the-box — no manual -v needed.
+      - ./scraper_config.yaml:/app/scraper_config.yaml:ro
+      - ./raw_data_lake:/app/raw_data_lake
 
   # ── Harvester (Chặng 0) — autonomous data acquisition ─────────────────
   # One-shot manual test run:

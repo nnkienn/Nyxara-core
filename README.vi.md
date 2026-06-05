@@ -31,20 +31,48 @@ Dự án dành cho các kỹ sư AI và DevOps muốn toàn quyền kiểm soát
 
 ## 🔥 Năng lực Lõi
 
-### 1. 🔀 Bộ định tuyến LLM Song Động cơ (Local + Cloud)
+### 1. 🌾 Harvester Cắm-được — Nền tảng bất kỳ, Cộng đồng cùng xây
+**Đây là Chặng 0 — nền móng mà mọi thứ khác ăn dữ liệu từ đó.** Trình thu thập chạy định kỳ (cron) cào dữ liệu **công khai**, đóng dấu `tenant_id`, đổ vào **Raw Data Lake** tách theo từng tenant, rồi làm sạch qua bộ lọc chống spam 3 lớp — tách biệt hoàn toàn khỏi agent (*Thu thập dữ liệu ≠ Suy luận*; tầng này **không bao giờ** gọi LLM).
+
+**Cắm nền tảng bất kỳ — chỉ cần thả 1 file.** Engine tự động phát hiện mọi plugin trong [`extractors/plugins/`](./app/infrastructure/harvester/extractors/plugins/) lúc runtime. Thêm một nguồn = viết một class — không sửa code lõi, không import hardcode:
+
+```python
+class MyPlatformExtractor(BaseExtractor):
+    PLUGIN_TYPE = "my_platform"          # ← tham chiếu qua `type:` trong scraper_config.yaml
+    async def extract(self) -> list[HarvestedItem]:
+        url = self.options["url"]        # mọi thứ lấy từ YAML — zero-hardcode
+        ...
+```
+
+Plugin lỗi sẽ được log và bỏ qua — một nguồn hỏng không bao giờ kéo sập cả lượt chạy.
+
+**Hiện đã có:** `x_twscrape` (X / Twitter qua twscrape) · `youtube_shorts` (YouTube Shorts qua yt-dlp).
+**Rất cần bạn góp sức** 🤝 — các nền tảng liên tục thay đổi cơ chế chống bot. Hãy đóng góp plugin nền tảng mới (TikTok, Instagram, Reddit, LinkedIn…) hoặc một **kỹ thuật by-pass / stealth** mới cho plugin hiện có. Toàn bộ hợp đồng gói gọn trong một file: [`base.py`](./app/infrastructure/harvester/extractors/base.py).
+
+**Bộ lọc chống spam 3 lớp** — dừng sớm và tiết kiệm chi phí; mỗi item phải "giành" được lớp kế tiếp, nên lời gọi LLM tốn tiền chỉ thấy thứ đã vượt qua 2 cổng CPU miễn phí:
+
+| Lớp | Giai đoạn | Chi phí | Loại bỏ |
+|---|---|---|---|
+| **L1** | Heuristic (ngưỡng hashtag / số từ / mention) | O(1) CPU | mồi tương tác, câu cụt, spam mass-mention |
+| **L2** | Text-clean (bỏ URL, emoji, rác lặp) | O(n) CPU | item rỗng sau khi làm sạch |
+| **L3** | LLM judge (theo batch, OpenAI-compat) | ~1 lời gọi API / 10 item | câu đùa, reply, nội dung giá trị thấp |
+
+Item đạt được ghi vào `raw_data_lake/filtered/approved.json`, sẵn sàng nạp Qdrant. Nguồn và ngưỡng lọc nằm trong [`scraper_config.yaml`](./scraper_config.yaml) → `filter_config`, **không hardcode**.
+
+### 2. 🔀 Bộ định tuyến LLM Song Động cơ (Local + Cloud)
 Một giao diện `LLMClientBase` duy nhất (tương thích OpenAI) cho phép mọi agent chạy trên engine nào cũng được mà **không cần sửa code**:
 - **Tầng Local / Dev:** Ollama hoặc Apple MLX chạy `Llama-3.1-8B-Instruct` / `Qwen2.5` → R&D không tốn phí, hoàn toàn offline.
 - **Tầng Production / Scale:** vLLM trên GPU thuê (RunPod, AWS) hoặc fallback sang OpenAI / Claude khi tải cao điểm.
 
 Định tuyến là **quyết định cấu hình lúc runtime**, không phải viết lại code. Cùng một code agent chạy trên cả hai tầng.
 
-### 2. 🧠 RAG Đa người dùng & Đa ngôn ngữ
+### 3. 🧠 RAG Đa người dùng & Đa ngôn ngữ
 - **Vector store:** [Qdrant](https://qdrant.tech/) với collection được cô lập theo tenant.
 - **Embedding:** `BAAI/bge-m3` (1024 chiều, hơn 100 ngôn ngữ) → một chỉ mục xuyên ngôn ngữ chung, **không cần collection riêng cho từng ngôn ngữ**.
 - **Cô lập:** mọi `upsert` / `search` đều bị ép qua bộ lọc payload `tenant_id` bắt buộc. **Zero rò rỉ chéo tenant** là một bảo đảm kiến trúc, không phải kiểm tra runtime.
 - **Truy vấn xuyên ngôn ngữ:** một tenant tiếng Việt có thể truy vấn cơ sở tri thức tiếng Đức của họ trong cùng một không gian.
 
-### 3. 🕹️ Topology Agent Supervisor–Worker
+### 4. 🕹️ Topology Agent Supervisor–Worker
 Chúng tôi **không** nhồi tất cả vào một prompt khổng lồ. Mỗi yêu cầu được phân rã thành các vai trò chuyên biệt:
 
 | Vai trò | Trách nhiệm | Công cụ |
@@ -57,15 +85,12 @@ Chúng tôi **không** nhồi tất cả vào một prompt khổng lồ. Mỗi y
 
 Critic kiểm chứng tính xác thực trước khi bất cứ thứ gì được xuất bản.
 
-### 4. 📡 Tự động Phân phối Đa kênh
+### 5. 📡 Tự động Phân phối Đa kênh
 **Redis + Celery** rút hàng đợi tác vụ bất đồng bộ tới trình duyệt headless **Playwright** để đăng nội dung, mô phỏng hành vi người dùng để tránh giới hạn nền tảng:
 - YouTube Shorts · Facebook · Instagram Reels.
 - Cookie phiên được lưu **mã hóa AES-256** (không bao giờ plain-text).
 - `playwright-stealth` để né phát hiện bot.
 - Lên lịch theo múi giờ tenant + heuristic giờ vàng.
-
-### 5. 🌾 Harvester Tự hành
-Trình thu thập **Playwright + Stealth** chạy định kỳ (cron), cào dữ liệu **công khai**, làm sạch và nạp vào Qdrant kèm `tenant_id` — tách biệt hoàn toàn khỏi agent (*Thu thập dữ liệu ≠ Suy luận*). Nguồn khai báo trong [`scraper_config.yaml`](./scraper_config.yaml), **không hardcode**.
 
 ---
 
@@ -76,15 +101,19 @@ Lõi domain không phụ thuộc gì cả; thế giới bên ngoài cắm vào q
 ```
 n-assistant-core/
 ├── app/
-│   ├── domain/          # Thực thể nghiệp vụ thuần & port — không phụ thuộc framework
-│   ├── application/     # Use case: điều phối agent Supervisor-Worker
-│   ├── infrastructure/  # Adapter bị điều khiển: Qdrant · Redis/Celery · LLM client · Playwright Harvester
-│   └── api/             # Adapter điều khiển: router FastAPI, schema, nối DI
-├── scraper_config.yaml  # Nguồn cào của Harvester — zero-hardcode (Chặng 0)
-├── docker-compose.yml   # Stack local: redis + qdrant + core-api (+ profile harvester)
-├── Dockerfile           # python:3.11-slim → uvicorn :8000
+│   ├── domain/                  # Thực thể nghiệp vụ thuần & port — không phụ thuộc framework
+│   ├── application/             # Use case + content_filter_pipeline (làm sạch 3 lớp)
+│   ├── infrastructure/
+│   │   └── harvester/           # engine.py · extractors/plugins/ (X, YouTube…) · filters/
+│   └── api/                     # Adapter điều khiển: router FastAPI, schema, nối DI
+├── scraper_config.yaml          # Nguồn cào + ngưỡng lọc của Harvester — zero-hardcode
+├── run_harvester.py             # Giai đoạn 1 — cào mọi nguồn enabled → Raw Data Lake
+├── run_filter_pipeline.py       # Giai đoạn 2 — bộ lọc chống spam 3 lớp → approved.json
+├── raw_data_lake/               # Vùng đổ theo tenant: texts/ (thô) + filtered/ (sạch)
+├── docker-compose.yml           # redis + qdrant + core-api (+ profile harvester)
+├── Dockerfile · Dockerfile.harvester   # image core-API · image Chromium cho plugin
 ├── requirements.txt
-└── LICENSE              # MIT
+└── LICENSE                      # MIT
 ```
 
 ---
@@ -135,11 +164,17 @@ Vậy là xong — một động cơ AI local hoàn chỉnh tại `http://localh
 | Qdrant (vector DB) | http://localhost:6333 |
 | Redis (broker) | localhost:6379 |
 
-**Bật Harvester** (tiến trình riêng, chạy theo cron):
+**Chạy pipeline dữ liệu** — hai giai đoạn tách rời: cào rồi làm sạch:
 
 ```bash
-docker compose --profile harvester up -d
+# 1) Cào — quét mọi nguồn enabled trong scraper_config.yaml → Raw Data Lake
+docker compose --profile harvester run --rm --build harvester
+
+# 2) Làm sạch — chạy bộ lọc chống spam 3 lớp → raw_data_lake/filtered/approved.json
+docker compose run --rm --no-deps core-api python run_filter_pipeline.py
 ```
+
+> **Lớp 3 gọi LLM**, nên đặt trước `INFERENCE_PROVIDER` / `INFERENCE_BASE_URL` / `INFERENCE_MODEL` / `INFERENCE_API_KEY` trong `.env` — Gemini, OpenAI, hoặc Ollama local (bất kỳ endpoint tương thích OpenAI). Lớp 1–2 chỉ dùng CPU, chạy được mà không cần key.
 
 ---
 

@@ -31,20 +31,48 @@
 
 ## 🔥 核心能力
 
-### 1. 🔀 双引擎 LLM 路由（本地 + 云端）
+### 1. 🌾 可插拔采集器（Harvester）—— 任意平台，社区共建
+**这是阶段 0——其余一切赖以汲取数据的根基。** 定时（cron）爬虫采集**公开**数据，打上 `tenant_id`，落入按租户隔离的 **Raw Data Lake**，再经三层反垃圾过滤清洗——与智能体完全解耦（*数据采集 ≠ 推理*；本层**绝不**调用 LLM）。
+
+**接入任意平台——只需放一个文件。** 引擎在运行时自动发现 [`extractors/plugins/`](./app/infrastructure/harvester/extractors/plugins/) 下的每个插件。新增一个来源就是写一个类——无需改动核心代码，无需硬编码导入：
+
+```python
+class MyPlatformExtractor(BaseExtractor):
+    PLUGIN_TYPE = "my_platform"          # ← 由 scraper_config.yaml 中的 `type:` 引用
+    async def extract(self) -> list[HarvestedItem]:
+        url = self.options["url"]        # 一切皆取自 YAML —— 零硬编码
+        ...
+```
+
+插件崩溃会被记录并跳过——一个坏来源绝不会拖垮整次运行。
+
+**当前已内置：** `x_twscrape`（X / Twitter，经 twscrape）· `youtube_shorts`（YouTube Shorts，经 yt-dlp）。
+**我们需要你的帮助** 🤝 —— 各平台的反爬虫机制持续演进。欢迎贡献新平台插件（TikTok、Instagram、Reddit、LinkedIn……）或为现有插件贡献新的 **绕过 / 隐身（bypass / stealth）技术**。整份契约只是一个文件：[`base.py`](./app/infrastructure/harvester/extractors/base.py)。
+
+**三层反垃圾过滤**——快速失败、成本敏感；每个条目都必须"赢得"进入下一层的资格，因此付费的 LLM 调用只会看到已通过两道免费 CPU 关卡的内容：
+
+| 层 | 阶段 | 成本 | 剔除 |
+|---|---|---|---|
+| **L1** | 启发式（hashtag / 词数 / @提及 阈值） | O(1) CPU | 互动诱饵、一句话、海量 @提及 垃圾 |
+| **L2** | 文本清洗（去除 URL、表情、模板套话） | O(n) CPU | 清洗后为空的条目 |
+| **L3** | LLM 评审（批量、兼容 OpenAI） | 每 10 条约 1 次 API 调用 | 玩笑、回复、低价值闲聊 |
+
+通过的条目写入 `raw_data_lake/filtered/approved.json`，可直接入库 Qdrant。来源与阈值位于 [`scraper_config.yaml`](./scraper_config.yaml) → `filter_config`，**绝不硬编码**。
+
+### 2. 🔀 双引擎 LLM 路由（本地 + 云端）
 单一的 `LLMClientBase` 接口（兼容 OpenAI）让每个智能体可在任一引擎上运行，**无需改动代码**：
 - **本地 / 开发层：** Ollama 或 Apple MLX 运行 `Llama-3.1-8B-Instruct` / `Qwen2.5` → 零成本研发，完全离线。
 - **生产 / 扩展层：** 在租用 GPU（RunPod、AWS）上运行 vLLM，或在高峰期回退到 OpenAI / Claude。
 
 路由是**运行时配置决策**，绝非重写代码。同一份智能体代码可在两层上运行。
 
-### 2. 🧠 多租户 & 多语言 RAG
+### 3. 🧠 多租户 & 多语言 RAG
 - **向量库：** [Qdrant](https://qdrant.tech/)，采用按租户隔离的 collection。
 - **嵌入：** `BAAI/bge-m3`（1024 维，100+ 语言）→ 一个共享的跨语言索引，**无需按语言建多个 collection**。
 - **隔离：** 每一次 `upsert` / `search` 都强制施加 `tenant_id` 负载过滤。**零跨租户数据泄漏**是架构保证，而非运行时检查。
 - **跨语言检索：** 越南语租户可在同一空间中查询其德语知识库。
 
-### 3. 🕹️ Supervisor–Worker 智能体拓扑
+### 4. 🕹️ Supervisor–Worker 智能体拓扑
 我们**不会**把一切塞进一个巨型 prompt。每个请求都被分解为专职角色：
 
 | 角色 | 职责 | 工具 |
@@ -57,15 +85,12 @@
 
 评审者在内容发布前校验其事实依据。
 
-### 4. 📡 全渠道自动分发
+### 5. 📡 全渠道自动分发
 **Redis + Celery** 将异步任务下发给 **Playwright** 无头浏览器，模拟人类行为发布内容，以规避平台限流：
 - YouTube Shorts · Facebook · Instagram Reels。
 - 会话 Cookie 以 **AES-256 加密**存储（绝不明文）。
 - 使用 `playwright-stealth` 规避机器人检测。
 - 按租户时区 + 高峰时段启发式排程。
-
-### 5. 🌾 自治采集器（Harvester）
-定时（cron）运行的 **Playwright + Stealth** 爬虫，采集**公开**数据，清洗后带 `tenant_id` 写入 Qdrant——与智能体完全解耦（*数据采集 ≠ 推理*）。来源在 [`scraper_config.yaml`](./scraper_config.yaml) 中声明，**绝不硬编码**。
 
 ---
 
@@ -76,15 +101,19 @@
 ```
 n-assistant-core/
 ├── app/
-│   ├── domain/          # 纯业务实体与端口——零框架依赖
-│   ├── application/     # 用例：Supervisor-Worker 智能体编排
-│   ├── infrastructure/  # 被驱动适配器：Qdrant · Redis/Celery · LLM 客户端 · Playwright 采集器
-│   └── api/             # 驱动适配器：FastAPI 路由、模式、依赖注入装配
-├── scraper_config.yaml  # 采集器数据源——零硬编码（Chặng 0）
-├── docker-compose.yml   # 本地技术栈：redis + qdrant + core-api（+ harvester profile）
-├── Dockerfile           # python:3.11-slim → uvicorn :8000
+│   ├── domain/                  # 纯业务实体与端口——零框架依赖
+│   ├── application/             # 用例 + content_filter_pipeline（三层清洗）
+│   ├── infrastructure/
+│   │   └── harvester/           # engine.py · extractors/plugins/（X、YouTube…）· filters/
+│   └── api/                     # 驱动适配器：FastAPI 路由、模式、依赖注入装配
+├── scraper_config.yaml          # 采集器数据源 + 过滤阈值——零硬编码
+├── run_harvester.py             # 阶段 1 —— 抓取所有 enabled 来源 → Raw Data Lake
+├── run_filter_pipeline.py       # 阶段 2 —— 三层反垃圾过滤 → approved.json
+├── raw_data_lake/               # 按租户落地区：texts/（原始）+ filtered/（清洗后）
+├── docker-compose.yml           # redis + qdrant + core-api（+ harvester profile）
+├── Dockerfile · Dockerfile.harvester   # core-API 镜像 · 供插件使用的 Chromium 镜像
 ├── requirements.txt
-└── LICENSE              # MIT
+└── LICENSE                      # MIT
 ```
 
 ---
@@ -135,11 +164,17 @@ curl http://localhost:8000/health
 | Qdrant（向量数据库） | http://localhost:6333 |
 | Redis（broker） | localhost:6379 |
 
-**启用 Harvester**（独立进程，cron 驱动）：
+**运行数据管线**——两个解耦阶段：先采集，再清洗：
 
 ```bash
-docker compose --profile harvester up -d
+# 1) 采集 —— 抓取 scraper_config.yaml 中所有 enabled 的来源 → Raw Data Lake
+docker compose --profile harvester run --rm --build harvester
+
+# 2) 清洗 —— 运行三层反垃圾过滤 → raw_data_lake/filtered/approved.json
+docker compose run --rm --no-deps core-api python run_filter_pipeline.py
 ```
+
+> **第 3 层会调用 LLM**，因此请先在 `.env` 中设置 `INFERENCE_PROVIDER` / `INFERENCE_BASE_URL` / `INFERENCE_MODEL` / `INFERENCE_API_KEY`——Gemini、OpenAI 或本地 Ollama（任何兼容 OpenAI 的端点）。第 1–2 层纯 CPU 运行，无需密钥。
 
 ---
 

@@ -31,20 +31,48 @@ It is built for AI and DevOps engineers who want full control: swap the LLM, own
 
 ## 🔥 Core Capabilities
 
-### 1. 🔀 Dual-Engine LLM Router (Local + Cloud)
+### 1. 🌾 Pluggable Harvester — Any Platform, Community-Driven
+**This is Phase 0 — the foundation everything else feeds on.** A scheduled (cron) crawler acquires **public** data, stamps it with `tenant_id`, lands it in a per-tenant **Raw Data Lake**, then cleans it through a 3-layer anti-spam filter — fully decoupled from the agents (*Data Ingestion ≠ Inference*; this layer **never** calls an LLM).
+
+**Plug in any platform — drop one file.** The engine auto-discovers every plugin under [`extractors/plugins/`](./app/infrastructure/harvester/extractors/plugins/) at runtime. A new source is one class — no core changes, no hardcoded imports:
+
+```python
+class MyPlatformExtractor(BaseExtractor):
+    PLUGIN_TYPE = "my_platform"          # ← referenced by `type:` in scraper_config.yaml
+    async def extract(self) -> list[HarvestedItem]:
+        url = self.options["url"]        # everything from YAML — zero-hardcode
+        ...
+```
+
+A crashing plugin is logged and skipped — one bad source never takes the whole run down.
+
+**Shipped today:** `x_twscrape` (X / Twitter via twscrape) · `youtube_shorts` (YouTube Shorts via yt-dlp).
+**We need your help** 🤝 — platforms evolve their anti-bot defenses constantly. Contribute a new platform plugin (TikTok, Instagram, Reddit, LinkedIn…) or a fresh **bypass / stealth technique** for an existing one. The whole contract is one file: [`base.py`](./app/infrastructure/harvester/extractors/base.py).
+
+**3-layer anti-spam filter** — fail-fast and cost-aware; each item must earn the next layer, so the paid LLM call only ever sees what already survived two free CPU gates:
+
+| Layer | Stage | Cost | Drops |
+|---|---|---|---|
+| **L1** | Heuristic (hashtag / word-count / mention gates) | O(1) CPU | engagement-bait, one-liners, mass-mention spam |
+| **L2** | Text-clean (strip URLs, emojis, boilerplate) | O(n) CPU | items empty after cleaning |
+| **L3** | LLM judge (batched, OpenAI-compatible) | ~1 API call / 10 items | jokes, replies, low-value chatter |
+
+Approved items land in `raw_data_lake/filtered/approved.json`, Qdrant-ready. Sources and thresholds live in [`scraper_config.yaml`](./scraper_config.yaml) → `filter_config`, **never hardcoded**.
+
+### 2. 🔀 Dual-Engine LLM Router (Local + Cloud)
 A single `LLMClientBase` (OpenAI-compatible) interface lets every agent run on either engine **without a code change**:
 - **Local / Dev tier:** Ollama or Apple MLX serving `Llama-3.1-8B-Instruct` / `Qwen2.5` → zero-cost R&D, fully offline.
 - **Production / Scale tier:** vLLM on rented GPU (RunPod, AWS) or a fallback to OpenAI / Claude for peak demand.
 
 Routing is a **runtime config decision**, never a rewrite. The same agent code runs in both tiers.
 
-### 2. 🧠 Multi-Tenant & Multilingual RAG
+### 3. 🧠 Multi-Tenant & Multilingual RAG
 - **Vector store:** [Qdrant](https://qdrant.tech/) with tenant-scoped collections.
 - **Embeddings:** `BAAI/bge-m3` (1024-dim, 100+ languages) → one shared cross-lingual index, **no per-language collection**.
 - **Isolation:** every `upsert` / `search` enforces a mandatory `tenant_id` payload filter. **Zero cross-tenant leakage** is an architectural guarantee, not a runtime check.
 - **Cross-language retrieval:** a Vietnamese tenant can query their German-language knowledge base in one space.
 
-### 3. 🕹️ Supervisor–Worker Agent Topology
+### 4. 🕹️ Supervisor–Worker Agent Topology
 We do **not** stuff everything into one giant prompt. Each request is decomposed into specialized roles:
 
 | Role | Responsibility | Tools |
@@ -57,15 +85,12 @@ We do **not** stuff everything into one giant prompt. Each request is decomposed
 
 The Critic verifies grounding before anything ships.
 
-### 4. 📡 Omnichannel Auto-Distribution
+### 5. 📡 Omnichannel Auto-Distribution
 **Redis + Celery** drain async jobs to **Playwright** headless browsers that publish while mimicking human behavior to stay within platform limits:
 - YouTube Shorts · Facebook · Instagram Reels.
 - Session cookies stored **AES-256 encrypted** (never plain-text).
 - `playwright-stealth` to evade bot-detection.
 - Schedule by tenant timezone + peak-hour heuristic.
-
-### 5. 🌾 Autonomous Harvester
-A scheduled (cron) **Playwright + Stealth** crawler that acquires **public** data, cleans it, and lands it into Qdrant tagged by `tenant_id` — fully decoupled from the agents (*Data Ingestion ≠ Inference*). Sources are declared in [`scraper_config.yaml`](./scraper_config.yaml), **never hardcoded**.
 
 ---
 
@@ -76,15 +101,19 @@ The domain core depends on nothing; the outside world plugs in through ports. Yo
 ```
 n-assistant-core/
 ├── app/
-│   ├── domain/          # Pure business entities & ports — zero framework deps
-│   ├── application/     # Use cases: Supervisor-Worker agent orchestration
-│   ├── infrastructure/  # Driven adapters: Qdrant · Redis/Celery · LLM clients · Playwright Harvester
-│   └── api/             # Driving adapter: FastAPI routers, schemas, DI wiring
-├── scraper_config.yaml  # Harvester sources — zero-hardcode (Chặng 0)
-├── docker-compose.yml   # Local stack: redis + qdrant + core-api (+ harvester profile)
-├── Dockerfile           # python:3.11-slim → uvicorn :8000
+│   ├── domain/                  # Pure business entities & ports — zero framework deps
+│   ├── application/             # Use cases + content_filter_pipeline (3-layer clean)
+│   ├── infrastructure/
+│   │   └── harvester/           # engine.py · extractors/plugins/ (X, YouTube…) · filters/
+│   └── api/                     # Driving adapter: FastAPI routers, schemas, DI wiring
+├── scraper_config.yaml          # Harvester sources + filter thresholds — zero-hardcode
+├── run_harvester.py             # Stage 1 — scrape enabled sources → Raw Data Lake
+├── run_filter_pipeline.py       # Stage 2 — 3-layer anti-spam filter → approved.json
+├── raw_data_lake/               # Per-tenant landing zone: texts/ (raw) + filtered/ (clean)
+├── docker-compose.yml           # redis + qdrant + core-api (+ harvester profile)
+├── Dockerfile · Dockerfile.harvester   # core-API image · Chromium image for plugins
 ├── requirements.txt
-└── LICENSE              # MIT
+└── LICENSE                      # MIT
 ```
 
 ---
@@ -135,11 +164,17 @@ That's it — a full local AI engine on `http://localhost:8000`.
 | Qdrant (vector DB) | http://localhost:6333 |
 | Redis (broker) | localhost:6379 |
 
-**Enable the Harvester** (separate process, cron-driven):
+**Run the data pipeline** — two decoupled stages, harvest then clean:
 
 ```bash
-docker compose --profile harvester up -d
+# 1) Harvest — scrape every enabled source in scraper_config.yaml → Raw Data Lake
+docker compose --profile harvester run --rm --build harvester
+
+# 2) Clean — run the 3-layer anti-spam filter → raw_data_lake/filtered/approved.json
+docker compose run --rm --no-deps core-api python run_filter_pipeline.py
 ```
+
+> **Layer 3 calls an LLM**, so set `INFERENCE_PROVIDER` / `INFERENCE_BASE_URL` / `INFERENCE_MODEL` / `INFERENCE_API_KEY` in `.env` first — Gemini, OpenAI, or local Ollama (any OpenAI-compatible endpoint). Layers 1–2 are CPU-only and run without a key.
 
 ---
 
