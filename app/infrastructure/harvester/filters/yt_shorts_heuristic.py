@@ -1,4 +1,4 @@
-"""Layer 1 — YouTube Shorts heuristic filter (skills/yt_heuristic_filter).
+"""Layer 1 — YouTube Shorts heuristic filter.
 
 CRITICAL PERFORMANCE RULE
   This filter runs FIRST — before any text cleaning and before the LLM
@@ -12,7 +12,7 @@ YouTube Shorts differ from tweets:
     enough topical signal for the LLM judge to evaluate.
 
 Thresholds come from ``filter_config.youtube_shorts_heuristic`` in
-scraper_config.yaml so they can be adjusted without touching code.
+config/scraper_config.yaml so they can be adjusted without touching code.
 
 Public API
 ----------
@@ -42,26 +42,18 @@ def is_viable_short(
         title: Video title (used in combined word count evaluation).
 
     Returns:
-        True if the Short meets all thresholds; False to discard (Early Exit).
+        True if the Short meets all thresholds; False to discard.
     """
     min_words: int = int(config.get("min_transcript_words", 10))
 
-    # Build combined text signal from title + description.
     parts: list[str] = []
     if title and title.strip():
         parts.append(title.strip())
     if transcript and transcript.strip():
         parts.append(transcript.strip())
 
-    # 1. No text at all — zero signal. Music-only, no title, nothing.
     if not parts:
         return False
 
-    # 2. Combined word count floor — title + description together must carry
-    #    enough substance for a quality evaluation.
     combined = " ".join(parts)
-    word_count = len(combined.split())
-    if word_count < min_words:
-        return False
-
-    return True
+    return len(combined.split()) >= min_words

@@ -102,13 +102,12 @@ Lõi domain không phụ thuộc gì cả; thế giới bên ngoài cắm vào q
 n-assistant-core/
 ├── app/
 │   ├── domain/                  # Thực thể nghiệp vụ thuần & port — không phụ thuộc framework
-│   ├── application/             # Use case + content_filter_pipeline (làm sạch 3 lớp)
+│   ├── application/             # Use case + các filter pipeline (chống spam 3 lớp)
 │   ├── infrastructure/
 │   │   └── harvester/           # engine.py · extractors/plugins/ (X, YouTube…) · filters/
 │   └── api/                     # Adapter điều khiển: router FastAPI, schema, nối DI
+├── cli.py                       # ★ CLI thống nhất — điểm vào duy nhất cho mọi thao tác cào
 ├── scraper_config.yaml          # Nguồn cào + ngưỡng lọc của Harvester — zero-hardcode
-├── run_harvester.py             # Giai đoạn 1 — cào mọi nguồn enabled → Raw Data Lake
-├── run_filter_pipeline.py       # Giai đoạn 2 — bộ lọc chống spam 3 lớp → approved.json
 ├── raw_data_lake/               # Vùng đổ theo tenant: texts/ (thô) + filtered/ (sạch)
 ├── docker-compose.yml           # redis + qdrant + core-api (+ profile harvester)
 ├── Dockerfile · Dockerfile.harvester   # image core-API · image Chromium cho plugin
@@ -164,17 +163,47 @@ Vậy là xong — một động cơ AI local hoàn chỉnh tại `http://localh
 | Qdrant (vector DB) | http://localhost:6333 |
 | Redis (broker) | localhost:6379 |
 
-**Chạy pipeline dữ liệu** — hai giai đoạn tách rời: cào rồi làm sạch:
+📖 **[HARVESTER_GUIDE.md](./HARVESTER_GUIDE.md)** — Hướng dẫn chuyên sâu Phase 1: kiến trúc plugin, tham chiếu CLI, cách thêm scraper mới trong 30 phút.
+
+**Chạy pipeline dữ liệu** — cào rồi lọc, thông qua CLI thống nhất:
 
 ```bash
-# 1) Cào — quét mọi nguồn enabled trong scraper_config.yaml → Raw Data Lake
-docker compose --profile harvester run --rm --build harvester
+# Xem tất cả plugin đã đăng ký + trạng thái bật/tắt trong scraper_config.yaml
+python cli.py list-plugins
 
-# 2) Làm sạch — chạy bộ lọc chống spam 3 lớp → raw_data_lake/filtered/approved.json
-docker compose run --rm --no-deps core-api python run_filter_pipeline.py
+# Cào: quét mọi nguồn enabled → Raw Data Lake
+python cli.py harvest
+
+# Cào một nguồn cụ thể (thử dry-run trước để preview)
+python cli.py harvest --source yt-long-matt-wolfe --dry-run
+python cli.py harvest --source yt-long-matt-wolfe
+
+# Cào tất cả nguồn của một loại plugin, giới hạn 5 item mỗi nguồn
+python cli.py harvest --type youtube_long --limit 5
+
+# Lọc: chạy pipeline chống spam 3 lớp trên toàn bộ dữ liệu thô
+python cli.py filter
+
+# Lọc chỉ các đoạn transcript YouTube Long Video
+python cli.py filter --type youtube_long
 ```
 
+Chạy `python cli.py --help` hoặc `python cli.py <lệnh> --help` để xem toàn bộ tùy chọn.
+
 > **Lớp 3 gọi LLM**, nên đặt trước `INFERENCE_PROVIDER` / `INFERENCE_BASE_URL` / `INFERENCE_MODEL` / `INFERENCE_API_KEY` trong `.env` — Gemini, OpenAI, hoặc Ollama local (bất kỳ endpoint tương thích OpenAI). Lớp 1–2 chỉ dùng CPU, chạy được mà không cần key.
+
+<details>
+<summary>Chạy qua Docker (toàn stack)</summary>
+
+```bash
+# Cào trong Docker (image có Chromium)
+docker compose --profile harvester run --rm --build harvester
+
+# Lọc trong Docker
+docker compose run --rm --no-deps core-api python cli.py filter
+```
+
+</details>
 
 ---
 

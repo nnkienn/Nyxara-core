@@ -1,5 +1,5 @@
-# n-assistant-core — Harvester image (Chặng 0)
-# Plugins: x_twscrape (GraphQL API) + youtube_shorts (yt-dlp).
+# n-assistant-core — Harvester image (Phase 1)
+# Plugins: x_twscrape (GraphQL API) + youtube_long (yt-dlp + transcript-api).
 # No Chromium needed — twscrape and yt-dlp handle everything without a browser.
 FROM python:3.11-slim
 
@@ -13,6 +13,11 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY app ./app
-COPY scraper_config.yaml run_harvester.py run_yt_filter_pipeline.py run_filter_pipeline.py ./
+COPY cli.py ./
+COPY config/ ./config/
 
-CMD ["python", "run_harvester.py"]
+# config/yt_cookies.txt and config/scraper_config.yaml are overridden at
+# runtime via docker-compose volume mounts — COPY here is the fallback for
+# bare `docker run` invocations without a compose file.
+
+CMD ["python", "cli.py", "harvest"]

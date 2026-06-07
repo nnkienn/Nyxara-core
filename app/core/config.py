@@ -46,7 +46,7 @@ class Settings(BaseSettings):
 
     # ── Harvester engine (Chặng 0) ──────────────────────────────────────
     # Zero-hardcode: every scrape target lives in this YAML, never in code.
-    HARVESTER_CONFIG_PATH: str = "scraper_config.yaml"
+    HARVESTER_CONFIG_PATH: str = "config/scraper_config.yaml"
     # Immutable raw landing zone; partitioned per-tenant for isolation.
     RAW_DATA_LAKE_PATH: str = "raw_data_lake/texts"
     # Network etiquette for plugins that hit public HTTP endpoints.

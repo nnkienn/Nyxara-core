@@ -1,0 +1,266 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Harvester source registry (Chặng 0) — ZERO-HARDCODE.
+# Every scraping target is declared here, never in Python.
+# The cloud layer's config UI writes/overwrites this file via core's
+# /v1/harvester/* API. Reloading reconfigures the harvester without a redeploy.
+#
+# Schema (plugin architecture):
+#   name      — unique human-readable id for the source.
+#   type      — plugin discriminator; MUST match a plugin's PLUGIN_TYPE under
+#               app/infrastructure/harvester/extractors/plugins/.
+#   tenant_id — REQUIRED on every source. Missing → the source is DISCARDED
+#               (tenant-isolation iron rule; stamped onto every raw artifact).
+#   enabled   — toggle without deleting the entry.
+#   options   — zero-hardcode bag passed verbatim to the plugin.
+#
+# Secrets: use ${VAR} placeholders — resolved from the environment (.env) at
+# load time, so real tokens never live in this tracked file.
+#
+# Compliance (binding — see .agent/rules/tech-stack-rule.md §4 / §10):
+#   - PUBLIC pages only. No login-walled private or other-tenant PII.
+#   - Respect robots.txt / ToS; honor per-source rate limits.
+#
+# Focus: AI content ecosystem — X (twscrape) + YouTube Long Videos (yt-dlp + transcript-api).
+# Strategy: fetch real transcripts from long AI videos → segment → filter → script material.
+# ═══════════════════════════════════════════════════════════════════════════
+
+sources:
+  # ── X — AI trending (twscrape) ──────────────────────────────────────────
+  - name: x-ai-trending
+    type: x_twscrape
+    tenant_id: tenant_demo
+    enabled: false
+    options:
+      query: "AI agent since:2026-06-02 lang:en min_faves:200"
+      limit: 50
+      auth_token: "${X_AUTH_TOKEN}"
+      ct0: "${X_CT0_TOKEN}"
+      product: "Top"
+
+  - name: x-ai-tools
+    type: x_twscrape
+    tenant_id: tenant_demo
+    enabled: false
+    options:
+      query: "(#AItools OR #LLM OR #GenerativeAI) -(discord OR telegram OR airdrop) since:2026-06-02 min_faves:200"
+      limit: 50
+      auth_token: "${X_AUTH_TOKEN}"
+      ct0: "${X_CT0_TOKEN}"
+      product: "Top"
+
+  - name: x-ai-antispam-hq
+    type: x_twscrape
+    tenant_id: tenant_demo
+    enabled: false
+    options:
+      query: '("Claude" OR "Cursor" OR "AI Agent" OR "LLM") -(crypto OR nft OR airdrop) min_faves:200'
+      limit: 100
+      auth_token: "${X_AUTH_TOKEN}"
+      ct0: "${X_CT0_TOKEN}"
+      product: "Top"
+      locale: en
+
+  # ── YouTube Shorts — DISABLED (content too sparse for script material) ──
+  # Shorts descriptions are too short; real transcripts need long-form videos.
+  # See youtube_long sources below for the replacement strategy.
+  - name: yt-fireship
+    type: youtube_shorts
+    tenant_id: tenant_demo
+    enabled: false  # replaced by youtube_long
+    options:
+      channel: "@Fireship"
+      limit: 10
+      max_duration_s: 60
+      download_video: false
+
+  - name: yt-matt-wolfe
+    type: youtube_shorts
+    tenant_id: tenant_demo
+    enabled: false  # replaced by youtube_long
+    options:
+      channel: "@MattVidPro"
+      limit: 10
+      max_duration_s: 60
+      download_video: false
+
+  - name: yt-worldofai
+    type: youtube_shorts
+    tenant_id: tenant_demo
+    enabled: false
+    options:
+      channel: "@WorldofAI"
+      limit: 10
+      max_duration_s: 60
+      download_video: false
+
+  - name: yt-networkchuck
+    type: youtube_shorts
+    tenant_id: tenant_demo
+    enabled: false  # replaced by youtube_long
+    options:
+      channel: "@NetworkChuck"
+      limit: 10
+      max_duration_s: 60
+      download_video: false
+
+  - name: yt-search-ai-news
+    type: youtube_shorts
+    tenant_id: tenant_demo
+    enabled: false  # replaced by youtube_long search mode
+    options:
+      query: "AI news"
+      limit: 10
+      min_views: 500
+      max_duration_s: 60
+      download_video: false
+
+  # ── YouTube Long Videos — Channel mode (curated AI channels) ─────────
+  # PRIMARY quality source. Real transcripts segmented into 2-minute windows.
+  # Each window → one HarvestedItem → 3-layer filter → script material.
+  #
+  # Rate limiting: request_delay_s between Phase 2 fetches, transcript_delay_s
+  # between transcript API calls. Adjust down only after confirming no 429s.
+  #
+  # Channels selected for: AI-specific content, English transcripts available,
+  # consistent upload cadence, high signal-to-noise ratio.
+
+  - name: yt-long-ai-explained
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: true
+    options:
+      channel: "@aiexplained-official"   # AI Explained — research breakdowns
+      limit: 5
+      min_duration_s: 300                # 5 min minimum
+      max_duration_s: 1800               # 30 min cap
+      max_age_days: 60                   # uploads every few weeks, keep wider window
+      segment_duration_s: 120            # 2-min windows → ~2-12 segments/video
+      subtitle_lang: en
+      request_delay_s: 3.0
+      transcript_delay_s: 1.5
+      cookiefile: "${YT_COOKIES_FILE}"
+
+  - name: yt-long-yannic
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: false                       # inactive since March 2026 — re-enable when uploads resume
+    options:
+      channel: "@YannicKilcher"          # ML paper deep-dives
+      limit: 3
+      min_duration_s: 600
+      max_duration_s: 5400
+      max_age_days: 180                  # upload cadence is very irregular
+      segment_duration_s: 120
+      subtitle_lang: en
+      request_delay_s: 3.0
+      transcript_delay_s: 1.5
+      cookiefile: "${YT_COOKIES_FILE}"
+
+  - name: yt-long-matt-wolfe
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: true
+    options:
+      channel: "@MattVidPro"             # Matt Wolfe — AI tools & weekly news
+      limit: 5
+      min_duration_s: 300
+      max_duration_s: 2400               # 40 min
+      max_age_days: 30                   # monthly window — weekly uploads, need buffer
+      segment_duration_s: 120
+      subtitle_lang: en
+      request_delay_s: 3.0
+      transcript_delay_s: 1.5
+      cookiefile: "${YT_COOKIES_FILE}"
+
+  - name: yt-long-matthew-berman
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: true
+    options:
+      channel: "@matthew_berman"         # Matthew Berman — AI demos & news
+      limit: 5
+      min_duration_s: 240
+      max_duration_s: 3600
+      max_age_days: 10
+      segment_duration_s: 120
+      subtitle_lang: en
+      request_delay_s: 3.0
+      transcript_delay_s: 1.5
+      cookiefile: "${YT_COOKIES_FILE}"
+
+  - name: yt-long-sam-witteveen
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: false                       # @SamWitteveen handle maps to wrong channel (2008 content)
+    options:
+      channel: "@SamWitteveen"
+      limit: 4
+      min_duration_s: 300
+      max_duration_s: 3600
+      max_age_days: 14
+      segment_duration_s: 120
+      subtitle_lang: en
+      request_delay_s: 3.0
+      transcript_delay_s: 1.5
+      cookiefile: "${YT_COOKIES_FILE}"
+
+  # ── YouTube Long Videos — Search mode (trending discovery) ────────────
+  # Catches viral AI content from channels not in the curated list above.
+  # min_views gate prevents low-quality zero-engagement results.
+  - name: yt-long-search-ai-agent
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: true
+    options:
+      query: "AI agent 2026"
+      limit: 5
+      min_duration_s: 300
+      max_duration_s: 3600
+      min_views: 10000                   # engagement gate — must have traction
+      max_age_days: 7
+      segment_duration_s: 120
+      subtitle_lang: en
+      request_delay_s: 4.0               # more conservative for search mode
+      transcript_delay_s: 2.0
+      cookiefile: "${YT_COOKIES_FILE}"
+
+  - name: yt-long-search-llm-news
+    type: youtube_long
+    tenant_id: tenant_demo
+    enabled: true
+    options:
+      query: "LLM news latest AI"
+      limit: 5
+      min_duration_s: 300
+      max_duration_s: 3600
+      min_views: 5000
+      max_age_days: 7
+      segment_duration_s: 120
+      subtitle_lang: en
+      request_delay_s: 4.0
+      transcript_delay_s: 2.0
+      cookiefile: "${YT_COOKIES_FILE}"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Filter config — thresholds for each pipeline layer
+# ═══════════════════════════════════════════════════════════════════════════
+filter_config:
+  # ── Twitter/X heuristic (content_filter_pipeline.py) ──────────────────
+  heuristic:
+    max_hashtags: 3
+    min_words: 15
+    max_mentions: 2
+
+  # ── YouTube Shorts heuristic (yt_filter_pipeline.py) ──────────────────
+  # Kept for reference; Shorts sources are disabled above.
+  youtube_shorts_heuristic:
+    min_transcript_words: 10
+
+  # ── YouTube Long Video heuristic (yt_long_filter_pipeline.py) ─────────
+  # Higher floor: real transcript segments should be substantive speech.
+  # Lower than tweet count because we're counting segment words, not tweet words.
+  youtube_long_heuristic:
+    # Minimum words in a transcript segment to advance to Layer 2 + LLM.
+    # 40 words ≈ ~20 seconds of normal speech — weeds out music breaks,
+    # "thanks for watching" outros, and silent or noise-only segments.
+    min_segment_words: 40

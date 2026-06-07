@@ -18,6 +18,10 @@ qdrant-client>=1.12,<2.0
 celery>=5.4,<6.0
 redis>=5.2,<6.0
 
+# ─── Unified CLI ──────────────────────────────────────────────────────────
+# Typer [all] = typer core + rich (coloured output) + shellingham (shell detect).
+typer[all]>=0.12,<1.0
+
 # ─── Harvester engine (Chặng 0) ───────────────────────────────────────────
 httpx>=0.27,<0.29
 PyYAML>=6.0,<7.0
@@ -29,3 +33,6 @@ playwright>=1.47,<2.0
 twscrape>=0.14,<1.0
 # yt-dlp — video metadata extraction and optional download (YouTube Shorts, X videos).
 yt-dlp>=2024.1,<2026.0
+# youtube-transcript-api — fetches real subtitles/transcripts via YouTube's timedtext API.
+# Used by the youtube_long plugin; much lighter than yt-dlp subtitle download.
+youtube-transcript-api>=0.6,<1.0

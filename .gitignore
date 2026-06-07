@@ -16,6 +16,10 @@ env/
 .env.*
 !.env.example
 
+# Harvester config — real cookies are secrets, never commit
+config/yt_cookies.txt
+!config/yt_cookies.txt.example
+
 # Tooling caches
 .pytest_cache/
 .mypy_cache/

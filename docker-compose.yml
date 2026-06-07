@@ -71,12 +71,14 @@ services:
     networks:
       - core_net
     volumes:
-      # The 3-layer filter (run_filter_pipeline.py) reads the harvested Raw
-      # Data Lake + the filter thresholds in scraper_config.yaml. Mounting both
-      # lets `docker compose run --rm --no-deps core-api python run_filter_pipeline.py`
-      # work out-of-the-box — no manual -v needed.
-      - ./scraper_config.yaml:/app/scraper_config.yaml:ro
+      # The 3-layer filter reads raw data + thresholds in config/scraper_config.yaml.
+      # Run via: docker compose run --rm --no-deps core-api python cli.py filter
+      - ./config/scraper_config.yaml:/app/config/scraper_config.yaml:ro
       - ./raw_data_lake:/app/raw_data_lake
+      # YouTube cookies (optional). Export from Chrome via "Get cookies.txt LOCALLY"
+      # extension → save as config/yt_cookies.txt. Set YT_COOKIES_FILE=/app/config/yt_cookies.txt
+      # in .env to activate. Without this the container IP may get 403 on transcripts.
+      - ./config/yt_cookies.txt:/app/config/yt_cookies.txt
 
   # ── Harvester (Chặng 0) — autonomous data acquisition ─────────────────
   # One-shot manual test run:
@@ -88,18 +90,20 @@ services:
       dockerfile: Dockerfile.harvester   # ships Chromium for Playwright plugins
     container_name: core-harvester
     profiles: ["harvester"]
-    command: ["python", "run_harvester.py"]
+    command: ["python", "cli.py", "harvest"]
     env_file:
       - .env
     environment:
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
-      HARVESTER_CONFIG_PATH: /app/scraper_config.yaml
+      HARVESTER_CONFIG_PATH: /app/config/scraper_config.yaml
       RAW_DATA_LAKE_PATH: /app/raw_data_lake/texts
     volumes:
       # Live-editable source registry (no rebuild to change targets).
-      - ./scraper_config.yaml:/app/scraper_config.yaml:ro
+      - ./config/scraper_config.yaml:/app/config/scraper_config.yaml:ro
       # Persist harvested raw JSON onto the host for inspection.
       - ./raw_data_lake:/app/raw_data_lake
+      # YouTube cookies — same file as core-api (see note above).
+      - ./config/yt_cookies.txt:/app/config/yt_cookies.txt
     networks:
       - core_net

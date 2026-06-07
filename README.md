@@ -102,13 +102,12 @@ The domain core depends on nothing; the outside world plugs in through ports. Yo
 n-assistant-core/
 ├── app/
 │   ├── domain/                  # Pure business entities & ports — zero framework deps
-│   ├── application/             # Use cases + content_filter_pipeline (3-layer clean)
+│   ├── application/             # Use cases + filter pipelines (3-layer anti-spam)
 │   ├── infrastructure/
 │   │   └── harvester/           # engine.py · extractors/plugins/ (X, YouTube…) · filters/
 │   └── api/                     # Driving adapter: FastAPI routers, schemas, DI wiring
+├── cli.py                       # ★ Unified CLI — single entry point for all harvest ops
 ├── scraper_config.yaml          # Harvester sources + filter thresholds — zero-hardcode
-├── run_harvester.py             # Stage 1 — scrape enabled sources → Raw Data Lake
-├── run_filter_pipeline.py       # Stage 2 — 3-layer anti-spam filter → approved.json
 ├── raw_data_lake/               # Per-tenant landing zone: texts/ (raw) + filtered/ (clean)
 ├── docker-compose.yml           # redis + qdrant + core-api (+ harvester profile)
 ├── Dockerfile · Dockerfile.harvester   # core-API image · Chromium image for plugins
@@ -164,17 +163,47 @@ That's it — a full local AI engine on `http://localhost:8000`.
 | Qdrant (vector DB) | http://localhost:6333 |
 | Redis (broker) | localhost:6379 |
 
-**Run the data pipeline** — two decoupled stages, harvest then clean:
+📖 **[HARVESTER_GUIDE.md](./HARVESTER_GUIDE.md)** — Phase 1 deep-dive: plugin architecture, CLI reference, how to add a new scraper in 30 minutes.
+
+**Run the data pipeline** — harvest then filter, via the unified CLI:
 
 ```bash
-# 1) Harvest — scrape every enabled source in scraper_config.yaml → Raw Data Lake
-docker compose --profile harvester run --rm --build harvester
+# Show all registered plugins + their on/off status in scraper_config.yaml
+python cli.py list-plugins
 
-# 2) Clean — run the 3-layer anti-spam filter → raw_data_lake/filtered/approved.json
-docker compose run --rm --no-deps core-api python run_filter_pipeline.py
+# Harvest: scrape every enabled source → Raw Data Lake
+python cli.py harvest
+
+# Harvest a single named source (dry-run first to preview)
+python cli.py harvest --source yt-long-matt-wolfe --dry-run
+python cli.py harvest --source yt-long-matt-wolfe
+
+# Harvest all sources of one plugin type, capping items at 5 each
+python cli.py harvest --type youtube_long --limit 5
+
+# Filter: run the 3-layer anti-spam pipeline over all harvested data
+python cli.py filter
+
+# Filter only YouTube Long Video segments
+python cli.py filter --type youtube_long
 ```
 
+Run `python cli.py --help` or `python cli.py <command> --help` to see all options.
+
 > **Layer 3 calls an LLM**, so set `INFERENCE_PROVIDER` / `INFERENCE_BASE_URL` / `INFERENCE_MODEL` / `INFERENCE_API_KEY` in `.env` first — Gemini, OpenAI, or local Ollama (any OpenAI-compatible endpoint). Layers 1–2 are CPU-only and run without a key.
+
+<details>
+<summary>Docker alternative (full stack)</summary>
+
+```bash
+# Harvest inside Docker (Chromium-enabled image)
+docker compose --profile harvester run --rm --build harvester
+
+# Filter inside Docker
+docker compose run --rm --no-deps core-api python cli.py filter
+```
+
+</details>
 
 ---
 

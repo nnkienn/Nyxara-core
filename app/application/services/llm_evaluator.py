@@ -26,7 +26,7 @@ from app.core.llm_client import LLMClientBase
 
 logger = structlog.get_logger(__name__)
 
-BATCH_SIZE = 10  # tweets per LLM call — tune down if model struggles with format
+BATCH_SIZE = 3  # 3 items/call ≈ 1200 tokens — safe within Gemini free TPM limit
 
 # ── Prompts ───────────────────────────────────────────────────────────────────
 

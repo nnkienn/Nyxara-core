@@ -1,4 +1,4 @@
-"""Layer 1 — Heuristic filter (skills/heuristic_filter).
+"""Layer 1 — X (Twitter) heuristic filter.
 
 CRITICAL PERFORMANCE RULE
   This filter runs FIRST — before any thread-fetch network call and before the
@@ -7,8 +7,8 @@ CRITICAL PERFORMANCE RULE
   Never reorder these layers: the expensive LLM call must never be wasted on
   a tweet that a 2 ms regex check would have rejected.
 
-Thresholds come from ``filter_config.heuristic`` in scraper_config.yaml so
-they can be adjusted without touching code (zero-hardcode rule).
+Thresholds come from ``filter_config.heuristic`` in config/scraper_config.yaml
+so they can be adjusted without touching code (zero-hardcode rule).
 
 Public API
 ----------
@@ -44,6 +44,7 @@ def is_clean_tweet(tweet_text: str, config: dict) -> bool:
       2. Word count floor — one split()
       3. Hashtag count cap — regex findall
       4. Mention count cap — regex findall
+      5. CTA spam detection — compiled regex search
 
     Args:
         tweet_text: Raw tweet content (before any cleaning).
@@ -62,29 +63,21 @@ def is_clean_tweet(tweet_text: str, config: dict) -> bool:
 
     stripped = tweet_text.strip()
 
-    # 1. Reject @-reply openers — these are directed at an individual, not
-    #    broadcast content, and almost never make standalone video scripts.
     if stripped.startswith("@"):
         return False
 
-    # 2. Word count floor — weeds out one-liners, emoji-only posts, and the
-    #    classic engagement-bait ("What do you think? 👇").
     word_count = len(stripped.split())
     if word_count < min_words:
         return False
 
-    # 3. Hashtag cap — spam systematically stacks hashtags (5+ is a strong signal).
     hashtag_count = len(_HASHTAG_RE.findall(stripped))
     if hashtag_count > max_hashtags:
         return False
 
-    # 4. Mention cap — threads that mass-mention handles are almost always
-    #    replies or shoutouts, not high-value standalone content.
     mention_count = len(_MENTION_RE.findall(stripped))
     if mention_count > max_mentions:
         return False
 
-    # 5. CTA spam detection — "Join our Discord", "GM!", "link in bio", etc.
     if _CTA_SPAM_RE.search(stripped):
         return False
 
