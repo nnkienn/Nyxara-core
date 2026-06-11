@@ -13,6 +13,7 @@ networks:
 volumes:
   qdrant_data:
   redis_data:
+  hf_cache:        # bge-m3 weights (~4.5GB) — downloaded ONCE, reused across runs
 
 services:
   # ── Redis — cache & Celery broker ──────────────────────────────────────
@@ -33,7 +34,7 @@ services:
 
   # ── Qdrant — vector database ───────────────────────────────────────────
   qdrant:
-    image: qdrant/qdrant:v1.8.4
+    image: qdrant/qdrant:v1.12.4
     container_name: core-qdrant
     ports:
       - "6353:6333"   # REST
@@ -113,5 +114,33 @@ services:
       - ./raw_data_lake:/app/raw_data_lake
       # YouTube cookies — same file as core-api (see note above).
       - ./config/yt_cookies.txt:/app/config/yt_cookies.txt
+    networks:
+      - core_net
+
+  # ── RAG ingest (Phase 2) — one-shot: chunk + embed approved JSON → Qdrant ──
+  # Reuses the core-api image (it already installs FlagEmbedding + ships cli.py).
+  # First run downloads bge-m3 (~4.5GB) into the hf_cache volume — once, not per run.
+  #   docker compose --profile rag build ingest          # build image (installs torch)
+  #   docker compose --profile rag run --rm ingest        # ingest all approved JSON
+  #   docker compose --profile rag run --rm ingest python cli.py search "AI agents"
+  ingest:
+    image: n-assistant-core-api:local-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: core-ingest
+    profiles: ["rag"]                 # opt-in: never auto-starts on `compose up`
+    command: ["python", "cli.py", "ingest"]
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: http://qdrant:6333  # service name on core_net (NOT localhost:6353)
+      HF_HOME: /root/.cache/huggingface
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./raw_data_lake:/app/raw_data_lake          # reads filtered/approved.json
+      - hf_cache:/root/.cache/huggingface           # model cache persists here
     networks:
       - core_net

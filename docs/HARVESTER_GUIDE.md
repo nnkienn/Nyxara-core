@@ -1,6 +1,6 @@
-# Harvester Guide — Phase 1: Data Acquisition Engine
+# Harvester Guide — Phase 0: Data Acquisition Engine
 
-> **Scope:** This guide covers **only Phase 1 (Harvester)**. RAG, Qdrant, agents, and publishing are out of scope.
+> **Scope:** This guide covers **only Phase 0 (Harvester / Foundation)**. RAG, Qdrant, agents, and publishing are out of scope.
 >
 > 🌐 **English** · 🇻🇳 [Tiếng Việt](./HARVESTER_GUIDE.vi.md)
 

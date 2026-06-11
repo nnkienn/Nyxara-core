@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     INFERENCE_API_KEY: str = "ollama"
 
     # ── Vector DB (Qdrant) ──────────────────────────────────────────────
-    QDRANT_URL: str = "http://localhost:6353"
+    QDRANT_URL: str = "http://localhost:6333"
 
     # ── Cache / Broker (Redis) ──────────────────────────────────────────
     REDIS_URL: str = "redis://localhost:6399/0"

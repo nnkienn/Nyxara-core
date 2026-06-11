@@ -1,28 +1,30 @@
 <!--
 ═══════════════════════════════════════════════════════════════════════════
-🟢 REPO SCOPE BANNER — n-assistant-core (MIT · OPEN-SOURCE)
+🟢 REPO SCOPE BANNER — n-assistant-core (MIT · OPEN-SOURCE · SINGLE REPO)
 ═══════════════════════════════════════════════════════════════════════════
-The Multi-Agent System described here IS the heart of THIS open-source repo —
-Supervisor, Researcher, Creator, Critic, Publisher, the tool registry and the
-LangGraph state machine all live in n-assistant-core under `app/`.
+The Multi-Agent System described here IS the heart of this open-source repo —
+Supervisor, Researcher, Creator, Critic, Publisher (and, from Phase 5–6, the
+Visual Director and Video Producer), the tool registry and the LangGraph state
+machine all live in n-assistant-core under `app/`.
 
-Boundary reminders binding in THIS repo:
+Reminders binding in this repo:
   • Agents call LLMs ONLY through `LLMClientBase` — never `openai.*` directly.
-  • NO billing/credit-debit logic, NO auth/user-management, NO SaaS dashboard
-    code here. Token counting emits usage metadata; the actual wallet debit
-    (TenantCredits / Stripe) happens in n-assistant-cloud.
-  • `tenant_id` arrives via the REST/WebSocket API from cloud; core trusts and
-    enforces it but does NOT manage tenant identity/auth itself.
+  • This is a LEARNING engine, not a SaaS: NO billing/credit logic, NO user
+    auth/management, NO admin dashboard. Token counting emits usage metadata
+    for observability only — there is no wallet to debit.
+  • `tenant_id` is a NAMESPACE selecting which niche's data/style apply. The
+    engine enforces it on every DB/Vector path; it does NOT manage user
+    identity or login.
 
 See [`../rules/tech-stack-rule.md`](../rules/tech-stack-rule.md).
 ═══════════════════════════════════════════════════════════════════════════
 -->
 
-# 🧠 ORCHESTRATION & AI AGENT DESIGN — N Assistant V2.0
+# 🧠 ORCHESTRATION & AI AGENT DESIGN — N-Assistant Core (V3.0)
 
-> **DOCUMENT PURPOSE:** Defines the Multi-Agent System (MAS) architecture, agent profiles, tool registry, and execution workflow for N Assistant.
-> **FRAMEWORK:** LangGraph (state-machine graph) atop FastAPI orchestrator, calling `LLMClientBase` engines.
-> **COMPANION DOCS:** [`../docs/product-requirements.md`](../docs/product-requirements.md) · [`../rules/tech-stack-rule.md`](../rules/tech-stack-rule.md).
+> **DOCUMENT PURPOSE:** Defines the Multi-Agent System (MAS) architecture, agent profiles, tool registry, and execution workflow for N-Assistant Core.
+> **FRAMEWORK:** LangGraph (state-machine graph) atop the FastAPI orchestrator, calling `LLMClientBase` engines.
+> **COMPANION DOCS:** [`product-requirements.md`](product-requirements.md) · [`../rules/tech-stack-rule.md`](../rules/tech-stack-rule.md).
 
 ---
 
@@ -75,6 +77,8 @@ graph TD
 
 Implementation: LangGraph state machine. Each agent is a node, edges are conditional routes the Supervisor picks based on the state.
 
+> **Growth path (Phase 5–6).** When the Visual & Character Engine lands, the graph gains two nodes: a **Visual Director** (turns the approved script into `{visual_prompt, style, scene}` JSON + drives ComfyUI/SDXL/ControlNet with a consistent character) and a **Video Producer** (image/text→video, TTS voice-clone, ffmpeg auto-edit). A **Domain Router** in front of the Supervisor selects the niche namespace + prompt/visual style. These are documented in §3.6–3.7 and slot in without changing the existing nodes' contracts.
+
 ---
 
 ## §3. Agent Roles
@@ -118,9 +122,26 @@ Implementation: LangGraph state machine. Each agent is a node, edges are conditi
 
 - **Goal:** Push the approved asset to the requested platforms.
 - **Tools:** `publish_to_platform(tenant_id, asset_id, platform, schedule_at)`.
-- **Side effects:** triggers Playwright auto-upload Celery job; updates `posts` table; emits WebSocket event to dashboard.
-- **Forbidden:** content modification; reading other tenants' sessions; making LLM calls.
+- **Side effects:** triggers Playwright auto-upload Celery job; updates the local `posts` run history; emits a WebSocket/log run event.
+- **Forbidden:** content modification; reading another namespace's sessions; making LLM calls.
 - **LLM tier:** none — Publisher is a deterministic tool-runner, not a reasoning agent.
+
+### §3.6 Visual Director — *Phase 5–6, not yet implemented*
+
+- **Goal:** turn the approved script into a visual plan and concrete imagery, with a **consistent character** across scenes.
+- **Tools:** `generate_visual_plan` (emits `{visual_prompt, style, scene}` JSON), `comfyui_run(workflow, params)` driving SDXL/Flux + ControlNet + IP-Adapter/FaceID + a character LoRA.
+- **Discipline:** the visual plan must trace back to the script (no inventing scenes the script never described). Character identity is pinned by the niche's character LoRA / FaceID reference.
+- **Forbidden:** rewriting the script; publishing.
+- **LLM tier:** Tier-1 for the plan; the diffusion work runs on the ComfyUI backend.
+
+### §3.7 Video Producer — *Phase 5–6, not yet implemented*
+
+- **Goal:** assemble the final video from generated imagery.
+- **Tools:** `image_to_video` / `text_to_video` (local models), `tts_clone(script, voice)` (XTTS/CosyVoice), `lip_sync`, `ffmpeg_edit` (subtitles, trend music, transitions).
+- **Forbidden:** content/script changes; publishing (hands the finished asset back to the Supervisor → Publisher).
+- **LLM tier:** none — deterministic media pipeline driven by the plan.
+
+> A **Domain Router** sits in front of the Supervisor: given a niche (e.g. "Game AI"), it selects the retrieval namespace, prompt style, and visual style for the whole run.
 
 ---
 
@@ -163,10 +184,10 @@ class PublishToPlatformInput(BaseModel):
 |---|---|---|
 | Per-turn agent state | LangGraph state object in memory | Lifetime of the request |
 | Per-task scratchpad | LangGraph state + Redis snapshot for resume | 24h |
-| Per-tenant long-term memory | Qdrant (tenant-filtered) | Permanent |
-| Per-tenant brand voice / policy | Postgres `tenant_voice_profile` table | Permanent |
-| Per-user session | JWT + `auth_sessions` row | 30d |
-| Audit trail | `audit_log` table partitioned by `tenant_id` | 7y (compliance) |
+| Per-niche long-term memory | Qdrant (namespace-filtered by `tenant_id`) | Permanent |
+| Per-niche voice / style profile | Local config / Postgres `niche_voice_profile` table | Permanent |
+| Per-niche publishing session | Encrypted (AES-256) session vault | Until expiry |
+| Run history / audit trail | Local `run_log` table keyed by `tenant_id` + `run_id` | Kept locally |
 
 Resumability: every Supervisor decision boundary checkpoints to Redis with a `run_id`. A crashed run can be resumed from the last checkpoint without re-paying upstream token costs.
 
@@ -179,7 +200,7 @@ Resumability: every Supervisor decision boundary checkpoints to Redis with a `ru
 | Worker tool raises | Bubble to Supervisor; Supervisor decides retry vs escalate. **Never** swallow with bare `except`. |
 | Critic FAIL | Loop back to Creator with `suggested_edits`. Max 3 cycles. |
 | LLM rate limit | Exponential backoff + tier fallback (Cloud → Local). Logged. |
-| Publisher Playwright failure | Mark job failed in DB; surface to dashboard; do **not** retry blindly (risks platform spam-detection). |
+| Publisher Playwright failure | Mark job failed in the run log; surface it to the CLI/logs; do **not** retry blindly (risks platform spam-detection). |
 | Vector DB timeout | Researcher returns empty context bundle with `degraded=true`; Critic refuses to pass any draft built on degraded context. |
 
 **Idempotency keys** (`(tenant_id, run_id, step_id)`) on every Publisher call so a retry never double-posts.
@@ -211,8 +232,8 @@ Resumability: every Supervisor decision boundary checkpoints to Redis with a `ru
 
 ## §9. Future Roles (Not Yet Implemented)
 
-Documented here so the system knows where they slot in when added. Implementation requires RFC + update of §3.
+Documented here so the system knows where they slot in when added. Adding one requires updating §3.
 
-- **Analyst** — post-publication: pull engagement metrics, feed back into Researcher's "what worked" memory per tenant.
-- **Negotiator** — for brand-collab tenants: draft pitch DMs / email outreach with guardrails.
-- **A/B Director** — split test variants of the same asset across audience segments and reconcile winners.
+- **Visual Director / Video Producer** — see §3.6–3.7 (Phase 5–6).
+- **Analyst** — post-publication: pull engagement metrics, feed back into the Researcher's "what worked" memory per niche.
+- **A/B Director** — split-test variants of the same asset across audience segments and reconcile winners.

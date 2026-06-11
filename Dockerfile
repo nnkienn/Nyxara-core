@@ -14,8 +14,9 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy application code
 COPY app ./app
 
-# Harvester (Chặng 0): default source registry + manual test runner
-COPY scraper_config.yaml run_harvester.py run_filter_pipeline.py run_yt_filter_pipeline.py run_yt_long_filter_pipeline.py ./
+# Config (source registry + filter thresholds) and the unified CLI entry point
+COPY config ./config
+COPY cli.py ./
 
 EXPOSE 8000
 

@@ -15,6 +15,11 @@ Usage
 
     python cli.py list-plugins                         # registry + config status
     python cli.py list-plugins --verbose               # include option details
+
+    python cli.py ingest                               # embed all approved JSON → Qdrant
+    python cli.py ingest --file raw_data_lake/filtered/approved.json
+    python cli.py search "AI coding assistant"         # query the vector memory
+    python cli.py search "..." --tenant tenant_demo --top-k 5
 """
 
 from __future__ import annotations
@@ -238,6 +243,90 @@ def cmd_list_plugins(
                 typer.echo(f"           {typer.style(k, fg=typer.colors.BRIGHT_BLACK)}: {display}")
 
     typer.echo("")
+
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  ingest   (Phase 2 — Vector Memory)                                      ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+@app.command("ingest")
+def cmd_ingest(
+    file: Optional[str] = typer.Option(
+        None, "--file", "-f",
+        help="One approved JSON file. Default: every file in raw_data_lake/filtered/.",
+        show_default=False,
+    ),
+    collection: str = typer.Option(
+        "memory", "--collection", "-c", help="Qdrant collection name.",
+    ),
+    tenant: str = typer.Option(
+        "tenant_demo", "--tenant", "-t",
+        help="Namespace fallback for items missing tenant_id. MUST match `search --tenant`.",
+    ),
+) -> None:
+    """Chunk → embed (bge-m3) → upsert approved JSON into Qdrant."""
+    # Lazy imports: BGEEmbedder pulls torch (~GB) and loads the model. Pay that
+    # cost ONLY when this command runs — never on `python cli.py --help`.
+    from app.application.services.ingestion import IngestionService
+    from app.infrastructure.adapters.bge_embedder import BGEEmbedder
+    from app.infrastructure.adapters.qdrant_store import QdrantStore
+
+    files = [Path(file)] if file else list(_FILTER_OUTPUTS.values())
+    files = [f for f in files if f.exists()]
+    if not files:
+        typer.echo(typer.style("[error] No approved JSON found to ingest.", fg=typer.colors.RED))
+        raise typer.Exit(1)
+
+    typer.echo("→ Loading bge-m3 (first run downloads ~4.5GB) ...")
+    # ── THE EDGE (composition root): concrete adapters are built HERE and
+    #    injected into the service. The service itself stays backend-agnostic.
+    service = IngestionService(BGEEmbedder(), QdrantStore())
+
+    total = 0
+    for f in files:
+        n = service.ingest_file(f, collection=collection, tenant_id=tenant)
+        typer.echo(f"   {f.name:<30} → {n} chunk(s)")
+        total += n
+    typer.echo(typer.style(
+        f"\n✅ Ingested {total} chunk(s) into '{collection}' (tenant={tenant})",
+        fg=typer.colors.GREEN,
+    ))
+
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  search   (Phase 2 — Vector Memory)                                      ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+@app.command("search")
+def cmd_search(
+    query: str = typer.Argument(..., help="The question to search the memory for."),
+    collection: str = typer.Option("memory", "--collection", "-c"),
+    tenant: str = typer.Option("tenant_demo", "--tenant", "-t", help="Namespace to search within."),
+    top_k: int = typer.Option(5, "--top-k", "-k", help="How many results to return."),
+) -> None:
+    """Search the vector memory: embed the query → nearest chunks in the namespace."""
+    from app.infrastructure.adapters.bge_embedder import BGEEmbedder
+    from app.infrastructure.adapters.qdrant_store import QdrantStore
+
+    embedder = BGEEmbedder()
+    store = QdrantStore()
+
+    # Embed ONLY the query (1 text) — never re-embed the corpus. That's the
+    # payoff of storing the vectors: ingest once, search cheaply many times.
+    vector = embedder.embed([query])[0]
+    hits = store.search(collection, vector, tenant_id=tenant, top_k=top_k)
+
+    if not hits:
+        typer.echo(typer.style(
+            "No results — empty collection, or --tenant doesn't match the ingested namespace?",
+            fg=typer.colors.YELLOW,
+        ))
+        return
+
+    typer.echo(f"\n→ Top {len(hits)} for {query!r}\n")
+    for h in hits:
+        text = (h.payload.get("text") or "").replace("\n", " ")[:80]
+        typer.echo(f"  {typer.style(f'{h.score:.4f}', fg=typer.colors.GREEN)}  {text}...")
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────

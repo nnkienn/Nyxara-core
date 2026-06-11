@@ -1,6 +1,6 @@
-# Hướng dẫn Harvester — Chặng 1: Động cơ Thu thập Dữ liệu
+# Hướng dẫn Harvester — Chặng 0: Động cơ Thu thập Dữ liệu
 
-> **Phạm vi:** Hướng dẫn này chỉ nói về **Chặng 1 (Harvester)**. RAG, Qdrant, agent và phần xuất bản nằm ngoài phạm vi.
+> **Phạm vi:** Hướng dẫn này chỉ nói về **Chặng 0 (Harvester / Nền móng)**. RAG, Qdrant, agent và phần xuất bản nằm ngoài phạm vi.
 >
 > 🌐 [English](./HARVESTER_GUIDE.md) · 🇻🇳 **Tiếng Việt**
 

@@ -36,3 +36,10 @@ yt-dlp>=2024.1,<2026.0
 # youtube-transcript-api — fetches real subtitles/transcripts via YouTube's timedtext API.
 # Used by the youtube_long plugin; much lighter than yt-dlp subtitle download.
 youtube-transcript-api>=0.6,<1.0
+
+# ─── Embedding model for RAG (Phase 2) ────────────────────────────────────
+# FlagEmbedding serves BAAI/bge-m3. It pulls torch + transformers transitively,
+# so the image gets large (~GBs). The bge-m3 weights themselves are NOT baked in;
+# they download at runtime into a mounted HF cache volume (see docker-compose).
+FlagEmbedding>=1.2,<2.0
+numpy>=1.26,<3.0
