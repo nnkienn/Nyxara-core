@@ -117,6 +117,8 @@ Der **Critic ist der Burggraben**: Er prüft die Verankerung, bevor ein Entwurf 
 
 Der Domain-Kern hängt von nichts ab; die Außenwelt steckt sich über Ports ein. Du kannst Qdrant, die LLM-Engine oder das Web-Framework ersetzen, ohne die Geschäftslogik anzufassen.
 
+> **Core vs. SaaS-Schicht.** Dieses Repo ist das **reine, MIT-lizenzierte, nischenagnostische KI-Gehirn** — bewusst *ohne* Billing, Auth oder Kundenkonten (`tenant_id` ist ein Namespace, kein Kunde). Jede Produktivierung (Auth, Billing, Dashboard, API-Gateway, kundenbezogenes Metering) gehört in eine **separate Schicht, die die HTTP-API dieser Engine aufruft** und jeden *Kunden → tenant_id-Namespace* abbildet. Das Gehirn bleibt fork- und lernbar; die kommerzielle Hülle sickert nie hinein.
+
 ```
 n-assistant-core/
 ├── app/
@@ -166,8 +168,9 @@ Die Phasen sind so geordnet, dass jede eine Schicht des Stacks von Grund auf leh
 | **2. Vektor-Gedächtnis** | CORE | Chunking + `bge-m3` + Qdrant + Multi-Namespace | Embedding-Mathematik, Cosinus-Ähnlichkeit **von Hand**, Namespace-Isolation | ✅ Fertig |
 | **3. Advanced RAG + Eval** | CORE | Das volle Retrieval-Gehirn — **siehe Deep-Dive-Tabelle unten** — plus gemessene Evaluation (RAGAS + A/B) fest eingebaut | RRF- & Rerank-Mathematik, Query↔Doc-Raum, Chunk-Granularität, Token-Budget, Graph-Workflows, *messen, ob jede Technik hilft* | ⏳ In Arbeit |
 | **4. Fine-tuning** | CORE | **LoRA** auf `Qwen2.5-7B` · GGUF-Merge · Multi-Domain-Dataset · **Embedding-/Domain-Fine-tuning** | Low-Rank-Update-Mathematik, Quantisierung, Dataset- & Embedding-Tuning-Design | ⏳ Geplant |
-| **5. Agentic Orchestrator** | CORE | LangGraph-Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **Human-in-the-Loop-Review** · Domain-Router | Multi-Agent-Design, Grounding & Anti-Halluzination, HITL-Workflows, Nischen-Routing | ⏳ Geplant |
-| **6. Production, MLOps & Eval** | CORE | Voller Docker-Stack · Monitoring/Logging (LangFuse, Prometheus + Grafana) · `config.yaml` · CI/CD-Retrain · Experiment-Tracking (W&B / MLflow) · Versionierung (DVC / HF Hub) | Observability, reproduzierbares ML, schweres MLOps | ⏳ Geplant |
+| **5. Agentic Orchestrator** | CORE | LangGraph-Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **Human-in-the-Loop-Review** · Domain-Router · **strukturierte/constrained Tool-Ausgabe** · **Intent-Triage** · **Multi-Turn-Gedächtnis** · **Abstention** | Multi-Agent-Design, Grounding & Anti-Halluzination, HITL-Workflows, Nischen-Routing | ⏳ Geplant |
+| **5.5 Safety & Guardrails** | CORE | **Prompt-Injection-Abwehr** · **PII-Redaction** · Toxizitäts-**Moderation** (Ein-/Ausgang) · **Red-Teaming** · Output-Guardrail-Framework · Graceful Degradation · Cost-/Rate-Guard | Härtung eines LLM, das ungeprüfte Nutzer-Kommentare aufnimmt | ⏳ Geplant |
+| **6. Production, MLOps & Eval** | CORE | Voller Docker-Stack · Monitoring/Logging (LangFuse, Prometheus + Grafana) · **Daten-Lebenszyklus** (Vektor-CRUD/Delete/Sync, Dedup, **Embedding-Migration**) · **Eval-at-Scale** (Online-Eval, Golden-/Regression-Sets, Prompt-Versionierung, LLM-Judge-Kalibrierung) · CI/CD-Retrain · Experiment-Tracking (W&B / MLflow) · Versionierung (DVC / HF Hub) | Observability, reproduzierbares ML, eine KB über die Zeit korrekt halten, schweres MLOps | ⏳ Geplant |
 | **7. Community & Erweiterbarkeit** | CORE | Nischen-Templates (Seller-Affiliate, Beauty, Tech…) · Plugin-Architektur (Scraper / LLM-Client) · Beispielprojekte | OSS-Erweiterbarkeit, Plugin-Design | ⏳ Geplant |
 | **★ Visual & Character Engine** | **OPTIONAL** | ComfyUI + IP-Adapter / FaceID + Character-LoRA · Flux/SDXL + ControlNet · Image/Text→Video · Lip-Sync + TTS-Clone (XTTS/CosyVoice) · ffmpeg-Auto-Edit | Konsistenztechniken, Diffusionssteuerung, Video-Pipeline | 🧩 Add-on · braucht GPU |
 
@@ -186,6 +189,9 @@ Der ganze Sinn von Phase 3 ist, jede Technik **von Hand** zu bauen (reines Pytho
 | **Context Compression** | abgerufene Chunks auf nur die antwortenden Sätze trimmen | Rauschen schneiden; Token-Budget-Management auf einem kleinen lokalen LLM |
 | **Metadaten-Filterung** (Vektor + Filter) | auf das richtige Produkt / die richtige Preisspanne *vor* der semantischen Suche filtern | strukturierten Filter + Vektorsuche kombinieren — **live im Comment Assistant genutzt** |
 | **Semantic Chunking** | nach Bedeutung teilen, nicht nach fester Länge | wie Chunk-Granularität die Retrieval-Qualität formt |
+| **MMR** (Retrieval-Diversität) | ein Top-k aus Beinahe-Duplikaten vermeiden | Maximal Marginal Relevance; mehr Facetten einer Query abdecken |
+| **Temporal / Freshness-aware** Retrieval | Aktualität gewichten, nicht nur Relevanz — veralteter Chunk = Müll, auch wenn thematisch passend | Time-Decay-Scoring; ein Per-Nische-Flag (Finanz/News an, stabiles Wissen aus) |
+| **Context-Window-Budgeting** | Kontext ordnen & trimmen, damit er ins Fenster passt | das „Lost in the Middle"-Problem; was behalten, wenn der Platz knapp wird |
 | **Evaluation** (RAGAS + Custom + A/B) | Faithfulness, Answer Relevancy, Context Precision/Recall | **ob Rerank / CRAG / Rewrite wirklich verbessern** — von „viel später" nach *jetzt* gezogen |
 
 Jede Technik ist ein **Per-Query-Flag**, standardmäßig aus, sodass du *mit* vs *ohne* A/B-testen und die Metriken lesen kannst. Schweres MLOps (LangFuse/Prometheus/Grafana, CI/CD-Retrain) bleibt in Phase 6 — nur die **Basis-Eval (RAGAS + A/B-Vergleich)** kommt nach Phase 3.

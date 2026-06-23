@@ -117,6 +117,8 @@ The **Critic is the moat**: it verifies grounding before a draft reaches the hum
 
 The domain core depends on nothing; the outside world plugs in through ports. You can replace Qdrant, the LLM engine, or the web framework without touching business logic.
 
+> **Core vs. a SaaS layer.** This repo is the **pure, MIT, niche-agnostic AI brain** — deliberately *no* billing, auth, or customer accounts (`tenant_id` is a namespace, not a customer). Any productization (auth, billing, dashboard, API gateway, per-customer metering) belongs in a **separate layer that calls this engine's HTTP API** and maps each *customer → tenant_id namespace*. The brain stays forkable and learnable; the commercial shell never leaks into it.
+
 ```
 n-assistant-core/
 ├── app/
@@ -166,8 +168,9 @@ The phases are ordered so each one teaches a layer of the stack from scratch. St
 | **2. Vector Memory** | CORE | Chunking + `bge-m3` + Qdrant + multi-namespace | Embedding math, cosine similarity **by hand**, namespace isolation | ✅ Done |
 | **3. Advanced RAG + Eval** | CORE | The full retrieval brain — **see the deep-dive table below** — plus measured evaluation (RAGAS + A/B) baked in | RRF & rerank math, query↔doc space, chunk granularity, token budgeting, graph workflows, *measuring whether each technique helps* | ⏳ In progress |
 | **4. Fine-tuning** | CORE | **LoRA** on `Qwen2.5-7B` · GGUF merge · multi-domain dataset · **embedding/domain fine-tuning** | Low-rank update math, quantization, dataset & embedding-tuning design | ⏳ Planned |
-| **5. Agentic Orchestrator** | CORE | LangGraph Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **human-in-the-loop review** · domain router | Multi-agent design, grounding & anti-hallucination, HITL workflows, niche routing | ⏳ Planned |
-| **6. Production, MLOps & Eval** | CORE | Full Docker stack · monitoring/logging (LangFuse, Prometheus + Grafana) · `config.yaml` · CI/CD retrain · experiment tracking (W&B / MLflow) · versioning (DVC / HF Hub) | Observability, reproducible ML, heavy MLOps | ⏳ Planned |
+| **5. Agentic Orchestrator** | CORE | LangGraph Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **human-in-the-loop review** · domain router · **structured/constrained tool output** · **intent triage** · **multi-turn memory** · **abstention** | Multi-agent design, grounding & anti-hallucination, HITL workflows, niche routing | ⏳ Planned |
+| **5.5 Safety & Guardrails** | CORE | **Prompt-injection defense** · **PII redaction** · in/out **toxicity moderation** · **red-teaming** · output guardrail framework · graceful degradation · cost/rate guard | Hardening an LLM that ingests untrusted user comments | ⏳ Planned |
+| **6. Production, MLOps & Eval** | CORE | Full Docker stack · monitoring/logging (LangFuse, Prometheus + Grafana) · **data lifecycle** (vector CRUD/delete/sync, dedup, **embedding migration**) · **eval-at-scale** (online eval, golden/regression sets, prompt versioning, LLM-judge calibration) · CI/CD retrain · experiment tracking (W&B / MLflow) · versioning (DVC / HF Hub) | Observability, reproducible ML, keeping a KB correct over time, heavy MLOps | ⏳ Planned |
 | **7. Community & Extensibility** | CORE | Niche templates (seller-affiliate, beauty, tech…) · plugin architecture (scraper / LLM client) · example projects | Open-source extensibility, plugin design | ⏳ Planned |
 | **★ Visual & Character Engine** | **OPTIONAL** | ComfyUI + IP-Adapter / FaceID + character LoRA · Flux/SDXL + ControlNet · image/text→video · lip-sync + TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit | Consistency techniques, diffusion control, video pipeline | 🧩 Add-on · needs GPU |
 
@@ -186,6 +189,9 @@ The whole point of Phase 3 is to build each technique **by hand** (pure Python o
 | **Context Compression** | trim retrieved chunks to only the answering sentences | cutting noise; token-budget management on a small local LLM |
 | **Metadata filtering** (vector + filter) | filter to the right product / price band *before* semantic search | combining structured filter + vector search — **used live in the Comment Assistant** |
 | **Semantic chunking** | split by meaning, not fixed length | how chunk granularity shapes retrieval quality |
+| **MMR** (retrieval diversity) | avoid a top-k of near-duplicate chunks | maximal marginal relevance; covering more facets of a query |
+| **Temporal / freshness-aware** retrieval | weight recency, not just relevance — stale chunk = garbage even if on-topic | time-decay scoring; a per-niche flag (finance/news on, stable knowledge off) |
+| **Context-window budgeting** | order & trim context to fit the window | the "lost in the middle" problem; what to keep when space runs out |
 | **Evaluation** (RAGAS + custom + A/B) | faithfulness, answer relevancy, context precision/recall | **whether rerank / CRAG / rewrite truly improve** — pulled up from "much later" to *now* |
 
 Every technique is a **per-query flag**, default off, so you can A/B *with* vs *without* and read the metrics. Heavy MLOps (LangFuse/Prometheus/Grafana, CI/CD retrain) stays in Phase 6 — only the **basic eval (RAGAS + A/B comparison)** comes up to Phase 3.

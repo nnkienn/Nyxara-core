@@ -117,6 +117,8 @@ Chúng tôi **không** nhồi tất cả vào một prompt khổng lồ. Mỗi y
 
 Lõi domain không phụ thuộc gì cả; thế giới bên ngoài cắm vào qua các port. Bạn có thể thay Qdrant, engine LLM hay web framework mà không cần động đến logic nghiệp vụ.
 
+> **Core vs. lớp SaaS.** Repo này là **bộ não AI thuần, MIT, niche-agnostic** — cố ý *không có* billing, auth, hay tài khoản khách (`tenant_id` là namespace, không phải customer). Mọi việc thương mại hóa (auth, billing, dashboard, API gateway, đo dùng theo khách) thuộc về một **lớp riêng gọi vào HTTP API của engine này** và ánh xạ mỗi *customer → tenant_id namespace*. Bộ não giữ nguyên tính fork-được và học-được; vỏ thương mại không bao giờ rò vào trong.
+
 ```
 n-assistant-core/
 ├── app/
@@ -166,8 +168,9 @@ Các chặng được sắp xếp để mỗi chặng dạy bạn một tầng c
 | **2. Bộ nhớ Vector** | CORE | Chunking + `bge-m3` + Qdrant + đa namespace | Toán embedding, **tự tay** code cosine similarity, cô lập namespace | ✅ Xong |
 | **3. RAG Nâng cao + Eval** | CORE | Bộ não retrieval đầy đủ — **xem bảng chi tiết bên dưới** — kèm evaluation có đo lường (RAGAS + A/B) tích hợp sẵn | Toán RRF & rerank, không gian query↔doc, độ mịn chunk, quản lý token budget, graph workflow, *đo xem mỗi kỹ thuật có giúp ích không* | ⏳ Đang làm |
 | **4. Fine-tuning** | CORE | **LoRA** trên `Qwen2.5-7B` · merge GGUF · dataset đa domain · **fine-tune embedding/domain** | Toán cập nhật low-rank, lượng tử hóa, thiết kế dataset & tinh chỉnh embedding | ⏳ Dự kiến |
-| **5. Agentic Orchestrator** | CORE | LangGraph Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **người duyệt (human-in-the-loop)** · domain router | Thiết kế multi-agent, grounding & chống ảo giác, quy trình HITL, định tuyến theo niche | ⏳ Dự kiến |
-| **6. Production, MLOps & Eval** | CORE | Full Docker stack · monitoring/logging (LangFuse, Prometheus + Grafana) · `config.yaml` · CI/CD retrain · experiment tracking (W&B / MLflow) · versioning (DVC / HF Hub) | Observability, ML tái lập được, MLOps nặng | ⏳ Dự kiến |
+| **5. Agentic Orchestrator** | CORE | LangGraph Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **người duyệt (human-in-the-loop)** · domain router · **output tool có cấu trúc/ràng buộc** · **intent triage** · **bộ nhớ multi-turn** · **abstention** | Thiết kế multi-agent, grounding & chống ảo giác, quy trình HITL, định tuyến theo niche | ⏳ Dự kiến |
+| **5.5 Safety & Guardrails** | CORE | **Chống prompt-injection** · **PII redaction** · **moderation** độc hại vào/ra · **red-teaming** · framework guardrail output · graceful degradation · cost/rate guard | Gia cố một LLM ăn comment người dùng không tin được | ⏳ Dự kiến |
+| **6. Production, MLOps & Eval** | CORE | Full Docker stack · monitoring/logging (LangFuse, Prometheus + Grafana) · **vòng đời dữ liệu** (vector CRUD/delete/sync, dedup, **embedding migration**) · **eval-at-scale** (online eval, golden/regression set, prompt versioning, LLM-judge calibration) · CI/CD retrain · experiment tracking (W&B / MLflow) · versioning (DVC / HF Hub) | Observability, ML tái lập được, giữ KB đúng theo thời gian, MLOps nặng | ⏳ Dự kiến |
 | **7. Cộng đồng & Mở rộng** | CORE | Template niche (seller-affiliate, beauty, tech…) · kiến trúc plugin (scraper / LLM client) · dự án ví dụ | Khả năng mở rộng OSS, thiết kế plugin | ⏳ Dự kiến |
 | **★ Visual & Character Engine** | **OPTIONAL** | ComfyUI + IP-Adapter / FaceID + character LoRA · Flux/SDXL + ControlNet · image/text→video · lip-sync + TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit | Kỹ thuật nhất quán, điều khiển diffusion, pipeline video | 🧩 Add-on · cần GPU |
 
@@ -186,6 +189,9 @@ Cốt lõi của Chặng 3 là tự tay build từng kỹ thuật **bằng tay**
 | **Context Compression** | cắt chunk truy xuất chỉ còn câu trả lời | cắt nhiễu; quản lý token budget trên LLM local nhỏ |
 | **Metadata filtering** (vector + filter) | lọc đúng sản phẩm / khoảng giá *trước* semantic search | kết hợp lọc cấu trúc + vector search — **dùng thật trong Comment Assistant** |
 | **Semantic chunking** | cắt theo ngữ nghĩa, không theo độ dài cố định | độ mịn chunk định hình chất lượng retrieval thế nào |
+| **MMR** (đa dạng kết quả) | tránh top-k toàn chunk gần trùng nhau | maximal marginal relevance; bao phủ nhiều khía cạnh của một query |
+| **Temporal / freshness-aware** retrieval | cân độ mới, không chỉ độ liên quan — chunk cũ = rác dù đúng topic | time-decay scoring; flag theo niche (tài chính/news bật, kiến thức ổn định tắt) |
+| **Context-window budgeting** | sắp xếp & cắt context cho vừa cửa sổ | vấn đề "lost in the middle"; giữ gì khi hết chỗ |
 | **Evaluation** (RAGAS + custom + A/B) | faithfulness, answer relevancy, context precision/recall | **rerank / CRAG / rewrite có thật sự cải thiện không** — kéo từ "tận sau này" lên *bây giờ* |
 
 Mỗi kỹ thuật là một **flag theo từng query**, mặc định tắt, nên bạn có thể A/B *có* vs *không* và đọc số liệu. MLOps nặng (LangFuse/Prometheus/Grafana, CI/CD retrain) vẫn ở Chặng 6 — chỉ **eval cơ bản (RAGAS + so sánh A/B)** được kéo lên Chặng 3.
