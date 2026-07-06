@@ -18,7 +18,7 @@ def make_retrieve_node(retriever, reranker, *, pool_size: int = 20):
                grade còn 'nguyên liệu' mà xoay, đúng tinh thần CRAG.
     """
 
-    def retrieve_node(state: CRAGState) -> dict:
+    async def retrieve_node(state: CRAGState) -> dict:
         query     = state["query"]
         tenant_id = state["tenant_id"]
         top_k     = state["top_k"]
@@ -26,7 +26,8 @@ def make_retrieve_node(retriever, reranker, *, pool_size: int = 20):
         # ── Hybrid lấy rộng (pool_size) → Rerank lọc xuống candidate ──
         # Rerank chạy TRƯỚC grade: nó rẻ (cross-encoder) so với mỗi lần
         # gọi LLM grade → pre-filter để LLM khỏi phải chấm rác hiển nhiên.
-        raw        = retriever.retrieve(query, tenant_id=tenant_id, top_k=pool_size)
+        # retrieve() là async (embed query là async) → phải await.
+        raw        = await retriever.retrieve(query, tenant_id=tenant_id, top_k=pool_size)
         candidates = reranker.rerank(query, raw, top_k=top_k * 2)
 
         # Chỉ trả ô mình ghi — phần còn lại của state giữ nguyên.
@@ -67,9 +68,9 @@ def finalize_node(state: CRAGState) -> dict:
 def make_correct_node(retriever, *, wide_pool: int = 60):
     """Trả về correct_node: tìm lại RỘNG HƠN trong cùng kho (không ra web)."""
 
-    def correct_node(state: CRAGState) -> dict:
+    async def correct_node(state: CRAGState) -> dict:
         # Quăng lưới rộng hơn nhiều (wide_pool) để vớt chunk tốt nằm sâu.
-        wider = retriever.retrieve(
+        wider = await retriever.retrieve(
             state["query"], tenant_id=state["tenant_id"], top_k=wide_pool
         )
         # Ghi đè candidates → grade_node sẽ chấm lại mẻ rộng này.

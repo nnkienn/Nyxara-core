@@ -5,6 +5,43 @@
 
 ---
 
+## 🧭 Phương pháp học (chốt 2026-07, hợp thời đại AI)
+
+> **Bối cảnh:** đọc-hiểu flow + soi bug là kỹ năng giá trị nhất thời AI. Gõ boilerplate
+> để AI làm. Nhưng phải tự suy được logic để **soi AI đúng/sai** (AI cũng viết bug
+> như `>= 0` lẽ ra `>= 0.5`). ❌ BỎ "nhớ hết code rồi gõ lại từ trí nhớ" — vô nghĩa.
+
+**4 nguyên tắc gốc:**
+1. **Không pass, không hiểu → không đi tiếp.** Sai thì ở lại, giải thích, hỏi lại tới khi rõ.
+2. **Học = XÂY.** Mỗi kỹ thuật phải chạm tay vào code chạy được — không chỉ đọc hiểu.
+3. **Kỹ thuật là flag.** Học ≠ phải bật. Eval mới quyết cái nào đáng bật.
+4. **Ghi WHY ngay** vào `notes-knowledge.md` + từ mới vào Glossary (cuối file đó) — mỗi bước, không để sau.
+
+**Vòng học một kỹ thuật:**
+```
+1. HIỂU FLOW sâu       ← quan trọng nhất; giải thích bằng số thật
+2. ĐỌC CODE trôi chảy  ← giải thích từng cụm dòng bằng lời
+3. SĂN BUG (debug)     ← cố tình làm hỏng 1 chỗ, tự tìm + sửa
+4. SỬA / MỞ RỘNG + DUYỆT CODE AI
+      - sửa/mở rộng code CÓ SẴN (không gõ từ hư không)
+      - đọc bản do "AI" viết (đôi khi có bug tinh vi) → soi đúng/sai + sửa
+```
+File dễ làm 1–2 chặng, file lõi làm đủ 4. **Luôn có ít nhất 1 chặng chạm tay vào code.**
+
+**Vòng chạy-sửa + 2 lớp lưới** (giữ nguyên vì luôn đúng):
+```
+viết/sửa → chạy (python) → Python chỉ lỗi (còn gợi ý) → sửa → chạy lại → xanh → TEST vài ca
+```
+| Lỗi cú pháp | Lỗi logic |
+|---|---|
+| **Chạy** bắt (Python chỉ `^`) | **Test** bắt (gọi thử, so kết quả) — mắt người không bắt nổi |
+
+→ Không cần gõ đúng phát đầu. Senior cũng sửa 5 lần/30s. **Quen loop = kỹ năng thật.**
+
+**Nhịp:** 1 hàm nhỏ / ngày (đọc→soi→sửa) > đọc 5 file. Mỗi kỹ thuật mới: học WHY → cài đặt/soi thật.
+
+---
+
 ## 🏛️ Ranh giới Core ↔ Cloud (SaaS)
 
 > **Mục tiêu kép:** repo này vừa là *giáo trình AI engineering* (học đủ, không bỏ
@@ -148,6 +185,11 @@ query
 
 **Tests:** 12 — grader (4) + decision (6) + graph e2e (2: test vòng lặp tự sửa + test chốt chặn).
 
+**✅ Đã CẮM ĐIỆN (API endpoint) — 2026-07:** wire CRAG vào app chạy được.
+- `presentation/api/schemas/crag.py` (AskRequest/AskResponse/Hit) · `presentation/api/routes/ask.py` (`POST /ask`, `await graph.ainvoke`) · `main.py` composition root (dựng graph 1 lần lúc startup, `app.state.crag_graph`).
+- Bugs sửa: `qdrant_store` chữ ký hỏng (`str2222.`) · **HybridRetriever thiếu `await`** (async lây: retrieve/port/retrieve_node/correct_node → async) · `attempts` KeyError đường thành công (init `attempts=0`).
+- Docker sẵn sàng (`docker compose up --build`); đã thêm `extra_hosts` cho core-api reach Ollama (grader LLM). Verify wiring bằng fake adapter (DI) — vòng corrective chạy đúng end-to-end.
+
 ---
 
 ## ⏳ Phase 3 (Còn lại) — 10 kỹ thuật chưa build
@@ -205,6 +247,8 @@ query
 | Kỹ thuật | Học được gì | |
 |---|---|---|
 | Supervisor→Researcher→Creator→Critic→Human gate | multi-agent, HITL, anti-hallucination | 🛠️ |
+| 🆕 **MCP (Model Context Protocol)** ⬆️ | chuẩn hiện đại gắn tool/context vào agent — *kéo từ radar lên vì đã thành chuẩn thật*; học sớm để tool-integration không tự chế | 🛠️ |
+| 🆕 **Agent tracing / step-level observability** (LangFuse) ⬆️ | soi agent nhiều bước chạy gì, hỏng ở node nào — debug agent KHÔNG thể thiếu; tách riêng khỏi observability hạ tầng (P6) | 🛠️ |
 | 🆕 **Structured output / constrained decoding** | ép JSON hợp lệ cho tool-calling, retry khi lỗi | 🛠️ |
 | 🆕 **Intent triage** | phân loại comment: trả lời / lờ / đẩy người — tiết kiệm LLM | 🛠️ |
 | 🆕 **Multi-turn / thread memory** | nhớ ngữ cảnh hội thoại, không single-shot | 🛠️ |
@@ -225,7 +269,7 @@ query
 ### Phase 6 — Production, MLOps & Eval-at-scale
 | Kỹ thuật | Học được gì | |
 |---|---|---|
-| Observability: LangFuse · Prometheus + Grafana | trace, metric, log | 🛠️ |
+| Observability hạ tầng: Prometheus + Grafana | metric, log, alert cấp hệ thống (latency, error rate, uptime). *Agent tracing (LangFuse) đã tách lên P5 — cần lúc BUILD agent, không đợi P6* | 🛠️ |
 | 🆕 **Data Lifecycle**: vector CRUD/delete/sync · dedup · incremental ingest · **embedding migration (re-embed khi đổi model)** | giữ kho đúng theo thời gian | 🛠️ |
 | 🆕 **Eval-at-scale**: online eval · golden/regression set · prompt versioning · LLM-judge calibration | đo chất lượng production, chống tụt khi đổi prompt/model | 🛠️ |
 | CI/CD retrain · experiment tracking (W&B/MLflow) · versioning (DVC/HF) | reproducible ML | 📡 |
@@ -256,7 +300,7 @@ ComfyUI · Flux/SDXL · ControlNet · IP-Adapter/FaceID · character LoRA · img
 | **Self-consistency / SelfCheckGPT** | P5.5 | phát hiện bịa bằng sample nhiều lần so chéo — khác abstention |
 | **Drift detection** (data / embedding / concept drift) | P6 | đo chất lượng tụt âm thầm theo thời gian |
 | **Output sanitization** (XSS / markdown injection trong reply) | P5.5 | làm sạch *output* trước khi render/gửi — khác injection input |
-| **MCP (Model Context Protocol)** | P5 | chuẩn hiện đại gắn tool/context cho agent |
+| ~~MCP (Model Context Protocol)~~ | → **P5** | *đã kéo lên Phase 5 (§Agentic Orchestrator) — thành chuẩn thật, học sớm* |
 
 ---
 
@@ -290,8 +334,7 @@ ComfyUI · Flux/SDXL · ControlNet · IP-Adapter/FaceID · character LoRA · img
 
 | Tài liệu | Nội dung |
 |----------|---------|
-| [GLOSSARY.md](GLOSSARY.md) | **Bảng tra thuật ngữ nhanh** — quên từ nào tra 1 dòng ở đây |
-| [notes-knowledge.md](notes-knowledge.md) | Công thức + giải thích khái niệm Phase 2 & 3 |
+| [notes-knowledge.md](notes-knowledge.md) | Công thức + giải thích WHY Phase 2 & 3, **kèm bảng Glossary cuối file** (file GLOSSARY.md riêng đã xóa — gộp vào đây) |
 | [README.vi.md](README.vi.md) | Roadmap dự án đầy đủ, kiến trúc hệ thống |
 | Cormack et al. 2009 | Paper gốc RRF — `k=60` từ đây |
 | Robertson et al. 1994 | Paper gốc Okapi BM25 |

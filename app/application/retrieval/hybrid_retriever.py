@@ -12,9 +12,9 @@ class HybridRetriever:
         self._store = store
         self._bm25 = bm25
 
-    def retrieve(self, query: str, *, tenant_id: str, top_k: int = 5) -> list[RetrievalHit]:
+    async def retrieve(self, query: str, *, tenant_id: str, top_k: int = 5) -> list[RetrievalHit]:
         # Step 1: dense search
-        query_vec = self._embedder.embed([query])[0]
+        query_vec = (await self._embedder.embed([query]))[0]
         dense_hits = self._store.search("chunks", query_vec, tenant_id=tenant_id, top_k=top_k * 2)
         dense_ranked = [h.id for h in dense_hits]
 

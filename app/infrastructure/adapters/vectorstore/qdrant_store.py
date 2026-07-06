@@ -31,8 +31,7 @@ class QdrantStore:
         self._client.upsert(collection_name=collection, points=points)
         return len(points)
 
-    def search(self, collection: str2222.
-               , vector: list[float], *, tenant_id: str, top_k: int = 5) -> list[VectorSearchResult]:
+    def search(self, collection: str, vector: list[float], *, tenant_id: str, top_k: int = 5) -> list[VectorSearchResult]:
         hits = self._client.search(
             collection_name=collection,
             query_vector=vector,

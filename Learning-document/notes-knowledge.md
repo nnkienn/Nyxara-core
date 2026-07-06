@@ -268,6 +268,29 @@ Ví dụ: V1 grade mẻ 6 (rác) → INCORRECT → correct thay = mẻ 8 → V2 
 
 ---
 
+### Bước 10 — Cắm điện CRAG (API endpoint) — `presentation/api/` + `main.py`
+
+**Vấn đề:** CRAG code đủ 6 file nhưng chưa ai gọi → "cỗ máy chưa cắm điện". Cắm = 3 mảnh:
+- `schemas/crag.py` — `AskRequest`(query, tenant_id, top_k) + `AskResponse`(query, verdict, attempts, context) + `Hit`. Pydantic model = hợp đồng vào/ra, FastAPI tự validate + serialize JSON.
+- `routes/ask.py` — `POST /ask`: lấy graph từ `app.state`, dựng state ban đầu, `await graph.ainvoke(...)`, đổi RetrievalHit→Hit, trả AskResponse.
+- `main.py` — **composition root**: dựng embedder/store/bm25/retriever/reranker/grader/graph **1 LẦN** lúc startup, cất `app.state.crag_graph`. `app.include_router(ask_router)`.
+
+**3 điểm cốt lõi:**
+1. **Dựng graph 1 lần lúc startup**, KHÔNG mỗi request — BGEEmbedder/Reranker nạp model nặng (vài giây + ngốn RAM), dựng/request → chậm + OOM.
+2. **`ainvoke` (async)** không phải `invoke` — vì `grade_node` async (gọi LLM). Chuỗi async lây: LLM.chat → grade → grade_node → graph.ainvoke → route `async def ask`.
+3. **`Hit` (pydantic) ≠ `RetrievalHit` (dataclass nội bộ):** tách lớp — đổi domain không vỡ API; FastAPI serialize pydantic, không serialize dataclass nội bộ.
+
+**🐞 Bugs đã sửa hôm nay (săn trên code thật):**
+- `qdrant_store.py`: chữ ký `def search(self, collection: str2222.` (gõ nhầm) → cả file không import nổi. Fix: `collection: str`. (`py_compile` bắt.)
+- **`HybridRetriever.retrieve` thiếu `await`** (bug Bước 8): `embed` là async, gọi không await → trả coroutine, `[0]` crash. Fix là ASYNC LÂY cả dây: `HybridRetriever.retrieve` → `async` + `await embed`; `RetrieverPort` → async; `retrieve_node` + `correct_node` → `async` + `await retriever.retrieve`.
+- **`attempts` KeyError ở "đường thành công"** (review AskResponse phát hiện): `correct_node` mới ghi `attempts`; trúng ngay lần đầu → chưa ghi → `state["attempts"]` crash. Fix: init `attempts=0` trong initial_state + đọc `.get("attempts", 0)`.
+
+**Chạy thử (DI thật sự):** thay embedder/store/reranker/grader bằng FAKE (thoả interface) → graph chạy end-to-end thấy vòng corrective sống: retrieve(6 rác)→INCORRECT→correct(3 tốt)→CORRECT→finalize. **Logic CRAG không đổi 1 dòng** khi thay đồ thật. → wiring đúng, không cần Qdrant/Ollama để verify.
+
+**Docker:** đã dựng đủ sẵn (compose: redis+qdrant+core-api+harvester+ingest; requirements có langgraph/FlagEmbedding). Đã thêm `extra_hosts: host.docker.internal` cho core-api để grader reach Ollama trên host. Chạy thật: `docker compose up --build`.
+
+---
+
 ## Công thức cốt lõi
 
 ```

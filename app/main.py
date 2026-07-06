@@ -12,6 +12,15 @@ import structlog
 from fastapi import FastAPI
 
 from app.core.config import settings
+from app.core.llm_client import LLMClientBase
+from app.infrastructure.adapters.embedder.bge_embedder import BGEEmbedder
+from app.infrastructure.adapters.vectorstore.qdrant_store import QdrantStore
+from app.infrastructure.adapters.reranker.bge_reranker import BGEReranker
+from app.application.retrieval.bm25_index import BM25Index
+from app.application.retrieval.hybrid_retriever import HybridRetriever
+from app.application.generation.grader import RelevanceGrader
+from app.application.generation.graph import build_crag_graph
+from app.presentation.api.routes.ask import router as ask_router
 
 # ── Structlog configuration ────────────────────────────────────────────────
 structlog.configure(
@@ -55,6 +64,24 @@ async def _on_startup() -> None:
         inference_model=settings.INFERENCE_MODEL,
         debug=settings.DEBUG,
     )
+
+    # ── Composition root: dựng CRAG graph MỘT LẦN (model nặng, không dựng/request) ──
+    llm = LLMClientBase()
+    embedder = BGEEmbedder()
+    store = QdrantStore()
+    bm25 = BM25Index()
+    retriever = HybridRetriever(embedder, store, bm25)
+    reranker = BGEReranker()
+    grader = RelevanceGrader(llm)
+
+    # Cất vào app.state → route /ask lấy ra dùng chung.
+    app.state.crag_graph = build_crag_graph(
+        retriever=retriever, reranker=reranker, grader=grader
+    )
+    logger.info("crag_graph_ready")
+
+
+app.include_router(ask_router)
 
 
 @app.get("/health", tags=["system"])

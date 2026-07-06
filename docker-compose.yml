@@ -64,6 +64,10 @@ services:
       # Service-discovery overrides (container hostnames)
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
+    # Lets the container reach an Ollama server on the host for the CRAG grader LLM
+    # (INFERENCE_BASE_URL=http://host.docker.internal:11434/v1 in .env).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       redis:
         condition: service_healthy
