@@ -113,24 +113,45 @@ The domain core depends on nothing; the outside world plugs in through ports. Yo
 
 > **Core (this repo) vs. a Cloud layer.** This repo is the **pure, MIT, niche-agnostic AI brain** — deliberately *no* billing, auth, or customer accounts (`tenant_id` is a **namespace**, not a customer). Any productization (auth, billing, dashboard, API gateway, per-customer metering, wallet/credit) belongs in a **separate cloud layer that calls this engine's HTTP API** and maps each *customer → tenant_id namespace*. The core exposes **ports** (e.g. `MeteringPort`, `EntitlementPort`); the cloud plugs in **adapters**. CI rejects `import stripe` / auth / billing inside the core. The brain stays forkable and learnable; the commercial shell never leaks in. That bridge is [Phase 9](#-roadmap--the-learning-path).
 
-Current skeleton (grows as phases are built):
+Full tree scaffolded for every phase up front (2026-07-14) — every folder has its own
+`README.md` naming the phase, the files it expects, and the priority; files themselves are
+still empty until that phase is hand-built:
 
 ```
 nyxara-core/
 ├── app/
-│   ├── domain/                  # Pure business entities & ports — zero framework deps  (empty)
-│   ├── application/             # Use cases / orchestration                              (empty)
-│   ├── infrastructure/          # Adapters that plug into ports                          (empty)
-│   ├── presentation/api/        # FastAPI routers & schemas                              (empty)
-│   └── main.py                  # Composition root — currently just /health
+│   ├── domain/ports/                        # P0-9  interfaces (Protocol), zero framework deps
+│   ├── application/
+│   │   ├── chunking/                        # P0    recursive/semantic/proposition chunkers
+│   │   ├── ingestion/                       # P0    dedup + incremental + versioning pipeline
+│   │   ├── retrieval/                       # P2.1  BM25 · RRF · hybrid retriever
+│   │   ├── services/                        # P2.4  MMR · query transform · context compressor
+│   │   ├── generation/                      # P2.3  CRAG state machine (LangGraph)
+│   │   ├── graphrag/                        # P2.4  📡 radar — multi-hop, off by default
+│   │   └── agent/tools/                     # P4    supervisor · tools · memory
+│   ├── infrastructure/
+│   │   ├── adapters/embedder|vectorstore|reranker/  # P1/2.2  BGE · Qdrant · cross-encoder
+│   │   └── cache/                           # P3.5  semantic cache
+│   ├── observability/                       # P3.5/7  @timed profiling · Prometheus metrics
+│   ├── evaluation/golden|regression/        # P3    ⭐ Hit@k/MRR/NDCG · judge · RAGAS · A/B
+│   ├── safety/                              # P5    PII · injection · sanitize · circuit breaker
+│   ├── plugins/                             # P8    registry + Port enforcement
+│   ├── lifecycle/                           # P7    embedding re-embed / migration
+│   ├── presentation/api/                    # FastAPI routers & schemas
+│   └── main.py                              # Composition root — currently just /health
+├── tests/                                    # mirrors app/ 1:1 — see tests/README.md
+├── experiments/lora/                         # P6    manual LoRA layer + Qwen2.5 training
+├── ops/serving/                              # P7    vLLM serving config
+├── examples/                                 # P8    one runnable example per technique
+├── docs/                                     # P8    architecture docs for contributors
 ├── Learning-document/
-│   ├── LEARNING_ROADMAP.md      # ★ the full learning path
-│   └── notes/                   # design-system · algorithms · glossary · bug-log
-├── tests/                       # (empty — rebuilt test-by-test, TDD)
-├── docker-compose.yml           # redis + qdrant + core-api
-├── Dockerfile                   # slim core-API image
-├── requirements.txt             # slim; each phase adds its own deps
-└── LICENSE                      # MIT
+│   ├── LEARNING_ROADMAP.md                  # ★ the full learning path
+│   └── notes/                               # design-system · algorithms · glossary · bug-log
+├── CONTRIBUTING.md                           # Core↔Cloud line + 6-step-loop rule for PRs
+├── docker-compose.yml                        # redis + qdrant + core-api
+├── Dockerfile                                # slim core-API image
+├── requirements.txt                          # slim; each phase adds its own deps
+└── LICENSE                                   # MIT
 ```
 
 ---
