@@ -2,20 +2,28 @@
 
 # Nyxara 🤖🚀
 
-### Học AI engineering thật — tự build động cơ RAG đa ngôn ngữ + agentic từ đầu, hướng tới một ngách cụ thể
+### Bộ công cụ AI Engineering bạn tự build từ đầu — RAG nâng cao, agent, fine-tuning & evaluation — hướng tới một ngách thật
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-DC244C.svg?logo=qdrant&logoColor=white)](https://qdrant.tech/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C.svg)](https://langchain-ai.github.io/langgraph/)
-[![Celery](https://img.shields.io/badge/Celery-37814A.svg?logo=celery&logoColor=white)](https://docs.celeryq.dev/)
+[![Status](https://img.shields.io/badge/status-rebuilding_from_scratch-orange.svg)](./Learning-document/LEARNING_ROADMAP.md)
 
-**Phần lớn dự án "học AI" chết yểu vì là một mớ tutorial ghép lại, không có người dùng và không có cách nào biết thứ mình làm có chạy đúng không. Nyxara đặt cược ngược lại: bạn **tự tay xây từng tầng** — RAG nâng cao, fine-tuning, agentic, evaluation — và hướng nó vào một công việc thật: một *Comment Assistant* cho seller-affiliate TikTok Shop / Shopee. Có người duyệt (human-in-the-loop), KHÔNG bao giờ tự đăng.**
+**Phần lớn dự án "học AI" chết yểu vì là một mớ tutorial ghép lại — không người dùng, không cách nào biết thứ mình làm có chạy đúng không, và một lõi hộp đen chẳng ai hiểu. Nyxara đặt cược ngược lại: bạn **tự tay xây từng tầng** — toán embedding, công thức RRF, reranker, CRAG, cập nhật LoRA, các chỉ số eval — và hướng nó vào một công việc thật: một *Comment Assistant* cho seller-affiliate TikTok Shop / Shopee. Có người duyệt (human-in-the-loop), KHÔNG bao giờ tự đăng.**
 
 🌐 🇬🇧 [English](./README.md) · 🇻🇳 **Tiếng Việt** · 🇩🇪 [Deutsch](./README.de.md) · 🇨🇳 [中文](./README.zh.md)
 
 </div>
+
+---
+
+> ### 🔁 Trạng thái: đang build lại từ đầu (reset 2026-07)
+> Repo đã được reset về **khung skeleton chạy được** — Docker + khung hexagonal rỗng + endpoint
+> `/health`. Harvester và bộ não RAG cũ (cùng 74 test) đã bị xóa **có chủ đích**, để mỗi tầng
+> được **gõ lại bằng tay và hiểu thật**, không thừa kế một hộp đen. Mọi thứ dưới mục "Vì sao"
+> mô tả **hệ thống mục tiêu và con đường học tới đó** — theo dõi trạng thái thật ở [roadmap](#-lộ-trình--con-đường-học).
 
 ---
 
@@ -28,9 +36,42 @@ Hai thứ giết chết hầu hết dự án "tôi đang học AI engineering":
 
 **Nyxara sửa cả hai.** Đây là một động cơ **RAG + agentic đa ngôn ngữ mà bạn tự build từ đầu** — sở hữu toán embedding, công thức RRF, cross-encoder rerank, cập nhật LoRA, các chỉ số eval — và nó hướng tới một **ngách cụ thể có người dùng thật (dù nhỏ):** tự động hóa content & social cho **seller-affiliate trên TikTok Shop / Shopee tại Việt Nam.**
 
-> **Dành cho người đọc:** nếu bạn muốn *hiểu* AI engineering — không chỉ gọi một API — bằng cách build một hệ thống mạch lạc với đích thật mà bạn có thể demo và đo lường, thì repo này dành cho bạn. Đây trước hết là một **cỗ máy để học**, sau đó mới là một công cụ ngách. Không phải SaaS đa người dùng, không phải canh bạc thị trường.
+> **Bối cảnh 2026:** AI gõ boilerplate hộ bạn rồi. Kỹ năng còn giá trị là *đọc-hiểu flow sâu và soi ra bug* — vì AI cũng ship bug tinh vi (`>= 0` lẽ ra `>= 0.5`). Nên Nyxara chạy trên một luật bất di bất dịch: **mọi kỹ thuật cốt lõi phải tự implement TRƯỚC, chỉ sau đó mới thay bằng thư viện.** Nếu bạn không tự build được và không debug được, bạn không thể biết thư viện có đang "nói dối" mình hay không.
 
-Nó chạy **100% local** mặc định (không byte nào rời máy bạn trừ khi bạn chọn tầng cloud), và một `tenant_id` **namespace** cho phép một bản cài chứa nhiều niche song song — *một folder cho mỗi niche*, không phải *một tenant cho mỗi khách trả tiền*. Không thu phí, không auth, không dashboard.
+Nó được thiết kế để chạy **100% local** mặc định (không byte nào rời máy bạn trừ khi bạn chọn tầng cloud), và một `tenant_id` **namespace** cho phép một bản cài chứa nhiều niche song song — *một folder cho mỗi niche*, không phải *một tenant cho mỗi khách trả tiền*. Lõi MIT không có billing, auth hay dashboard; những thứ đó nằm ở một **lớp cloud tách riêng** (xem [Phase 9](#-lộ-trình--con-đường-học)).
+
+---
+
+## 🧭 Cách bạn học ở đây — kỷ luật
+
+Repo này trước hết là **một cỗ máy để học**, sau đó mới là công cụ ngách. Phương pháp không phải "đọc code rồi gật gù". Mỗi kỹ thuật cốt lõi phải đi qua một **vòng 6 bước** trước khi một thư viện được phép lại gần:
+
+```
+1. CODE TAY        ← tự viết lõi từ đầu (naive cũng được); KHÔNG có thư viện làm hộ
+2. BUG CỐ Ý        ← tự phá 1 chỗ (off-by-one, sai dấu, quên normalize / await)
+3. DEBUG BẰNG TAY  ← đọc trace, in số thật, tự tìm ra — ĐỪNG hỏi AI ngay
+4. FIX             ← sửa, giải thích chính xác bug đó gây sai kết quả gì
+5. TEST            ← viết test bắt đúng ca bug vừa rồi (regression) + happy path
+6. DOCUMENT        ← WHY vào notes/, từ mới vào glossary, bug vào bug-log
+```
+
+Chỉ sau 6 bước đó bạn mới thay bằng thư viện chuẩn (FlagEmbedding, rank-bm25…) **và so kết quả với bản tay.** Thư viện là để **production**; bản tay là để **hiểu**.
+
+**Cấu trúc dữ liệu không phải bài tập tách rời** — mỗi kỹ thuật RAG *chính là* một bài CTDLGT trá hình:
+
+| Cấu trúc / thuật toán | Xuất hiện ở đâu |
+|---|---|
+| Hash map / inverted index | BM25 (term → posting list), dedup |
+| Priority queue / heap | top-k retrieval, MMR |
+| Sliding window | chunking, context-window budgeting |
+| Trie / prefix tree | tokenizer, PII pattern matching |
+| Graph (BFS/DFS) | state machine LangGraph, GraphRAG multi-hop |
+| Quy hoạch động (DP) | edit distance cho dedup gần-trùng |
+| Two-pointer / merge | RRF (gộp N ranked list) |
+
+> **Tài liệu học nằm ở [`Learning-document/`](./Learning-document/):**
+> [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) (con đường đầy đủ + bài code tay) và
+> [`notes/`](./Learning-document/notes/) — **design-system**, **algorithms**, **glossary**, **bug-log**.
 
 ---
 
@@ -44,229 +85,137 @@ Một seller-affiliate đăng video bán hàng lên TikTok Shop / Shopee. Bên d
 2. **Truy xuất** đúng thông tin sản phẩm — giá, thành phần, công dụng, link chính thức — **lọc đúng *sản phẩm đó*** (lọc metadata trước, *rồi mới* semantic search — không phải "vector gần nhất thắng").
 3. **Soạn** câu trả lời đúng giọng và đúng ngôn ngữ của seller.
 4. **Phê bình:** một **Critic agent chặn thông tin bịa và claim công dụng chưa kiểm chứng** — bất di bất dịch với mỹ phẩm/sức khỏe, nơi một claim sai là vấn đề niềm tin và pháp lý.
-5. **Người duyệt** trước khi bất cứ thứ gì được gửi. **Nyxara không bao giờ tự đăng.** Khi một câu trả lời *thật sự* được gửi, nó đi qua **API chính thức** của nền tảng — không bao giờ qua trình duyệt lén (stealth).
+5. **Người duyệt** trước khi bất cứ thứ gì được gửi. **Nyxara không bao giờ tự đăng.** Khi một câu trả lời *thật sự* được gửi, nó đi qua **API chính thức** của nền tảng — không bao giờ qua trình duyệt lén.
 
-Mọi kỹ thuật RAG/agent/eval bên dưới đều giành được chỗ đứng bằng cách trả lời một câu hỏi thật ở đây: *retrieval có lấy đúng sản phẩm không? rerank có thật sự nâng câu trả lời không? Critic có bắt được claim sai không?*
-
----
-
-## 🔥 Năng lực Lõi
-
-### 1. 🌾 Harvester Cắm-được — Nền tảng bất kỳ, Cộng đồng cùng xây
-**Đây là Chặng 0 — nền móng mà mọi thứ khác ăn dữ liệu từ đó.** Trình thu thập chạy định kỳ (cron) cào dữ liệu **công khai** — **thông tin sản phẩm và mẫu comment công khai** phục vụ Comment Assistant — đóng dấu namespace `tenant_id`, đổ vào **Raw Data Lake** tách theo từng niche, rồi làm sạch qua bộ lọc chống spam 3 lớp — tách biệt hoàn toàn khỏi agent (*Thu thập dữ liệu ≠ Suy luận*; tầng này **không bao giờ** gọi LLM).
-
-**Cắm nền tảng bất kỳ — chỉ cần thả 1 file.** Engine tự động phát hiện mọi plugin trong [`extractors/plugins/`](./app/infrastructure/harvester/extractors/plugins/) lúc runtime. Thêm một nguồn = viết một class — không sửa code lõi, không import hardcode:
-
-```python
-class MyPlatformExtractor(BaseExtractor):
-    PLUGIN_TYPE = "my_platform"          # ← tham chiếu qua `type:` trong scraper_config.yaml
-    async def extract(self) -> list[HarvestedItem]:
-        url = self.options["url"]        # mọi thứ lấy từ YAML — zero-hardcode
-        ...
-```
-
-Plugin lỗi sẽ được log và bỏ qua — một nguồn hỏng không bao giờ kéo sập cả lượt chạy.
-
-**Hiện đã có:** `x_twscrape` (X / Twitter qua twscrape) · `youtube_shorts` (YouTube Shorts qua yt-dlp).
-**Rất cần bạn góp sức** 🤝 — các trang public liên tục đổi markup và rate-limit. Hãy đóng góp plugin nền tảng mới (TikTok, Shopee, Instagram, Reddit…) hoặc giúp giữ một extractor hiện có **ổn định và tuân thủ ToS**. Toàn bộ hợp đồng gói gọn trong một file: [`base.py`](./app/infrastructure/harvester/extractors/base.py).
-
-**Bộ lọc chống spam 3 lớp** — dừng sớm và tiết kiệm chi phí; mỗi item phải "giành" được lớp kế tiếp, nên lời gọi LLM tốn tiền chỉ thấy thứ đã vượt qua 2 cổng CPU miễn phí:
-
-| Lớp | Giai đoạn | Chi phí | Loại bỏ |
-|---|---|---|---|
-| **L1** | Heuristic (ngưỡng hashtag / số từ / mention) | O(1) CPU | mồi tương tác, câu cụt, spam mass-mention |
-| **L2** | Text-clean (bỏ URL, emoji, rác lặp) | O(n) CPU | item rỗng sau khi làm sạch |
-| **L3** | LLM judge (theo batch, OpenAI-compat) | ~1 lời gọi API / 10 item | câu đùa, reply, nội dung giá trị thấp |
-
-Item đạt được ghi vào `raw_data_lake/filtered/approved.json`, sẵn sàng nạp Qdrant. Nguồn và ngưỡng lọc nằm trong [`scraper_config.yaml`](./scraper_config.yaml) → `filter_config`, **không hardcode**.
-
-### 2. 🔀 Bộ định tuyến LLM Song Động cơ (Local + Cloud)
-Một giao diện `LLMClientBase` duy nhất (tương thích OpenAI) cho phép mọi agent chạy trên engine nào cũng được mà **không cần sửa code**:
-- **Tầng Local / Dev:** Ollama hoặc Apple MLX chạy `Qwen2.5` / `Llama-3.1-8B-Instruct` → R&D không tốn phí, hoàn toàn offline.
-- **Tầng Scale:** vLLM trên GPU thuê (RunPod, AWS) hoặc fallback sang cloud API khi chạy batch nặng.
-
-Định tuyến là **quyết định cấu hình lúc runtime**, không phải viết lại code. Cùng một code agent chạy trên cả hai tầng.
-
-> **Kỳ vọng phần cứng (thành thật):** các chặng CORE chạy thoải mái trên máy CPU/không GPU với model 3B local. Nhưng **Critic / chấm điểm CRAG** cần một model đủ mạnh — trên máy chỉ-3B việc chấm đó là *best-effort*, nên hãy định tuyến Tier-1 sang engine cloud/hybrid nếu bạn cần chống ảo giác mạnh. **Visual Engine TÙY CHỌN (ComfyUI image/video + TTS) cần GPU thật** và không thực tế khi chạy CPU-local. "100% local" đúng từ đầu đến cuối trên máy GPU; trên phần cứng chỉ-CPU nó bao trùm bộ não RAG/agent, không bao gồm nhánh visual tùy chọn.
-
-### 3. 🧠 RAG Đa niche & Đa ngôn ngữ
-- **Vector store:** [Qdrant](https://qdrant.tech/) với collection cô lập theo namespace.
-- **Embedding:** `BAAI/bge-m3` (1024 chiều, hơn 100 ngôn ngữ) → một chỉ mục xuyên ngôn ngữ chung, **không cần collection riêng cho từng ngôn ngữ**.
-- **Cô lập namespace:** mọi `upsert` / `search` đều mang bộ lọc payload `tenant_id` bắt buộc, nên nhiều niche cùng tồn tại trong một store với **zero lẫn dữ liệu chéo niche** — một bảo đảm kiến trúc, không phải kiểm tra runtime.
-- **Truy vấn xuyên ngôn ngữ:** một niche tiếng Việt có thể truy vấn cơ sở tri thức tiếng Đức của nó trong cùng một không gian.
-- **Bạn học gì ở đây:** chiến lược chunking, toán embedding, tự tay code cosine similarity, rồi tới **toàn bộ stack RAG nâng cao của Chặng 3** — Hybrid Search, RRF, cross-encoder reranking, CRAG, query transformation, và evaluation có đo lường (xem roadmap bên dưới).
-
-### 4. 🕹️ Topology Agent Supervisor–Worker
-Chúng tôi **không** nhồi tất cả vào một prompt khổng lồ. Mỗi yêu cầu được phân rã thành các vai trò chuyên biệt:
-
-| Vai trò | Trách nhiệm | Công cụ |
-|---|---|---|
-| **Supervisor (Planner)** | Phân rã ý định → đồ thị tác vụ có thứ tự; định tuyến tới worker | Task router |
-| **Researcher** | Truy vấn RAG theo namespace (điều khiển pipeline Chặng 3) | `search_vector_db(tenant_id, …)` |
-| **Creator** | Soạn câu trả lời / copy đúng giọng seller | `generate_text` |
-| **Critic** | Chống ảo giác: chặn thông tin bịa & claim công dụng chưa kiểm chứng | RAG verifier (≤ 3 vòng retry) |
-| **Người duyệt (Human Reviewer)** | Duyệt / sửa / từ chối trước khi gửi — **vòng lặp khép lại ở một con người, không phải ở auto-gửi** | Hàng đợi duyệt |
-
-**Critic là hào nước**: nó kiểm chứng tính xác thực trước khi bản nháp tới tay người duyệt, và con người là cổng cuối cùng. **Không có agent tự-đăng-bài.** Khi một câu trả lời đã duyệt được gửi, nó đi qua **API chính thức** của nền tảng.
-
-> Đồ thị agent có dạng plugin: nhánh Visual TÙY CHỌN (Chặng sau) có thể thêm node **Visual Director** và **Video Producer** mà không thay đổi hợp đồng của các vai trò hiện có.
+Mọi kỹ thuật RAG/agent/eval trong roadmap đều giành được chỗ đứng bằng cách trả lời một câu hỏi thật ở đây: *retrieval có lấy đúng sản phẩm không? rerank có thật sự nâng câu trả lời không? Critic có bắt được claim sai không?* — và evaluation ở Phase 3 là cách bạn **chứng minh** thay vì đoán.
 
 ---
 
-## 🏗️ Kiến trúc Hexagonal
+## 🧱 Hệ thống bạn sẽ build (kiến trúc mục tiêu)
+
+> Đây là các mảnh mà roadmap dựng lên, từng phase. **Code hiện tại = skeleton;** mỗi mục dưới
+> là mục tiêu build, chưa phải tính năng đã có. Trạng thái xem ở [bảng roadmap](#-lộ-trình--con-đường-học).
+
+- **Pipeline nạp dữ liệu (Phase 0):** connector cắm-được (thả 1 file / nguồn) + chunking → dedup → incremental upsert. Thu thập dữ liệu tách khỏi suy luận — *tầng nạp không bao giờ gọi LLM*.
+- **Bộ nhớ vector (Phase 1):** `BAAI/bge-m3` (1024 chiều, 100+ ngôn ngữ) vào [Qdrant](https://qdrant.tech/), một chỉ mục xuyên ngôn ngữ chung. Mọi `upsert`/`search` mang filter `tenant_id` bắt buộc — **zero lẫn dữ liệu chéo niche** như một bảo đảm kiến trúc. (Bỏ filter → *âm thầm* rò dữ liệu niche khác, không crash. Đó là bài debug ở Phase 1.)
+- **Retrieval nâng cao (Phase 2):** Hybrid (dense + BM25) → RRF → cross-encoder rerank → CRAG, rồi metadata filtering, MMR, query transformation, temporal, Adaptive/Self-RAG, GraphRAG — mỗi cái **tự build bằng tay** và bật/tắt theo query.
+- **Evaluation (Phase 3):** Hit@k/MRR/NDCG tự viết + RAGAS + custom LLM judge + golden/regression set + A/B — vòng lặp quyết định kỹ thuật nào thật sự được giữ.
+- **Dual-engine LLM router:** một `LLMClientBase` (tương thích OpenAI) để mọi agent chạy trên Ollama/MLX (local dev) hoặc vLLM/cloud (scale) mà không sửa code — định tuyến là quyết định cấu hình lúc runtime.
+- **Agent Supervisor–Worker (Phase 4):** Supervisor → Researcher → Creator → **Critic** → cổng người. **Critic kiểm chứng grounding trước khi bản nháp tới tay người**, và con người là cổng cuối. Không có agent tự-đăng.
+- **Safety (Phase 5), Fine-tuning (Phase 6), MLOps (Phase 7), Mở rộng (Phase 8)** — xem roadmap.
+
+---
+
+## 🏗️ Kiến trúc Hexagonal — và ranh giới Core ↔ Cloud
 
 Lõi domain không phụ thuộc gì cả; thế giới bên ngoài cắm vào qua các port. Bạn có thể thay Qdrant, engine LLM hay web framework mà không cần động đến logic nghiệp vụ.
 
-> **Core vs. lớp SaaS.** Repo này là **bộ não AI thuần, MIT, niche-agnostic** — cố ý *không có* billing, auth, hay tài khoản khách (`tenant_id` là namespace, không phải customer). Mọi việc thương mại hóa (auth, billing, dashboard, API gateway, đo dùng theo khách) thuộc về một **lớp riêng gọi vào HTTP API của engine này** và ánh xạ mỗi *customer → tenant_id namespace*. Bộ não giữ nguyên tính fork-được và học-được; vỏ thương mại không bao giờ rò vào trong.
+> **Core (repo này) vs. lớp Cloud.** Repo này là **bộ não AI thuần, MIT, niche-agnostic** — cố ý *không có* billing, auth, hay tài khoản khách (`tenant_id` là **namespace**, không phải customer). Mọi việc thương mại hóa (auth, billing, dashboard, API gateway, đo dùng theo khách, ví/credit) thuộc về một **lớp cloud riêng gọi vào HTTP API của engine này** và ánh xạ mỗi *customer → tenant_id namespace*. Core phơi **port** (vd `MeteringPort`, `EntitlementPort`); cloud cắm **adapter**. CI từ chối `import stripe` / auth / billing bên trong core. Bộ não giữ nguyên tính fork-được và học-được; vỏ thương mại không bao giờ rò vào trong. Cây cầu đó là [Phase 9](#-lộ-trình--con-đường-học).
+
+Skeleton hiện tại (lớn dần khi build từng phase):
 
 ```
-n-assistant-core/
+nyxara-core/
 ├── app/
-│   ├── domain/                  # Thực thể nghiệp vụ thuần & port — không phụ thuộc framework
-│   ├── application/             # Use case + các filter pipeline (chống spam 3 lớp)
-│   ├── infrastructure/
-│   │   └── harvester/           # engine.py · extractors/plugins/ (X, YouTube…) · filters/
-│   └── api/                     # Adapter điều khiển: router FastAPI, schema, nối DI
-├── cli.py                       # ★ CLI thống nhất — điểm vào duy nhất cho mọi thao tác cào
-├── scraper_config.yaml          # Nguồn cào + ngưỡng lọc của Harvester — zero-hardcode
-├── raw_data_lake/               # Vùng đổ theo namespace: texts/ (thô) + filtered/ (sạch)
-├── docker-compose.yml           # redis + qdrant + core-api (+ profile harvester)
-├── Dockerfile · Dockerfile.harvester   # image core-API · image Chromium cho plugin
-├── requirements.txt
+│   ├── domain/                  # Thực thể & port thuần — không phụ thuộc framework   (rỗng)
+│   ├── application/             # Use case / orchestration                            (rỗng)
+│   ├── infrastructure/          # Adapter cắm vào port                                (rỗng)
+│   ├── presentation/api/        # Router & schema FastAPI                             (rỗng)
+│   └── main.py                  # Composition root — hiện chỉ có /health
+├── Learning-document/
+│   ├── LEARNING_ROADMAP.md      # ★ con đường học đầy đủ
+│   └── notes/                   # design-system · algorithms · glossary · bug-log
+├── tests/                       # (rỗng — build lại từng test, TDD)
+├── docker-compose.yml           # redis + qdrant + core-api
+├── Dockerfile                   # image core-API tối giản
+├── requirements.txt             # slim; mỗi phase tự thêm dep
 └── LICENSE                      # MIT
 ```
 
 ---
 
-## ⚡ Ngăn xếp công nghệ
+## ⚡ Ngăn xếp công nghệ (mục tiêu)
 
 | Tầng | Công nghệ |
 |---|---|
-| API | FastAPI (Python 3.11) · Pydantic v2 · SQLAlchemy 2.x |
-| Vector / RAG | **Qdrant** · embedding `BAAI/bge-m3` (1024 chiều, đa ngôn ngữ) · Hybrid + RRF + **cross-encoder rerank (`bge-reranker-v2-m3`)** + CRAG · lọc metadata · semantic chunking |
+| API | FastAPI (Python 3.11) · Pydantic v2 |
+| Vector / RAG | **Qdrant** · embedding `BAAI/bge-m3` (1024 chiều, đa ngôn ngữ) · Hybrid + RRF + cross-encoder rerank (`bge-reranker-v2-m3`) + CRAG · lọc metadata · semantic chunking |
 | Suy luận | `LLMClientBase` → Ollama / Apple MLX (dev) · vLLM / Cloud API (scale) |
-| Fine-tuning | LoRA trên `Qwen2.5-7B` · merge lượng tử hóa GGUF (Q4/Q5/Q8) · fine-tune embedding/domain |
-| Agent framework | LangGraph (Supervisor–Worker, multi-agent, human-in-the-loop) |
-| Eval | **RAGAS** (faithfulness, answer relevancy, context precision/recall) + custom metrics + bật/tắt A/B — **từ Chặng 3** |
+| Agent framework | LangGraph (Supervisor–Worker, multi-agent, human-in-the-loop, tracing, MCP) |
+| Evaluation | **RAGAS** + retrieval metrics tự viết (Hit@k/MRR/NDCG) + custom LLM judge + A/B |
+| Fine-tuning | LoRA/QLoRA trên `Qwen2.5-7B` · lượng tử hóa GGUF · fine-tune embedding/domain |
+| An toàn | chống prompt-injection · PII redaction · toxicity moderation · output sanitization · circuit breaker |
 | Tác vụ async | Celery 5 + broker Redis 7 |
-| MLOps (Chặng 6) | LangFuse / Prometheus + Grafana · DVC / W&B / MLflow (nhẹ) · CI/CD retrain |
-| Hình ảnh / Video — *TÙY CHỌN* | ComfyUI · Flux / SDXL · ControlNet · IP-Adapter / FaceID · XTTS / CosyVoice · ffmpeg *(cần GPU)* |
-| ML runtime | PyTorch (MPS trên Mac, CUDA trên GPU Linux) |
-| Container | Docker Compose (profile: default, harvester, rag) |
+| MLOps | vLLM/TGI serving · LangFuse · Prometheus + Grafana · CI/CD retrain |
+| Hình ảnh / Video — *TÙY CHỌN* | ComfyUI · Flux / SDXL · ControlNet · XTTS / CosyVoice · ffmpeg *(cần GPU)* |
+| Container | Docker Compose |
 | Giấy phép | MIT |
 
 ---
 
-## 🗺️ Lộ trình — Một Con đường Học
+## 🗺️ Lộ trình — Con đường Học
 
-Các chặng được sắp xếp để mỗi chặng dạy bạn một tầng của hệ thống từ đầu. Trạng thái là thật, không phải mơ ước. Các chặng **CORE** là con đường học chính; nhánh **OPTIONAL** Visual nằm bên lề — kiến trúc cho phép bạn lắp thêm sau mà *không* phá phần đã build, nhưng nó dạy diffusion/video, không phải con đường AI-engineering cốt lõi.
+Các phase được sắp xếp để mỗi phase dạy bạn một tầng của hệ thống từ đầu. **Trạng thái là thật, không phải mơ ước — sau reset 2026-07, mọi thứ đang được build lại bằng tay.** Đánh số khớp với **[LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md)** chi tiết. **CORE** là con đường chính; **CLOUD** (Phase 9) là lớp thương mại tách riêng; **OPTIONAL** Visual nằm bên lề.
 
-| Chặng | Nhánh | Chủ đề | Bạn xây & học gì | Trạng thái |
+| Phase | Nhánh | Chủ đề | Bạn xây & học gì | Trạng thái |
 |---|---|---|---|---|
-| **0. Nền móng** | CORE | Harvester: **dữ liệu sản phẩm + mẫu comment công khai** · repo MIT sạch · ví dụ theo niche | Kiến trúc plugin, config zero-hardcode, bộ lọc 3 lớp | 🟢 Xong |
-| **1. Khung xương** | CORE | FastAPI core, `/health`, Docker, CLI thống nhất | Kiến trúc Hexagonal, quy trình container | ✅ Xong |
-| **2. Bộ nhớ Vector** | CORE | Chunking + `bge-m3` + Qdrant + đa namespace | Toán embedding, **tự tay** code cosine similarity, cô lập namespace | ✅ Xong |
-| **3. RAG Nâng cao + Eval** | CORE | Bộ não retrieval đầy đủ — **xem bảng chi tiết bên dưới** — kèm evaluation có đo lường (RAGAS + A/B) tích hợp sẵn | Toán RRF & rerank, không gian query↔doc, độ mịn chunk, quản lý token budget, graph workflow, *đo xem mỗi kỹ thuật có giúp ích không* | ⏳ Đang làm |
-| **4. Fine-tuning** | CORE | **LoRA** trên `Qwen2.5-7B` · merge GGUF · dataset đa domain · **fine-tune embedding/domain** | Toán cập nhật low-rank, lượng tử hóa, thiết kế dataset & tinh chỉnh embedding | ⏳ Dự kiến |
-| **5. Agentic Orchestrator** | CORE | LangGraph Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** end-to-end · **người duyệt (human-in-the-loop)** · domain router · **output tool có cấu trúc/ràng buộc** · **intent triage** · **bộ nhớ multi-turn** · **abstention** | Thiết kế multi-agent, grounding & chống ảo giác, quy trình HITL, định tuyến theo niche | ⏳ Dự kiến |
-| **5.5 Safety & Guardrails** | CORE | **Chống prompt-injection** · **PII redaction** · **moderation** độc hại vào/ra · **red-teaming** · framework guardrail output · graceful degradation · cost/rate guard | Gia cố một LLM ăn comment người dùng không tin được | ⏳ Dự kiến |
-| **6. Production, MLOps & Eval** | CORE | Full Docker stack · monitoring/logging (LangFuse, Prometheus + Grafana) · **vòng đời dữ liệu** (vector CRUD/delete/sync, dedup, **embedding migration**) · **eval-at-scale** (online eval, golden/regression set, prompt versioning, LLM-judge calibration) · CI/CD retrain · experiment tracking (W&B / MLflow) · versioning (DVC / HF Hub) | Observability, ML tái lập được, giữ KB đúng theo thời gian, MLOps nặng | ⏳ Dự kiến |
-| **7. Cộng đồng & Mở rộng** | CORE | Template niche (seller-affiliate, beauty, tech…) · kiến trúc plugin (scraper / LLM client) · dự án ví dụ | Khả năng mở rộng OSS, thiết kế plugin | ⏳ Dự kiến |
-| **★ Visual & Character Engine** | **OPTIONAL** | ComfyUI + IP-Adapter / FaceID + character LoRA · Flux/SDXL + ControlNet · image/text→video · lip-sync + TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit | Kỹ thuật nhất quán, điều khiển diffusion, pipeline video | 🧩 Add-on · cần GPU |
+| **0. Nền móng & Ingestion** | CORE | Connector dữ liệu → làm sạch → **chunk · dedup · incremental ingest** | Kiến trúc plugin, recursive/semantic chunking, dedup (hash + edit-distance) | ⏳ **Bắt đầu ở đây** |
+| **1. Bộ nhớ Vector** | CORE | `bge-m3` + Qdrant + đa namespace | Toán embedding, **tự tay** code cosine similarity, cô lập bắt-buộc-`tenant_id` | ⏳ Build lại |
+| **2. Retrieval Nâng cao** | CORE | Hybrid + RRF + rerank + CRAG, rồi metadata filter · MMR · query transform · temporal · Adaptive/Self-RAG · GraphRAG | Toán RRF & rerank, bi- vs cross-encoder, graph workflow — mỗi retriever **tự build bằng tay** | ⏳ Build lại |
+| **3. Evaluation Framework** ⭐ | CORE | RAGAS + custom LLM judge + Hit@k/MRR/NDCG tự viết + golden/regression + A/B + cost/latency | **Mỗi kỹ thuật Phase 2 có thật sự giúp không** — vòng lặp trung tâm | ⏳ Dự kiến |
+| **3.5 Tối ưu tốc độ** | CORE | Latency profiling · HNSW tuning · quantization · payload indexing · semantic caching | Đo trước, tối ưu sau; đánh đổi recall ↔ latency | ⏳ Dự kiến |
+| **4. Agentic Orchestrator** | CORE | LangGraph Supervisor–Worker (Researcher → Creator → **Critic**) · **Comment Assistant** e2e · HITL · intent triage · memory · abstention · tracing (LangFuse) · MCP | Thiết kế multi-agent, grounding & chống ảo giác, HITL | ⏳ Dự kiến |
+| **5. Safety & Guardrails** | CORE | Chống prompt-injection · PII redaction · toxicity moderation · output sanitization · red-teaming · circuit breaker | Gia cố một LLM ăn comment không tin được | ⏳ Dự kiến |
+| **6. Fine-tuning** | CORE | **LoRA/QLoRA** trên `Qwen2.5-7B` · synthetic data · merge GGUF · fine-tune embedding/domain | Toán cập nhật low-rank (tự viết LoRA layer bằng PyTorch), lượng tử hóa | ⏳ Dự kiến |
+| **7. Production & MLOps** | CORE | vLLM/TGI serving · Prometheus + Grafana · data lifecycle · drift detection · CI/CD · canary | Observability, ML tái lập được, giữ KB đúng theo thời gian | ⏳ Dự kiến |
+| **8. Mở rộng & Cộng đồng** | CORE | Plugin system · template niche · benchmark suite · docs · ví dụ chạy được | Khả năng mở rộng OSS, thiết kế registry port/adapter | ⏳ Dự kiến |
+| **9. SaaS Bridge** | **CLOUD** | Usage metering · feature/entitlement port · siết multi-tenancy · ví (2-pha hold/settle) | Vỏ thương mại — **một lớp tách riêng, không bao giờ nằm trong bộ não core** | ⏳ Tương lai · repo riêng |
+| **★ Visual & Character Engine** | **OPTIONAL** | ComfyUI + IP-Adapter/FaceID + character LoRA · Flux/SDXL + ControlNet · image/text→video · TTS clone · ffmpeg | Kỹ thuật nhất quán, điều khiển diffusion, pipeline video | 🧩 Add-on · cần GPU |
 
-### Chặng 3 chi tiết — RAG nâng cao, mọi kỹ thuật bật/tắt theo từng query
+### Phase 2 chi tiết — RAG nâng cao, mọi kỹ thuật bật/tắt theo từng query
 
-Cốt lõi của Chặng 3 là tự tay build từng kỹ thuật **bằng tay** (pure Python trên `LLMClientBase` + `qdrant-client`, LangGraph chỉ lo flow) rồi **đo xem nó có thật sự giúp ích không** — *học RAG mà không đo là học mù.*
+Cốt lõi là tự tay build từng kỹ thuật **bằng tay** (pure Python trên `LLMClientBase` + `qdrant-client`, LangGraph chỉ lo flow) rồi **đo xem nó có thật sự giúp ích không** ở Phase 3 — *học RAG mà không đo là học mù.*
 
 | Kỹ thuật | Làm gì | Học được gì |
 |---|---|---|
-| **Hybrid Search** (dense + sparse/BM25) | chạy retrieval semantic + từ khóa cùng lúc | khi nào dense thắng sparse và khi nào sparse thắng dense |
-| **RRF** (Reciprocal Rank Fusion) | gộp nhiều bảng xếp hạng thành một | công thức RRF bằng tay; cách gộp các bảng xếp hạng |
-| **Cross-encoder reranking** (`bge-reranker-v2-m3`, cùng họ bge-m3) | chấm lại top-k bằng cách đọc query+doc *cùng nhau* | vì sao rerank nâng chất lượng top-k mạnh nhất sau retrieval; **bi-encoder vs cross-encoder** |
-| **CRAG** (Corrective RAG) qua LangGraph | chấm điểm context truy xuất rồi retry / mở rộng / escalate | tự chấm điểm context; vòng lặp retrieval tự sửa |
-| **Query Transformation** (Multi-Query + HyDE) | mở rộng / viết lại truy vấn trước khi search | lệch không gian query↔document và cách thu hẹp |
-| **Parent-Child** (small-to-big) retrieval | match trên chunk nhỏ, trả về khối parent lớn | match chính xác *và* đủ context; độ mịn chunk |
-| **Context Compression** | cắt chunk truy xuất chỉ còn câu trả lời | cắt nhiễu; quản lý token budget trên LLM local nhỏ |
-| **Metadata filtering** (vector + filter) | lọc đúng sản phẩm / khoảng giá *trước* semantic search | kết hợp lọc cấu trúc + vector search — **dùng thật trong Comment Assistant** |
-| **Semantic chunking** | cắt theo ngữ nghĩa, không theo độ dài cố định | độ mịn chunk định hình chất lượng retrieval thế nào |
-| **MMR** (đa dạng kết quả) | tránh top-k toàn chunk gần trùng nhau | maximal marginal relevance; bao phủ nhiều khía cạnh của một query |
-| **Temporal / freshness-aware** retrieval | cân độ mới, không chỉ độ liên quan — chunk cũ = rác dù đúng topic | time-decay scoring; flag theo niche (tài chính/news bật, kiến thức ổn định tắt) |
-| **Context-window budgeting** | sắp xếp & cắt context cho vừa cửa sổ | vấn đề "lost in the middle"; giữ gì khi hết chỗ |
-| **Evaluation** (RAGAS + custom + A/B) | faithfulness, answer relevancy, context precision/recall | **rerank / CRAG / rewrite có thật sự cải thiện không** — kéo từ "tận sau này" lên *bây giờ* |
+| **Hybrid Search** (dense + sparse/BM25) | chạy retrieval semantic + từ khóa cùng lúc | khi nào dense thắng sparse và ngược lại |
+| **RRF** (Reciprocal Rank Fusion) | gộp nhiều bảng xếp hạng thành một | công thức RRF bằng tay; cách gộp ranking |
+| **Cross-encoder reranking** (`bge-reranker-v2-m3`) | chấm lại top-k bằng cách đọc query+doc *cùng nhau* | vì sao rerank nâng top-k mạnh nhất; **bi- vs cross-encoder** |
+| **CRAG** (Corrective RAG) qua LangGraph | chấm điểm context rồi retry / mở rộng | tự chấm context; vòng lặp tự sửa; state machine |
+| **Metadata filtering** (vector + filter) | lọc đúng sản phẩm *trước* semantic search | lọc cấu trúc + vector search — **dùng thật trong Comment Assistant** |
+| **MMR** (đa dạng kết quả) | tránh top-k toàn chunk gần trùng nhau | maximal marginal relevance (một bài priority-queue) |
+| **Query Transformation** (Multi-Query · HyDE · Step-back) | mở rộng / viết lại truy vấn trước khi search | lệch không gian query↔document |
+| **Temporal / freshness-aware** | cân độ mới, không chỉ độ liên quan | time-decay scoring; flag theo niche |
+| **Context Compression** + lost-in-the-middle | cắt còn câu trả lời; sắp xếp cho vừa cửa sổ | cắt nhiễu; token budgeting |
+| **Adaptive-RAG / Self-RAG** | quyết định *có nên retrieve không* ngay từ đầu | anh em ruột của CRAG; routing trước retrieval |
+| **GraphRAG** (knowledge graph + multi-hop) | trả lời câu hỏi nối nhiều mẩu tin | nơi vector thuần yếu; duyệt graph |
 
-Mỗi kỹ thuật là một **flag theo từng query**, mặc định tắt, nên bạn có thể A/B *có* vs *không* và đọc số liệu. MLOps nặng (LangFuse/Prometheus/Grafana, CI/CD retrain) vẫn ở Chặng 6 — chỉ **eval cơ bản (RAGAS + so sánh A/B)** được kéo lên Chặng 3.
-
-### Những thứ bạn sẽ học sâu
-- **Toán học:** embedding, cosine similarity, RRF, **cross-encoder reranking**, low-rank adaptation (LoRA), lượng tử hóa, **các chỉ số đánh giá RAG**.
-- **Kiến trúc:** RAG nâng cao, agentic workflow (LangGraph), vector DB, đa namespace, human-in-the-loop.
-- **Production:** fine-tuning, lượng tử hóa, điều phối pipeline, đánh giá, MLOps nhẹ.
-- **Kỹ thuật:** code modular, Docker, thiết kế API, best practice mã nguồn mở.
-- **Tùy chọn / Visual AI:** ComfyUI workflows, ControlNet, nhất quán nhân vật/danh tính *(nếu bạn thêm nhánh tùy chọn trên máy GPU)*.
+Mỗi kỹ thuật là một **flag theo từng query, mặc định tắt**, nên bạn có thể A/B *có* vs *không* và đọc số liệu. **Evaluation framework** được kéo lên sớm (Phase 3) vì không có nó thì không thể chọn flag một cách khôn ngoan.
 
 ---
 
 ## 🚀 Bắt đầu nhanh
 
+Hiện tại lệnh này chạy **skeleton** — một health endpoint cùng Redis + Qdrant, sẵn sàng cho các phase build lên trên.
+
 ```bash
-git clone https://github.com/nnkienn/n-assistant-core.git
-cd n-assistant-core
-docker compose up -d          # khởi chạy redis + qdrant + core-api
+git clone https://github.com/nnkienn/nyxara-core.git
+cd nyxara-core
+cp .env.example .env
+docker compose up -d --build      # khởi chạy redis + qdrant + core-api
 
-curl http://localhost:8000/health
-# {"status":"ok","service":"core-api-opensource"}
+curl http://localhost:8100/health
+# {"status":"ok","service":"nyxara-core"}
 ```
-
-Vậy là xong — một động cơ AI local hoàn chỉnh tại `http://localhost:8000`.
 
 | Dịch vụ | URL |
 |---|---|
-| Core API (RAG / LLM) | http://localhost:8000 |
-| Qdrant (vector DB) | http://localhost:6333 |
-| Redis (broker) | localhost:6379 |
+| Core API | http://localhost:8100 |
+| Qdrant (vector DB) | http://localhost:6353 |
+| Redis (broker) | localhost:6399 |
 
-📖 **[docs/HARVESTER_GUIDE.vi.md](./docs/HARVESTER_GUIDE.vi.md)** ([English](./docs/HARVESTER_GUIDE.md)) — Hướng dẫn chuyên sâu Chặng 0: kiến trúc plugin, tham chiếu CLI, cách thêm scraper mới trong 30 phút.
-
-**Chạy pipeline dữ liệu** — cào rồi lọc, **hoàn toàn qua Docker** (không cần Python local, không cần venv). Một script wrapper mỏng chạy `cli.py` thống nhất *bên trong* container harvester:
-
-```bash
-# Linux / macOS: ./nassistant.sh <lệnh>      Windows: .\nassistant.ps1 <lệnh>
-
-# Xem tất cả plugin đã đăng ký + trạng thái bật/tắt trong config/scraper_config.yaml
-./nassistant.sh list-plugins
-
-# Cào: quét mọi nguồn enabled → Raw Data Lake
-./nassistant.sh harvest
-
-# Cào một nguồn cụ thể (thử dry-run trước để preview)
-./nassistant.sh harvest --source product-catalog-demo --dry-run
-./nassistant.sh harvest --source product-catalog-demo
-
-# Cào tất cả nguồn của một loại plugin, giới hạn 5 item mỗi nguồn
-./nassistant.sh harvest --type youtube_shorts --limit 5
-
-# Lọc: chạy pipeline chống spam 3 lớp trên toàn bộ dữ liệu thô
-./nassistant.sh filter
-
-# Lọc chỉ một loại plugin
-./nassistant.sh filter --type youtube_shorts
-```
-
-Chạy `./nassistant.sh --help` hoặc `./nassistant.sh <lệnh> --help` để xem toàn bộ tùy chọn.
-
-> **Lớp 3 gọi LLM**, nên đặt trước `INFERENCE_PROVIDER` / `INFERENCE_BASE_URL` / `INFERENCE_MODEL` / `INFERENCE_API_KEY` trong `.env` — Gemini, OpenAI, hoặc Ollama local (bất kỳ endpoint tương thích OpenAI). Lớp 1–2 chỉ dùng CPU, chạy được mà không cần key.
-
-<details>
-<summary>Muốn dùng <code>docker compose</code> thuần? (không qua wrapper)</summary>
-
-Wrapper chỉ là một dòng lệnh bọc quanh `docker compose run`. Image harvester có sẵn `cli.py`, nên mọi lệnh con đều chạy được:
-
-```bash
-docker compose --profile harvester run --rm harvester python cli.py list-plugins
-docker compose --profile harvester run --rm harvester python cli.py harvest
-docker compose --profile harvester run --rm harvester python cli.py filter
-```
-
-</details>
+> **Tiếp theo:** mở [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) và bắt đầu ở **Phase 0** —
+> tự build chunker, gài bug, debug, test, ghi notes. Tính năng sáng đèn dần theo lúc bạn build.
 
 ---
 
@@ -274,12 +223,15 @@ docker compose --profile harvester run --rm harvester python cli.py filter
 
 Đây là các quy tắc **hiến định**. PR vi phạm sẽ bị tự động từ chối.
 
+- ✋ **Tự build trước khi import.** Mỗi kỹ thuật cốt lõi phải có bản implement từ đầu + test của nó *trước khi* một thư viện thay thế. Một lõi hộp đen giết chết dự án open source.
+- 📏 **Đo trước khi bật.** Mỗi kỹ thuật RAG là flag theo từng query, mặc định **tắt**; chỉ bật khi eval Phase 3 chứng minh nó giúp ích trên golden set. Không có kiểu "nghe nói nó hay".
 - 🛡️ **Namespace ở khắp nơi.** Mọi thao tác Vector DB, cache key và audit log đều PHẢI mang namespace `tenant_id` để các niche không bao giờ lẫn vào nhau.
 - 🧠 **Một model embedding duy nhất.** `BAAI/bge-m3` là embedding duy nhất được phép — không model riêng theo ngôn ngữ, không OpenAI ada.
 - 🔌 **Trừu tượng `LLMClientBase`.** Agent gọi `client.complete(...)` — không bao giờ gọi trực tiếp `openai.ChatCompletion.*` hay `transformers`.
-- ✅ **TDD bắt buộc.** Red → Green → Refactor. Logic RAG/Agent cần **test xuyên ngôn ngữ** (VN, EN, DE, CN).
+- ✅ **TDD bắt buộc.** Red → Green → Refactor. Logic RAG/Agent cần **test xuyên ngôn ngữ** (VN, EN, DE, CN); mỗi bug sửa xong thành một regression test vĩnh viễn.
+- 🏛️ **Core giữ nguyên sự thuần khiết.** Không `import stripe`, auth hay billing trong core — lớp thương mại là riêng biệt (Phase 9).
 - 🙋 **Human-in-the-loop, không auto-đăng.** Bản nháp tới tay một con người để duyệt, sửa, hoặc từ chối. Không gì được gửi tự động; khi nội dung *thật sự* được gửi, nó dùng **API chính thức** của nền tảng — không bao giờ tự động hóa trình duyệt / đăng lén.
-- 🌾 **Cào dữ liệu zero-hardcode.** Mục tiêu cào nằm trong `scraper_config.yaml`, chỉ trang công khai, tôn trọng robots.txt.
+- 🌾 **Nguồn dữ liệu zero-hardcode.** Mục tiêu cào/nạp nằm trong config, chỉ trang công khai, tôn trọng robots.txt.
 
 ---
 

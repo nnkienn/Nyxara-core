@@ -1,1 +1,1 @@
-"""Test suite for n-assistant-core."""
+"""Test suite root."""

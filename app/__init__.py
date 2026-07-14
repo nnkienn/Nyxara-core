@@ -1,1 +1,1 @@
-"""n-assistant-core — open-source (MIT) AI & backend core."""
+"""nyxara-core — open-source (MIT) AI engineering core."""
