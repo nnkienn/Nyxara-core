@@ -33,12 +33,48 @@
 
 ## (Điền kiến thức từng kỹ thuật bên dưới khi học — Phase 0 trở đi)
 
-<!--
-Ví dụ khi tới Phase 1:
-### Cosine similarity  ·  Phase 1  ·  2026-07-xx
-- Bài toán: đo độ giống 2 vector bất kể độ dài.
-- Công thức: cos(a,b) = (a·b) / (||a||·||b||). Nếu đã L2-normalize → chỉ còn a·b.
-- Số thật: a=[1,0], b=[1,1] → dot=1, ||b||=√2 → cos=0.707 (45°). ✓
-- CTDLGT: dot product O(d), d=1024 chiều.
-- Bẫy: quên normalize → so magnitude thay vì hướng.
--->
+### Recursive chunking · Phase 0 · 2026-07-14
+
+- **Bài toán nó giải:** Khi cần cắt một đoạn văn bản dài mà không làm mất ngữ nghĩa.
+
+- **Công thức / thuật toán:** Đệ quy + overlap. Ưu tiên cắt theo thứ tự separator từ "mạnh" đến "yếu":
+  1. Cắt ở chỗ cách đoạn (2 dòng trống `\n\n`) trước — chắc chắn 2 đoạn khác nhau, an toàn nhất.
+  2. Nếu 1 đoạn vẫn còn quá dài → cắt tiếp ở chỗ xuống dòng thường (`\n`).
+  3. Nếu 1 dòng vẫn còn quá dài → cắt ở khoảng trắng giữa 2 từ (` `).
+  4. Bí quá mới cắt ngang giữa chữ.
+  5. Sau khi có các mảnh, áp `overlap`: chunk sau lấy lại vài ký tự/từ cuối của chunk trước —
+     `start[chunk sau] = end[chunk trước] - overlap`.
+
+- **Ví dụ bằng SỐ THẬT:**
+
+  Đoạn văn gốc — cắt theo cách-đoạn trước, ra 2 đoạn (Mèo / Chó); nếu đoạn nào còn dài mới cắt
+  tiếp xuống dòng:
+  ```
+  Mèo là loài vật đáng yêu.
+  Mèo thích ngủ cả ngày.
+
+  Chó thì trung thành với chủ.
+  Chó thích chạy nhảy.
+  ```
+
+  Ví dụ overlap (tính theo **từ** cho dễ hình dung — code thật sẽ tính theo **ký tự**, ý tưởng y hệt):
+  ```
+  Text: "Mèo thích ngủ cả ngày và mèo cũng thích chơi bóng"
+  Đánh số từ: 0:Mèo 1:thích 2:ngủ 3:cả 4:ngày 5:và 6:mèo 7:cũng 8:thích 9:chơi 10:bóng
+
+  size = 5 từ, overlap = 2 từ
+
+  chunk0  = từ [0:5] = "Mèo thích ngủ cả ngày"
+  start1  = end0 - overlap = 5 - 2 = 3
+  chunk1  = từ [3:8] = "cả ngày và mèo cũng"
+
+  → phần chung "cả ngày" (từ 3-4) nằm ở cuối chunk0 và đầu chunk1
+  ```
+
+- **CTDLGT bên trong:** Đệ quy (recursion) + sliding window (overlap). Độ phức tạp: O(n).
+
+- **Bẫy dễ sai:** Nếu `overlap >= size` thì không còn ký tự mới nào để ghép — chunk không tiến
+  lên được (đứng yên hoặc lặp vô hạn).
+
+- **Khi nào đáng bật (flag):** _(điền sau khi code xong)_
+
