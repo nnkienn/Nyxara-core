@@ -26,4 +26,12 @@
 - **Faithfulness** — câu trả lời có bám context không (RAGAS).
 - **Hit@k / MRR / NDCG** — các chỉ số đo chất lượng xếp hạng retrieval.
 
+
+
+## Ingestion / Dedup
+- **Deduplication (dedup)** — loại bỏ chunk trùng trước khi nạp kho (chunk trùng chiếm slot top-k + tốn tiền embed).
+- **Hash set** — tập hợp dùng hash để kiểm tra "đã thấy chưa" trong O(1) (thay vì list phải dò O(n)).
+- **Idempotent** — chạy 1 lần hay 100 lần cho cùng kết quả; ingest cùng doc 2 lần không nhân đôi.
+- **`set` vs `set()`** — `set` là *kiểu/khuôn*; `set()` tạo *một tập rỗng thật sự*. Gán `seen = set` (thiếu `()`) → `TypeError` khi dùng `in`.
+
 ## (Thêm nhóm/từ mới bên dưới)

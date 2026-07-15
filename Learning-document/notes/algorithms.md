@@ -78,3 +78,24 @@
 
 - **Khi nào đáng bật (flag):** _(điền sau khi code xong)_
 
+
+
+## Dedup (exact) — Phase 0
+
+- **Bài toán nó giải:** loại bỏ các chunk **trùng hệt nhau** trước khi nạp kho. Chunk trùng
+  gây 2 hại: (1) khi retrieval, các bản trùng chiếm hết slot top-k → đẩy chunk khác ra → câu
+  trả lời nghèo đi; (2) tốn tiền embed nhiều lần cho cùng một nội dung. Còn giúp ingest
+  **idempotent** (chạy lại cùng doc không nhân đôi).
+
+- **Công thức / thuật toán:** giữ 1 `set` tên `seen`. Duyệt từng chunk theo thứ tự — **kiểm
+  tra trước** (`chunk not in seen`?): nếu chưa gặp → thêm vào `result` **và** `seen.add`; nếu
+  gặp rồi → bỏ qua. Phải kiểm tra TRƯỚC rồi mới add (add trước sẽ bỏ nhầm ngay bản đầu tiên).
+
+- **Ví dụ (người gác cửa):** `["mèo","chó","mèo","chim"]` → mèo(mới,giữ) · chó(mới,giữ) ·
+  mèo(đã có,bỏ) · chim(mới,giữ) → `["mèo","chó","chim"]`, giữ đúng thứ tự lần đầu xuất hiện.
+
+- **CTDLGT bên trong:** hash set → kiểm tra `in` là **O(1)**, tổng **O(n)**. Nếu dùng `list`
+  (`in` là O(n)) thì tổng thành **O(n²)** — đây là lý do phải chọn đúng cấu trúc dữ liệu.
+
+- **Bẫy dễ sai:** (1) `seen = set` thiếu `()` → TypeError; (2) chỉ `seen.add` mà quên
+  `result.append` → trả về list rỗng. Xem [bug-log](./bug-log.md) #2, #3.
