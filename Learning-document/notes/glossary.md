@@ -34,4 +34,10 @@
 - **Idempotent** — chạy 1 lần hay 100 lần cho cùng kết quả; ingest cùng doc 2 lần không nhân đôi.
 - **`set` vs `set()`** — `set` là *kiểu/khuôn*; `set()` tạo *một tập rỗng thật sự*. Gán `seen = set` (thiếu `()`) → `TypeError` khi dùng `in`.
 
+- **Near-duplicate** — 2 chunk *gần* giống (chỉ thừa 1 dấu chấm, khác 1 chữ…); exact-dedup coi là khác nhau → vẫn embed cả 2 → tốn tiền + nhiễu top-k.
+- **Edit distance (Levenshtein)** — đo độ **KHÁC** nhau: số phép sửa **tối thiểu** (thêm/xoá/thay 1 ký tự) để biến chuỗi A thành B. Càng nhỏ càng giống; 0 = giống hệt.
+- **Dynamic Programming (DP)** — chia bài toán lớn thành các **bài toán con**, lưu kết quả từng bài con vào **bảng** để bài lớn hơn tra lại (không tính lại). Ở edit distance: mỗi ô lưới = distance của "i ký tự đầu A vs j ký tự đầu B".
+- **Threshold (ngưỡng)** — con số quyết "gần bao nhiêu thì coi là trùng": `distance ≤ ngưỡng → bỏ`. Cao quá → gộp nhầm chunk khác nghĩa; thấp quá → lọt near-dup. Chọn bằng eval, không chọn bừa.
+- **Normalization** — chuẩn hoá text *trước khi so* (lowercase, bỏ dấu câu/khoảng trắng thừa) → ca "khác vặt" thành giống hệt → bắt được bằng hash O(1), đỡ tốn edit distance.
+
 ## (Thêm nhóm/từ mới bên dưới)

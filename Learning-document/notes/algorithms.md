@@ -99,3 +99,49 @@
 
 - **Bẫy dễ sai:** (1) `seen = set` thiếu `()` → TypeError; (2) chỉ `seen.add` mà quên
   `result.append` → trả về list rỗng. Xem [bug-log](./bug-log.md) #2, #3.
+
+
+
+### Edit distance / Levenshtein (DP) · Phase 0 · 2026-07-16
+
+- **Bài toán nó giải:** hash **không đủ** cho near-dup — chunk chỉ thừa 1 dấu chấm là hash đổi
+  hoàn toàn, 2 câu gần y nhau bị coi là khác → vẫn embed cả 2, tốn tiền + nhiễu top-k.
+  Cần chuyển từ hỏi "giống hệt không?" (hash) sang đo "**khác bao nhiêu?**" (distance).
+
+- **Công thức / thuật toán:** dựng lưới `(len(A)+1) × (len(B)+1)`; ô `(i,j)` = distance giữa
+  i ký tự đầu của A và j ký tự đầu của B. Ba bước:
+  1. **Viền:** hàng đầu `0,1,2,…` (thêm j lần) · cột đầu `0,1,2,…` (xoá i lần).
+  2. **Mỗi ô trong = min của 3 đường** (nhớ **luôn cộng phí**):
+     ```
+     trên  = giá_trị_trên  + 1        (xoá)
+     trái  = giá_trị_trái  + 1        (thêm)
+     chéo  = giá_trị_chéo  + cost     (cost = 0 nếu 2 ký tự GIỐNG, = 1 nếu KHÁC)
+     ô     = min(trên, trái, chéo)
+     ```
+  3. **Đáp án = ô góc dưới-phải.** (Phải điền CẢ lưới — đường rẻ nhất tự bẻ ngang/xuống/chéo,
+     không nhẩm mỗi đường chéo được.)
+
+- **Ví dụ bằng SỐ THẬT:** A="beo" (hàng) vs B="meo" (cột) → distance = 1 (thay b↔m):
+  ```
+        ""  m  e  o
+    ""   0  1  2  3
+    b    1  1  2  3
+    e    2  2  1  2
+    o    3  3  2  1   ← ô cuối = 1
+  ```
+  Đường rẻ nhất: tốn 1 tại `b≠m`, rồi `e=e`, `o=o` đi chéo miễn phí bê số 1 về đích.
+  Các kiểu khác: xoá (`meo/eo`=1, đường bẻ XUỐNG) · thêm (`cat/cats`=1, bẻ NGANG) ·
+  khác hết (`cat/dog`=3, chéo nhưng +1 mỗi bước).
+
+- **CTDLGT bên trong:** DP + lưới 2 chiều (list lồng list). Độ phức tạp **O(n·m)** một cặp.
+  Near-dup ngây thơ so mọi cặp chunk → O(số_chunk² × độ_dài²) → scale lớn phải normalize+hash
+  trước rồi MinHash, edit distance chỉ cho chunk ngắn/ít.
+
+- **Bẫy dễ sai:** (1) **quên +1** khi cộng phí đường đi (dính 3 lần! — xem [bug-log](./bug-log.md) #4);
+  (2) tưởng "chỉ cần dò đường chéo chính là ra đáp án" — sai, phải điền cả lưới lấy ô cuối;
+  (3) `grid[n,m]` sai cú pháp — lưới 2 chiều truy cập bằng `grid[i][j]`, ô cuối là `[n-1][m-1]` (#5);
+  (4) `[[0]*n]*m` tạo m hàng **trỏ chung 1 hàng** — sửa 1 ô, cả cột đổi theo.
+
+- **Khi nào đáng bật (flag):** bản tay = để hiểu + debug. Production: **normalize + hash exact**
+  trước (bắt 90% ca vặt, O(1)) → còn lại `rapidfuzz` (C, nhanh) hoặc **MinHash** khi scale.
+  Cắm thư viện vào **cuối Phase 0** theo quy ước, flag mặc định TẮT, ngưỡng chọn bằng eval (Phase 3).

@@ -23,7 +23,7 @@
 
 | Pattern | Ví dụ kinh điển | Đã dính ở bug # |
 |---|---|---|
-| Off-by-one | rank bắt đầu từ 0 thay vì 1 (NDCG, RRF) | #1 |
+| Off-by-one | rank bắt đầu từ 0 thay vì 1 (NDCG, RRF); quên +1 phí đường đi (edit distance) | #1, #4 |
 | Sai dấu / ngưỡng | `>= 0` lẽ ra `>= 0.5`; đảo dấu λ trong MMR | — |
 | Quên normalize | cosine trên vector chưa L2-norm | — |
 | Thiếu `await` | async lây cả chuỗi, coroutine không chạy | — |
@@ -60,3 +60,21 @@
 - **Fix:** `seen = set()`.
 - **Test chặn tái phát:** cùng test file (crash thì test đỏ ngay).
 - **Bài học / pattern:** phân biệt *kiểu* vs *instance của kiểu* — cùng họ lỗi với dùng `list` thay `list()`, `dict` thay `dict()`.
+
+
+
+### #4 — quên +1 (cộng phí) khi tính ô trong lưới edit distance  ·  Phase 0  ·  thật  ·  2026-07-16
+- **Triệu chứng:** ô `(e,b)` tính ra 1 thay vì 2; sanity check lộ liền: "meo"→"b" không thể tốn 1 phép. **Dính 3 lần trong 1 buổi** — 2 lần lúc trace tay, 1 lần khi vẽ lại ma trận vào notes (3 ô sai).
+- **Nguyên nhân:** lấy `min(3 hàng xóm)` mà quên cộng phí bước đi — đặc biệt đường chéo khi 2 ký tự **khác nhau** vẫn phải +1 (chéo chỉ miễn phí khi 2 ký tự GIỐNG hệt).
+- **Cách tìm ra:** sanity check bằng trực giác — "biến chuỗi 3 chữ thành 1 chữ mà chỉ tốn 1 phép?" vô lý → dò lại từng số trong phép min → thấy thiếu +1.
+- **Fix:** khắc luật: `trên+1, trái+1, chéo+cost` — **luôn cộng phí**, miễn phí là ngoại lệ duy nhất (chéo + ký tự khớp).
+- **Test chặn tái phát:** (sẽ thêm) `tests/application/ingestion/test_edit_distance.py` — 5 ca: thay/giống hệt/xoá/thêm/khác hết.
+- **Bài học / pattern:** cùng họ **off-by-one** (#1) — sai lệch 1 đơn vị ở phép cộng dồn. Loại này "lì": hiểu rồi vẫn tái phạm khi tay làm nhanh → chỉ có test + sanity check bắt được, đừng tin mắt.
+
+### #5 — `grid[n,m]` + lưới đóng cứng kích thước  ·  Phase 0  ·  thật  ·  2026-07-16
+- **Triệu chứng:** (1) `return grid[n,m]` → `TypeError` (list không nhận chỉ số kiểu tuple); (2) tạo lưới bằng `range(2)` + `row=[0,0,0]` cứng → input dài hơn là lưới không đủ chỗ, nổ IndexError.
+- **Nguyên nhân:** (1) lưới 2 chiều phải truy cập **2 cặp ngoặc riêng** `grid[i][j]`, không phải `grid[i,j]`; ô cuối là `[n-1][m-1]` (chỉ số lớn nhất = kích thước − 1). (2) đã tính `n, m` từ `len(a), len(b)` nhưng không dùng, hardcode số cứng.
+- **Cách tìm ra:** đọc traceback dòng cuối + soi "n, m tính ra để làm gì mà không dùng?".
+- **Fix:** `grid = [[0]*m for _ in range(n)]` (hoặc vòng for dài) và `return grid[n-1][m-1]`.
+- **Test chặn tái phát:** cùng test file #4 — ca chuỗi dài khác nhau sẽ bắt được hardcode.
+- **Bài học / pattern:** "magic number" — số cứng viết tay chỉ đúng cho 1 ví dụ, phải thay bằng biến tính từ input. Và cú pháp truy cập lưới `[i][j]` — nhớ luôn thể `[[0]*n]*m` là bẫy trỏ chung hàng.
