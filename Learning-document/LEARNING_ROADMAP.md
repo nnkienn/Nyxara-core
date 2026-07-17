@@ -377,8 +377,7 @@ tests/evaluation/test_retrieval_metrics.py   # tính tay đối chiếu
 3. **Quay lại Phase 2** đo từng kỹ thuật (metadata filter, MMR, temporal, rerank…) →
    **chỉ giữ cái thắng rõ rệt** trên golden của niche bạn (cả trục chất lượng ↔ cost).
 4. **Tích hợp eval vào CI:** mỗi PR phải **pass regression set** + không tụt metric quá ngưỡng.
-   → biến "đo trước, tin sau" thành **cổng tự động**, không phụ thuộc kỷ luật con người.
-
+   → biến "đo trước, tin sau" thành **cổng tự động**, không phụ thuộc kỷ luật con người.             
 > Đây là **vòng lặp trung tâm của cả dự án**: *thêm kỹ thuật → eval → giữ/bỏ*.
 > Không có bước này, roadmap chỉ là sưu tầm kỹ thuật.
 

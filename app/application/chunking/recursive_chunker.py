@@ -18,7 +18,7 @@ def split_by_separators(text: str, size: int, separators: list[str]) -> list[str
     result = []
     for part in parts:
         if len(part) > size:
-            result.extend(split_by_separators(part, size, separators))
+            result.extend(split_by_separators(part, size, separators[1:]))
         else:
             result.append(part)
     return result

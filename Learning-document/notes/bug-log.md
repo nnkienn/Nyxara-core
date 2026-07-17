@@ -28,8 +28,8 @@
 | Quên normalize | cosine trên vector chưa L2-norm | — |
 | Thiếu `await` | async lây cả chuỗi, coroutine không chạy | — |
 | Parse lỏng | `"yes" in text` bắt nhầm "no ... yes-like" | — |
-| Silent failure | quên filter `tenant_id` → rò data, KHÔNG crash | — |
-| State/loop guard | thiếu `max_steps`/`attempts` → lặp vô hạn | — |
+| Silent failure | quên filter `tenant_id` → rò data, KHÔNG crash | #7 |
+| State/loop guard | thiếu `max_steps`/`attempts` → lặp vô hạn | #6 |
 
 ---
 
@@ -78,3 +78,36 @@
 - **Fix:** `grid = [[0]*m for _ in range(n)]` (hoặc vòng for dài) và `return grid[n-1][m-1]`.
 - **Test chặn tái phát:** cùng test file #4 — ca chuỗi dài khác nhau sẽ bắt được hardcode.
 - **Bài học / pattern:** "magic number" — số cứng viết tay chỉ đúng cho 1 ví dụ, phải thay bằng biến tính từ input. Và cú pháp truy cập lưới `[i][j]` — nhớ luôn thể `[[0]*n]*m` là bẫy trỏ chung hàng.
+
+### #6 — đệ quy dùng sai slice `separators` (không tiến triển)  ·  Phase 0  ·  cố ý  ·  2026-07-17
+- **Triệu chứng:** `split_by_separators("Meo thich ngu\n\nCho thich chay", size=10, separators=["\n\n"," "])`
+  → `RecursionError: maximum recursion depth exceeded` (Python tự phát hiện: "same locals & position").
+- **Nguyên nhân:** lần gọi đệ quy dùng lại **nguyên `separators`** (rồi thử `separators[:1]` —
+  vẫn chỉ giữ lại phần tử **đầu**, tức `"\n\n"`) thay vì `separators[1:]` (bỏ phần tử đầu, giữ
+  phần **còn lại**). Vì `part` đã tách bởi `"\n\n"` nên không còn `"\n\n"` bên trong nữa —
+  split lại bằng đúng separator đó là no-op, `part` y hệt lần trước → gọi lại chính nó mãi mãi.
+- **Cách tìm ra:** đọc traceback thấy cùng 1 dòng lặp lại nhiều lần với "same locals" → hiểu là
+  state (ở đây là `separators`) không hề thay đổi giữa các lần gọi → soi lại tham số truyền vào
+  lời gọi đệ quy.
+- **Fix:** `split_by_separators(part, size, separators[1:])`.
+- **Test chặn tái phát:** `tests/application/chunking/test_recursive_chunker.py::test_splits_by_paragraph_then_word`.
+- **Bài học / pattern:** **State/loop guard** — đệ quy bắt buộc phải tiến **gần base case hơn**
+  ở mỗi lần gọi (ở đây là "dùng hết dần danh sách separator"). Nhầm hướng slice (`[:1]` giữ
+  *trước* index vs `[1:]` giữ *từ* index trở đi) là lỗi cú pháp rất nhỏ nhưng gây hậu quả nặng
+  (crash toàn bộ, không phải chỉ sai số nhẹ).
+
+### #7 — định nghĩa `save_seen` nhưng quên gọi nó  ·  Phase 0  ·  cố ý  ·  2026-07-17
+- **Triệu chứng:** `incremental_ingest(["mèo","gà","chó"], path)` rồi gọi lần 2 với
+  `["mèo","gà","chó","chim"]` — mong đợi chỉ `["chim"]`, nhưng nhận về **cả 4 chunk**, kể cả
+  3 chunk cũ. Không crash, chạy xong bình thường.
+- **Nguyên nhân:** `seen.add(h)` chỉ sửa object `seen` **trong RAM**. Hàm `save_seen()` đã được
+  định nghĩa sẵn nhưng **không có dòng nào gọi nó** trong `incremental_ingest` → file trên đĩa
+  không bao giờ được ghi lại. Lần gọi sau `load_seen()` đọc file vẫn rỗng/cũ.
+- **Cách tìm ra:** viết test mô phỏng **2 lần gọi liên tiếp** (đúng ví dụ mèo/gà/chó/chim đã có
+  sẵn trong `algorithms.md`) → so quy trình đã tự ghi trong note ("load → check → **save**")
+  với code thật → thấy thiếu bước save.
+- **Fix:** gọi `save_seen(seen_path, seen)` trong `incremental_ingest`, sau khi cập nhật `seen`.
+- **Test chặn tái phát:** `tests/application/ingestion/test_pipeline.py::test_second_run_only_returns_new_chunks`.
+- **Bài học / pattern:** **Silent failure** — hàm chạy xong không lỗi, nhưng "quên lưu trạng
+  thái" khiến mọi lần chạy sau coi như chưa từng ingest gì. Test chỉ gọi hàm **1 lần** sẽ
+  KHÔNG BAO GIỜ bắt được bug này — phải test qua ít nhất 2 lần gọi liên tiếp mới lộ ra.

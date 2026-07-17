@@ -145,3 +145,30 @@
 - **Khi nào đáng bật (flag):** bản tay = để hiểu + debug. Production: **normalize + hash exact**
   trước (bắt 90% ca vặt, O(1)) → còn lại `rapidfuzz` (C, nhanh) hoặc **MinHash** khi scale.
   Cắm thư viện vào **cuối Phase 0** theo quy ước, flag mặc định TẮT, ngưỡng chọn bằng eval (Phase 3).
+
+
+### Incremental ingest · Phase 0 · 2026-07-17
+
+- **Bài toán nó giải:**
+    Idempotent — chạy lại pipeline bao nhiêu lần cũng không bị dup dữ liệu. `dedup_exact` và
+    near-dup (edit distance) chỉ check trùng **trong 1 lần gọi**, không nhớ được giữa các lần chạy.
+
+- **Công thức / thuật toán:**
+    Load `seen` (tập hash) từ file — nếu chưa có file thì `seen` rỗng. Với mỗi chunk mới: tính
+    hash, nếu đã có trong `seen` thì bỏ qua, chưa có thì embed/save và thêm hash đó vào `seen`.
+    …
+
+- **Ví dụ bằng SỐ THẬT:** …
+ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, chó , chim " check tại vì mèo gà chó đã có trong seen rồi nên chỉ cần insert cái hash của chim
+
+- **CTDLGT bên trong:** … (hash map? heap? graph?) + độ phức tạp O(?)
+  cấu trúc dữ liệu bên trong là hash set (chỉ cần biết có/không, không cần key→value), độ phức tạp O(n)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  - **Bẫy dễ sai:** định nghĩa `save_seen()` xong **quên gọi nó** trong `incremental_ingest` —
+  `seen.add()` chỉ sửa object trong RAM, không tự ghi xuống file. Không crash, chỉ khiến lần
+  chạy sau coi mọi thứ là mới. Test 1-lần-gọi không bắt được, phải test 2 lần liên tiếp mới lộ.
+  Xem [bug-log](./bug-log.md) #7.
+
+- **Khi nào đáng bật (flag):** gần như luôn bật — khác với semantic/proposition chunking (nâng
+  *chất lượng*, tuỳ chọn), incremental ingest giải quyết *chi phí + idempotency*, cần thiết bất
+  cứ khi nào ingest chạy lặp lại trên cùng nguồn. Chỉ bỏ qua nếu chắc chắn pipeline **chỉ chạy
+  đúng 1 lần, không bao giờ lặp lại** trên cùng dữ liệu.
