@@ -24,12 +24,14 @@
 | Pattern | Ví dụ kinh điển | Đã dính ở bug # |
 |---|---|---|
 | Off-by-one | rank bắt đầu từ 0 thay vì 1 (NDCG, RRF); quên +1 phí đường đi (edit distance) | #1, #4 |
-| Sai dấu / ngưỡng | `>= 0` lẽ ra `>= 0.5`; đảo dấu λ trong MMR | — |
+| Sai dấu / ngưỡng | `>= 0` lẽ ra `>= 0.5`; đảo dấu λ trong MMR; `+` thay vì `*` ở mẫu số cosine | #8 |
 | Quên normalize | cosine trên vector chưa L2-norm | — |
 | Thiếu `await` | async lây cả chuỗi, coroutine không chạy | — |
 | Parse lỏng | `"yes" in text` bắt nhầm "no ... yes-like" | — |
 | Silent failure | quên filter `tenant_id` → rò data, KHÔNG crash | #7 |
 | State/loop guard | thiếu `max_steps`/`attempts` → lặp vô hạn | #6 |
+| Sửa test thay vì sửa code | đổi số mong đợi trong assert cho khớp output sai, thay vì sửa hàm nguồn | #9 |
+| Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 
 ---
 
@@ -111,3 +113,72 @@
 - **Bài học / pattern:** **Silent failure** — hàm chạy xong không lỗi, nhưng "quên lưu trạng
   thái" khiến mọi lần chạy sau coi như chưa từng ingest gì. Test chỉ gọi hàm **1 lần** sẽ
   KHÔNG BAO GIỜ bắt được bug này — phải test qua ít nhất 2 lần gọi liên tiếp mới lộ ra.
+
+### #8 — sai dấu `+` thay vì `*` trong `cosine_similarity`  ·  Phase 1  ·  cố ý  ·  2026-07-19
+- **Triệu chứng:** `cosine_similarity([1,0], [1,1])` mong đợi `0.707` (tính tay), nhận về `0.414`.
+- **Nguyên nhân:** `return dot / (norm_a + norm_b)` — **cộng** 2 độ dài vector lại làm mẫu số,
+  thay vì **nhân** (`norm_a * norm_b`) đúng công thức `cos(a,b) = dot / (||a|| × ||b||)`.
+- **Cách tìm ra:** test dùng đúng ví dụ đã tính tay trước đó (`a=[1,0]`, `b=[1,1]`) → so công
+  thức đã ghi trong note, thấy dấu toán tử sai.
+- **Fix:** đổi `+` thành `*`.
+- **Test chặn tái phát:** `tests/domain/test_similarity.py::test_45_degree_angle`.
+- **Bài học / pattern:** nhầm phép cộng với phép nhân ở công thức toán — dễ xảy ra khi gõ nhanh
+  không nhìn kỹ ký hiệu `×` trong công thức đã viết ra.
+
+### #9 — sửa đáp án của test thay vì sửa code nguồn  ·  Phase 1  ·  cố ý (lộ thêm)  ·  2026-07-19
+- **Triệu chứng:** sau khi thấy test đỏ (`0.707` mong đợi vs `0.414` thực tế), thay vì sửa
+  `similarity.py`, lại đổi thẳng `assert ... == 0.707` trong **test** thành `0.707 == 0.404`
+  (mà `0.404` còn không khớp cả con số sai `0.414` — tính nhầm luôn cả số để né).
+- **Nguyên nhân:** hiểu lầm mục tiêu là "làm test xanh", quên rằng test đóng vai trò **đáp án
+  đúng cố định** (tính tay, độc lập với code) — sửa đáp án theo bài làm sai là ngược chiều.
+- **Cách tìm ra:** đọc lại diff thấy số trong `assert` bị đổi, không phải code nguồn.
+- **Fix:** trả `assert` về đúng `0.707` (ground truth), sửa bug thật ở `similarity.py` (xem #8).
+- **Test chặn tái phát:** `tests/domain/test_similarity.py::test_45_degree_angle`.
+- **Bài học / pattern:** đây là lỗi **tư duy về testing** nghiêm trọng hơn cả bug toán #8 —
+  test phải giữ nguyên đáp án đúng, code phải đổi để khớp test, không phải ngược lại. Nếu quen
+  tay "sửa test cho xanh", mọi lưới an toàn (regression test) sẽ mất tác dụng vĩnh viễn.
+
+### #10 — `_ensure_collection` thiếu thân `if`, luôn tạo mới không "ensure"  ·  Phase 1  ·  thật  ·  2026-07-19
+- **Triệu chứng:** gọi `QdrantStore(...)` lần 2 (collection đã có từ lần 1) → Qdrant trả lỗi
+  `409 Conflict: Collection 'test_phase1' already exists!`. Lần đầu chạy vẫn ổn, không lỗi.
+- **Nguyên nhân:** `if not self.client.collection_exists(...):` đứng riêng 1 dòng, còn
+  `self.client.create_collection(...)` thụt lề **ngang hàng với `if`** (nằm NGOÀI khối `if`)
+  → luôn chạy bất kể điều kiện đúng/sai, không hề "ensure" (đảm bảo) gì cả.
+- **Cách tìm ra:** chạy lần 2 thấy lỗi 409 → soi lại thụt lề, thấy `create_collection` không
+  nằm bên trong khối `if`.
+- **Fix:** thụt `create_collection(...)` vào thêm 1 cấp, nằm hẳn bên trong `if`.
+- **Test chặn tái phát:** xác nhận tay — gọi `QdrantStore` 2 lần liên tiếp cùng tên collection
+  không còn lỗi 409.
+- **Bài học / pattern:** thụt lề sai **không phải lúc nào cũng crash ngay** — code vẫn chạy
+  được (không `SyntaxError`), chỉ sai **phạm vi thực thi** (chạy luôn thay vì có điều kiện).
+  Phải đọc thụt lề để biết dòng nào thực sự nằm trong `if`/`for`/`def`, không chỉ nhìn "code
+  có chạy được không".
+
+### #11 — đổi tên biến vòng lặp nhưng quên sửa chỗ dùng  ·  Phase 1  ·  thật  ·  2026-07-19
+- **Triệu chứng:** `PointStruct(id=id_, ...) for id, text, vector in zip(ids, texts, vectors)`
+  — vòng lặp định nghĩa biến tên `id`, nhưng `PointStruct(...)` lại dùng `id_` (có dấu `_`,
+  chưa từng được định nghĩa) → sẽ nổ `NameError` nếu chạy.
+- **Nguyên nhân:** tên biến vòng lặp bị đổi qua vài lần sửa liên tiếp (`i` → `id_` → `id`),
+  nhưng chỗ **dùng** biến đó (trong `PointStruct`) không được cập nhật theo kịp mỗi lần đổi.
+- **Cách tìm ra:** đọc đối chiếu tên biến ở chỗ định nghĩa (dòng `for`) với chỗ dùng
+  (`PointStruct(...)`) — phát hiện 2 tên không khớp nhau trước khi chạy.
+- **Fix:** đổi `id=id_` thành `id=id` cho khớp đúng tên biến vòng lặp đang dùng.
+- **Test chặn tái phát:** xác nhận tay qua lần chạy `upsert` thành công sau đó.
+- **Bài học / pattern:** đổi tên 1 biến phải rà lại **mọi chỗ dùng nó**, không chỉ chỗ định
+  nghĩa — rất dễ sót khi sửa qua nhiều vòng nhỏ liên tiếp (giống cách bug này xuất hiện).
+
+### #12 — Qdrant point id phải là số nguyên hoặc UUID, không nhận string tuỳ ý  ·  Phase 1  ·  thật  ·  2026-07-19
+- **Triệu chứng:** `upsert('tenant_a', ['1'], ['xin chào'], [vector])` → lỗi
+  `400 Bad Request: value 1 is not a valid point ID, valid values are either an unsigned
+  integer or a UUID`.
+- **Nguyên nhân:** Qdrant giới hạn định dạng `id` nghiêm ngặt — không chấp nhận string tuỳ ý
+  (kể cả chuỗi số như `"1"`), chỉ nhận số nguyên thật hoặc UUID chuẩn.
+- **Cách tìm ra:** đọc thẳng nội dung lỗi 400 Qdrant trả về — rất rõ ràng, không cần đoán.
+- **Fix:** băm `id` gốc qua `uuid.uuid5(uuid.NAMESPACE_DNS, id_gốc)` trước khi gán vào
+  `PointStruct` — vừa hợp lệ định dạng, vừa **idempotent** (cùng id gốc luôn ra cùng UUID →
+  ingest lại ghi đè đúng điểm cũ, không tạo bản trùng).
+- **Test chặn tái phát:** xác nhận tay — `upsert` 2 lần liên tiếp cùng id gốc `"1"` đều thành
+  công, không lỗi, không tạo điểm thứ 2.
+- **Bài học / pattern:** hệ thống ngoài (Qdrant) có ràng buộc định dạng riêng — đây không phải
+  lỗi logic trong code tự viết, mà là quy tắc của hệ thống bên ngoài. Đọc kỹ thông báo lỗi từ
+  chính hệ thống đó trước khi tự đoán mò nguyên nhân.

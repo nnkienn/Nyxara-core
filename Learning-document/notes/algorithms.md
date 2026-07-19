@@ -172,3 +172,128 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
   *chất lượng*, tuỳ chọn), incremental ingest giải quyết *chi phí + idempotency*, cần thiết bất
   cứ khi nào ingest chạy lặp lại trên cùng nguồn. Chỉ bỏ qua nếu chắc chắn pipeline **chỉ chạy
   đúng 1 lần, không bao giờ lặp lại** trên cùng dữ liệu.
+
+
+
+### Cosine similarity · Phase 1 · 2026-07-19
+
+- **Bài toán nó giải:** sau khi có vector cho mỗi đoạn text (embedding), cần 1 con số đo
+  "2 đoạn giống nhau bao nhiêu" để tìm chunk liên quan tới câu hỏi — đo bằng **góc** giữa 2
+  vector, bỏ qua độ dài.
+
+- **Công thức / thuật toán:** `cos(a,b) = (a·b) / (||a|| × ||b||)`.
+  `dot = a·b` = tổng nhân từng cặp phần tử tương ứng. `||v||` = căn bậc 2 tổng bình phương từng
+  phần tử của vector đó.
+
+- **Ví dụ bằng SỐ THẬT:**
+  ```
+  a = [1, 0], b = [1, 1]
+  dot(a,b) = 1*1 + 0*1 = 1
+  ||a|| = √(1²+0²) = 1
+  ||b|| = √(1²+1²) = √2 ≈ 1.414
+  cos(a,b) = 1 / (1 × 1.414) ≈ 0.707   (góc 45°)
+  ```
+  Test thật với vector từ `BAAI/bge-m3`:
+  ```
+  cos("xin chào", "hello")    = 0.854   ← rất giống, dù khác ngôn ngữ hoàn toàn
+  cos("xin chào", "con mèo")  = 0.618   ← thấp hơn hẳn, nghĩa khác
+  ```
+
+- **CTDLGT bên trong:** thuần toán (dot product + norm), không cấu trúc dữ liệu đặc biệt.
+  Độ phức tạp **O(d)** với d = số chiều vector (1024 với bge-m3).
+
+- **Bẫy dễ sai:** nhầm `+` với `*` ở mẫu số (xem [bug-log](./bug-log.md) #8) — **và** bẫy nặng
+  hơn: khi thấy test đỏ, sửa **đáp án trong test** cho khớp code sai, thay vì sửa code (#9).
+
+- **Khi nào đáng bật (flag):** luôn dùng — đây là phép đo lõi của mọi retrieval dựa trên
+  vector, không phải kỹ thuật tuỳ chọn.
+
+---
+
+### Embedder & VectorStore Port (hexagonal architecture) · Phase 1 · 2026-07-19
+
+- **Bài toán nó giải:** `domain`/`application` không được phụ thuộc trực tiếp vào thư viện cụ
+  thể (`FlagEmbedding`, `qdrant-client`) — đổi model/kho vector sau này, code gọi nó **không
+  cần sửa gì**.
+
+- **Công thức / thuật toán:** dùng `typing.Protocol` khai báo "hợp đồng" (interface) — chỉ có
+  chữ ký hàm (thân là `...`), không logic thật. `Embedder` cần `dim: int` +
+  `embed(texts: list[str]) -> list[list[float]]` (chú ý: **batch**, không phải 1 câu 1 lần).
+  `VectorStore` cần `SearchHit` (dataclass `id/text/score`) + `upsert`/`search` đều **bắt buộc**
+  tham số `tenant_id`.
+
+- **Ví dụ:** class nào có đúng field/method khớp Protocol thì tự động "hợp lệ" — không cần
+  khai báo kế thừa tường minh (`class Foo(Embedder)` không bắt buộc, chỉ cần đúng hình dạng).
+
+- **CTDLGT bên trong:** không phải CTDLGT truyền thống — đây là mẫu thiết kế **Port/Adapter**
+  (Hexagonal Architecture): Port = giao diện thuần domain, Adapter = implementation thật gọi
+  thư viện ngoài.
+
+- **Bẫy dễ sai:** nhầm `__init__.py` (file đánh dấu package, phải rỗng) với `__init__` (hàm
+  khởi tạo bên trong class) — dán nhầm code vào file package khiến class thật thiếu mất phần
+  quan trọng; quên `self` ở method; nhét thuộc tính (`dim`) vào trong ngoặc của method thay vì
+  khai báo riêng 1 dòng độc lập.
+
+- **Khi nào đáng bật (flag):** luôn dùng khi có tầng infrastructure gọi thư viện ngoài —
+  nguyên tắc gốc hexagonal của dự án, không phải optional.
+
+---
+
+### BGEEmbedder (BAAI/bge-m3) · Phase 1 · 2026-07-19
+
+- **Bài toán nó giải:** cần 1 embedder **thật** (không phải giả lập) sinh vector 1024 chiều đa
+  ngôn ngữ từ text, implement đúng Protocol `Embedder`.
+
+- **Công thức / thuật toán:** load model 1 lần trong `__init__`
+  (`self.model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=False)`, `self.dim = 1024`);
+  `embed()` gọi `self.model.encode(texts)['dense_vecs'].tolist()` — `encode` xử lý theo
+  **batch** (nhiều câu 1 lần, nhanh hơn hẳn gọi từng câu lẻ).
+
+- **Ví dụ bằng SỐ THẬT:** `embed(["xin chào", "hello", "con mèo"])` → 3 vector, mỗi vector dài
+  1024. Ghép với `cosine_similarity` (mục trên) → chứng minh model hiểu **NGHĨA** xuyên ngôn
+  ngữ, không so chữ.
+
+- **CTDLGT bên trong:** mạng neural transformer đã train sẵn (KHÔNG tự code lại được — cần dữ
+  liệu khổng lồ + GPU cluster). Phần tự code tay được là toán xử lý **output** của nó (cosine
+  similarity ở trên).
+
+- **Bẫy dễ sai:** tạo model xong quên gán `self.model = ...` (model bị tạo ra rồi biến mất);
+  `.toList()` sai case (đúng là `.tolist()`, chữ thường); cắt `[0]` làm mất kết quả batch, chỉ
+  giữ đúng 1 vector; chạy nhầm `python3` hệ thống thay vì `.venv/bin/python3` →
+  `ModuleNotFoundError` dù thư viện đã cài đúng chỗ.
+
+- **Khi nào đáng bật (flag):** cắm thay embedder giả khi cần chạy thật/tích hợp Qdrant; giữ
+  1 fake embedder riêng cho unit test nhanh, không cần load model thật (~vài giây mỗi lần).
+
+---
+
+### QdrantStore + Tenant Isolation + UUID5 · Phase 1 · 2026-07-19
+
+- **Bài toán nó giải:** lưu vector đã embed vào kho thật (Qdrant) để tìm lại sau. Nhiều tenant
+  (niche/khách hàng khác nhau) **share chung 1 collection** — quên lọc đúng tenant lúc `search`
+  (chưa code, để buổi sau) là **silent failure**: không crash, chỉ âm thầm rò dữ liệu tenant
+  khác.
+
+- **Công thức / thuật toán:**
+  - `_ensure_collection`: kiểm tra `collection_exists` **trước** khi `create_collection` —
+    idempotent, gọi lại nhiều lần không lỗi.
+  - `upsert`: dùng `zip(ids, texts, vectors)` gộp 3 danh sách song song thành list
+    `PointStruct(id, vector, payload={tenant_id, text})`.
+  - `id` gốc được băm qua `uuid.uuid5(uuid.NAMESPACE_DNS, id_gốc)` trước khi gán — vì (a)
+    Qdrant chỉ chấp nhận id dạng số nguyên hoặc UUID, không nhận string tuỳ ý; và (b) idempotent
+    — cùng id gốc luôn ra cùng UUID, ingest lại **ghi đè** thay vì tạo bản trùng.
+
+- **Ví dụ bằng SỐ THẬT:** `upsert('tenant_a', ['1'], ['xin chào'], [vector])` gọi 2 lần liên
+  tiếp (cùng id gốc `"1"`) đều thành công, không tạo điểm thứ 2 — vì `uuid5("1")` luôn ra đúng
+  1 UUID cố định.
+
+- **CTDLGT bên trong:** vector database có index tìm gần đúng (HNSW bên trong Qdrant, chưa cần
+  hiểu sâu ở Phase 1) + hash 1 chiều (`uuid5` = hash namespace+name → UUID cố định).
+
+- **Bẫy dễ sai:** thân `if not collection_exists(...):` bị thụt lề sai khiến `create_collection`
+  luôn chạy dù có điều kiện bọc ngoài (#10, không lỗi cú pháp — sai Ý NGHĨA logic); đổi tên biến
+  vòng lặp (`id_`→`id`) nhưng quên sửa chỗ dùng (#11); Qdrant point id không nhận string tuỳ ý,
+  phải số nguyên hoặc UUID (#12).
+
+- **Khi nào đáng bật (flag):** luôn dùng — đây là adapter lõi của Phase 1. Tenant filter ở
+  `search` (buổi sau) là **bắt buộc tuyệt đối**, không phải flag tuỳ chọn.
