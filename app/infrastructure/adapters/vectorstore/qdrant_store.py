@@ -7,12 +7,14 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 from qdrant_client.models import PointStruct
 
+from qdrant_client.models import Filter, FieldCondition, MatchValue
+from app.domain.ports.vector_store import SearchHit
 
 class QdrantStore:
-    def __init__(self, url: str, collection: str, dim: int):
-        self.client = QdrantClient(url=url)      # mở kết nối, dùng lại cho mọi hàm khác
-        self.collection = collection             # nhớ tên kho sẽ thao tác
-        self._ensure_collection(dim)              # đảm bảo kho đã tồn tại trước khi dùng
+    def __init__(self, client: QdrantClient, collection: str, dim: int):
+        self.client = client
+        self.collection = collection
+        self._ensure_collection(dim)
 
     def _ensure_collection(self, dim):
         # "ensure" = ĐẢM BẢO có, không phải LUÔN LUÔN tạo mới.
@@ -42,3 +44,26 @@ class QdrantStore:
             collection_name=self.collection,
             points=points,
         )
+
+
+    def search(self, tenant_id : str , query_vector: list[float], top_k: int)->list[SearchHit]:
+        filter = Filter(
+            must = [
+                FieldCondition(
+                    key= "tenant_id",
+                    match = MatchValue(value=tenant_id)
+                )
+            ]
+        )
+        res = self.client.query_points(          # search -> query_points
+            collection_name=self.collection,
+            query=query_vector,                  # query_vector= -> query=
+            query_filter=filter,
+            limit=top_k,
+        ).points                                 # thêm .points ở cuối (response mới bọc trong .points)
+
+        return [
+            SearchHit(id=hit.id, text=hit.payload["text"], score=hit.score)
+            for hit in res
+        ]
+        

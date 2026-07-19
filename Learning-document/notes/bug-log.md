@@ -28,7 +28,8 @@
 | Quên normalize | cosine trên vector chưa L2-norm | — |
 | Thiếu `await` | async lây cả chuỗi, coroutine không chạy | — |
 | Parse lỏng | `"yes" in text` bắt nhầm "no ... yes-like" | — |
-| Silent failure | quên filter `tenant_id` → rò data, KHÔNG crash | #7 |
+| Silent failure | quên filter `tenant_id` → rò data, KHÔNG crash | #7, #13 |
+| Breaking change theo version lib | `.search()` bị gỡ → `.query_points()` | #14 |
 | State/loop guard | thiếu `max_steps`/`attempts` → lặp vô hạn | #6 |
 | Sửa test thay vì sửa code | đổi số mong đợi trong assert cho khớp output sai, thay vì sửa hàm nguồn | #9 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
@@ -182,3 +183,33 @@
 - **Bài học / pattern:** hệ thống ngoài (Qdrant) có ràng buộc định dạng riêng — đây không phải
   lỗi logic trong code tự viết, mà là quy tắc của hệ thống bên ngoài. Đọc kỹ thông báo lỗi từ
   chính hệ thống đó trước khi tự đoán mò nguyên nhân.
+
+### #13 — bỏ filter `tenant_id` trong `search` → rò data tenant khác (KHÔNG crash)  ·  Phase 1  ·  cố ý (drill)  ·  2026-07-19
+- **Triệu chứng:** `search(tenant_id="A", ...)` trả về **cả** `"mèo của A"` **và** `"chó của B"`.
+  Test đỏ: `AssertionError: assert 'chó của B' not in ['chó của B', 'mèo của A']`. **Code KHÔNG
+  hề crash** — Qdrant chạy ngon, trả kết quả bình thường, không một dòng lỗi nào.
+- **Nguyên nhân:** bỏ dòng `query_filter=filter` trong `query_points` → query chạy trên **toàn
+  bộ collection** (mọi tenant) thay vì chỉ tenant A. Single-collection multi-tenancy mà thiếu
+  filter = mọi tenant nhìn thấy nhau.
+- **Cách tìm ra:** **chỉ có test bắt được.** Mắt nhìn `search` thấy "cú pháp đúng, chạy được" —
+  không thể nhận ra bằng đọc code. Assertion `'chó của B' not in texts` là cái lưới duy nhất.
+- **Fix:** khôi phục `query_filter=filter` (filter `tenant_id == <tenant truyền vào>`).
+- **Test chặn tái phát:** `tests/infrastructure/adapters/vectorstore/test_qdrant_store.py::test_search_only_returns_own_tenant`.
+- **Bài học / pattern:** **Silent failure** — bug tệ nhất của multi-tenancy vì nó *không kêu*:
+  code chạy, không exception, chỉ lặng lẽ rò dữ liệu tenant này sang tenant khác cho tới khi
+  khách hàng phát hiện. Phân biệt rạch ròi: **"code crash" (nổ đỏ, dễ thấy) ≠ "test đỏ"
+  (assertion bắt kết quả sai)**. Ở đây không có crash — chỉ test cứu. Mọi truy vấn trong hệ
+  multi-tenant PHẢI có `tenant_id` filter; nên có test isolation cho từng đường đọc dữ liệu.
+
+### #14 — `client.search()` bị GỠ ở qdrant-client mới → dùng `query_points`  ·  Phase 1  ·  thật  ·  2026-07-19
+- **Triệu chứng:** `AttributeError: 'QdrantClient' object has no attribute 'search'` khi gọi
+  `self.client.search(...)`.
+- **Nguyên nhân:** API `.search()` cũ đã bị loại bỏ ở bản qdrant-client hiện tại (breaking change
+  giữa các version). Thay bằng `.query_points()` với tên tham số khác: `query_vector=` → `query=`,
+  và response mới bọc kết quả trong `.points` (không trả thẳng list nữa).
+- **Cách tìm ra:** đọc `AttributeError` — method không tồn tại → tra API mới của thư viện.
+- **Fix:** `res = self.client.query_points(collection_name=..., query=query_vector, query_filter=filter, limit=top_k).points`.
+- **Test chặn tái phát:** cùng test file #13 (gọi `search` thật → nếu sai API sẽ nổ ngay).
+- **Bài học / pattern:** **breaking change theo version thư viện** — code đúng hôm qua, nâng
+  version là gãy. Lý do roadmap dặn cắm thư viện có **flag + pin version**, và vì sao bản tay
+  (không phụ thuộc API ngoài) đáng giá để *hiểu* dù production dùng lib.
