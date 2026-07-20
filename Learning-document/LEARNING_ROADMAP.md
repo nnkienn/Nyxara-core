@@ -163,9 +163,12 @@ so recursive vs semantic chunking trên chính niche của bạn.
 
 ---
 
-## ⏳ Phase 1 — Vector Memory (Embedding + Qdrant + Tenant Isolation)
+## ✅ Phase 1 — Vector Memory (Embedding + Qdrant + Tenant Isolation)
 
-**Trạng thái: ⏳ Build lại từ đầu** (kiến thức dưới đã học — code sẽ tự gõ lại theo 6 bước)
+**Trạng thái: ✅ XONG (2026-07-19)** — port Embedder/VectorStore + cosine similarity (tay) +
+BGEEmbedder + QdrantStore (DI constructor · upsert idempotent UUID5 · `search` có tenant filter
+→ `SearchHit`). Đã có test tenant-isolation + drill "silent failure" (bug #13). Bug đã ghi:
+#8 cosine · #10 ensure_collection · #11 rename biến · #12 point id UUID · #13 tenant leak · #14 API `.search`→`.query_points`.
 
 ### Kiến thức học được
 - **Vector Embedding**: ánh xạ text → vector 1024 chiều bằng contrastive learning. Không phải hash — là learned representation từ hàng tỷ cặp câu.
@@ -647,7 +650,7 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 ## 📊 Tổng kết Tests
 
 ```
-0 tests — RESET 2026-07-13 (đã xóa 74 test cũ cùng code)
+15 tests (2026-07-19) — Chunker 2 · Dedup 2 · Edit distance 5 · Pipeline 1 · Similarity 1 · BGEEmbedder 3 · QdrantStore 1
 đếm lại bất cứ lúc nào bằng:  grep -rc "def test_" tests
 ```
 > Trước reset có 74 test xanh (P1 vector 15 · BM25 13 · RRF 10 · Hybrid 11 · Reranker 6 · CRAG 12 · Chunker 4 · Ingestion 3).
@@ -660,10 +663,10 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 
 | Phase | Kỹ thuật | Trạng thái | 🎯 Next Action (việc kế tiếp cụ thể) |
 |---|---|---|---|
-| 0 | Recursive / Semantic / Proposition chunking | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — code tay `recursive_chunk(size, overlap)` + test overlap boundary |
-| 0 | Parent-Child · Multi-vector · Dedup · Incremental · Versioning | ⏳ | SHA-256 exact-dedup trước, rồi seen-set incremental |
-| 1 | Embedding · Qdrant · Tenant Isolation | ⏳ | **BẮT ĐẦU Ở ĐÂY sau P0:** port Embedder/VectorStore → BGEEmbedder → QdrantStore (+ tenant filter) |
-| 2 | BM25 · Hybrid · RRF | ⏳ | Code tay BM25 (inverted index) → RRF (merge) → HybridRetriever |
+| 0 | **Recursive** chunking ✅ · Semantic/Proposition ⏳ | 🔨 | Recursive xong; Semantic (cắt theo embedding distance) để radar, giờ có embedder rồi |
+| 0 | **Dedup (exact+near) ✅ · Incremental ✅** · Parent-Child/Multi-vector/Versioning ⏳ | 🔨 | Lõi 🔴 xong (edit_distance DP + pipeline seen-check). Còn lại 🟡🟢 radar |
+| 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
+| 2 | BM25 · Hybrid · RRF | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — code tay BM25 (inverted index) → RRF (merge) → HybridRetriever |
 | 2 | Cross-encoder Rerank | ⏳ | Port Reranker → BGEReranker; 2 bước retrieve→rerank |
 | 2 | CRAG (+ API) | ⏳ | StateGraph LangGraph; né lại 3 bug cũ (await, attempts, extra_hosts) |
 | 2 | Metadata filter · Query transform · Temporal · MMR · Compression · Adaptive/Self-RAG · GraphRAG · Multimodal | ⏳ | Sau khi khôi phục xong lõi 2.1–2.3: Metadata filtering → MMR |

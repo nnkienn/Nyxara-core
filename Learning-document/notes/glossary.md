@@ -40,4 +40,15 @@
 - **Threshold (ngưỡng)** — con số quyết "gần bao nhiêu thì coi là trùng": `distance ≤ ngưỡng → bỏ`. Cao quá → gộp nhầm chunk khác nghĩa; thấp quá → lọt near-dup. Chọn bằng eval, không chọn bừa.
 - **Normalization** — chuẩn hoá text *trước khi so* (lowercase, bỏ dấu câu/khoảng trắng thừa) → ca "khác vặt" thành giống hệt → bắt được bằng hash O(1), đỡ tốn edit distance.
 
+
+## Retrieval / BM25
+- **Sparse retrieval** — tìm bằng **từ khoá** khớp thẳng (doc chứa đúng chữ). Đối lập **dense** (vector, đo góc/ngữ nghĩa). Sparse mạnh ở mã/tên/từ hiếm mà vector thua.
+- **Inverted index** — hash map `từ → [danh sách doc chứa từ đó]`. "Ngược" vì bình thường doc→các từ, ở đây lật lại từ→các doc. Tra "từ này ở doc nào" trong O(1), khỏi quét.
+- **Term Frequency (TF)** — số **lần** một từ xuất hiện **trong 1 doc**. (đếm *lần*)
+- **TF saturation / `k1`** — TF lặp nhiều lần trong 1 doc thì điểm **tăng nhanh lúc đầu rồi chững** (như bát cơm thứ 1 vs thứ 10). `k1` chỉnh tốc độ chững. Chống spam từ khoá.
+- **Document Frequency (DF)** — số **doc** chứa từ đó trong kho. (đếm *doc*, KHÁC TF!) VD `"mèo"` có trong 5/1000 doc → DF=5.
+- **IDF (Inverse DF)** — nghịch đảo DF: từ **hiếm** (DF thấp) → IDF **cao** → đáng giá; từ **phổ biến** (DF cao, như "và", "con") → IDF gần 0 → bị dìm.
+- **Length normalization / `b`** — phạt doc **dài** (dài thì tự nhiên TF cao, không công bằng với doc ngắn đậm đặc). `dl/avgdl` = độ dài doc / độ dài trung bình. `b=0` tắt phạt, `b=1` phạt tối đa, mặc định `b=0.75`.
+- **BM25** — công thức chấm điểm sparse, ghép 3 viên gạch: `IDF × (TF bão hoà theo k1) × (phạt độ dài theo b)`. Doc chứa nhiều lần một từ HIẾM và ngắn gọn = điểm cao nhất.
+
 ## (Thêm nhóm/từ mới bên dưới)

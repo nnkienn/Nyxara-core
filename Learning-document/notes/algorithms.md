@@ -297,3 +297,33 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
 
 - **Khi nào đáng bật (flag):** luôn dùng — đây là adapter lõi của Phase 1. Tenant filter ở
   `search` (buổi sau) là **bắt buộc tuyệt đối**, không phải flag tuỳ chọn.
+
+
+### BM25 (sparse retrieval) · Phase 2 · 2026-07-__   ⟵ KHUNG, điền sau khi code
+
+- **Bài toán nó giải:** _(điền: dense/vector thua ở đâu? mã sản phẩm/tên riêng/từ hiếm →
+  vì sao cần so từ khoá thẳng?)_
+
+- **Công thức / thuật toán:**
+  ```
+                      TF × (k1 + 1)
+  score = IDF  ×  ─────────────────────────────────
+                   TF + k1 × (1 - b + b × dl/avgdl)
+
+  IDF(t) = log( (N - df + 0.5) / (df + 0.5) + 1 )
+  k1 = 1.5 (tốc độ TF chững / saturation)   ·   b = 0.75 (mức phạt độ dài)
+  ```
+  3 viên gạch: **TF saturation** (TF ở cả tử+mẫu → chững, `k1` chỉnh) · **IDF** (từ hiếm→cao) ·
+  **length norm** (`dl/avgdl` ở mẫu → phạt doc dài, `b` chỉnh). _(diễn giải lại bằng lời mình)_
+
+- **Ví dụ bằng SỐ THẬT:** _(điền sau khi code: dựng inverted index cho 2-3 doc, tính điểm 1 query
+  bằng tay rồi so với hàm. Nhớ ca `dl/avgdl=1` → cụm length = 1, không phạt.)_
+
+- **CTDLGT bên trong:** **Inverted index** = hash map `term → [doc ids]`, tra O(1) thay vì
+  quét mọi doc O(n). _(bổ sung độ phức tạp tổng khi code xong)_
+
+- **Bẫy dễ sai:** _(để trống — điền bug gặp khi code: quên +0.5 trong IDF? nhầm TF với DF?
+  quên chia avgdl? …)_
+
+- **Khi nào đáng bật (flag):** _(điền: sparse mạnh cho keyword/mã; kết hợp dense qua hybrid;
+  production cắm rank-bm25 cuối phase)_
