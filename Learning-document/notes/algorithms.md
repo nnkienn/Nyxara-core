@@ -299,10 +299,12 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
   `search` (buổi sau) là **bắt buộc tuyệt đối**, không phải flag tuỳ chọn.
 
 
-### BM25 (sparse retrieval) · Phase 2 · 2026-07-__   ⟵ KHUNG, điền sau khi code
+### BM25 (sparse retrieval) · Phase 2 · 2026-08-02
 
-- **Bài toán nó giải:** _(điền: dense/vector thua ở đâu? mã sản phẩm/tên riêng/từ hiếm →
-  vì sao cần so từ khoá thẳng?)_
+- **Bài toán nó giải:** dense/embedding (cosine, Phase 1) hiểu **nghĩa** nhưng yếu ở khớp
+  **từ khoá chính xác** — mã sản phẩm, tên riêng, từ hiếm. BM25 là tìm kiếm **lexical**
+  (so chữ trùng nhau, không phải "ngữ nghĩa") — bù đúng chỗ dense yếu. Vì 2 cái bổ sung
+  nhau nên hybrid (Phase 2.1 tiếp theo) mới cần dùng cả hai.
 
 - **Công thức / thuật toán:**
   ```
@@ -313,17 +315,41 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
   IDF(t) = log( (N - df + 0.5) / (df + 0.5) + 1 )
   k1 = 1.5 (tốc độ TF chững / saturation)   ·   b = 0.75 (mức phạt độ dài)
   ```
-  3 viên gạch: **TF saturation** (TF ở cả tử+mẫu → chững, `k1` chỉnh) · **IDF** (từ hiếm→cao) ·
-  **length norm** (`dl/avgdl` ở mẫu → phạt doc dài, `b` chỉnh). _(diễn giải lại bằng lời mình)_
+  2 trụ cốt lõi: **IDF** — từ càng hiếm (`df` nhỏ so với `N`) càng quan trọng, **cố định**
+  cho 1 term, không đổi theo từng doc. **Length normalization** (`dl/avgdl`) — cùng 1 lần
+  xuất hiện, doc càng **ngắn** thì tín hiệu càng **mạnh** (từ đó chiếm tỉ trọng lớn hơn của
+  cả doc); `dl/avgdl=1` (doc dài đúng mức trung bình) → không phạt không thưởng.
 
-- **Ví dụ bằng SỐ THẬT:** _(điền sau khi code: dựng inverted index cho 2-3 doc, tính điểm 1 query
-  bằng tay rồi so với hàm. Nhớ ca `dl/avgdl=1` → cụm length = 1, không phạt.)_
+- **Ví dụ bằng SỐ THẬT:** 3 doc tenant `t1`: `doc1="con mèo đen"`, `doc2="con chó nâu"`,
+  `doc3="mèo và chó"` (mỗi doc 3 từ, `avgdl=3`). Inverted index: `"mèo": {doc1:1, doc3:1}`
+  (df=2), `"đen": {doc1:1}` (df=1). Query `"mèo đen"`:
+  ```
+  IDF("mèo") = log((3-2+0.5)/(2+0.5)+1) = log(1.6)   ≈ 0.470
+  IDF("đen") = log((3-1+0.5)/(1+0.5)+1) = log(2.667)  ≈ 0.981
+  score(doc1) = 0.470 + 0.981 ≈ 1.451   (chứa cả "mèo" và "đen")
+  score(doc3) = 0.470                    (chỉ chứa "mèo")
+  score(doc2) = không tính — không chứa từ nào trong query
+  ```
+  Chạy code thật ra đúng `1.4508` / `0.4700` — khớp tay 100%.
 
-- **CTDLGT bên trong:** **Inverted index** = hash map `term → [doc ids]`, tra O(1) thay vì
-  quét mọi doc O(n). _(bổ sung độ phức tạp tổng khi code xong)_
+- **CTDLGT bên trong:** **Inverted index** = hash map lồng
+  `tenant_id → term → {doc_id: term_freq}`, tra `df`/`tf` O(1) thay vì quét mọi doc O(n).
+  `search` gộp candidate doc qua các term rồi `sorted(..., reverse=True)[:top_k]` — sort
+  O(n log n) trên tập candidate, không phải toàn bộ corpus.
 
-- **Bẫy dễ sai:** _(để trống — điền bug gặp khi code: quên +0.5 trong IDF? nhầm TF với DF?
-  quên chia avgdl? …)_
+- **Bẫy dễ sai:**
+  1. **Nhầm IDF với length norm** — tưởng doc dài hơn thì từ "hiếm hơn" nên điểm cao hơn.
+     Sai: IDF không đổi theo doc (tính trên toàn corpus), chỉ có mẫu số (`dl/avgdl`) mới
+     quyết định ai cao ai thấp giữa các doc — doc **ngắn** mới điểm cao hơn ở TF ngang nhau.
+  2. **`avgdl` không phải độ dài doc đang chấm** — là độ dài **trung bình toàn tenant**; nếu
+     tất cả doc ví dụ cùng độ dài thì `dl/avgdl` luôn =1, che mất tác dụng thật của length
+     norm (dễ ngộ nhận nó "không làm gì" — phải test với doc độ dài khác nhau mới thấy).
+  3. **`IndentationError`** — thân vòng `for term, tf in freq.items():` viết thẳng hàng với
+     `for` thay vì thụt lề thêm 1 cấp → Python báo lỗi ngay khi chạy (lỗi cú pháp, chạy là
+     bắt được, không cần đọc kỹ).
+  4. **Quên xử lý `tf=0`** (term không có trong doc) — phải trả `0.0` sớm trong `_score`,
+     không được để rơi xuống tính `log`/chia cho 0 hoặc cộng nhầm điểm không tồn tại.
 
-- **Khi nào đáng bật (flag):** _(điền: sparse mạnh cho keyword/mã; kết hợp dense qua hybrid;
-  production cắm rank-bm25 cuối phase)_
+- **Khi nào đáng bật (flag):** luôn bật song song với dense trong Hybrid — sparse mạnh
+  cho keyword/mã sản phẩm/tên riêng mà dense bỏ sót. Bản tay dùng để hiểu + debug; production
+  cắm `rank-bm25` hoặc `bm25s` cuối Phase 2.1, so kết quả với bản tay trước khi thay hẳn.
