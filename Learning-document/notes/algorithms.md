@@ -353,3 +353,54 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
 - **Khi nào đáng bật (flag):** luôn bật song song với dense trong Hybrid — sparse mạnh
   cho keyword/mã sản phẩm/tên riêng mà dense bỏ sót. Bản tay dùng để hiểu + debug; production
   cắm `rank-bm25` hoặc `bm25s` cuối Phase 2.1, so kết quả với bản tay trước khi thay hẳn.
+
+---
+
+### RRF — Reciprocal Rank Fusion · Phase 2 · 2026-08-02
+
+- **Bài toán nó giải:** dense (cosine, 0–1) và BM25 (không giới hạn) khác đơn vị, không cộng
+  thẳng điểm gốc được. RRF né vấn đề đó bằng cách **chỉ nhìn thứ hạng** (rank) của doc trong
+  từng danh sách, không nhìn điểm số gốc — rank thì luôn so sánh được dù nguồn nào tạo ra nó.
+
+- **Công thức / thuật toán:**
+  ```
+  RRF(d) = Σ 1/(k + rank_i(d))    k=60 (Cormack 2009)
+  ```
+  Cộng theo rank (không phải điểm) vì rank là đại lượng chung, không lệ thuộc đơn vị của từng
+  nguồn. Doc đứng hạng cao ở **cả 2** danh sách được cộng lớn ở cả 2 lần → tổng cao nhất — ưu
+  tiên "ổn định ở nhiều nguồn" hơn "xuất sắc 1 nguồn, tệ nguồn kia". `k=60` là hằng số làm mượt
+  (smoothing) lấy từ thực nghiệm — không cần tune theo dataset, đây là lý do RRF phổ biến.
+
+- **Ví dụ bằng SỐ THẬT:** 3 doc, 2 danh sách hạng khác nhau có chủ đích:
+  ```
+  dense_ranked = ["doc2", "doc1", "doc3"]   # hạng: doc2=1, doc1=2, doc3=3
+  bm25_ranked  = ["doc1", "doc3", "doc2"]   # hạng: doc1=1, doc3=2, doc2=3
+
+  RRF(doc1) = 1/61 + 1/62 ≈ 0.032522   (hạng 2, hạng 1 — đều tay ở cả 2)
+  RRF(doc2) = 1/61 + 1/63 ≈ 0.032266   (hạng 1, hạng 3 — mạnh 1 bên, yếu bên kia)
+  RRF(doc3) = 1/62 + 1/63 ≈ 0.032002   (hạng 3, hạng 2)
+  ```
+  Chạy code thật ra đúng `0.03252247 / 0.03226646 / 0.03200205` — khớp tay. Xếp hạng cuối
+  `doc1 > doc2 > doc3`, dù `doc2` từng đứng **#1 tuyệt đối** ở dense vẫn thua `doc1` vì không
+  ổn định ở cả 2 nguồn — đúng hành vi RRF được thiết kế để tạo ra.
+
+- **CTDLGT bên trong:** **Merge N ranked list** qua hash map trung gian — `enumerate(list,
+  start=1)` lấy rank O(n) mỗi danh sách, cộng dồn vào dict O(1)/lần, tổng O(Σ len(list)); sort
+  cuối O(m log m) với m = số doc duy nhất xuất hiện ở ít nhất 1 danh sách.
+
+- **Bẫy dễ sai:**
+  1. **`enumerate(list)` mặc định bắt đầu từ 0**, phải truyền `start=1` — nếu quên, mọi rank
+     lệch đi 1, kéo theo mọi `1/(k+rank)` sai (dù sai lệch nhỏ vì `k=60` che bớt, vẫn là bug).
+  2. Doc chỉ xuất hiện ở **1 trong 2** danh sách thì **chỉ cộng phần có**, không tự bịa rank
+     cho danh sách còn thiếu (không có nghĩa là rank=cuối bảng hay rank=0).
+  3. **Cú pháp `int | None` cần Python 3.10+** — dự án chạy Python 3.9.6, dùng `Optional[int]`
+     (từ `typing`) thay vì `|` để union type hoạt động đúng version hiện tại.
+  4. **Thụt lề sai 2 lần liên tiếp** khi gõ lại: (a) để sót `raise NotImplementedError` của
+     khung phía trên code thật → code thật không bao giờ chạy tới; (b) toàn khối bị thụt lề
+     nhiều hơn dòng trước nó dù dòng trước không mở khối (`IndentationError: unexpected
+     indent`) — xem [bug-log](./bug-log.md) #15, #16.
+
+- **Khi nào đáng bật (flag):** luôn bật khi dùng Hybrid — đây chính là bước hợp nhất dense +
+  BM25 thành 1 danh sách duy nhất để đưa vào cross-encoder rerank (Phase 2.2). Bản thân điểm
+  RRF không có ý nghĩa tuyệt đối, chỉ dùng để sort/chọn top_k ứng viên — sẽ bị thay hoàn toàn
+  bởi điểm cross-encoder ở bước sau.

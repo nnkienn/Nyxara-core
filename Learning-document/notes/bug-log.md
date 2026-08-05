@@ -213,3 +213,37 @@
 - **Bài học / pattern:** **breaking change theo version thư viện** — code đúng hôm qua, nâng
   version là gãy. Lý do roadmap dặn cắm thư viện có **flag + pin version**, và vì sao bản tay
   (không phụ thuộc API ngoài) đáng giá để *hiểu* dù production dùng lib.
+
+### #15 — `int | None` không chạy được trên Python 3.9  ·  Phase 2  ·  thật  ·  2026-08-02
+- **Triệu chứng:** `TypeError: unsupported operand type(s) for |: 'type' and 'NoneType'` ngay
+  khi `import` module `rrf.py`, trước cả khi gọi hàm.
+- **Nguyên nhân:** chữ ký hàm dùng `top_k: int | None = None` — cú pháp union kiểu mới
+  (PEP 604) chỉ chạy được từ Python 3.10 trở lên, nhưng `.venv` của dự án là Python 3.9.6.
+- **Cách tìm ra:** đọc traceback — lỗi nổ ngay ở dòng định nghĩa hàm (dòng chứa `|`), không
+  phải ở logic bên trong, nên nghi ngay cú pháp/type hint thay vì thuật toán.
+- **Fix:** `from typing import Optional`, đổi thành `top_k: Optional[int] = None`.
+- **Test chặn tái phát:** không cần test riêng — đây là lỗi ngay lúc import, CI chạy trên đúng
+  Python 3.9 sẽ tự bắt được nếu tái phạm.
+- **Bài học / pattern:** kiểm tra version Python của môi trường **trước** khi dùng cú pháp
+  type hint mới (`|`, `list[int]` không union thì vẫn ổn ở 3.9, nhưng `X | Y` thì không) —
+  khác họ với "breaking change theo version lib" (#14), đây là "cú pháp ngôn ngữ mới hơn
+  version runtime đang chạy".
+
+### #16 — thụt lề sai 2 lần liên tiếp khi gõ lại `reciprocal_rank_fusion`  ·  Phase 2  ·  thật  ·  2026-08-02
+- **Triệu chứng:** lần 1 — code thật nằm **sau** `raise NotImplementedError` còn sót lại từ
+  khung, nên không bao giờ chạy tới. Lần 2 (sau khi xoá `raise`) — `IndentationError:
+  unexpected indent` tại dòng `for ranked_list in ranked_lists:`.
+- **Nguyên nhân:** lần 1 — quên xoá dòng `raise NotImplementedError` của skeleton trước khi
+  thêm code thật phía dưới nó. Lần 2 — dòng `for ranked_list...` thụt lề **nhiều hơn** dòng
+  `scores = {}` phía trên nó dù dòng đó không kết thúc bằng `:` (không mở khối gì), Python
+  không chấp nhận thụt lề tăng vô cớ.
+- **Cách tìm ra:** chạy thử, đọc thẳng traceback — lần 1 im lặng raise đúng như code viết
+  (không phải bug logic, chỉ là quên dọn code cũ); lần 2 Python chỉ đúng số dòng bị lỗi.
+- **Fix:** xoá dòng `raise NotImplementedError`; dedent toàn bộ khối về đúng 1 cấp thống nhất
+  với `scores = {}` (4 space), chỉ vòng `for` lồng bên trong mới được thụt thêm.
+- **Test chặn tái phát:** `tests/application/retrieval/test_rrf.py` (chạy được không lỗi
+  cú pháp là điều kiện cần đầu tiên trước khi so kết quả).
+- **Bài học / pattern:** cùng họ với `#10` (thụt lề sai phạm vi) — nhưng lần 1 là dạng mới:
+  **quên xoá code cũ (dead code) đứng chặn trước code thật**, không phải thụt lề sai. Khi sửa
+  file có sẵn khung/TODO, luôn xoá `raise NotImplementedError`/placeholder **trước tiên**,
+  đừng viết chèn code thật vào phía sau nó.
