@@ -247,3 +247,22 @@
   **quên xoá code cũ (dead code) đứng chặn trước code thật**, không phải thụt lề sai. Khi sửa
   file có sẵn khung/TODO, luôn xoá `raise NotImplementedError`/placeholder **trước tiên**,
   đừng viết chèn code thật vào phía sau nó.
+
+### #17 — `QdrantStore.search` trả UUID nội bộ thay vì `doc_id` gốc  ·  Phase 2  ·  thật  ·  2026-08-03
+- **Triệu chứng:** không crash, không test nào đỏ (test Phase 1 cũ chỉ check `text`, không
+  check `id`). Chỉ lộ ra khi **ghép** `HybridRetriever`: `dense_ranked` sẽ toàn chuỗi UUID
+  (`"3f29b7d2-..."`), còn `bm25_ranked` toàn `doc_id` gốc (`"doc1"`) — 2 danh sách không khớp
+  id nào, RRF coi mọi doc là khác nhau hoàn toàn, mất hết lợi ích "tìm được ở cả 2 nguồn".
+- **Nguyên nhân:** `upsert` băm `doc_id` gốc qua `uuid5` để làm point id (đúng, Qdrant chỉ
+  nhận UUID/số nguyên — bug #12), nhưng **không lưu lại `doc_id` gốc vào payload**. `search`
+  trả `hit.id` (UUID nội bộ Qdrant) thay vì `doc_id` gốc, vì payload không có gì khác để trả.
+- **Cách tìm ra:** **đọc code trước khi ghép**, không phải chạy ra lỗi — so `upsert` (băm id)
+  với `search` (trả gì) thấy 2 bên dùng 2 "không gian id" khác nhau trước khi build
+  `HybridRetriever`, chứ chưa hề chạy thử.
+- **Fix:** thêm `"doc_id": id` vào `payload` lúc `upsert`; `search` trả
+  `hit.payload["doc_id"]` thay vì `hit.id`.
+- **Test chặn tái phát:** `tests/infrastructure/adapters/vectorstore/test_qdrant_store.py::test_search_returns_original_doc_id_not_internal_uuid`.
+- **Bài học / pattern:** silent failure kiểu mới — không phải thiếu filter (#13) mà là
+  **2 module dùng 2 "không gian định danh" (id space) khác nhau cho cùng 1 thực thể**, chỉ lộ
+  ra khi ghép chúng lại, không lộ khi test từng module riêng lẻ. Trước khi ghép 2 component đã
+  test riêng "xanh", phải soát lại: chúng có đang nói cùng 1 ngôn ngữ id không?

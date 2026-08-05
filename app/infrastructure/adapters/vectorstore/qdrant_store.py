@@ -36,7 +36,7 @@ class QdrantStore:
             PointStruct(
                 id=str(uuid.uuid5(uuid.NAMESPACE_DNS, id)),
                 vector=vector,
-                payload={"tenant_id": tenant_id, "text": text},
+                payload={"tenant_id": tenant_id, "text": text, "doc_id": id},
             )
             for id, text, vector in zip(ids, texts, vectors)
         ]
@@ -63,7 +63,7 @@ class QdrantStore:
         ).points                                 # thêm .points ở cuối (response mới bọc trong .points)
 
         return [
-            SearchHit(id=hit.id, text=hit.payload["text"], score=hit.score)
+            SearchHit(id=hit.payload["doc_id"], text=hit.payload["text"], score=hit.score)
             for hit in res
         ]
         

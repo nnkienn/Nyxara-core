@@ -666,8 +666,8 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 | 0 | **Recursive** chunking ✅ · Semantic/Proposition ⏳ | 🔨 | Recursive xong; Semantic (cắt theo embedding distance) để radar, giờ có embedder rồi |
 | 0 | **Dedup (exact+near) ✅ · Incremental ✅** · Parent-Child/Multi-vector/Versioning ⏳ | 🔨 | Lõi 🔴 xong (edit_distance DP + pipeline seen-check). Còn lại 🟡🟢 radar |
 | 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
-| 2 | BM25 · Hybrid · RRF | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — code tay BM25 (inverted index) → RRF (merge) → HybridRetriever |
-| 2 | Cross-encoder Rerank | ⏳ | Port Reranker → BGEReranker; 2 bước retrieve→rerank |
+| 2 | BM25 · Hybrid · RRF | ✅ | **XONG 2026-08-03** — BM25 + RRF + HybridRetriever, 18 test. Phát hiện + fix bug #17 (QdrantStore trả UUID thay vì doc_id gốc) lúc ghép |
+| 2 | Cross-encoder Rerank | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — Port Reranker → BGEReranker; 2 bước retrieve→rerank |
 | 2 | CRAG (+ API) | ⏳ | StateGraph LangGraph; né lại 3 bug cũ (await, attempts, extra_hosts) |
 | 2 | Metadata filter · Query transform · Temporal · MMR · Compression · Adaptive/Self-RAG · GraphRAG · Multimodal | ⏳ | Sau khi khôi phục xong lõi 2.1–2.3: Metadata filtering → MMR |
 | 3 | Eval: Retrieval metrics · Judge · RAGAS · Golden · Regression · A/B · Cost/Efficiency · Calibration · Online · Bias · **CI gate** | ⏳ | **Ưu tiên song song P2:** code tay `hit@k/mrr/ndcg` → golden 50–100 cặp → A/B Hybrid vs Hybrid+MMR |

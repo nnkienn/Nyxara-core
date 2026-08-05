@@ -26,4 +26,12 @@ def test_search_only_returns_own_tenant(store):
     assert "chó của B" not in texts
     #   1. text của A PHẢI có mặt trong kết quả
     #   2. text của B KHÔNG được lộ ra (đây là điểm mấu chốt của tenant isolation)
-    ...
+
+
+def test_search_returns_original_doc_id_not_internal_uuid(store):
+    # HybridRetriever cần ghép doc_id giữa QdrantStore (dense) và BM25Index (sparse) —
+    # nếu search() trả UUID nội bộ (uuid5) thay vì doc_id gốc, 2 danh sách sẽ không bao giờ
+    # khớp id với nhau, RRF coi mọi doc là khác nhau hoàn toàn (silent failure, không crash).
+    hits = store.search(tenant_id="A", query_vector=[1.0, 0.0, 0.0], top_k=5)
+
+    assert hits[0].id == "a1"
