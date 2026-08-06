@@ -194,12 +194,12 @@ dữ liệu tenant khác. Bài học "silent failure" đắt giá nhất của m
 
 ---
 
-## ⏳ Phase 2 — Advanced Retrieval (Hybrid + Rerank + CRAG + …)
+## 🔨 Phase 2 — Advanced Retrieval (Hybrid + Rerank + CRAG + …)
 
-> **Trạng thái sau reset:** kiến thức/công thức GIỮ LẠI (đã học). Code (bm25/rrf/hybrid/rerank/CRAG)
-> đã xóa → build lại bằng tay theo 6 bước. Đường link file cũ đã gỡ vì file không còn.
+> **Trạng thái:** 2.1 và 2.2 đã build lại xong bằng tay (2026-08-03/04), full trace +
+> test pass. 2.3 (CRAG) chưa bắt đầu — xem [🎯 Next Action](#-bảng-theo-dõi-tiến-độ-checklist).
 
-### 2.1 BM25 + Hybrid Retrieval + RRF — ⏳ build lại (kiến thức ✔)
+### 2.1 BM25 + Hybrid Retrieval + RRF — ✅ XONG 2026-08-03
 
 **Kiến thức học được:**
 - **TF-IDF vs BM25**: TF-IDF có 2 vấn đề — TF không saturation + không chuẩn hóa độ dài doc.
@@ -222,17 +222,33 @@ query
   └─→ RRF([dense_ranked, bm25_ranked]) → top_k RetrievalHit
 ```
 
-**Files sẽ build:** `app/application/retrieval/bm25_index.py` · `rrf.py` · `hybrid_retriever.py` · `app/domain/ports/retriever.py`
-**Tests mục tiêu:** BM25 · RRF · HybridRetriever
+**Files đã build:** `app/application/retrieval/bm25_index.py` · `rrf.py` · `hybrid_retriever.py`
+(⚠️ `app/domain/ports/retriever.py` — **chưa build**, `HybridRetriever` hiện là class cụ thể,
+chưa có Port riêng; để lại khi thật sự cần đổi implementation khác, tránh abstraction sớm)
+**Tests:** 16 test (`test_bm25_index.py` 8 · `test_rrf.py` 5 · `test_hybrid_retriever.py` 3) — pass, khớp tay
 **CTDLGT chạm tay:** inverted index (hash map term→postings), merge N ranked lists (two-pointer).
+**Bug thật gặp (xem [bug-log](notes/bug-log.md)):** #15 (`int | None` cần Python 3.10, dự án chạy 3.9)
+· #16 (thụt lề 2 lần: dead code chặn trước + unexpected indent) · #17 (`QdrantStore.search`
+trả UUID nội bộ thay vì `doc_id` gốc — phát hiện lúc ghép `HybridRetriever`, không phải lúc chạy).
+**Sơ đồ tổng:** [retrieval-pipeline.md](notes/retrieval-pipeline.md).
 
-### 2.2 Cross-encoder Reranking (bge-reranker-v2-m3) — ⏳ build lại (kiến thức ✔)
+### 2.2 Cross-encoder Reranking (bge-reranker-v2-m3) — ✅ XONG 2026-08-04
 - **Bi-encoder vs Cross-encoder**: bi-encoder encode query/doc riêng rồi so vector.
   Cross-encoder đọc query+doc **cùng 1 forward pass** → chính xác hơn nhưng chậm hơn.
-- **Vì sao 2 bước:** Hybrid lọc nhanh top-20 → cross-encoder chấm kỹ top-5. Không thể
+- **Vì sao 2 bước:** Hybrid lọc nhanh top-20/50 → cross-encoder chấm kỹ. Không thể
   chạy cross-encoder trên 10,000 docs. RRF score bị **thay** bằng cross-encoder score.
+- **Lỗ hổng phát hiện khi ghép (không có trong kế hoạch ban đầu):** `HybridRetriever` chỉ trả
+  `(doc_id, score)`, không có text để đưa vào reranker → thêm `DocStore` (Port) +
+  `InMemoryDocStore` (adapter) + `RerankingRetriever` (nối Hybrid → tra text → rerank → sort)
+  để giải quyết. Production thật sẽ thay `InMemoryDocStore` bằng Postgres/Redis, giữ nguyên Port.
 
-**Files sẽ build:** `app/domain/ports/reranker.py` · `app/infrastructure/adapters/reranker/bge_reranker.py`
+**Files đã build:** `app/domain/ports/reranker.py` · `app/infrastructure/adapters/reranker/bge_reranker.py`
+· `app/domain/ports/doc_store.py` · `app/infrastructure/adapters/docstore/in_memory_doc_store.py`
+· `app/application/retrieval/reranking_retriever.py`
+**Tests:** 5 test (`test_bge_reranker.py` 2, model thật · `test_reranking_retriever.py` 2 ·
+`test_qdrant_store.py` +1 regression cho bug #17) — pass
+**Bug thật gặp:** nhầm model (`bge-m3` thay vì `bge-reranker-v2-m3`, khiến classifier head
+random-init) · gọi nhầm method (`.rerank()` không tồn tại, đúng là `compute_score()`).
 
 ### 2.3 CRAG (Corrective RAG via LangGraph) — ⏳ build lại (kiến thức ✔)
 - **State machine**: `state` = "tờ giấy" chạy qua các **node** (trạm), điền dần từng ô.
@@ -667,8 +683,8 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 | 0 | **Dedup (exact+near) ✅ · Incremental ✅** · Parent-Child/Multi-vector/Versioning ⏳ | 🔨 | Lõi 🔴 xong (edit_distance DP + pipeline seen-check). Còn lại 🟡🟢 radar |
 | 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
 | 2 | BM25 · Hybrid · RRF | ✅ | **XONG 2026-08-03** — BM25 + RRF + HybridRetriever, 18 test. Phát hiện + fix bug #17 (QdrantStore trả UUID thay vì doc_id gốc) lúc ghép |
-| 2 | Cross-encoder Rerank | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — Port Reranker → BGEReranker; 2 bước retrieve→rerank |
-| 2 | CRAG (+ API) | ⏳ | StateGraph LangGraph; né lại 3 bug cũ (await, attempts, extra_hosts) |
+| 2 | Cross-encoder Rerank | ✅ | **XONG 2026-08-04** — `Reranker`+`BGEReranker` (model thật, verify điểm 4.75/-2.07) · `DocStore`+`InMemoryDocStore` (lỗ hổng doc_id→text phát hiện khi ghép, đã vá) · `RerankingRetriever` nối Hybrid→text→rerank→sort. 22 test pass (18 retrieval + 2 reranker + 2 vectorstore regression) |
+| 2 | CRAG (+ API) | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — StateGraph LangGraph; né lại 3 bug cũ (await, attempts, extra_hosts) |
 | 2 | Metadata filter · Query transform · Temporal · MMR · Compression · Adaptive/Self-RAG · GraphRAG · Multimodal | ⏳ | Sau khi khôi phục xong lõi 2.1–2.3: Metadata filtering → MMR |
 | 3 | Eval: Retrieval metrics · Judge · RAGAS · Golden · Regression · A/B · Cost/Efficiency · Calibration · Online · Bias · **CI gate** | ⏳ | **Ưu tiên song song P2:** code tay `hit@k/mrr/ndcg` → golden 50–100 cặp → A/B Hybrid vs Hybrid+MMR |
 | 3.5 | Profiling · Indexing · HNSW · Quantization · Caching · Semantic cache | ⏳ | Chỉ mở sau khi có eval — viết `@timed` đo từng chặng trước |
