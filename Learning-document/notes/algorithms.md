@@ -404,3 +404,38 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
   BM25 thành 1 danh sách duy nhất để đưa vào cross-encoder rerank (Phase 2.2). Bản thân điểm
   RRF không có ý nghĩa tuyệt đối, chỉ dùng để sort/chọn top_k ứng viên — sẽ bị thay hoàn toàn
   bởi điểm cross-encoder ở bước sau.
+
+---
+
+### Cross-encoder Reranking (bge-reranker-v2-m3) · Phase 2 · 2026-08-03
+
+- **Bài toán nó giải:** bi-encoder (dense, Phase 1) encode query và doc **riêng biệt** rồi so
+  vector — nhanh (pre-compute được) nhưng mất chi tiết vì đã "nén" mỗi bên độc lập trước khi
+  so. Cross-encoder đọc `(query, doc)` **cùng lúc** trong 1 forward-pass → model có thể chú ý
+  qua lại giữa từng từ 2 bên → chính xác hơn hẳn, nhưng không pre-compute được (chưa biết query
+  lúc index) → phải chạy lại cho từng cặp, chậm hơn nhiều. Vì vậy chỉ chạy trên tập nhỏ đã lọc
+  sẵn bởi HybridRetriever (Phase 2.1), không chạy trên toàn kho.
+
+- **Công thức / thuật toán:** không có công thức tay — bản thân model (transformer) đã train
+  sẵn, phần code tay được chỉ là **cách gọi đúng API**: `compute_score([[query, doc], ...])`
+  nhận list các cặp, trả về **list điểm số tương ứng, cùng thứ tự**. Điểm **không giới hạn
+  0-1** (logit thô) trừ khi bật `normalize=True` lúc khởi tạo model.
+
+- **Ví dụ bằng SỐ THẬT:** `score("mèo đen", ["con mèo màu đen dễ thương", "con chó màu nâu"])`
+  → `[4.75, -2.07]` — đoạn liên quan ra điểm dương cao, đoạn không liên quan ra điểm **âm**.
+  Khác hẳn BM25 (luôn ≥0) hay cosine (luôn trong [-1,1]) — một lý do nữa vì sao không thể trộn
+  điểm cross-encoder thẳng với điểm nguồn khác mà không cân nhắc.
+
+- **CTDLGT bên trong:** không phải CTDLGT cổ điển — giống Embedder (Phase 1), là mạng
+  transformer đã train sẵn, phần tự code chỉ là **Port/Adapter** (hexagonal, giống
+  `Embedder`/`VectorStore`): `Reranker` Protocol chỉ có `score(query, docs) -> list[float]`.
+
+- **Bẫy dễ sai:** `HybridRetriever.search()` chỉ trả `(doc_id, score)`, **không có text** —
+  doc chỉ khớp qua BM25 (không qua dense) thì chưa từng có text lưu lại ở đâu cả (BM25Index
+  không lưu text, chỉ lưu tần suất từ). Muốn rerank cần text thật của từng candidate — đây là
+  **lỗ hổng kiến trúc chưa giải quyết**, không phải bug, cần thêm cơ chế `doc_id → text` trước
+  khi ghép cross-encoder vào cuối pipeline thật.
+
+- **Khi nào đáng bật (flag):** luôn bật sau Hybrid khi cần độ chính xác cao cho top kết quả
+  cuối cùng (ví dụ nội dung đưa cho bác sĩ/bệnh nhân) — chi phí chỉ trả cho ~30-50 ứng viên đã
+  lọc, không phải toàn kho.
