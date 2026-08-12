@@ -33,6 +33,8 @@
 | State/loop guard | thiếu `max_steps`/`attempts` → lặp vô hạn | #6 |
 | Sửa test thay vì sửa code | đổi số mong đợi trong assert cho khớp output sai, thay vì sửa hàm nguồn | #9 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
+| Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
+| Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
 
 ---
 
@@ -266,3 +268,34 @@
   **2 module dùng 2 "không gian định danh" (id space) khác nhau cho cùng 1 thực thể**, chỉ lộ
   ra khi ghép chúng lại, không lộ khi test từng module riêng lẻ. Trước khi ghép 2 component đã
   test riêng "xanh", phải soát lại: chúng có đang nói cùng 1 ngôn ngữ id không?
+
+### #18 — `httpx.post` timeout mặc định 5s quá ngắn cho LLM  ·  Phase 2  ·  thật  ·  2026-08-12
+- **Triệu chứng:** `httpx.ReadTimeout: timed out` khi gọi `OllamaGrader._grade_one(...)` lần
+  đầu — dù server Ollama phản hồi bình thường (verify lại bằng `curl` không giới hạn timeout).
+- **Nguyên nhân:** `httpx.post(...)` không truyền `timeout=` sẽ dùng mặc định **5 giây** — quá
+  ngắn cho LLM, nhất là lần đầu model phải load vào RAM (~8.5s riêng bước load, đo được lúc
+  test `curl` trước đó).
+- **Cách tìm ra:** so lại với kết quả `curl` thủ công đã chạy được (không timeout) → nghi ngay
+  cấu hình timeout phía Python, không phải server/mạng có vấn đề.
+- **Fix:** thêm `timeout=60.0` vào `httpx.post(...)`.
+- **Test chặn tái phát:** `tests/infrastructure/adapters/grader/test_ollama_grader.py::test_grade_one_passes_timeout`
+  (assert `kwargs["timeout"] == 60.0`, dùng mock nên không cần chờ thật 60s).
+- **Bài học / pattern:** mọi HTTP client (`httpx`, `requests`...) đều có timeout mặc định
+  **rất ngắn** (tối ưu cho API thường, không phải LLM) — gọi LLM qua HTTP phải luôn set
+  timeout dài tay, không dùng giá trị mặc định của thư viện.
+
+### #19 — `.upper()` xong so sánh với chuỗi chữ thường → luôn `False`  ·  Phase 2  ·  thật  ·  2026-08-12
+- **Triệu chứng:** `_grade_one("mèo đen", "con mèo đen dễ thương")` mong đợi `True` (rõ ràng
+  liên quan), nhận về `False` — cả 2 test case (liên quan lẫn không liên quan) đều `False`.
+- **Nguyên nhân:** dòng `answer = data["response"].strip().upper()` chuyển `answer` thành CHỮ
+  HOA, nhưng dòng so sánh lại viết `answer == "yes" or answer == "có"` — toàn chữ **thường**.
+  Chữ hoa không bao giờ khớp chữ thường bằng `==`, nên luôn rơi vào `False`.
+- **Cách tìm ra:** in thẳng `repr(answer)` ra xem model trả lời gì thật — thấy `'CÓ'` (đúng),
+  nhưng code so sánh sai chỗ khác, không phải model trả lời sai.
+- **Fix:** đổi so sánh thành `answer.startswith("YES")` — khớp đúng chữ hoa với `.upper()` ở
+  trên, và dùng `startswith` thay vì `==` để không vỡ nếu model trả thêm chữ phía sau.
+- **Test chặn tái phát:** `test_grade_one_true_when_model_answers_yes`,
+  `test_grade_one_handles_lowercase_and_whitespace`.
+- **Bài học / pattern:** cùng họ với bug `#8` (nhầm phép toán ở công thức) nhưng ở tầng chuỗi —
+  chuẩn hoá 1 bên (`.upper()`) mà quên chuẩn hoá bên kia (chuỗi so sánh) là lỗi rất dễ mắc,
+  không hề crash, chỉ âm thầm luôn sai — đọc `repr()` giá trị thật trước khi đoán nguyên nhân.

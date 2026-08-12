@@ -84,5 +84,17 @@
 | `state.py` | "tờ giấy" — định nghĩa field của `state` (kể cả `tenant_id`) | ✅ xong |
 | `node.py` | `retrieve_node` (closure, gọi lại `RerankingRetriever`+`DocStore`) | ✅ xong — 1 test verify |
 | `decision.py` | `decide()` đếm CÓ/KHÔNG → verdict (ngưỡng 0.6/0.0, là tham số) · `route()` verdict+attempts → node kế tiếp | ✅ xong — 6 test pass |
-| `grader.py` | LLM-as-judge chấm CÓ/KHÔNG mỗi doc — cần Ollama (`qwen2.5:3b`, cài sáng mai) | ⏳ tiếp theo |
-| `graph.py` | nối node/edge/conditional-edge bằng `StateGraph`, gắn `attempts` guard | ⏳ sau `grader.py` |
+| `grader.py`/`ollama_grader.py` | LLM-as-judge chấm YES/NO mỗi doc — gọi Ollama (`qwen2.5:3b`) qua Tailscale (`100.78.59.56:11434`) | ✅ xong — 5 test (mock, không cần mạng) |
+| `graph.py` | nối node/edge/conditional-edge bằng `StateGraph`, gắn `attempts` guard | ⏳ tiếp theo — file cuối cùng |
+
+---
+
+## ⚠️ Việc còn treo — Docker networking cho Ollama (xử lý khi deploy, không cấp bách)
+
+`grader.py` gọi HTTP tới Ollama qua Tailscale (`100.78.59.56:11434`) từ máy host (`.venv` local) —
+chạy đúng vì máy host có Tailscale. Nhưng **container Docker mặc định cô lập mạng với host**,
+không tự có kết nối Tailscale này. Khi thật sự đóng gói app vào Docker để deploy, cần 1 trong 2:
+- Chạy container ở chế độ `--network host`, hoặc
+- Cài Tailscale ngay bên trong container (image riêng hoặc sidecar)
+
+Chưa cần xử lý bây giờ (đang code tay/test qua `.venv`) — chỉ xử lý khi thật sự deploy.
