@@ -439,3 +439,57 @@ ví dụ "mèo, gà, chó " trong lượt đầu lượt hai là "mèo , gà, ch
 - **Khi nào đáng bật (flag):** luôn bật sau Hybrid khi cần độ chính xác cao cho top kết quả
   cuối cùng (ví dụ nội dung đưa cho bác sĩ/bệnh nhân) — chi phí chỉ trả cho ~30-50 ứng viên đã
   lọc, không phải toàn kho.
+
+---
+
+### CRAG (Corrective RAG) — State Machine · Phase 2 · 2026-08-12
+
+- **Bài toán nó giải:** pipeline retrieval (Hybrid+Rerank) không đảm bảo kết quả tìm được luôn
+  **đủ tốt** — câu hỏi lạ, kho thiếu dữ liệu, rerank vẫn chọn nhầm. Nếu cứ đưa thẳng cho LLM
+  sinh câu trả lời mà không kiểm tra, dễ ra ảo giác (trả lời tự tin từ context sai). CRAG thêm
+  1 bước "giám khảo" kiểm tra chất lượng context **trước khi** cho generate, và **tự sửa** (tìm
+  lại rộng hơn) nếu context tệ — thay vì chạy thẳng 1 đường như Phase 2.1/2.2.
+
+- **Công thức / thuật toán:** không phải công thức toán — là 1 **đồ thị trạng thái** (state
+  machine), gồm 3 khái niệm:
+  ```
+  state  = 1 dict mang dữ liệu chạy xuyên suốt (query, retrieved_docs, verdict, attempts, answer...)
+  node   = 1 hàm (state) -> dict cập nhật một phần state (retrieve/grade/generate)
+  edge   = đường nối 2 node. "Edge thường" luôn đi 1 hướng cố định.
+           "Conditional edge" đọc state rồi TỰ CHỌN node kế tiếp (dùng cho rẽ nhánh CORRECT/INCORRECT).
+  ```
+  Luồng: `retrieve → grade → (INCORRECT & attempts<max: quay lại retrieve) | (còn lại: generate) → END`.
+  `grade` tự đếm CÓ/KHÔNG từng doc (`decide()`, ngưỡng `>=0.6`→CORRECT, `<=0.0`→INCORRECT,
+  còn lại→AMBIGUOUS — ngưỡng là **tham số**, không phải chân lý toán học, tự chọn hợp lý rồi để
+  Phase 3 (eval) kiểm chứng thật, giống cách chọn `k1/b` của BM25 hay `k=60` của RRF).
+
+- **Ví dụ bằng SỐ THẬT:** verify bằng graph thật, 2 kịch bản đối lập:
+  ```
+  Grader luôn trả lời "liên quan" (True):
+    → retrieve → grade (verdict=CORRECT, attempts=1) → generate → END
+    → answer có ngay, KHÔNG lặp.
+
+  Grader luôn trả lời "không liên quan" (False), max_attempts=3:
+    → retrieve→grade (INCORRECT, attempts=1) → retrieve→grade (INCORRECT, attempts=2)
+    → retrieve→grade (INCORRECT, attempts=3) → attempts>=max nên VẪN generate (van an toàn)
+    → answer vẫn có, verdict cuối cùng vẫn "INCORRECT" (không giả vờ là đúng, chỉ là buộc dừng).
+  ```
+
+- **CTDLGT bên trong:** **Graph** (node/edge, conditional routing) + **cycle guard** (`attempts`
+  chặn lặp vô hạn — cùng họ với recursion base-case, DFS visited-set). Mỗi node là 1 **closure**
+  (hàm ngoài nhận dependency đã inject — `retriever`, `grader`... — trả về hàm trong chỉ nhận
+  đúng `state`, "nhớ" dependency đó dù hàm ngoài đã chạy xong) — LangGraph chỉ chấp nhận node
+  dạng `(state) -> dict`, không truyền thêm tham số nào khác được.
+
+- **Bẫy dễ sai:**
+  1. **Conditional edge (router) không được sửa `state`** — nó chỉ được trả về 1 string chọn
+     node kế tiếp. Việc `attempts += 1` phải nằm trong 1 **node thật** (ở đây gộp vào
+     `grade_node`, vì mỗi lần `grade` chạy = vừa thử thêm 1 lần), không thể đặt trong `route()`.
+  2. Quên khai báo field mới (`grades`, `tenant_id`) trong `state.py` (`TypedDict`) trước khi 1
+     node trả về key đó — không lỗi cú pháp, chỉ là state "không đồng bộ" giữa các node.
+  3. `httpx.post` timeout mặc định quá ngắn cho LLM; `.upper()` 1 bên mà quên chuẩn hoá bên so
+     sánh — xem [bug-log](./bug-log.md) `#18`, `#19`.
+
+- **Khi nào đáng bật (flag):** luôn bật khi RAG phục vụ nội dung có rủi ro sai (y tế, tài
+  chính...) — chi phí thêm 1 lượt LLM chấm điểm, đổi lại giảm hẳn nguy cơ trả lời từ context
+  rác. Với nội dung ít rủi ro, có thể tắt để giảm độ trễ + chi phí gọi LLM.

@@ -10,9 +10,38 @@
 - **Hybrid search** — chạy cả dense + sparse rồi gộp.
 - **RRF** — Reciprocal Rank Fusion: gộp nhiều bảng xếp hạng qua rank, k=60.
 - **Rerank (cross-encoder)** — chấm lại top-k bằng cách đọc query+doc cùng 1 lượt.
-- **CRAG** — Corrective RAG: chấm context, sai thì tự tìm lại.
+- **CRAG** — Corrective RAG: sau khi retrieve, có 1 bước "giám khảo" (LLM) chấm chất lượng
+  context; context tệ thì **tự tìm lại rộng hơn** thay vì cứ generate bừa từ context xấu.
+- **LLM-as-judge** — dùng chính 1 LLM để chấm/đánh giá (thay vì người) — ở CRAG dùng để chấm
+  từng doc CÓ/KHÔNG liên quan tới câu hỏi.
 - **Chunk** — 1 mẩu text cắt ra để embed. **Chunking** — cách cắt.
 - **MMR** — Maximal Marginal Relevance: chọn top-k đa dạng, tránh trùng.
+
+## State Machine / LangGraph (Phase 2.3)
+- **State machine** — hệ thống chạy qua nhiều **trạng thái** (state), mỗi bước xử lý xong thì
+  chuyển state, có thể **rẽ nhánh** hoặc **quay lại** — khác code tuyến tính chạy 1 đường thẳng.
+- **State** — 1 dict/struct mang dữ liệu xuyên suốt cả graph (ở CRAG: `query`, `retrieved_docs`,
+  `verdict`, `attempts`, `answer`...), mỗi node chỉ cập nhật 1 phần, không thay hết.
+- **Node** — 1 hàm `(state) -> dict cập nhật`, coi như 1 "trạm" trong graph.
+- **Edge** — đường nối 2 node, đi theo hướng cố định, luôn luôn chạy.
+- **Conditional edge (router)** — đường nối **có điều kiện**: đọc `state` rồi tự quyết định đi
+  tới node nào tiếp theo (không được phép sửa `state`, chỉ được *đọc* rồi trả về tên node).
+- **`StateGraph`** — class của LangGraph dùng để khai báo node/edge/conditional-edge, sau đó
+  `.compile()` ra 1 graph chạy được (`.invoke(state_ban_đầu)`).
+- **`END`** — hằng số đặc biệt của LangGraph đánh dấu "graph dừng ở đây".
+- **Cycle guard** — cơ chế chặn vòng lặp chạy mãi (ở CRAG: đếm `attempts`, tới ngưỡng thì buộc
+  dừng) — cùng họ với base-case của đệ quy hay visited-set của DFS.
+- **Closure** — 1 hàm **nhớ được** biến từ phạm vi hàm cha dù hàm cha đã chạy xong. Dùng để
+  node (chỉ nhận đúng 1 tham số `state`) vẫn "mang theo" được các dependency đã inject lúc khởi
+  tạo (`retriever`, `grader`...) — viết bằng cách 1 hàm ngoài `return` ra 1 hàm trong.
+
+## Hạ tầng LLM (Phase 2.3)
+- **Ollama** — chương trình chạy LLM cục bộ (self-hosted), expose HTTP API (`/api/generate`)
+  để gọi model đã tải về (ví dụ `qwen2.5:3b`) mà không cần gửi dữ liệu ra dịch vụ ngoài.
+- **Tailscale** — VPN dạng lưới (mesh), nối 2 máy (dù ở 2 nơi khác nhau) vào 1 mạng riêng ảo
+  qua Internet, không cần mở port ra ngoài — mỗi máy có 1 IP nội bộ cố định dạng `100.x.x.x`.
+- **Quantization (Q4, …)** — nén trọng số model xuống ít bit hơn (ví dụ 4-bit thay vì 16/32-bit)
+  → nhẹ hơn, chạy CPU được, đánh đổi 1 phần độ chính xác.
 
 ## Kiến trúc
 - **Port** — interface (hợp đồng) trong domain. **Adapter** — bản cắm thật ở infrastructure.
