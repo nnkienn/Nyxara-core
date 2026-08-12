@@ -85,7 +85,10 @@
 | `node.py` | `retrieve_node` (closure, gọi lại `RerankingRetriever`+`DocStore`) | ✅ xong — 1 test verify |
 | `decision.py` | `decide()` đếm CÓ/KHÔNG → verdict (ngưỡng 0.6/0.0, là tham số) · `route()` verdict+attempts → node kế tiếp | ✅ xong — 6 test pass |
 | `grader.py`/`ollama_grader.py` | LLM-as-judge chấm YES/NO mỗi doc — gọi Ollama (`qwen2.5:3b`) qua Tailscale (`100.78.59.56:11434`) | ✅ xong — 5 test (mock, không cần mạng) |
-| `graph.py` | nối node/edge/conditional-edge bằng `StateGraph`, gắn `attempts` guard | ⏳ tiếp theo — file cuối cùng |
+| `generator.py`/`ollama_generator.py` | sinh câu trả lời cuối từ `retrieved_docs`, cùng Ollama | ✅ xong — 3 test (mock) |
+| `graph.py` | nối `retrieve→grade→(generate hoặc retrieve lại)` bằng `StateGraph`, `grade_node` tự tăng `attempts` | ✅ xong — 2 test e2e (happy path + van an toàn) |
+
+**CRAG (Phase 2.3) hoàn tất 2026-08-12** — verify bằng graph thật (LangGraph `StateGraph`), 2 kịch bản: luôn CORRECT (đi thẳng) và luôn INCORRECT (lặp đúng `max_attempts` lần rồi cưỡng bức generate). Model thật (`qwen2.5:3b` qua Tailscale) đã dùng để xây `grader.py`/`generator.py`, nhưng test tự động dùng mock để không phụ thuộc mạng.
 
 ---
 

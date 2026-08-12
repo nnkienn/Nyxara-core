@@ -250,16 +250,27 @@ trả UUID nội bộ thay vì `doc_id` gốc — phát hiện lúc ghép `Hybri
 **Bug thật gặp:** nhầm model (`bge-m3` thay vì `bge-reranker-v2-m3`, khiến classifier head
 random-init) · gọi nhầm method (`.rerank()` không tồn tại, đúng là `compute_score()`).
 
-### 2.3 CRAG (Corrective RAG via LangGraph) — ⏳ build lại (kiến thức ✔)
+### 2.3 CRAG (Corrective RAG via LangGraph) — ✅ XONG 2026-08-12
 - **State machine**: `state` = "tờ giấy" chạy qua các **node** (trạm), điền dần từng ô.
 - **Node = hàm** (`state → dict`); **edge** = ray cố định; **conditional edge** = rẽ theo **router**.
-- **grade → verdict → correct**: LLM-as-judge chấm CÓ/KHÔNG → đếm ra CORRECT/AMBIGUOUS/INCORRECT
-  → INCORRECT thì tìm lại **rộng hơn trong kho** (in-store). `attempts` guard chặn lặp vô hạn.
+- **grade → verdict → correct**: LLM-as-judge chấm YES/NO từng doc → `decide()` đếm ra
+  CORRECT/AMBIGUOUS/INCORRECT (ngưỡng `>=0.6`/`<=0.0`, là tham số) → INCORRECT thì quay lại
+  `retrieve` (tìm rộng hơn). `attempts` (tăng trong `grade_node`, vì conditional edge không
+  được sửa state) guard chặn lặp vô hạn — verify bằng graph thật: luôn CORRECT → đi thẳng;
+  luôn INCORRECT → lặp đúng `max_attempts` lần rồi van an toàn cưỡng bức generate.
+- **Hạ tầng LLM thật lần đầu dùng trong dự án:** Ollama (`qwen2.5:3b`, CPU 4-core/16GB) chạy
+  trên server riêng, nối qua Tailscale (mesh VPN, không cần mở port ra Internet) — `grader.py`
+  (chấm YES/NO) và `generator.py` (sinh câu trả lời) đều gọi qua HTTP (`httpx`) tới cùng model.
 
-**Files sẽ build:** `app/application/generation/` → `state.py · node.py · grader.py · decision.py · graph.py`
-**Tests mục tiêu:** grader · decision · graph e2e (vòng tự sửa + chốt chặn)
-**Bug đã từng gặp (nhớ để né lại — ghi vào [bug-log](notes/bug-log.md)):** HybridRetriever thiếu `await` (async lây cả chuỗi) · `attempts` KeyError ở đường thành công (init `attempts=0`) · cần `extra_hosts` cho core-api reach Ollama grader.
-**CTDLGT chạm tay:** graph (node/edge, conditional routing, cycle guard qua `attempts`).
+**Files đã build:** `app/application/generation/` → `state.py · node.py (retrieve/grade/generate) ·
+decision.py (decide/route) · graph.py` + `app/domain/ports/grader.py`, `generator.py` +
+`app/infrastructure/adapters/grader/ollama_grader.py`, `adapters/generator/ollama_generator.py`
+**Tests:** 17 test (`test_decision.py` 6 · `test_node.py` 4 · `test_graph.py` 2 e2e ·
+`test_ollama_grader.py` 5 mock · `test_ollama_generator.py` 3 mock) — tất cả pass, không cần mạng
+**Bug thật gặp:** `#18` httpx timeout mặc định 5s quá ngắn cho LLM · `#19` `.upper()` xong so
+sánh với chuỗi chữ thường → luôn `False` (xem [bug-log](notes/bug-log.md)).
+**CTDLGT chạm tay:** graph (node/edge, conditional routing, cycle guard qua `attempts`), closure
+(node "nhớ" dependency đã inject).
 
 ### 2.4 Còn lại của Advanced RAG — ⏳ chưa build
 
@@ -666,7 +677,9 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 ## 📊 Tổng kết Tests
 
 ```
-15 tests (2026-07-19) — Chunker 2 · Dedup 2 · Edit distance 5 · Pipeline 1 · Similarity 1 · BGEEmbedder 3 · QdrantStore 1
+56 tests (2026-08-12) — Chunker 2 · Dedup 2 · Edit distance 5 · Pipeline 1 · Similarity 1 ·
+BGEEmbedder 3 · QdrantStore 2 · BM25 8 · RRF 5 · HybridRetriever 3 · Reranker 2 ·
+RerankingRetriever 2 · CRAG: decision 6 · node 4 · graph 2 · grader 5 · generator 3
 đếm lại bất cứ lúc nào bằng:  grep -rc "def test_" tests
 ```
 > Trước reset có 74 test xanh (P1 vector 15 · BM25 13 · RRF 10 · Hybrid 11 · Reranker 6 · CRAG 12 · Chunker 4 · Ingestion 3).
@@ -684,8 +697,8 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 | 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
 | 2 | BM25 · Hybrid · RRF | ✅ | **XONG 2026-08-03** — BM25 + RRF + HybridRetriever, 18 test. Phát hiện + fix bug #17 (QdrantStore trả UUID thay vì doc_id gốc) lúc ghép |
 | 2 | Cross-encoder Rerank | ✅ | **XONG 2026-08-04** — `Reranker`+`BGEReranker` (model thật, verify điểm 4.75/-2.07) · `DocStore`+`InMemoryDocStore` (lỗ hổng doc_id→text phát hiện khi ghép, đã vá) · `RerankingRetriever` nối Hybrid→text→rerank→sort. 22 test pass (18 retrieval + 2 reranker + 2 vectorstore regression) |
-| 2 | CRAG (+ API) | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — StateGraph LangGraph; né lại 3 bug cũ (await, attempts, extra_hosts) |
-| 2 | Metadata filter · Query transform · Temporal · MMR · Compression · Adaptive/Self-RAG · GraphRAG · Multimodal | ⏳ | Sau khi khôi phục xong lõi 2.1–2.3: Metadata filtering → MMR |
+| 2 | CRAG | ✅ | **XONG 2026-08-12** — `state.py`/`node.py`(retrieve+grade+generate)/`decision.py`/`graph.py` (`StateGraph`) + Ollama thật (`qwen2.5:3b` qua Tailscale) cho `grader.py`/`generator.py`. 17 test, verify e2e cả 2 nhánh (CORRECT đi thẳng, INCORRECT lặp rồi van an toàn). Bug #18 (timeout), #19 (case-sensitivity) |
+| 2 | Metadata filter · Query transform · Temporal · MMR · Compression · Adaptive/Self-RAG · GraphRAG · Multimodal | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — Metadata filtering → MMR |
 | 3 | Eval: Retrieval metrics · Judge · RAGAS · Golden · Regression · A/B · Cost/Efficiency · Calibration · Online · Bias · **CI gate** | ⏳ | **Ưu tiên song song P2:** code tay `hit@k/mrr/ndcg` → golden 50–100 cặp → A/B Hybrid vs Hybrid+MMR |
 | 3.5 | Profiling · Indexing · HNSW · Quantization · Caching · Semantic cache | ⏳ | Chỉ mở sau khi có eval — viết `@timed` đo từng chặng trước |
 | 4 | Agent: Supervisor · Tool · Triage · Memory · Abstention · HITL · Tracing · MCP | ⏳ | Tái dùng skill CRAG → dựng StateGraph supervisor + cắm LangFuse ngay |

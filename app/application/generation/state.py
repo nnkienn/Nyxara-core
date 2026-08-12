@@ -6,6 +6,7 @@ class CRAGeneratorState(TypedDict):
     attempts : int
     answer : str
     tenant_id : str
+    grades : list[bool]
     """
     Represents the state of a CRAG generator.
     """
