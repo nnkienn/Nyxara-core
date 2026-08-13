@@ -32,6 +32,10 @@
 | Breaking change theo version lib | `.search()` bị gỡ → `.query_points()` | #14 |
 | State/loop guard | thiếu `max_steps`/`attempts` → lặp vô hạn | #6 |
 | Sửa test thay vì sửa code | đổi số mong đợi trong assert cho khớp output sai, thay vì sửa hàm nguồn | #9 |
+| Quên cập nhật 1 trong nhiều cấu trúc song song khi xoá (đối xứng thao tác thêm) | `seen`+`result` (#2); `doc_len`/`doc_count`/`index` khi `remove_document` (#20) | #2, #20 |
+| Đoán tên method theo cảm tính (suy từ method khác cùng class), không tra thư viện thật | `.search()`→`.query_points()` (#14); `delete_points`→`delete` (#21) | #14, #21 |
+| Để khối comment/TODO thay cho thân hàm thật (trông như xong nhưng Python coi là rỗng) | `get_doc_manifest` thân hàm chỉ có comment, chưa có `return` | #22 |
+| Giả định thứ tự của `set()` — Python không đảm bảo thứ tự lặp qua set | `to_upsert` từ `diff_manifest` (đi qua `set()` union) | #23 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
@@ -39,6 +43,82 @@
 ---
 
 ## (Ghi các bug bên dưới, mới nhất trên cùng)
+
+### #23 — giả định sai thứ tự của `set()` khi viết assert cho `ingest_document`  ·  Phase 0  ·  thật (lộ qua test tự viết)  ·  2026-08-14
+- **Triệu chứng:** `test_ingest_document_writes_to_all_three_stores` fail:
+  `embedder.calls == [["chó nâu", "chim xanh", "mèo đen"]]` thay vì đúng thứ tự
+  `["mèo đen", "chó nâu", "chim xanh"]` đã ingest vào. Không phải bug logic — dữ liệu vẫn đúng,
+  chỉ sai **thứ tự** trong batch gửi cho embedder.
+- **Nguyên nhân:** `diff_manifest` tính `all_indices = set(old_manifest) | set(new_manifest)` —
+  **`set` trong Python không đảm bảo thứ tự lặp** (khác `list`/`dict` giữ thứ tự chèn từ
+  Python 3.7+). `to_upsert` vì vậy ra thứ tự tuỳ theo hash nội bộ của `set`, không phải thứ tự
+  `chunk_index` 0→1→2 như trực giác mong đợi.
+- **Cách tìm ra:** chạy `pytest` toàn bộ suite (không phải chỉ file đang sửa) — lộ ngay vì assert
+  so đúng thứ tự.
+- **Fix:** không phải sửa `ingest_document` (đúng rồi) — sửa **assert** trong test, so nội dung
+  bằng `sorted(...)` thay vì so thứ tự chính xác.
+- **Test chặn tái phát:** `tests/application/ingestion/test_pipeline.py::test_ingest_document_writes_to_all_three_stores`
+  (đã tự sửa đúng).
+- **Bài học / pattern:** khi 1 giá trị đi qua `set()` ở bất kỳ đâu trong pipeline dữ liệu, **mọi
+  thứ tự sau đó không còn đáng tin** — test/assert không được giả định thứ tự trừ khi có bước
+  sort tường minh. Ở đây may mắn không phải bug thật (id vẫn khớp đúng text vì 2 list comprehension
+  lặp cùng 1 `to_upsert` list), nhưng nếu chỗ khác lỡ dựa vào thứ tự của kết quả từ `set` (vd hiển
+  thị UI, ghi log theo batch) thì sẽ *thật* sự sai — luôn chạy `pytest` toàn bộ suite trước khi
+  coi 1 tính năng là xong, đừng chỉ chạy file đang sửa.
+
+### #22 — 2 lần thụt lề sai liên tiếp khi thêm hàm mới vào `pipeline.py`  ·  Phase 0  ·  thật  ·  2026-08-14
+- **Triệu chứng:** lần 1 — `IndentationError: unindent does not match any outer indentation
+  level` ngay khi `import` (dòng `def load_manifest` thừa 1 space so với `def load_seen` phía
+  trên). Lần 2 (sau khi sửa lần 1) — `IndentationError: expected an indented block` (thân hàm
+  `get_doc_manifest` chỉ có comment, chưa có statement thật nào).
+- **Nguyên nhân:** lần 1 — gõ thêm hàm mới ngay dưới hàm cũ nhưng lệch mức thụt lề (1 space
+  thay vì thẳng cột với `def` phía trên). Lần 2 — để lại khối comment TODO làm thân hàm tạm,
+  nhưng Python không coi comment là "thân hàm" hợp lệ — bắt buộc phải có ít nhất 1 statement
+  (kể cả `pass` hay `...`) mới hợp lệ cú pháp.
+- **Cách tìm ra:** chạy thẳng `python3 -c "import ..."`, đọc số dòng + loại lỗi trong traceback
+  — cả 2 lần đều lộ ngay, không cần đoán.
+- **Fix:** lần 1 — dedent `def load_manifest` về đúng cột 0 (ngang hàng các `def` khác ở module
+  level). Lần 2 — thêm statement thật (`return manifest.get(tenant_id, {}).get(doc_id, {})`)
+  thay vì để trống sau comment.
+- **Test chặn tái phát:** không cần test riêng — lỗi cú pháp chặn ngay từ `import`, `pytest`
+  collect test sẽ tự fail nếu tái phạm.
+- **Bài học / pattern:** cùng họ `#10`/`#16` (thụt lề sai phạm vi) — nhưng ca 2 là biến thể mới:
+  **để khối comment/TODO thay cho thân hàm thật** trông giống "đã viết xong" (có nội dung, có
+  chữ) nhưng Python vẫn coi là rỗng. Khi khung sẵn có TODO comment, luôn phải thay bằng ít
+  nhất 1 dòng lệnh thật trước khi coi là "đã điền".
+
+### #21 — `client.delete_points` không tồn tại, đúng phải là `client.delete`  ·  Phase 0  ·  thật  ·  2026-08-14
+- **Triệu chứng:** phát hiện **trước khi chạy** — tra `hasattr(QdrantClient, 'delete_points')`
+  → `False`. Nếu chạy thật sẽ nổ `AttributeError: 'QdrantClient' object has no attribute
+  'delete_points'`.
+- **Nguyên nhân:** đoán tên method theo cảm tính, suy từ các method khác cùng class
+  (`upsert`, `search`) nên đoán có `delete_points` riêng — thực tế `qdrant-client` chỉ có
+  1 method `delete` chung cho mọi kiểu xoá (theo id list hay theo `Filter`), không tách tên.
+- **Cách tìm ra:** tra trực tiếp thư viện thật thay vì đoán — `hasattr(...)` rồi
+  `inspect.signature(QdrantClient.delete)` để xem `points_selector` nhận kiểu gì (`Filter`
+  được chấp nhận trực tiếp, không cần bọc `FilterSelector`).
+- **Fix:** đổi `self.client.delete_points(...)` → `self.client.delete(...)`.
+- **Test chặn tái phát:** `tests/infrastructure/adapters/vectorstore/test_qdrant_store.py::test_delete_removes_own_tenant_doc`.
+- **Bài học / pattern:** cùng họ `#14` (API không đúng như kỳ vọng) nhưng khác nguồn gốc —
+  `#14` là breaking change giữa các version thư viện, còn đây là **đoán sai ngay từ đầu**
+  không tra thực tế. Luôn `hasattr`/đọc docstring/type hint thật của thư viện ngoài trước khi
+  gọi, đừng suy đoán tên method theo "nghe hợp lý".
+
+### #20 — quên trừ `doc_count` trong `remove_document` → `avg_doc_len` sẽ tính sai  ·  Phase 0  ·  cố ý  ·  2026-08-14
+- **Triệu chứng:** `_build_index()` có 3 doc, sau `remove_document("t1", "doc1")` mong đợi
+  `doc_count["t1"] == 2`, nhận về `3`. Không crash, chạy xong bình thường.
+- **Nguyên nhân:** trong `remove_document`, chỉ xoá `doc_len[tenant_id][doc_id]` và dọn
+  `doc_id` khỏi từng term trong `index`, nhưng **quên** dòng `self.doc_count[tenant_id] -= 1`
+  — `add_document` phải cập nhật đủ 3 cấu trúc (`doc_len`, `doc_count`, `index`) khi thêm,
+  nên `remove_document` cũng phải đối xứng cập nhật đủ cả 3 khi xoá, sót 1 không hề báo lỗi.
+- **Cách tìm ra:** viết test `test_remove_document_updates_doc_count`, chạy `pytest` →
+  `AssertionError: assert 3 == 2` — số liệu sai lộ ngay, không cần đọc code mới thấy.
+- **Fix:** thêm lại `self.doc_count[tenant_id] -= 1` trong khối `if` xoá `doc_len`.
+- **Test chặn tái phát:** `tests/application/retrieval/test_bm25_index.py::test_remove_document_updates_doc_count`.
+- **Bài học / pattern:** cùng họ `#2` — quên cập nhật 1 trong nhiều cấu trúc song song. Ở đây
+  hậu quả âm ỉ hơn `#2`: `doc_count` sai không tự crash, nhưng nuôi `avg_doc_len` (dòng 35,
+  `_score`) tính sai dần theo mỗi lần xoá — làm lệch điểm BM25 của **mọi** doc còn lại, không
+  chỉ doc vừa xoá. Thao tác "xoá" luôn phải soát lại đúng những gì "thêm" đã từng ghi.
 
 ### #1 — `start` không trừ `overlap` khi sang chunk kế tiếp  ·  Phase 0  ·  cố ý  ·  2026-07-14
 - **Triệu chứng:** `recursive_chunk("ABCDEFGHIJ", size=6, overlap=2)` mong đợi `chunks[1] == "EFGHIJ"`, nhưng nhận về `"GHIJ"` — thiếu mất 2 ký tự đầu (`"EF"`). `chunks[0]` vẫn đúng (`"ABCDEF"`) — bug chỉ lộ ra từ chunk thứ 2 trở đi.

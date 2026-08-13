@@ -66,4 +66,21 @@ class QdrantStore:
             SearchHit(id=hit.payload["doc_id"], text=hit.payload["text"], score=hit.score)
             for hit in res
         ]
-        
+    def delete(self, tenant_id: str, doc_id: str) -> None:  
+        # Tạo filter để chỉ xoá điểm có tenant_id + doc_id trùng khớp.
+        filter = Filter(
+            must=[
+                FieldCondition(
+                    key="tenant_id",
+                    match=MatchValue(value=tenant_id)
+                ),
+                FieldCondition(
+                    key="doc_id",
+                    match=MatchValue(value=doc_id)
+                )
+            ]
+        )
+        self.client.delete(
+            collection_name=self.collection,
+            points_selector=filter
+        )

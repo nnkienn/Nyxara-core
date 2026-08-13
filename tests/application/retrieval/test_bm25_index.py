@@ -68,3 +68,9 @@ def test_tenant_isolation():
     results = idx.search("tenant_a", "công ty", top_k=5)
     assert len(results) == 1
     assert results[0][0] == "doc1"
+
+
+def test_remove_document_updates_doc_count():
+    idx = _build_index()
+    idx.remove_document("t1", "doc1")
+    assert idx.doc_count["t1"] == 2

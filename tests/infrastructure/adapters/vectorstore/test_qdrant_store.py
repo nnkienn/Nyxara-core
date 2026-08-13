@@ -35,3 +35,7 @@ def test_search_returns_original_doc_id_not_internal_uuid(store):
     hits = store.search(tenant_id="A", query_vector=[1.0, 0.0, 0.0], top_k=5)
 
     assert hits[0].id == "a1"
+def test_delete_removes_own_tenant_doc(store):
+    store.delete("A", "a1")
+    hits = store.search(tenant_id="A", query_vector=[1.0, 0.0, 0.0], top_k=5)
+    assert hits == []

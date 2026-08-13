@@ -51,3 +51,13 @@ class BM25Index:
 
         ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
         return ranked[:top_k]
+    def remove_document(self, tenant_id : str , doc_id : str) -> None :
+        if tenant_id in self.doc_len and doc_id in self.doc_len[tenant_id]:
+            del self.doc_len[tenant_id][doc_id]
+            self.doc_count[tenant_id] -= 1
+
+        for term in list(self.index.get(tenant_id, {})):
+            if doc_id in self.index[tenant_id][term]:
+                del self.index[tenant_id][term][doc_id]
+                if not self.index[tenant_id][term]:
+                    del self.index[tenant_id][term]

@@ -128,6 +128,34 @@ Agent → Safety → Fine-tuning → MLOps → Community → SaaS Bridge.**
 - Ingestion là **pipeline có trạng thái**: cùng 1 doc chạy lại không được nhân đôi (idempotent).
 - Doc thay đổi theo thời gian → cần **versioning** + **incremental ingest** thay vì re-ingest toàn bộ.
 
+> **🔨 Trạng thái (2026-08-14):** Mở rộng ingest từ "chỉ append-only" (Incremental ✅ cũ, chỉ
+> dedupe theo hash) thành **multi-store CRUD đồng bộ** (BM25 + Qdrant + DocStore ghi/xoá cùng lúc).
+> Lý do: ingest lại doc đã sửa/xoá đang để lại **orphan** trong BM25/Qdrant vì `pipeline.py` cũ
+> chưa có thao tác xoá — đúng ra thuộc Phase 7 (Data lifecycle: vector CRUD/delete/sync) nhưng
+> kéo sớm lên đây vì ingest cần nó ngay để không nợ kỹ thuật.
+> **Thứ tự (theo vòng 6 bước):**
+> 1. ✅ `BM25Index.remove_document` — **XONG 2026-08-14** (9 test pass, bug #20 — quên trừ
+>    `doc_count`, xem [bug-log](notes/bug-log.md))
+> 2. ✅ `VectorStore.delete` / `QdrantStore.delete` — **XONG 2026-08-14** (3 test pass, bug #21
+>    — `delete_points` không tồn tại, đúng là `client.delete`)
+> 3. ✅ `DocStore.delete(tenant_id, doc_id)` — **XONG 2026-08-14** (3 test pass, không bug —
+>    tiện thể tạo luôn `tests/infrastructure/adapters/docstore/` vì trước đó `InMemoryDocStore`
+>    chưa từng có test, kể cả `save`/`get`)
+> 4. ✅ Redesign manifest: `(tenant_id, doc_id) → {chunk_index: content_hash}` — **XONG
+>    2026-08-14** (`load_manifest`/`save_manifest`/`get_doc_manifest` trong `pipeline.py`,
+>    3 test pass, bug #22 — 2 lần thụt lề sai liên tiếp; giữ song song `load_seen`/`incremental_ingest`
+>    cũ, gộp lại ở bước 6 ráp orchestrator)
+> 5. ✅ Hàm diff thuần: `to_upsert` / `to_skip` / `to_delete` — **XONG 2026-08-14** (`diff_manifest`
+>    trong `pipeline.py`, so 2 manifest bằng `set` union + so hash từng `chunk_index`, 4 test pass,
+>    không bug — verify tay trước bằng ví dụ 4 case rồi mới viết test chính thức)
+> 6. ✅ Ráp `ingest_document` orchestrator (BM25Index + VectorStore + DocStore + Embedder) —
+>    **XONG 2026-08-14** (2 test integration pass: ghi đủ 3 store lần đầu + diff đúng lần 2
+>    (xoá/đổi/giữ nguyên), embed batch 1 lần không loop từng chunk; bug #23 — giả định sai thứ
+>    tự của `set()` khi viết assert, không phải bug ở `ingest_document`). **66/66 test toàn
+>    project pass.**
+> Toàn bộ pipeline ingest hợp nhất (Việc 1 của buổi) đã xong. Tiếp theo quay lại Việc 2
+> (`/ask` API bọc `graph.py` vào FastAPI).
+
 ### Danh sách kỹ thuật
 
 | # | Kỹ thuật | Học được gì | Ưu tiên | CTDLGT |
@@ -530,6 +558,10 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 
 ## Phase 7 — MLOps & Production
 
+> Phần **vector CRUD/delete/sync** của "Data lifecycle" bên dưới đã kéo sớm lên
+> [Phase 0](#phase-0--foundation--ingestion-pipeline) (2026-08-14) vì ingest cần nó ngay;
+> phần còn lại (embedding migration khi đổi model) vẫn nằm ở đây.
+
 | Kỹ thuật | Học được gì | Ưu tiên |
 |---|---|---|
 | **Model serving** (vLLM / TGI) | phục vụ LLM throughput cao (paged attention) | 🛠️ 🔴 |
@@ -677,9 +709,11 @@ TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + 
 ## 📊 Tổng kết Tests
 
 ```
-56 tests (2026-08-12) — Chunker 2 · Dedup 2 · Edit distance 5 · Pipeline 1 · Similarity 1 ·
-BGEEmbedder 3 · QdrantStore 2 · BM25 8 · RRF 5 · HybridRetriever 3 · Reranker 2 ·
-RerankingRetriever 2 · CRAG: decision 6 · node 4 · graph 2 · grader 5 · generator 3
+66 tests (2026-08-14) — Chunker 2 · Dedup 2 · Edit distance 5 · Pipeline 6 (+2 ingest_document,
+bug #22 #23) · Similarity 1 · BGEEmbedder 3 · QdrantStore 3 (+1 delete, bug #21) · BM25 9
+(+1 remove_document, bug #20) · InMemoryDocStore 3 (mới — chưa từng có test) · RRF 5 ·
+HybridRetriever 3 · Reranker 2 · RerankingRetriever 2 · CRAG: decision 6 · node 4 · graph 2 ·
+grader 5 · generator 3
 đếm lại bất cứ lúc nào bằng:  grep -rc "def test_" tests
 ```
 > Trước reset có 74 test xanh (P1 vector 15 · BM25 13 · RRF 10 · Hybrid 11 · Reranker 6 · CRAG 12 · Chunker 4 · Ingestion 3).
@@ -693,7 +727,7 @@ RerankingRetriever 2 · CRAG: decision 6 · node 4 · graph 2 · grader 5 · gen
 | Phase | Kỹ thuật | Trạng thái | 🎯 Next Action (việc kế tiếp cụ thể) |
 |---|---|---|---|
 | 0 | **Recursive** chunking ✅ · Semantic/Proposition ⏳ | 🔨 | Recursive xong; Semantic (cắt theo embedding distance) để radar, giờ có embedder rồi |
-| 0 | **Dedup (exact+near) ✅ · Incremental ✅** · Parent-Child/Multi-vector/Versioning ⏳ | 🔨 | Lõi 🔴 xong (edit_distance DP + pipeline seen-check). Còn lại 🟡🟢 radar |
+| 0 | Dedup (exact+near) ✅ · Incremental (append-only) ✅ · **Multi-store delete-aware ingest** 🔨 (kéo sớm từ Phase 7) | 🔨 | Đang làm `BM25Index.remove_document` (1/6 bước) → DocStore/VectorStore delete → manifest theo tenant/doc → diff → ingest orchestrator |
 | 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
 | 2 | BM25 · Hybrid · RRF | ✅ | **XONG 2026-08-03** — BM25 + RRF + HybridRetriever, 18 test. Phát hiện + fix bug #17 (QdrantStore trả UUID thay vì doc_id gốc) lúc ghép |
 | 2 | Cross-encoder Rerank | ✅ | **XONG 2026-08-04** — `Reranker`+`BGEReranker` (model thật, verify điểm 4.75/-2.07) · `DocStore`+`InMemoryDocStore` (lỗ hổng doc_id→text phát hiện khi ghép, đã vá) · `RerankingRetriever` nối Hybrid→text→rerank→sort. 22 test pass (18 retrieval + 2 reranker + 2 vectorstore regression) |
