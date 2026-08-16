@@ -36,13 +36,62 @@
 | Đoán tên method theo cảm tính (suy từ method khác cùng class), không tra thư viện thật | `.search()`→`.query_points()` (#14); `delete_points`→`delete` (#21) | #14, #21 |
 | Để khối comment/TODO thay cho thân hàm thật (trông như xong nhưng Python coi là rỗng) | `get_doc_manifest` thân hàm chỉ có comment, chưa có `return` | #22 |
 | Giả định thứ tự của `set()` — Python không đảm bảo thứ tự lặp qua set | `to_upsert` từ `diff_manifest` (đi qua `set()` union) | #23 |
+| Fake trong unit test khớp *giả định* của code, không khớp *implementation thật* — chỉ lộ khi ghép qua HTTP thật | `main.py` truyền `HybridRetriever` (3 tham số) thay vì `RerankingRetriever` (4 tham số) vào `retrieve_node` | #24 |
+| Cache/manifest bền (đĩa) lệch pha với dữ liệu dễ vỡ (RAM) khi restart — manifest "nói dối" là đã có data | `manifest.json` sống sót qua restart, 3 kho in-memory thì không, khiến ingest lại bị `to_skip` oan | #25 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
 
 ---
 
-## (Ghi các bug bên dưới, mới nhất trên cùng)
+### #25 — `manifest.json` (bền/persistent) lệch pha với 3 kho in-memory (dễ vỡ) khi server restart  ·  Phase 0/2 (verify `/ask` qua HTTP thật)  ·  thật  ·  2026-08-14
+- **Triệu chứng:** `POST /ingest` trả `200 {"chunk_count":1}` (tưởng thành công), nhưng `POST /ask`
+  ngay sau đó vẫn `500` (`IndexError` ở reranker, retrieval trả về rỗng) — dù data "vừa ingest".
+- **Nguyên nhân:** `uvicorn --reload` restart process (do sửa `main.py`) → `BM25Index`/
+  `QdrantClient(":memory:")`/`InMemoryDocStore` bị tạo mới **rỗng hoàn toàn** (chỉ sống trong
+  RAM). Nhưng `data/manifest.json` nằm **trên đĩa**, sống sót qua restart, vẫn nhớ chunk này
+  "đã ingest rồi" (cùng hash, vì text y hệt). `diff_manifest` so hash thấy khớp → xếp vào
+  `to_skip` → **không ghi gì cả** vào 3 kho vừa bị reset rỗng. `chunk_count` trả về chỉ đếm số
+  chunk *chunking ra*, không phải số chunk *thực sự ghi vào kho* — số liệu trả về "nói dối".
+- **Cách tìm ra:** viết script Python tái hiện y hệt luồng thật (dựng đúng 4 adapter, gọi
+  `ingest_document` rồi `RerankingRetriever.search` trực tiếp) → chạy đúng, ra kết quả — chứng
+  minh logic KHÔNG sai. Sau đó đọc trực tiếp nội dung `data/manifest.json` trên máy thật → thấy
+  entry cũ vẫn còn từ lần ingest trước khi restart → khớp đúng giả thuyết.
+- **Fix (tạm, để test):** `rm data/manifest.json` trước khi ingest lại sau mỗi lần server restart.
+- **Test chặn tái phát:** chưa có (cần integration test giả lập "restart" — tạo lại BM25/Qdrant/
+  DocStore rỗng nhưng giữ nguyên file manifest cũ, verify ingest phải ghi lại đúng).
+- **Bài học / pattern:** đây là bug thuộc lớp **"2 thành phần có vòng đời (lifecycle) khác nhau
+  nhưng phải đồng bộ với nhau"** — mọi thiết kế dùng manifest/cache bền để tối ưu "khỏi ghi lại
+  cái đã có" đều phải tự hỏi: "cái mà manifest mô tả có sống LÂU BẰNG manifest không?" Ở đây
+  manifest sống trên đĩa (bền), 3 kho chỉ sống trong RAM (dễ vỡ) — thiết kế production thật cần
+  cả 2 cùng bền (Qdrant server thật, Postgres/Redis cho DocStore) hoặc cả 2 cùng dễ vỡ (manifest
+  cũng in-memory, reset cùng lúc), không được để lệch nhau.
+
+### #24 — `main.py` truyền `HybridRetriever` thẳng vào `build_graph`, thiếu tầng `RerankingRetriever`  ·  Phase 2/7 (wiring `/ask`)  ·  thật  ·  2026-08-14
+- **Triệu chứng:** gọi `POST /ask` qua HTTP thật → `500 Internal Server Error`. Log uvicorn:
+  `TypeError: search() takes 4 positional arguments but 5 were given` tại
+  `retrieve_node` (`node.py:21`, dòng `retriever.search(tenant_id, query, candidate_k, top_k)`).
+- **Nguyên nhân:** `node.py::retrieve_node` được thiết kế (từ Phase 2.3) cho retriever có
+  `.search(tenant_id, query, candidate_k, top_k)` — **4 tham số**, đúng chữ ký
+  `RerankingRetriever.search` (Phase 2.2). Nhưng `main.py` (viết lúc build `/ask`) lại dựng
+  `HybridRetriever` (chỉ có `.search(tenant_id, query, top_k)` — **3 tham số**, tự tính
+  `candidate_k = top_k*2` bên trong) rồi đưa **thẳng** vào `build_graph(...)` làm `retriever`,
+  bỏ sót hẳn tầng rerank.
+- **Cách tìm ra:** chạy `pytest` không bắt được (test `test_node.py` dùng `FakeRetriever` tự
+  viết đúng 4 tham số — khớp giả định của `node.py`, không đại diện `HybridRetriever` thật) —
+  chỉ lộ ra khi **gọi qua HTTP thật** với adapter thật, đọc traceback thấy đúng dòng, đúng số
+  tham số lệch.
+- **Fix:** thêm `BGEReranker()`, bọc `hybrid_retriever = HybridRetriever(...)` bằng
+  `RerankingRetriever(hybrid_retriever, doc_store, reranker)`, truyền `RerankingRetriever` đó
+  (không phải `HybridRetriever` trần) vào `build_graph(...)`.
+- **Test chặn tái phát:** chưa có unit test tự động (cần fake `Reranker` thật để test riêng
+  đoạn wiring này) — hiện chặn bằng verify tay qua `curl /ask` thật.
+- **Bài học / pattern:** cùng họ `#17` (2 module dùng "hợp đồng" khác nhau, chỉ lộ khi ghép) —
+  nhưng lần này ở tầng **wiring/composition root** (`main.py`), không phải giữa 2 hàm nội bộ.
+  Test unit dùng Fake đúng theo *giả định* của code đang test — nếu giả định đó sai/lệch so với
+  implementation thật (`HybridRetriever` thiếu 1 tham số), test vẫn xanh nhưng hệ thống thật vỡ.
+  **Bài học lớn hơn:** chạy `pytest` xanh không thay thế được việc **gọi qua HTTP thật** ít
+  nhất 1 lần trước khi coi 1 tính năng end-to-end là xong.
 
 ### #23 — giả định sai thứ tự của `set()` khi viết assert cho `ingest_document`  ·  Phase 0  ·  thật (lộ qua test tự viết)  ·  2026-08-14
 - **Triệu chứng:** `test_ingest_document_writes_to_all_three_stores` fail:

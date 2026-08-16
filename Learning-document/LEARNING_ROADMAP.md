@@ -153,8 +153,27 @@ Agent → Safety → Fine-tuning → MLOps → Community → SaaS Bridge.**
 >    (xoá/đổi/giữ nguyên), embed batch 1 lần không loop từng chunk; bug #23 — giả định sai thứ
 >    tự của `set()` khi viết assert, không phải bug ở `ingest_document`). **66/66 test toàn
 >    project pass.**
-> Toàn bộ pipeline ingest hợp nhất (Việc 1 của buổi) đã xong. Tiếp theo quay lại Việc 2
-> (`/ask` API bọc `graph.py` vào FastAPI).
+> Toàn bộ pipeline ingest hợp nhất (Việc 1 của buổi) đã xong.
+>
+> ✅ **Việc 2 — `/ask` API (bọc `graph.py` vào FastAPI) — XONG 2026-08-14, verify qua HTTP
+> thật (không phải chỉ `pytest`):**
+> - `app/presentation/api/ask.py` — `POST /ask {tenant_id, query}` → `{answer}`.
+> - `app/presentation/api/ingest.py` — `POST /ingest {tenant_id, doc_id, text}` → tái dùng
+>   `ingest_document`, để có cách nạp data qua HTTP (không chỉ `pytest`).
+> - `app/main.py` — `lifespan` dựng 1 lần: `BGEEmbedder` → `QdrantStore`(`:memory:`) →
+>   `BM25Index` → `InMemoryDocStore` → `HybridRetriever` → **`BGEReranker` + `RerankingRetriever`**
+>   (bọc ngoài Hybrid, bắt buộc — `retrieve_node` cần `.search(tenant_id, query, candidate_k,
+>   top_k)` 4 tham số, không phải `HybridRetriever` trần chỉ có 3) → `OllamaGrader`/
+>   `OllamaGenerator` → `build_graph(...)`, lưu vào `app.state`.
+> - Cả 2 handler viết `def` (không `async def`) — tránh chặn event loop khi gọi model/HTTP
+>   đồng bộ bên trong (`graph.invoke`, `embedder.embed`, `vector_store.upsert`).
+> - **Verify thật:** `curl /ingest` rồi `curl /ask` với Ollama thật (qua Tailscale) → trả lời
+>   đúng bám nội dung đã ingest, không bịa.
+> - **3 bug thật gặp khi trace qua HTTP** (không cái nào `pytest` bắt được — bài học lớn nhất
+>   buổi này): #24 (thiếu tầng `RerankingRetriever`, `pytest` xanh vì Fake khớp sai giả định),
+>   #25 (`manifest.json` bền lệch pha 3 kho dễ vỡ khi `--reload` restart). Xem chi tiết
+>   [bug-log.md](notes/bug-log.md).
+> - Sơ đồ tổng thể (trace theo thứ tự): [notes/pipeline/](notes/pipeline/README.md).
 
 ### Danh sách kỹ thuật
 
@@ -258,7 +277,7 @@ chưa có Port riêng; để lại khi thật sự cần đổi implementation k
 **Bug thật gặp (xem [bug-log](notes/bug-log.md)):** #15 (`int | None` cần Python 3.10, dự án chạy 3.9)
 · #16 (thụt lề 2 lần: dead code chặn trước + unexpected indent) · #17 (`QdrantStore.search`
 trả UUID nội bộ thay vì `doc_id` gốc — phát hiện lúc ghép `HybridRetriever`, không phải lúc chạy).
-**Sơ đồ tổng:** [retrieval-pipeline.md](notes/retrieval-pipeline.md).
+**Sơ đồ tổng:** [notes/pipeline/02-retrieval.md](notes/pipeline/02-retrieval.md).
 
 ### 2.2 Cross-encoder Reranking (bge-reranker-v2-m3) — ✅ XONG 2026-08-04
 - **Bi-encoder vs Cross-encoder**: bi-encoder encode query/doc riêng rồi so vector.
@@ -526,6 +545,7 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 | 8 | **Graceful degradation** | Qdrant/LLM sập → xuống cấp êm | core | 🟡 |
 | 9 | **Rate limiting** | chặn spam | core *đo* · **cloud** *enforce* | 🟡 |
 | 10 | **Cost guard + circuit breaker** | chặn nổ bill | core *đo* · **cloud** *enforce* | 🔴 |
+| 11 | **SAST — quét lỗ hổng code tĩnh** (Fortify, Semgrep, Bandit) | khác hẳn 1-10 (an toàn *AI*) — đây là an toàn *code truyền thống* (SQL injection, dependency CVE...), quét trước khi build/deploy | CI/CD (không phải core AI) | 🟡 |
 
 ### Cách học hiệu quả (code tay)
 - **CODE TAY PII:** tự viết Trie/regex matcher cho SĐT VN + email TRƯỚC khi dùng Presidio.
@@ -564,20 +584,24 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 
 | Kỹ thuật | Học được gì | Ưu tiên |
 |---|---|---|
-| **Model serving** (vLLM / TGI) | phục vụ LLM throughput cao (paged attention) | 🛠️ 🔴 |
-| **Observability stack** (Prometheus + Grafana) | metric/log/alert hạ tầng (latency, error rate, uptime) | 🛠️ 🔴 |
+| **Model serving** (vLLM / TGI cho LLM · **NVIDIA Triton** cho model vision/đa dạng hơn, vd YOLO) | phục vụ inference throughput cao (paged attention, dynamic batching) | 🛠️ 🔴 |
+| **Observability stack** — **LGTM**: Prometheus (metric) + **Loki** (log) + **Tempo** (trace) + Grafana (dashboard), thu thập qua **Grafana Alloy/OpenTelemetry** (chuẩn chung, không lệ thuộc 1 hãng) | metric/log/trace/alert hạ tầng — 3 trụ observability tách bạch (metric đo *bao nhiêu*, log đo *chuyện gì xảy ra*, trace đo *chậm ở đâu trong chuỗi service*) | 🛠️ 🔴 |
+| **Load testing** (Locust) | giả lập nhiều user gọi `/ask` cùng lúc, đo hệ thống chịu được bao nhiêu request/s trước khi thật sự deploy | 🛠️ 🟡 |
 | **Data lifecycle** | vector CRUD/delete/sync · dedup · incremental · **embedding migration** (re-embed khi đổi model) | 🛠️ 🔴 |
 | **Drift detection** | data / embedding / concept drift — chất lượng tụt âm thầm | 🛠️ 🟡 |
 | **Eval-at-scale** | online eval · regression · prompt versioning · judge calibration | 🛠️ 🟡 |
-| **CI/CD retrain** + experiment tracking (W&B/MLflow) · versioning (DVC/HF) | reproducible ML | 📡 🟢 |
+| **CI/CD** (Jenkins/GitHub Actions — build/test/deploy tự động mỗi lần push) | nền tảng đưa code lên production an toàn, lặp lại được | 🛠️ 🔴 |
+| **CI/CD retrain** + experiment tracking (W&B/MLflow) · versioning (DVC/HF) | reproducible ML — khác CI/CD ở trên (đây riêng cho vòng lặp retrain model) | 📡 🟢 |
 | **Canary / blue-green deploy** · DR/backup · scaling/backpressure | tung model an toàn, chịu tải | 📡 🟢 (nhiều phần **cloud**) |
 
 ### Cách học hiệu quả
-- Phân biệt rạch ròi: **agent tracing (LangFuse, Phase 4)** ≠ **observability hạ tầng (Prometheus)**.
-  Cái đầu cần lúc BUILD agent; cái sau đo cả hệ thống.
+- Phân biệt rạch ròi: **agent tracing (LangFuse, Phase 4)** ≠ **observability hạ tầng (Prometheus/Loki/Tempo)**.
+  Cái đầu cần lúc BUILD agent (soi 1 lần chạy agent cụ thể); cái sau đo cả hệ thống theo thời gian.
 - **Drift:** tự viết so phân bố embedding tuần này vs tuần trước (PSI / KL divergence) trước khi dùng tool.
+- **Load test:** chạy Locust nhắm vào `/ask` sau khi có endpoint thật (Việc 2 hôm nay) — đo p50/p95
+  latency khi có 10/50/100 user cùng hỏi, thấy điểm nghẽn thật (LLM call thường là nút cổ chai).
 
-**Files gợi ý:** `app/observability/metrics.py` · `ops/serving/vllm.yaml` · `app/lifecycle/reembed.py`
+**Files gợi ý:** `app/observability/metrics.py` · `ops/serving/vllm.yaml` · `app/lifecycle/reembed.py` · `ops/loadtest/locustfile.py`
 
 ---
 
