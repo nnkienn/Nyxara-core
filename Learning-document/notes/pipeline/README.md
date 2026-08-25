@@ -4,6 +4,10 @@
 > nay đã xoá) thành **1 bộ theo đúng thứ tự chạy thật**, để trace không bị nhảy lung tung giữa
 > nhiều file. Đọc theo số thứ tự — mỗi file là 1 chặng, chặng sau giả định bạn đã hiểu chặng trước.
 
+> 🚩 **Đang trace lại toàn luồng?** Dùng [00-trace-exercises.md](./00-trace-exercises.md) —
+> bộ câu hỏi tự kiểm tra theo 4 trạm, kèm cảnh báo: 4 file note bên dưới có ít nhất **3 chỗ
+> mô tả lệch với code thật**. Đừng đọc để nhớ, đọc để bắt lỗi.
+
 ## Thứ tự đọc (khớp đúng thứ tự 1 request chạy qua)
 
 | # | File | Chặng | Trace bằng cách nào |

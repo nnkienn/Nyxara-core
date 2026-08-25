@@ -187,6 +187,8 @@ Agent → Safety → Fine-tuning → MLOps → Community → SaaS Bridge.**
 | 6 | **Deduplication** | chặn chunk trùng/gần trùng (hash + near-dup) | 🔴 | Set / Bloom / edit-distance DP |
 | 7 | **Incremental ingest** | chỉ ingest phần mới/đổi (seen-check theo hash) | 🔴 | Hash set |
 | 8 | **Versioning** | giữ lịch sử chunk, rollback được | 🟡 | — |
+| 9 | **Document-based chunking** | cắt theo cấu trúc doc (heading → section → subsection). Heading do NGƯỜI viết = ranh giới ngữ nghĩa có sẵn → thường thắng Semantic mà rẻ hơn hàng trăm lần. Hợp Markdown/HTML/legal/technical doc | 🔴 | Cây phân cấp / stack (theo dõi heading level) |
+| 10 | **Contextual Retrieval** | LLM sinh 1–2 câu định vị chunk trong document → prepend vào chunk TRƯỚC khi embed. Trả giá lúc ingest thay vì lúc query | 🟡 | — |
 
 ### Cách học hiệu quả (code tay)
 - **CODE TAY:** viết `recursive_chunk(text, size, overlap)` bằng tay TRƯỚC — đừng gọi
@@ -207,6 +209,17 @@ tests/application/test_recursive_chunker.py   # test overlap boundary
 ### Next steps
 Chunk đúng → embed → nạp Qdrant (Phase 1). Sau khi có Eval (Phase 3), quay lại A/B
 so recursive vs semantic chunking trên chính niche của bạn.
+
+> **Góc nhìn gom nhóm (2026-08-25):** #4 Parent-Child, #10 Contextual Retrieval (và *Late
+> Chunking* — đã cân nhắc và **loại**) đều chữa **cùng một bệnh**: chunk bị cắt rời khỏi document
+> nên vector mất ngữ cảnh. Khác nhau ở chỗ trả giá bằng gì (lúc query / lúc ingest / đổi interface).
+> *Late Chunking* loại vì phá hợp đồng port `Embedder` (`embed(texts) -> vectors` phải đổi thành
+> `embed_document(text, spans)`) — chi phí kiến trúc lớn, lợi ích chưa chứng minh.
+> *LLM-based chunking* loại: trùng lợi ích với #3 Proposition chunking nhưng đắt hơn.
+>
+> **Biến cần A/B ở Phase 3 (đừng để thành hằng số thiêng):** `chunk_size=200` ký tự và
+> `chunk_overlap=20` trong `app/presentation/api/ingest.py` là số gõ đại lúc dựng API, chưa ai đo.
+> BGE-M3 nuốt được 8192 token — 200 ký tự (~50 token) là *một lựa chọn*, không phải chân lý.
 
 ---
 
@@ -750,7 +763,7 @@ grader 5 · generator 3
 
 | Phase | Kỹ thuật | Trạng thái | 🎯 Next Action (việc kế tiếp cụ thể) |
 |---|---|---|---|
-| 0 | **Recursive** chunking ✅ · Semantic/Proposition ⏳ | 🔨 | Recursive xong; Semantic (cắt theo embedding distance) để radar, giờ có embedder rồi |
+| 0 | **Recursive** chunking ⚠️ · Document-based ⏳ · Semantic/Proposition ⏳ · Contextual Retrieval ⏳ | 🔨 | ⚠️ **Đã verify 2026-08-25: `/ingest` chạy Fixed-Size, KHÔNG phải Recursive** — `recursive_chunk` chỉ là sliding window theo chỉ số; `split_by_separators` (recursive thật) có test xanh nhưng không nơi nào trong `app/` gọi. Phải nối vào pipeline mới được đánh ✅. Sau đó: **Document-based** (Markdown heading; corpus thật sẵn = `Learning-document/`) |
 | 0 | Dedup (exact+near) ✅ · Incremental (append-only) ✅ · **Multi-store delete-aware ingest** 🔨 (kéo sớm từ Phase 7) | 🔨 | Đang làm `BM25Index.remove_document` (1/6 bước) → DocStore/VectorStore delete → manifest theo tenant/doc → diff → ingest orchestrator |
 | 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
 | 2 | BM25 · Hybrid · RRF | ✅ | **XONG 2026-08-03** — BM25 + RRF + HybridRetriever, 18 test. Phát hiện + fix bug #17 (QdrantStore trả UUID thay vì doc_id gốc) lúc ghép |
