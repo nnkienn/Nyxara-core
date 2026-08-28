@@ -114,6 +114,12 @@ bằng `rm data/manifest.json`.
 
 ## 6. Trạng thái hiện tại (cập nhật khi đổi)
 
+> ⏰ **Deadline ép tiến độ (chốt 2026-08-28):** hoàn thành toàn bộ Phase 0-8 (+ Port của Phase 9)
+> tới **31/12/2026**, không cắt kỹ thuật, giữ nguyên vòng 6 bước. Cam kết 3-4h/ngày, mỗi ngày —
+> rủi ro số 1 là nghỉ dài, không phải phương pháp. Mốc theo tháng + toán chi tiết:
+> [LEARNING_ROADMAP.md § DEADLINE ÉP TIẾN ĐỘ](Learning-document/LEARNING_ROADMAP.md#-deadline-ép-tiến-độ--chốt-2026-08-28-hạn-2026-12-31).
+> Lệch mốc tháng quá 3-4 ngày → dừng lại re-plan cùng nhau, đừng để trôi âm thầm.
+
 - ✅ Phase 0 ingest (dedup · incremental · multi-store delete-aware) · Phase 1 (Embedding/Qdrant/tenant)
 - ✅ Phase 2.1 Hybrid+RRF · 2.2 Rerank · 2.3 CRAG · `/ingest` + `/ask` chạy thật qua HTTP
 - 🔨 **Đang làm:** trace lại toàn luồng — xem [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md).

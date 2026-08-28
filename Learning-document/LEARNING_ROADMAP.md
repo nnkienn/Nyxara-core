@@ -12,6 +12,34 @@
 > phải **build lại bằng tay**, KHÔNG copy từ git history (`817d2d1` chỉ để tham khảo khi bí).
 > Notes học kèm: [notes/](notes/) — design-system · algorithms · glossary · bug-log.
 
+> ## 🎯 DEADLINE ÉP TIẾN ĐỘ — chốt 2026-08-28, hạn 2026-12-31
+> Quyết định của user: **không cắt kỹ thuật nào**, giữ nguyên vòng 6 bước + Socratic, nhưng ép
+> nhịp gắt để đủ trình Senior đi phỏng vấn trước cuối năm. Cam kết thời gian: **3-4 tiếng/ngày,
+> mỗi ngày**.
+>
+> **Toán thật (đừng ảo tưởng, đừng nản — cả 2 đều hại tiến độ):** ~68-70 cột mốc lớn còn lại
+> (đếm đúng theo tag 🛠️ + 🔴/🟡 đã có sẵn trong roadmap này, loại phần tự nhận 🟢/📡 = "biết
+> để sau"). 125 ngày × 3.5h ≈ 437h khả dụng. ~6h/cột mốc trung bình (nhiều cái 3-4h, vài cái
+> nặng — golden dataset, observability stack, LoRA — tốn 12-16h) → cần ~400-420h. **Vừa khít**,
+> gần như không có buffer cho nghỉ dài. 1 tuần nghỉ (đã xảy ra 1 lần, 2026-08-2x) = mất ~24h =
+> ~4 cột mốc — dồn áp lực thẳng sang tháng sau. Đây là rủi ro thật số 1, không phải phương pháp.
+>
+> **Ranh giới đã có sẵn trong kiến trúc (không phải cắt mới):** Phase 9 (SaaS Bridge) — phần
+> Port (`MeteringPort`, `EntitlementPort`, adapter rỗng) thuộc `nyxara-core`, tính vào hạn này.
+> Phần triển khai cloud thật (wallet hold/settle, Stripe adapter, dashboard) sống ở repo khác
+> (`nyxara-cloud`) theo đúng "Ranh giới Core ↔ Cloud" — nằm ngoài hạn 31/12 của repo này.
+>
+> **Mốc theo tháng (track thật, lệch quá 3-4 ngày → phải ngồi lại re-plan, đừng để trôi âm thầm):**
+> | Tháng | Mục tiêu | Cột mốc (~) |
+> |---|---|---|
+> | **09/2026** | Đóng hẳn Phase 0 (Trạm 2-4 trace, fix bug #25, nối `split_by_separators`, Document-based/Semantic/Contextual/Parent-Child/Versioning) + Phase 2.4 (Metadata filter, Query Transform, Temporal, MMR, Compression, Adaptive-RAG) | ~13 |
+> | **10/2026** | Phase 3 Eval trọn vẹn (retrieval metrics → golden dataset → custom judge/RAGAS → regression → A/B harness → cost metrics → calibration → online eval) — phase nặng nhất, ưu tiên tuyệt đối, không để trôi sang 11 | ~10 |
+> | **11/2026** | Phase 3.5 Performance (7) + Phase 4 Agent (10) | ~17 |
+> | **12/2026** | Phase 5 Safety (10) + Phase 6 Fine-tune (4, cần GPU) + Phase 7 MLOps (7, infra nặng) + Phase 8 Plugin/Docs (6) + Phase 9 Port core (2-3) | ~29-30 |
+>
+> Tháng 12 đang nặng nhất trên giấy — nếu tháng 9-10 xong sớm, kéo bớt Phase 5 hoặc 3.5 lên
+> sớm hơn để giảm dồn cục cuối năm.
+
 ---
 
 ## 🎯 Tầm nhìn dự án
