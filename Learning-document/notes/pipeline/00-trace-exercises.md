@@ -13,7 +13,7 @@
 
 | Trạm | Note | Code mở kèm | Xong? |
 |---|---|---|---|
-| 1 | [01-ingest.md](./01-ingest.md) | `ingestion/pipeline.py` + `chunking/recursive_chunker.py` | ✅ 1a,1b · ⬜ 1c |
+| 1 | [01-ingest.md](./01-ingest.md) | `ingestion/pipeline.py` + `chunking/recursive_chunker.py` | ✅ 1a,1b,1c |
 | 2 | [02-retrieval.md](./02-retrieval.md) | `retrieval/hybrid_retriever.py` + `reranking_retriever.py` | ⬜ |
 | 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | ⬜ |
 | 4 | [04-api.md](./04-api.md) | `app/main.py` + `presentation/api/*.py` | ⬜ |
@@ -33,7 +33,7 @@ và 1 test. Không dòng nào trong `app/` gọi.
 → **Test xanh chứng minh hàm chạy đúng, KHÔNG chứng minh hàm được dùng.** Cùng bẫy đã tạo ra bug #24.
 → Trạng thái đúng của Phase 0 #1: không phải ✅, mà là "viết xong, chưa nối vào pipeline".
 
-**1c.** ⬜ *CHƯA TRẢ LỜI.* Tenant `t1`, doc `d1`. Điền bảng:
+**1c.** ✅ *ĐÃ TRẢ LỜI (2026-08-28).* Tenant `t1`, doc `d1`. Điền bảng:
 
 *Lần ingest 1:* `chunks = ["mèo", "chó", "gà"]`, `old_doc = {}`
 

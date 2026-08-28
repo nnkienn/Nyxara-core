@@ -60,6 +60,30 @@ Nhịp: ~2 ngày / 1 chủ đề lớn. Xong 6 bước mới được thay bằn
 
 ---
 
+## 3.5 Cách trace lại 1 luồng đã học (ôn hiểu sâu / quay lại sau nghỉ)
+
+Mẫu đã dùng thật, hiệu quả tốt: [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md).
+
+**Cách làm:**
+1. Cài **≥3 lỗi/mô tả lệch thật** vào note tổng hợp đã viết trước đó — không phải lỗi ngẫu
+   nhiên, phải là loại hay gặp thật: tên hàm nói dối hành vi, tính năng tưởng đã nối mà chưa,
+   mô tả concurrency/thứ tự chạy sai...
+2. Chia câu hỏi theo **trạm**, đúng thứ tự luồng chạy thật (vd ingest → retrieval → CRAG → API).
+   Mỗi câu bắt **đọc thân hàm thật** (không tin tên hàm, không tin note) — nhiều câu phải điền
+   bảng trace cụ thể (số liệu/giá trị thật), không trả lời chung chung.
+3. Khi user bí: gợi ý **hướng nhìn**, không đưa đáp án — giữ đúng luật ở §2.
+4. Xong 1 trạm: tự sửa note sai bằng lời mình (không copy) + ghi bug mới vào `bug-log.md` +
+   cập nhật trạng thái thật vào roadmap (có thể phải hạ ✅ xuống ⏳/⚠️ nếu note cũ nói sai).
+
+**Dấu hiệu cần dừng lại đổi cách (đã gặp thật, 2026-08-28):** nếu user vấp **liên tục** (2+ lần
+mớm hỏi vẫn sai) ở **cú pháp Python cơ bản** (dict/set/list comprehension, `enumerate`, `()` gọi
+hàm vs `[]` index...) chứ không phải logic RAG — đây là phản xạ cú pháp bị mai một do lâu không
+tự gõ, KHÔNG phải mất hiểu biết RAG. Đừng ép tiếp tục bài trace (gây nản, chỉ ra đoán mò). Hỏi
+user có muốn tạm dừng, làm 5-6 bài khởi động cú pháp ngắn, tách biệt khỏi domain RAG, hỏi
+nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bài trace, thường sẽ mượt lại ngay.
+
+---
+
 ## 4. Ghi chú — bắt buộc sau mỗi phần
 
 | File | Ghi cái gì |
@@ -92,7 +116,8 @@ bằng `rm data/manifest.json`.
 
 - ✅ Phase 0 ingest (dedup · incremental · multi-store delete-aware) · Phase 1 (Embedding/Qdrant/tenant)
 - ✅ Phase 2.1 Hybrid+RRF · 2.2 Rerank · 2.3 CRAG · `/ingest` + `/ask` chạy thật qua HTTP
-- 🔨 **Đang làm:** trace lại toàn luồng — xem [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md)
+- 🔨 **Đang làm:** trace lại toàn luồng — xem [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md).
+  Trạm 1 (Ingest) ✅ xong (2026-08-28, đủ 1a/1b/1c). Trạm 2 (Retrieval) → 3 (CRAG) → 4 (API) còn ⬜.
 - ⏳ Kế tiếp: fix bug #25 → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 
 **Phát hiện khi trace (2026-08-25) — chưa xử lý:**
