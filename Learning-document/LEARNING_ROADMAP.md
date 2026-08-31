@@ -12,10 +12,15 @@
 > phải **build lại bằng tay**, KHÔNG copy từ git history (`817d2d1` chỉ để tham khảo khi bí).
 > Notes học kèm: [notes/](notes/) — design-system · algorithms · glossary · bug-log.
 
-> ## 🎯 DEADLINE ÉP TIẾN ĐỘ — chốt 2026-08-28, hạn 2026-12-31
-> Quyết định của user: **không cắt kỹ thuật nào**, giữ nguyên vòng 6 bước + Socratic, nhưng ép
-> nhịp gắt để đủ trình Senior đi phỏng vấn trước cuối năm. Cam kết thời gian: **3-4 tiếng/ngày,
-> mỗi ngày**.
+> ## 🎯 DEADLINE ÉP TIẾN ĐỘ — chốt 2026-08-28, cập nhật 2026-08-28 (deadline thật, không phải tự đặt suông)
+> **Bối cảnh thật:** qua Tết (~đầu 2027) sẽ **nghỉ việc, đi phỏng vấn Senior AI Engineer thật**.
+> Không phải deadline tự tưởng tượng — đây là mốc đời thật.
+> - **Hạn xong nội dung (code tay đủ 6 bước, mọi phase):** 2026-12-31, được phép trễ tối đa
+>   tới **2027-01-30** nếu cần (buffer 30 ngày).
+> - Sau đó tới Tết: **không học kỹ thuật mới nữa** — dành riêng cho ôn phỏng vấn (mock interview,
+>   ôn lại toàn bộ bằng "giảng lại", trau chuốt README/portfolio).
+> - Quyết định của user: **không cắt kỹ thuật nào**, giữ nguyên vòng 6 bước. Cam kết thời gian:
+>   **3-4 tiếng/ngày, mỗi ngày**.
 >
 > **Toán thật (đừng ảo tưởng, đừng nản — cả 2 đều hại tiến độ):** ~68-70 cột mốc lớn còn lại
 > (đếm đúng theo tag 🛠️ + 🔴/🟡 đã có sẵn trong roadmap này, loại phần tự nhận 🟢/📡 = "biết
@@ -72,6 +77,48 @@
 2. **Học = XÂY.** Mỗi kỹ thuật phải chạm tay vào code chạy được — không chỉ đọc hiểu.
 3. **Kỹ thuật là flag, mặc định TẮT.** Học ≠ phải bật. Eval mới quyết cái nào đáng bật.
 4. **Ghi WHY ngay** vào [notes/algorithms.md](notes/algorithms.md) + từ mới vào [notes/glossary.md](notes/glossary.md) — mỗi bước.
+5. **(mới, 2026-08-28) Đọng lại thật, không chỉ xây xong.** Xây được ≠ nhớ lâu — cần tự nhớ lại
+   không gợi ý (retrieval practice) + lặp lại cách quãng (spaced repetition). Chi tiết ở mục
+   "🧠 Phương pháp học 2.0" ngay dưới.
+
+### 🧠 Phương pháp học 2.0 — lớp đọng lại (thêm 2026-08-28)
+
+> **Vì sao có mục này:** sau 6.5 tuần (Phase 0→2.3), sản phẩm thật (66 test, note dài) nhưng
+> user tự nhận **đọng lại yếu** — hỏi lại là quên, code cũ mở ra không chắc còn hiểu. Gốc rễ:
+> thiếu lớp củng cố, và cách hỏi-đáp cũ (hint-chain quá vụn) vừa chậm vừa không test được hiểu
+> thật. Vòng 6 bước + code tay + Socratic **vẫn giữ nguyên** (không phải nguyên nhân) — thêm
+> đúng 2 lớp còn thiếu, không thay thế gì đã có.
+
+**a. Full-attempt trước, sửa 1 lần sau (bỏ hint-chain vụn).**
+Khi hỏi-đáp (kể cả trace-exercise §3.5 hay quiz active-recall): đưa **1 câu hỏi/tình huống đầy
+đủ**, không chẻ nhỏ thành nhiều câu con liên tiếp. User tự làm hết khả năng trước — kể cả
+sai/thiếu — Claude mới phản hồi **1 lần**, chỉ hết chỗ sai/thiếu cùng lúc. Chỉ hỏi lại từng
+mảnh nhỏ khi câu trả lời đầu quá lệch, không dùng làm mặc định.
+
+**b. Chốt hiểu bằng "giảng lại" (teach-back), không phải trả lời đúng/sai.**
+Cuối mỗi kỹ thuật (bước DOCUMENT của vòng 6 bước): đóng hết code/note, user **tự giảng lại
+nguyên lý/WHY bằng lời mình** như đang dạy người khác — KHÔNG phải chép code từ trí nhớ (giữ
+đúng luật cũ: nhớ hết code vô nghĩa, giá trị là hiểu để soi bug). Claude chỉ nghe, chỉ ra lỗ
+hổng trong lời giảng.
+
+**c. Code-tay-lại — chỉ phần lõi thuật toán, không phải cả file.**
+Riêng cho phần **đã được đánh dấu "code tay" lúc xây lần đầu** (công thức/vòng lặp cốt lõi —
+vd BM25 scoring, RRF merge, `diff_manifest` 3 nhánh, CRAG `decide()`, MMR selection — KHÔNG
+phải class/wiring/plumbing đã miễn code-tay từ đầu): trong buổi ôn cách quãng (mục d), dành
+10-15 phút viết lại đúng **logic/công thức** từ trí nhớ (không cần đúng tên biến), rồi so với
+file thật để tự thấy lệch chỗ nào. Đây là lớp bổ sung cho (b) — (b) test WHY, (c) test phản xạ
+tay/cú pháp (điểm yếu thật đã lộ ra ngày 2026-08-28, xem [notes/bug-log.md](notes/bug-log.md)
+nếu có ghi, hoặc phiên làm việc 2026-08-28).
+
+**d. Spaced repetition có lịch — file [notes/review-schedule.md](notes/review-schedule.md).**
+Mỗi kỹ thuật xong (qua được checkpoint (e)) → xếp lịch ôn lại ở +1 / +3 / +7 / +14 ngày. Đầu
+mỗi buổi, TRƯỚC khi học mới: check file này, nếu có mục tới hạn hôm nay → làm nhanh (b) giảng
+lại (mọi mục) + (c) code-tay-lại (chỉ mục tới hạn +7/+14, không phải mục nào cũng cần).
+
+**e. Checkpoint đóng-sách trước khi qua kỹ thuật/phase mới.**
+Không chuyển sang kỹ thuật tiếp theo nếu (b) giảng lại chưa trôi chảy — siết đúng nguyên tắc
+gốc #1 ở trên, chỉ thêm tiêu chí kiểm tra rõ ràng (giảng lại được = qua, ấp úng/thiếu mảng lớn
+= chưa qua, quay lại củng cố). Thà chậm 1 ngày còn hơn xây phase sau trên nền rỗng.
 
 ### 🔨 Vòng 6 bước cho MỖI kỹ thuật cốt lõi (bắt buộc)
 ```

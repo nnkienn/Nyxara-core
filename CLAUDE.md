@@ -84,6 +84,26 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
 
 ---
 
+## 3.6 Phương pháp học 2.0 — lớp đọng lại (thêm 2026-08-28)
+
+> Phát hiện 2026-08-28: xây được thật (66 test, note dài) nhưng user tự nhận **đọng lại yếu**.
+> Gốc rễ: thiếu retrieval practice + spaced repetition, và hint-chain Socratic quá vụn (chậm,
+> không test hiểu thật). Vòng 6 bước + code tay + Socratic **vẫn giữ nguyên** — thêm đúng 2 lớp
+> còn thiếu. Chi tiết đủ: [LEARNING_ROADMAP.md § Phương pháp học 2.0](Learning-document/LEARNING_ROADMAP.md).
+
+**Bắt buộc áp dụng từ 2026-09-01:**
+1. **Full-attempt trước, sửa 1 lần sau.** Đưa 1 câu hỏi/tình huống đầy đủ, KHÔNG chẻ nhỏ thành
+   chuỗi câu con liên tiếp. User tự làm hết khả năng → Claude sửa **1 lần**, đủ mọi lỗi cùng lúc.
+2. **Giảng lại (teach-back)** cuối mỗi kỹ thuật — đóng tài liệu, tự giảng nguyên lý/WHY bằng lời
+   mình (KHÔNG phải chép code từ trí nhớ — giữ đúng luật "nhớ hết code vô nghĩa").
+3. **Code-tay-lại phần lõi** (chỉ công thức/vòng lặp đã đánh dấu code-tay lúc xây đầu, KHÔNG
+   phải cả file/class/plumbing) — làm trong buổi ôn cách quãng, không phải mỗi buổi.
+4. **Spaced repetition có lịch** — [Learning-document/notes/review-schedule.md](Learning-document/notes/review-schedule.md),
+   mốc +1/+3/+7/+14 ngày. Đầu mỗi buổi check file này trước khi học mới.
+5. **Checkpoint đóng-sách** — không qua kỹ thuật/phase mới nếu giảng lại (mục 2) chưa trôi chảy.
+
+---
+
 ## 4. Ghi chú — bắt buộc sau mỗi phần
 
 | File | Ghi cái gì |
@@ -114,10 +134,11 @@ bằng `rm data/manifest.json`.
 
 ## 6. Trạng thái hiện tại (cập nhật khi đổi)
 
-> ⏰ **Deadline ép tiến độ (chốt 2026-08-28):** hoàn thành toàn bộ Phase 0-8 (+ Port của Phase 9)
-> tới **31/12/2026**, không cắt kỹ thuật, giữ nguyên vòng 6 bước. Cam kết 3-4h/ngày, mỗi ngày —
-> rủi ro số 1 là nghỉ dài, không phải phương pháp. Mốc theo tháng + toán chi tiết:
-> [LEARNING_ROADMAP.md § DEADLINE ÉP TIẾN ĐỘ](Learning-document/LEARNING_ROADMAP.md#-deadline-ép-tiến-độ--chốt-2026-08-28-hạn-2026-12-31).
+> ⏰ **Deadline thật (không phải tự đặt suông, cập nhật 2026-08-28):** qua Tết (~đầu 2027) user
+> nghỉ việc đi phỏng vấn Senior AI Engineer. Hạn xong nội dung toàn bộ Phase 0-8 (+ Port Phase 9):
+> **31/12/2026**, trễ tối đa tới **30/01/2027**. Không cắt kỹ thuật, giữ nguyên vòng 6 bước. Cam
+> kết 3-4h/ngày, mỗi ngày — rủi ro số 1 là nghỉ dài, không phải phương pháp. Mốc theo tháng +
+> toán chi tiết: [LEARNING_ROADMAP.md § DEADLINE ÉP TIẾN ĐỘ](Learning-document/LEARNING_ROADMAP.md).
 > Lệch mốc tháng quá 3-4 ngày → dừng lại re-plan cùng nhau, đừng để trôi âm thầm.
 
 - ✅ Phase 0 ingest (dedup · incremental · multi-store delete-aware) · Phase 1 (Embedding/Qdrant/tenant)
