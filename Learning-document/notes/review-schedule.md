@@ -15,7 +15,7 @@
 | RRF (Reciprocal Rank Fusion) | 2026-08-03 | — | — | — | — | |
 | Cross-encoder rerank (bi- vs cross-encoder) | 2026-08-04 | — | — | — | — | |
 | CRAG state machine (`decide()`, `attempts` guard) | 2026-08-12 | — | — | — | — | |
-| Multi-store diff (`diff_manifest`, `to_upsert/skip/delete`) | 2026-08-28 | ⬜ 2026-08-29 | ⬜ 2026-09-01 | ⬜ 2026-09-05 | ⬜ 2026-09-11 | vừa xong Trạm 1 hôm nay |
+| Incremental ingest / multi-store diff (`manifest` = `{tenant:{doc:{idx:hash}}}`, `diff_manifest`, `to_upsert/skip/delete`) | 2026-09-02 | ⬜ 2026-09-03 | ⬜ 2026-09-05 | ⬜ 2026-09-09 | ⬜ 2026-09-16 | qua cổng đóng-sách Trạm 1 hôm nay (retrace Method 2.0) |
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
 > ôn hết 4 mốc — giữ lại làm log, chỉ ngừng thêm cột ôn tiếp.

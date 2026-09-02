@@ -101,6 +101,25 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
 4. **Spaced repetition có lịch** — [Learning-document/notes/review-schedule.md](Learning-document/notes/review-schedule.md),
    mốc +1/+3/+7/+14 ngày. Đầu mỗi buổi check file này trước khi học mới.
 5. **Checkpoint đóng-sách** — không qua kỹ thuật/phase mới nếu giảng lại (mục 2) chưa trôi chảy.
+6. **(vá 2026-09-01, sau lần áp dụng đầu tiên thất bại)** Trong 1 buổi: chỉ mở **1 file/1 khái
+   niệm** tại 1 thời điểm — không hỏi 1 câu ghép nhiều tầng suy luận bắt nhảy qua >1 file cùng
+   lúc mà chưa giải thích. LUÔN giải thích ngữ cảnh/khái niệm bằng lời trước (được phép theo §2
+   mục 1), rồi mới hỏi — kể cả khi đang dùng "full-attempt" (mục 1), câu hỏi đưa ra phải đã được
+   giải thích đủ để hiểu **đang hỏi gì**, không chỉ đưa thẳng câu hỏi trần trụi.
+
+---
+
+## 3.7 Cách bắt đầu 1 buổi học (chốt 2026-09-01)
+
+User chỉ cần gõ 1 trong 3 câu sau, không cần nhắc lại luật mỗi lần — Claude tự làm đúng quy trình:
+
+- **"Bắt đầu buổi học hôm nay"** → (1) check `Learning-document/notes/review-schedule.md`, mục
+  nào tới hạn (+1/+3/+7/+14) thì giảng lại (+ code-tay-lại nếu tới hạn +7/+14) trước khi học
+  mới; (2) check `LEARNING_ROADMAP.md` (bảng checklist cuối file) + `00-trace-exercises.md`,
+  tiếp tục đúng chỗ đang dở; (3) áp đủ Method 2.0 (§3.6).
+- **"Hôm nay chỉ ôn lại"** → chỉ làm bước (1) ở trên, không học kỹ thuật mới.
+- **"Dừng ở đây"** → ghi lại đúng chỗ dừng vào file trạng thái liên quan (trace-exercise/
+  roadmap/review-schedule) trước khi kết thúc, để buổi sau tiếp đúng mạch không phải dò lại.
 
 ---
 
@@ -144,8 +163,15 @@ bằng `rm data/manifest.json`.
 - ✅ Phase 0 ingest (dedup · incremental · multi-store delete-aware) · Phase 1 (Embedding/Qdrant/tenant)
 - ✅ Phase 2.1 Hybrid+RRF · 2.2 Rerank · 2.3 CRAG · `/ingest` + `/ask` chạy thật qua HTTP
 - 🔨 **Đang làm:** trace lại toàn luồng — xem [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md).
-  Trạm 1 (Ingest) ✅ xong (2026-08-28, đủ 1a/1b/1c). Trạm 2 (Retrieval) → 3 (CRAG) → 4 (API) còn ⬜.
-- ⏳ Kế tiếp: fix bug #25 → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
+  **2026-09-02: Trạm 1 XONG HẲN** — 1a/1b/1c + teach-back qua cổng đóng-sách Method 2.0. Đã
+  thêm hàng "Incremental ingest / multi-store diff" vào review-schedule (mốc +1/+3/+7/+14 từ
+  2026-09-02). Chỗ user vấp nhiều nhất và đã gỡ được: `to_delete` chỉ chứa index biến mất hẳn
+  (không phải hash, không phải "đổi nội dung"); manifest lưu hash để bắt "sửa tại chỗ".
+  **Đang mở Trạm 2 (Retrieval), ở câu 2a.** Trạm 3-4 chưa đụng.
+  (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
+  vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
+- ⏳ Kế tiếp: Trạm 2 (Retrieval) → Trạm 3 (CRAG) → Trạm 4 (API) → fix bug #25
+  → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 
 **Phát hiện khi trace (2026-08-25) — chưa xử lý:**
 1. `/ingest` gọi `recursive_chunk` nhưng thân hàm là **fixed-size sliding window**, không phải

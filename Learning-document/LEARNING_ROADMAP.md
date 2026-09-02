@@ -120,6 +120,15 @@ Không chuyển sang kỹ thuật tiếp theo nếu (b) giảng lại chưa trô
 gốc #1 ở trên, chỉ thêm tiêu chí kiểm tra rõ ràng (giảng lại được = qua, ấp úng/thiếu mảng lớn
 = chưa qua, quay lại củng cố). Thà chậm 1 ngày còn hơn xây phase sau trên nền rỗng.
 
+**f. (vá 2026-09-01, ngay sau lần đầu áp dụng — thất bại thật, ghi lại để không lặp lại.)**
+Buổi đầu tiên áp dụng Method 2.0 (Trạm 2 của bài trace) vẫn dồn quá nhiều: nhảy qua 3 file
+(`hybrid_retriever.py` → `reranking_retriever.py` → `node.py`) trong 1 câu hỏi, không giải
+thích trước bối cảnh — user báo thẳng "không hiểu gì hết". Luật: trong 1 buổi chỉ mở **1
+file/1 khái niệm** tại 1 thời điểm; LUÔN giải thích bằng lời (khái niệm, vì sao hỏi cái này)
+**trước** khi đưa câu hỏi full-attempt (mục a) — kể cả câu hỏi "đầy đủ" cũng phải đủ ngữ cảnh
+để hiểu đang được hỏi gì, không phải chỉ đủ dữ kiện để trả lời đúng. "Đầy đủ" ở mục (a) nghĩa
+là đầy đủ 1 đơn vị hỏi (không chẻ vụn), KHÔNG phải gộp nhiều đơn vị/nhiều file thành 1 câu.
+
 ### 🔨 Vòng 6 bước cho MỖI kỹ thuật cốt lõi (bắt buộc)
 ```
 1. CODE TAY        ← tự viết lõi từ đầu (naive OK), KHÔNG import thư viện làm hộ
