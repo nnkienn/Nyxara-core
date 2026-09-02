@@ -14,8 +14,8 @@
 | Trạm | Note | Code mở kèm | Xong? |
 |---|---|---|---|
 | 1 | [01-ingest.md](./01-ingest.md) | `ingestion/pipeline.py` + `chunking/recursive_chunker.py` | ✅ 1a,1b,1c xong + teach-back qua cổng đóng-sách (2026-09-02, retrace theo Method 2.0) |
-| 2 | [02-retrieval.md](./02-retrieval.md) | `retrieval/hybrid_retriever.py` + `reranking_retriever.py` | 🔨 bắt đầu 2026-09-02 — đang ở 2a |
-| 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | ⬜ |
+| 2 | [02-retrieval.md](./02-retrieval.md) | `retrieval/hybrid_retriever.py` + `reranking_retriever.py` | ✅ 2a,2b,2c xong + teach-back qua cổng (2026-09-02) |
+| 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | 🔨 mở ca 2 ngày 2026-09-02 |
 | 4 | [04-api.md](./04-api.md) | `app/main.py` + `presentation/api/*.py` | ⬜ |
 
 ---
@@ -83,28 +83,51 @@ và vì sao đó **không** phải thiếu sót.
 
 ## 🚩 TRẠM 2 — Retrieval
 
-**2a.** Note viết đậm 2 chỗ: *"chạy **song song**, KHÔNG tuần tự"*. Đọc thân
-`HybridRetriever.search` — có `thread` / `async` / `await` / `asyncio.gather` nào không?
-Dòng `bm25_hits = ...` chạy **trước hay sau** khi `dense_hits` có kết quả?
-→ Note đúng hay sai? Nếu sai, note *định* nói gì mà diễn đạt hỏng?
-> Gợi ý hướng nhìn: "song song" có 2 nghĩa — song song về **thời gian chạy**, và độc lập về
-> **dữ liệu đầu vào**. Note đang nói nghĩa nào, code thoả nghĩa nào?
+**2a.** ✅ *TRẢ LỜI 2026-09-02.* Thân `HybridRetriever.search` **không có** thread/async/
+`asyncio.gather` nào — dòng 24 (`dense_hits`) chạy xong mới tới dòng 27 (`bm25_hits`). Code chỉ
+thoả nghĩa **(b) độc lập dữ liệu** (cả 2 ăn `query` gốc, không nhánh nào cần output nhánh kia),
+KHÔNG thoả nghĩa **(a) song song về thời gian**. → Note SAI: chữ "song song, KHÔNG tuần tự" gợi
+nghĩa (a). Note *định* nói "2 nhánh độc lập, thứ tự không quan trọng" nhưng diễn đạt thành "chạy
+đồng thời". **Đã sửa note `02-retrieval.md` 3 chỗ** (bước "Kể chuyện" #2, sơ đồ, điểm 1 phần "5
+điểm dễ hiểu nhầm"). Ghi chú: vì độc lập dữ liệu nên *có thể* đưa lên thread chạy song song thật
+để giảm latency — khoảng trống tiềm năng, chưa làm.
 
-**2b.** Hợp đồng giữa 2 lớp — đọc chậm:
-- `RerankingRetriever.search(tenant_id, query, candidate_k, top_k)` — 4 tham số
-- nó gọi `self.hybrid_retriever.search(tenant_id, query, candidate_k)`
-- nhưng chữ ký là `HybridRetriever.search(tenant_id, query, top_k)`
+**2b.** ✅ *TRẢ LỜI 2026-09-02.* Gọi `RerankingRetriever.search(candidate_k=10, top_k=5)`:
 
-→ Biến tên `candidate_k` ở lớp ngoài rơi vào tham số tên gì ở lớp trong? Dòng đầu thân
-`HybridRetriever.search` làm gì với con số vừa nhận?
-→ Với `candidate_k=10, top_k=5`: **Qdrant được hỏi bao nhiêu ứng viên? RRF trả về bao nhiêu?
-Cross-encoder chấm bao nhiêu cặp?** Tính ra 3 con số cụ thể.
+| Chặng | Số | Vì sao |
+|---|---|---|
+| Qdrant được hỏi | 20 | `candidate_k=10` truyền **theo vị trí 3** → rơi vào param tên `top_k` của Hybrid → dòng 21 `candidate_k = top_k * 2` = 20 |
+| BM25 được hỏi | 20 | cùng biến `candidate_k=20` nội bộ Hybrid |
+| RRF trả về | 10 | `top_k=top_k` = 10 |
+| `doc_store.get` trong Reranking | 10 lượt | 1 lượt/candidate |
+| Cross-encoder chấm | 10 cặp | = số candidate ra khỏi Hybrid |
+| Kết quả cuối | 5 | `reranked[:top_k]`, `top_k=5` lớp ngoài |
 
-**2c.** `RerankingRetriever.search` lấy `texts` từ `doc_store`, nhưng dòng `return` trả về gì —
-có `text` trong đó không? Rồi mở `node.py::retrieve_node` — nó làm gì ngay sau khi nhận kết quả?
-→ Trong 1 lần `/ask`, `doc_store.get()` bị gọi **mấy lượt cho cùng một `doc_id`**?
-Cố ý hay lãng phí? Nếu lãng phí, sửa `RerankingRetriever` hay sửa `retrieve_node` mới đúng chỗ?
-(Nghĩ theo hướng: đổi cái nào thì **phá hợp đồng của ai**.)
+→ Bài học: `candidate_k=10` caller đặt **không** phải số Qdrant thấy (20 — Hybrid tự nhân đôi
+lần nữa). Tên `candidate_k` ngoài → chui vào `top_k` trong → lớp trong tự chế `candidate_k`
+riêng. **Đọc code phải bám vị trí tham số, không tin tên biến.**
+
+**2c.** ✅ *TRẢ LỜI 2026-09-02.* `RerankingRetriever.search` trả `list[tuple[doc_id, score]]` —
+**không có text**. Nên `retrieve_node` ([node.py:25](../../../app/application/generation/node.py#L25))
+phải gọi `doc_store.get` **lại lần nữa**. Đếm 1 lần `/ask`: 10 lượt (Reranking) + 5 lượt (node)
+= **15 lượt**; riêng 1 `doc_id` lọt top 5 bị đọc **2 lượt**.
+→ **Gốc rễ:** không phải node "muốn" lấy lại, mà **hình dạng return không mang text đi được**.
+→ **Không sửa bằng cách đổi mình `RerankingRetriever`** (trả 3-tuple) — sẽ nổ `ValueError: too
+many values to unpack` ở `node.py` dòng 24, và làm 2 retriever lệch hình dạng → mất tính thay
+thế được (`retrieve_node` nhận `retriever` qua tham số, không biết mình cầm Hybrid hay Reranking).
+→ **Cách đúng (C):** đổi hình dạng return cho **CẢ HAI** retriever cùng lúc, vd `RetrievedDoc(id,
+score, text)`. Hợp đồng vẫn đồng nhất, và `retrieve_node` lấy `doc.text` thẳng — 5 lượt thừa biến mất.
+→ **Quyết định giai đoạn này: để nguyên.** `InMemoryDocStore.get` là tra dict RAM (~µs), 5 lượt
+thừa không đáng đổi hợp đồng. Chỉ đáng sửa khi `DocStore` ra mạng (Postgres/S3) = 5 round-trip thừa.
+
+**Chốt khái niệm hay lẫn (làm rõ 2026-09-02):** trong Trạm 2 chỉ **2/4** thành phần là model AI.
+`RRF` = toán thuần `1/(k+rank)`, gộp 2 bảng xếp hạng, không đọc nội dung doc, gần như miễn phí.
+`BM25` = thống kê TF/IDF, không phải model. `Bi-encoder` = model, **vector doc tính sẵn lúc
+ingest** nên rẻ khi query. `Cross-encoder` = model, **ĐẮT và HẸP** — phải chạy 1 lượt forward cho
+**từng cặp** `(query, doc)`, và **không pre-compute được** vì cần cả query lẫn doc cùng lúc (1
+triệu chunk = 1 triệu lượt chạy model cho 1 câu hỏi). → Kiến trúc **rẻ-rộng lọc 1tr → 10, rồi
+đắt-hẹp chấm kỹ 10 đó → lấy 5**. Và **cross-encoder KHÔNG thuộc CRAG**: nó chỉ biết *xếp hạng*,
+không bao giờ nói "cả đám này đều tệ, đi tìm lại" — đúng lỗ hổng đó là lý do CRAG (Trạm 3) tồn tại.
 
 ---
 

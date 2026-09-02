@@ -167,7 +167,13 @@ bằng `rm data/manifest.json`.
   thêm hàng "Incremental ingest / multi-store diff" vào review-schedule (mốc +1/+3/+7/+14 từ
   2026-09-02). Chỗ user vấp nhiều nhất và đã gỡ được: `to_delete` chỉ chứa index biến mất hẳn
   (không phải hash, không phải "đổi nội dung"); manifest lưu hash để bắt "sửa tại chỗ".
-  **Đang mở Trạm 2 (Retrieval), ở câu 2a.** Trạm 3-4 chưa đụng.
+  **2026-09-02 ca 1 (13-15h): Trạm 2 (Retrieval) XONG HẲN luôn** — 2a/2b/2c + teach-back.
+  Đã sửa 3 chỗ sai "song song" trong `02-retrieval.md`. 2 chỗ user lẫn nặng, đã gỡ, cần ôn lại:
+  (a) tưởng cross-encoder "rẻ và rộng" — thực ra ĐẮT+HẸP, không pre-compute được vì cần cả
+  query lẫn doc cùng lúc; (b) tưởng cross-encoder là RRF / thuộc CRAG — thực ra RRF là toán
+  thuần gộp rank, còn cross-encoder thuộc Trạm 2 và chỉ biết *xếp hạng*, không biết nói "cả đám
+  đều tệ" (đó mới là việc của CRAG grader).
+  **Kế tiếp: Trạm 3 (CRAG) — ca 2 tối nay 19h30-21h.** Trạm 4 chưa đụng.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
 - ⏳ Kế tiếp: Trạm 2 (Retrieval) → Trạm 3 (CRAG) → Trạm 4 (API) → fix bug #25

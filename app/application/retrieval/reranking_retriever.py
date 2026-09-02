@@ -15,8 +15,7 @@ class RerankingRetriever:
         self.reranker = reranker
 
     def search(
-        self, tenant_id: str, query: str, candidate_k: int, top_k: int
-    ) -> list[tuple[str, float]]:
+        self, tenant_id: str, query: str, candidate_k: int, top_k: int) -> list[tuple[str, float]]:
         candidates = self.hybrid_retriever.search(tenant_id, query, candidate_k)
         doc_ids = [doc_id for doc_id, _ in candidates]
         texts = [self.doc_store.get(tenant_id, doc_id) for doc_id in doc_ids]

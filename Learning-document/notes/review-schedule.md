@@ -16,6 +16,7 @@
 | Cross-encoder rerank (bi- vs cross-encoder) | 2026-08-04 | — | — | — | — | |
 | CRAG state machine (`decide()`, `attempts` guard) | 2026-08-12 | — | — | — | — | |
 | Incremental ingest / multi-store diff (`manifest` = `{tenant:{doc:{idx:hash}}}`, `diff_manifest`, `to_upsert/skip/delete`) | 2026-09-02 | ⬜ 2026-09-03 | ⬜ 2026-09-05 | ⬜ 2026-09-09 | ⬜ 2026-09-16 | qua cổng đóng-sách Trạm 1 hôm nay (retrace Method 2.0) |
+| Retrieval 2 tầng (rẻ-rộng Dense+BM25+RRF → đắt-hẹp cross-encoder) + hợp đồng return giữa 2 retriever | 2026-09-02 | ⬜ 2026-09-03 | ⬜ 2026-09-05 | ⬜ 2026-09-09 | ⬜ 2026-09-16 | qua cổng Trạm 2. **Ôn kỹ 2 chỗ từng lẫn:** (1) cross-encoder ĐẮT+HẸP, không pre-compute được — không phải "rẻ và rộng"; (2) cross-encoder ≠ RRF, và cross-encoder KHÔNG thuộc CRAG |
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
 > ôn hết 4 mốc — giữ lại làm log, chỉ ngừng thêm cột ôn tiếp.

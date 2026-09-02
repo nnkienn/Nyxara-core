@@ -9,7 +9,11 @@
 
 1. `RerankingRetriever.search(tenant_id, query, candidate_k, top_k)` — đây là hàm **CRAG thật
    sự gọi** (không phải `HybridRetriever` trần, xem cảnh báo bên dưới).
-2. Bên trong, nó gọi `HybridRetriever.search(...)` trước — chạy **song song 2 nhánh độc lập**:
+2. Bên trong, nó gọi `HybridRetriever.search(...)` trước — chạy **2 nhánh độc lập dữ liệu**
+   (cả 2 cùng ăn `query` gốc, không nhánh nào cần output nhánh kia). ⚠️ Hiện tại 2 nhánh chạy
+   **tuần tự về thời gian** (dense xong mới tới BM25) — KHÔNG phải chạy đồng thời, vì thân
+   `HybridRetriever.search` không có thread/async/`asyncio.gather` nào. Vì độc lập dữ liệu nên
+   *có thể* đưa lên thread chạy song song thật để giảm latency — nhưng đó là việc chưa làm.
    - **Dense** (`Qdrant`): embed query → cosine similarity.
    - **Sparse** (`BM25Index`): đếm từ khoá trùng khớp.
 3. Gộp 2 danh sách bằng **RRF** (Reciprocal Rank Fusion) — dùng **thứ hạng**, không dùng điểm số
@@ -25,7 +29,8 @@
                           query gốc: "mèo đen"
                                   │
               ┌───────────────────┴───────────────────┐
-              ▼ (song song, KHÔNG tuần tự)             ▼ (song song, KHÔNG tuần tự)
+              ▼ (độc lập dữ liệu; chạy TUẦN TỰ:        ▼ (nhánh dense chạy trước,
+                dense trước, BM25 sau — 1 thread)         BM25 sau — xem dòng 24→27)
      NHÁNH DENSE (bi-encoder)                  NHÁNH SPARSE (BM25 — từ khoá,
      ─────────────────────────                  KHÔNG PHẢI ngữ nghĩa)
      BGEEmbedder.embed(["mèo đen"])             ──────────────────────────
@@ -83,7 +88,10 @@ build_graph(retriever, doc_store, grader, generator)   # truyền RerankingRetri
 
 ## 5 điểm dễ hiểu nhầm (đã tự vấp phải)
 
-1. **Dense và BM25 chạy song song, không tuần tự.** Cả 2 cùng nhận **query gốc**, độc lập nhau.
+1. **Dense và BM25 độc lập dữ liệu, nhưng chạy TUẦN TỰ về thời gian** (dòng 24 dense xong mới
+   tới dòng 27 BM25 — 1 thread, không async). "Độc lập" ≠ "đồng thời": thứ tự chạy không ảnh
+   hưởng kết quả vì cả 2 chỉ ăn `query` gốc, nhưng chúng KHÔNG chạy cùng lúc. (Sửa 2026-09-02,
+   Trạm 2a — bản cũ ghi "song song, không tuần tự" là sai.)
 2. **BM25 = từ khoá, KHÔNG PHẢI ngữ nghĩa.** Ngữ nghĩa là việc của nhánh dense (bi-encoder).
 3. **Bi-encoder ≠ (cosine + BM25).** Bi-encoder chỉ là **1 nhánh** (dense). BM25 không có model.
 4. **Cả dense lẫn BM25 đều tự có điểm riêng — nhưng cả 2 điểm đó bị bỏ trước khi vào RRF.** RRF
