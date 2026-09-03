@@ -173,7 +173,13 @@ bằng `rm data/manifest.json`.
   query lẫn doc cùng lúc; (b) tưởng cross-encoder là RRF / thuộc CRAG — thực ra RRF là toán
   thuần gộp rank, còn cross-encoder thuộc Trạm 2 và chỉ biết *xếp hạng*, không biết nói "cả đám
   đều tệ" (đó mới là việc của CRAG grader).
-  **Kế tiếp: Trạm 3 (CRAG) — ca 2 tối nay 19h30-21h.** Trạm 4 chưa đụng.
+  **2026-09-03 ca sáng (6h15-7h15): mốc ôn +1 TRƯỢT 3/4** dù hôm trước vừa qua cổng đóng-sách
+  cả 2 trạm. Cả 4 lỗi cùng loại: **lẫn 2 thứ na ná nhau**, không phải quên. Đã tạo
+  [Learning-document/notes/the-phan-biet.md](Learning-document/notes/the-phan-biet.md) (8 cặp dễ
+  lẫn) + chạy drill phân biệt 12 câu → **1/4 lên 11/12 trong 1 vòng**. Luật mới rút ra đã ghi vào
+  [review-schedule.md](Learning-document/notes/review-schedule.md) § "Luật bổ sung".
+  **Trạm 3 (CRAG) hoãn sang ca tối — không mở trạm mới trong buổi mốc ôn bị trượt.** Trạm 4 chưa đụng.
+  ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
 - ⏳ Kế tiếp: Trạm 2 (Retrieval) → Trạm 3 (CRAG) → Trạm 4 (API) → fix bug #25

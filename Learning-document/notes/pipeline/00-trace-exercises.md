@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 1 | [01-ingest.md](./01-ingest.md) | `ingestion/pipeline.py` + `chunking/recursive_chunker.py` | ✅ 1a,1b,1c xong + teach-back qua cổng đóng-sách (2026-09-02, retrace theo Method 2.0) |
 | 2 | [02-retrieval.md](./02-retrieval.md) | `retrieval/hybrid_retriever.py` + `reranking_retriever.py` | ✅ 2a,2b,2c xong + teach-back qua cổng (2026-09-02) |
-| 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | 🔨 mở ca 2 ngày 2026-09-02 |
+| 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | 🔨 2026-09-03 sáng: xong phần **khái niệm closure vs state** + bảng "nguồn của 4 biến". Bảng trace lần-2 ⬜ chưa làm — vào thẳng đó ca tối |
 | 4 | [04-api.md](./04-api.md) | `app/main.py` + `presentation/api/*.py` | ⬜ |
 
 ---
@@ -152,15 +152,30 @@ def make_retrieve_node(retriever, doc_store, candidate_k, top_k):
         candidate_docs = retriever.search(tenant_id, query, candidate_k, top_k)
 ```
 
-**Câu hỏi:** `retrieve_node` chạy **lần 2** (sau khi grade ra `INCORRECT`). Điền *"giống lần 1"*
-hoặc *"khác lần 1"*:
+**Nền tảng — closure vs state.** ✅ *Làm xong 2026-09-03 sáng, bằng Python thuần trước
+(`make_multiplier`/`make_greeter`), chưa đụng CRAG.* Ý chính: hàm trong lấy dữ liệu từ **2 nguồn**
+— *tham số* (đổi được mỗi lần gọi) và *closure* (chụp lúc hàm ngoài chạy, **đông cứng vĩnh viễn**,
+không có đường truyền giá trị mới vào; gán lại biến trùng tên ở scope ngoài **vô hiệu** vì đó là
+biến khác). Muốn đổi giá trị closure → **phải gọi lại hàm ngoài để dựng hàm mới**.
 
-| Input của `retriever.search` | Lần 2 vs lần 1 | Lấy từ `state` hay từ closure? |
+**Cột nguồn — ✅ đã điền 2026-09-03 sáng:**
+
+| Input của `retriever.search` | Lấy từ `state` hay closure? | Bằng chứng trong code |
 |---|---|---|
-| `tenant_id` | ? | ? |
-| `query` | ? | ? |
-| `candidate_k` | ? | ? |
-| `top_k` | ? | ? |
+| `tenant_id` | **state** | có dòng `tenant_id = state.get("tenant_id")` |
+| `query` | **state** | có dòng `query = state.get("query")` |
+| `candidate_k` | **closure** | **KHÔNG** có dòng `state.get("candidate_k")` — nó là tham số của `make_retrieve_node` |
+| `top_k` | **closure** | **KHÔNG** có dòng `state.get("top_k")` — tham số của `make_retrieve_node` |
+
+**Câu hỏi ⬜ CHƯA LÀM — vào thẳng đây ca tối 2026-09-03.** `retrieve_node` chạy **lần 2** (sau khi
+grade ra `INCORRECT`). Điền *"giống lần 1"* hoặc *"khác lần 1"*:
+
+| Input của `retriever.search` | Lần 2 vs lần 1 |
+|---|---|
+| `tenant_id` | ? |
+| `query` | ? |
+| `candidate_k` | ? |
+| `top_k` | ? |
 
 > Chú ý: `candidate_k`/`top_k` **không nằm trong `state`** — bị đông cứng trong closure từ lúc
 > `build_graph` chạy, mà graph chỉ build **1 lần duy nhất** lúc server khởi động (`main.py` lifespan).
