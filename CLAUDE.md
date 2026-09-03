@@ -178,7 +178,24 @@ bằng `rm data/manifest.json`.
   [Learning-document/notes/the-phan-biet.md](Learning-document/notes/the-phan-biet.md) (8 cặp dễ
   lẫn) + chạy drill phân biệt 12 câu → **1/4 lên 11/12 trong 1 vòng**. Luật mới rút ra đã ghi vào
   [review-schedule.md](Learning-document/notes/review-schedule.md) § "Luật bổ sung".
-  **Trạm 3 (CRAG) hoãn sang ca tối — không mở trạm mới trong buổi mốc ôn bị trượt.** Trạm 4 chưa đụng.
+  **2026-09-03 ca tối (~1h): mở Trạm 3 (CRAG), làm được nửa đầu rồi dừng vì mệt.** Bảng
+  state-vs-closure của `retrieve_node`: **user đảo ngược cả 4 ô** (nói `tenant_id`/`query` là
+  closure, `candidate_k`/`top_k` là state — suy từ *ý định* "CRAG phải tìm rộng hơn" thay vì đọc
+  code). Đã sửa + giải thích bằng ẩn dụ "đúc khuôn 1 lần": `build_graph()` chạy 1 lần → hàm
+  `retrieve_node` được đúc 1 lần → `candidate_k=10`/`top_k=5` khắc chết trong closure → 4 input
+  lần 2 y hệt lần 1 → `verdict` không bao giờ khá lên → vòng lặp chỉ thoát bằng van an toàn
+  `attempts >= max_attempts` rồi generate trên đúng đám docs vừa bị chê. **Xác nhận note nói dối:**
+  chữ "tìm rộng hơn" trong `03-crag.md` là thứ định làm mà code chưa làm. User suy đúng hướng fix
+  (đọc `candidate_k` từ `state`), sai chỗ đặt (nói `retrieve` ghi → thực ra `grade_node`, nơi đã
+  đếm `attempts`). Đã thêm **Cặp 9 (state ↔ closure)** vào `the-phan-biet.md`, chưa drill.
+  **Còn nợ ở Trạm 3:** bảng trace số thật · teach-back 2 ý · tự sửa `03-crag.md` bằng lời mình ·
+  ghi bug vào `bug-log.md`. Trạm 4 chưa đụng.
+  ⚠️ **Lỗi phương pháp của Claude tối 03/09 (đã ghi vào 00-trace-exercises.md):** 2 lần liên tiếp
+  gộp nhiều tầng suy luận vào 1 lượt hỏi (teach-back 2 ý cùng lúc) → user tắc ngay, lặp lại đúng
+  lỗi §3.6 mục 6 đã vá 01/09. Trạm này lần sau: 1 ô bảng / 1 câu, số thật, không hỏi "vì sao"
+  trừu tượng khi cơ chế chưa vững.
+  ⚠️ **04/09 thứ tự bắt buộc:** ôn bù 2 hàng treo → drill Cặp 9 → mới quay lại Trạm 3.
+  Xem [review-schedule.md § Buổi 2026-09-04](Learning-document/notes/review-schedule.md).
   ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)

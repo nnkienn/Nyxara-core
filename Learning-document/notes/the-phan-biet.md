@@ -137,6 +137,31 @@ vào 3 kho vừa rỗng → `/ingest` trả `200 OK` mà `/ask` rỗng.
 
 ---
 
+## Cặp 9 — đọc từ **`state`** vs đọc từ **closure**  (Trạm 3, phát hiện 2026-09-03 tối)
+
+**Câu hỏi phân biệt duy nhất:** *trong thân hàm có dòng `state.get("<tên biến>")` hay không?*
+Có → state. Không có, mà nó là **tham số của hàm bọc ngoài** → closure.
+
+| | đọc từ `state` | đọc từ closure |
+|---|---|---|
+| Ví dụ trong `retrieve_node` | `tenant_id`, `query` | `candidate_k`, `top_k` |
+| Bằng chứng trong code | có dòng `state.get(...)` ngay trong thân | **không** dòng nào `state.get(...)`; tên biến đến từ `def make_retrieve_node(..., candidate_k, top_k)` |
+| Được ấn định lúc nào | **mỗi lần node được GỌI** (LangGraph đưa state mới nhất vào) | **lúc hàm được TẠO** — tức lúc `make_retrieve_node(...)` chạy |
+| Chạy bao nhiêu lần trong đời server | mỗi request, mỗi vòng retry | **đúng 1 lần**, trong `build_graph()` lúc startup |
+| Đổi được giữa 2 lần retry? | ✅ được (node trước return dict là ghi vào) | ❌ không — muốn đổi phải gọi lại hàm bọc ngoài, mà nó không được gọi lại |
+
+> ⚠️ **Bẫy đã mắc (03/09 tối, đảo ngược cả 4 ô):** thấy CRAG "lẽ ra phải tìm rộng hơn" nên suy ra
+> `candidate_k`/`top_k` là state, và `tenant_id`/`query` là closure — tức **suy từ ý định của
+> thuật toán chứ không đọc code**. Đây đúng loại lỗi mà bài trace tồn tại để bắt: note nói "rộng
+> hơn" nhưng code không hề làm.
+>
+> Câu thần chú: **có `state.get` thì mới đổi được · không có thì đã khắc chết từ lúc `build_graph`**
+>
+> Neo phụ: `build_graph()` chạy **1 lần** cả đời server → hàm `retrieve_node` cũng chỉ được đúc
+> **1 lần** → mọi request dùng lại đúng cái hàm đó, mang theo đúng túi biến `10 / 5` đó.
+
+---
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -144,6 +169,7 @@ vào 3 kho vừa rỗng → `/ingest` trả `200 OK` mà `/ask` rỗng.
 | 2026-09-03 sáng | ôn +1 (chưa drill) | **1/4** — trượt | Cặp 1 (`to_upsert`/`to_delete` — lẫn lần thứ 4), Cặp 3 (tưởng BM25 là model, cross-encoder không phải), Cặp 4 (tưởng cross-encoder "đắt và **rộng**") |
 | 2026-09-03 sáng | drill vòng 1 (12 câu) | **11/12** | Cặp 8 (đảo ngược bền/dễ vỡ: trả lời "manifest mất, BM25 còn") |
 | 2026-09-03 sáng | neo lại Cặp 8 + test 3 câu | **3/3** | — |
+| 2026-09-03 tối | Trạm 3 (chưa drill, hỏi mở) | **0/4 ô bảng** — đảo ngược hết | Cặp 9 (state ↔ closure) — cặp mới, chưa drill lần nào |
 
 **Nhận xét 2026-09-03:** drill phân biệt ăn ngay trong 1 vòng (1/4 → 11/12). Xác nhận chẩn đoán:
 đây là lỗi **phân biệt**, không phải lỗi **quên** — giải thích thêm không chữa được, ép chọn giữa

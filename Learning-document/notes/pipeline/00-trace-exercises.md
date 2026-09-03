@@ -167,24 +167,53 @@ biến khác). Muốn đổi giá trị closure → **phải gọi lại hàm ng
 | `candidate_k` | **closure** | **KHÔNG** có dòng `state.get("candidate_k")` — nó là tham số của `make_retrieve_node` |
 | `top_k` | **closure** | **KHÔNG** có dòng `state.get("top_k")` — tham số của `make_retrieve_node` |
 
-**Câu hỏi ⬜ CHƯA LÀM — vào thẳng đây ca tối 2026-09-03.** `retrieve_node` chạy **lần 2** (sau khi
-grade ra `INCORRECT`). Điền *"giống lần 1"* hoặc *"khác lần 1"*:
+**Câu hỏi ⚠️ ĐÃ LÀM ca tối 2026-09-03 — trả lời SAI, đã được sửa, nhưng CHƯA qua cổng.**
+`retrieve_node` chạy **lần 2** (sau khi grade ra `INCORRECT`) — mỗi input đến từ `state` hay
+closure, và lần 2 giống hay khác lần 1?
 
-| Input của `retriever.search` | Lần 2 vs lần 1 |
-|---|---|
-| `tenant_id` | ? |
-| `query` | ? |
-| `candidate_k` | ? |
-| `top_k` | ? |
+| Input của `retriever.search` | Nguồn | Lần 2 vs lần 1 | User trả lời (03/09 tối) |
+|---|---|---|---|
+| `tenant_id` | **state** (`state.get("tenant_id")`) | giống (cùng 1 request) | ❌ nói là closure |
+| `query` | **state** (`state.get("query")`) | giống (cùng 1 request) | ❌ nói là closure |
+| `candidate_k` | **closure** (tham số `make_retrieve_node`, không có `state.get`) | **giống — bắt buộc giống** | ❌ nói là state, "CRAG retry sẽ mở rộng ra" |
+| `top_k` | **closure** (cùng lý do) | **giống — bắt buộc giống** | ❌ nói là state |
 
-> Chú ý: `candidate_k`/`top_k` **không nằm trong `state`** — bị đông cứng trong closure từ lúc
-> `build_graph` chạy, mà graph chỉ build **1 lần duy nhất** lúc server khởi động (`main.py` lifespan).
+→ **Đảo ngược cả 4 ô.** Lỗi cùng loại với 4 lỗi mốc ôn +1 sáng cùng ngày: lẫn 2 khái niệm na ná
+(state ↔ closure), không phải quên. Cần thêm 1 cặp vào [the-phan-biet.md](../the-phan-biet.md).
 
-→ Nếu cả 4 input y hệt lần 1, và retriever là hàm thuần (cùng input → cùng output), thì
-`retrieved_docs` lần 2 **khác gì** lần 1? `grade` lần 2 ra verdict gì? Vòng lặp kết thúc bằng cách nào?
-→ So với chữ **"tìm rộng hơn"** trong note: note đang mô tả thứ code **đang làm**, hay thứ bạn
-**định làm mà chưa làm**?
-→ Nếu muốn "rộng hơn" thành thật, `candidate_k` phải chuyển từ đâu sang đâu?
+**Kết luận đúng của trạm này (đã giải thích, user xác nhận hiểu phần cơ chế):**
+`build_graph()` chỉ chạy **1 lần** lúc server start → `make_retrieve_node(...)` được gọi **1 lần**
+→ `candidate_k=10`, `top_k=5` bị khắc chết vào túi biến closure của **đúng 1** hàm `retrieve_node`
+dùng lại cho mọi request + mọi lần retry. Không có đường ghi giá trị mới vào (thân hàm không hề
+gọi `state.get("candidate_k")`). Vậy 4 input lần 2 y hệt lần 1 → `retrieved_docs` y hệt →
+`verdict` y hệt (`INCORRECT`) → **chữ "tìm rộng hơn" trong [03-crag.md](./03-crag.md) là thứ ĐỊNH
+làm mà code CHƯA làm** (note nói dối). Vòng lặp không bao giờ tự khá lên; nó chỉ thoát bằng **van
+an toàn `attempts >= max_attempts`** trong [decision.py](../../../app/application/generation/decision.py)
+`route()`, rồi generate trên đúng đám docs vừa bị chê 3 lần.
+
+**Cách sửa (đã suy luận đúng hướng, chưa code):** `retrieve_node` đọc
+`candidate_k = state.get("candidate_k", candidate_k)` (closure tụt xuống làm default lần đầu)
+**và** `grade_node` — nơi sinh ra `verdict`, nơi đã `attempts + 1` — là node phải return
+`candidate_k` lớn hơn khi verdict là `INCORRECT`. User đầu tiên trả lời "node retrieve ghi" →
+chạy được về máy nhưng sai nhà: `retrieve_node` không hề thấy `verdict`, nới rộng là **hệ quả của
+1 vòng thất bại** nên phải nằm cùng chỗ với bộ đếm thất bại.
+
+**⬜ CÒN NỢ — làm đầu tiên khi mở lại Trạm 3:**
+1. Bảng trace số thật (chưa điền được, user dừng vì mệt — KHÔNG phải vì sai): server start
+   `candidate_k=10, top_k=5, max_attempts=3`; query không có tài liệu liên quan → grader chấm
+   toàn `False` → ratio 0.0. Điền: mỗi lượt node chạy thì `candidate_k` thực dùng = ?,
+   `verdict` = ?, `attempts` sau node = ?, `router` gửi đi đâu? Chốt lại: `retrieve` chạy **mấy
+   lần**, thoát bằng nhánh nào của `route()`, user cuối cùng nhận được câu trả lời sinh từ dữ liệu
+   như thế nào. *(Bẫy phải tự thấy: router nhìn `attempts` ĐÃ cộng hay CHƯA cộng?)*
+2. Teach-back 2 ý (chưa làm được tối 03/09): (a) vì sao `candidate_k` không thể đổi giữa 2 lần
+   retry — mấu chốt là `make_retrieve_node` gọi mấy lần và lúc nào; (b) hậu quả thật của bug này.
+3. Tự sửa lại chữ "tìm rộng hơn" trong [03-crag.md](./03-crag.md) **bằng lời mình** (không copy
+   đoạn trên) + ghi bug vào [../bug-log.md](../bug-log.md) đủ 5 mục (triệu chứng → nguyên nhân →
+   cách tìm ra → fix → pattern tổng quát).
+
+> Ghi chú phương pháp (rút ra tối 03/09): 2 lần liên tiếp mình gộp nhiều tầng suy luận vào 1 lượt
+> hỏi (teach-back 2 ý cùng lúc) → user tắc ngay, đúng lỗi §3.6 mục 6 đã vá 01/09. Lần sau ở trạm
+> này: 1 ô bảng / 1 câu, số thật, không hỏi "vì sao" trừu tượng khi cơ chế chưa vững.
 
 ---
 

@@ -39,3 +39,20 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
    Ghi rõ trượt ở cặp/khái niệm nào vào cột Ghi chú — để lần sau nhắm thẳng vào đó.
 4. **Không mở trạm/kỹ thuật mới trong buổi mà mốc ôn bị trượt.** Ưu tiên vá nền trước
    (đúng §3.6 mục 5 — checkpoint đóng-sách). Đã áp dụng thật sáng 03/09: hoãn Trạm 3 sang ca tối.
+
+---
+
+## 📌 Buổi 2026-09-04 phải làm đúng thứ tự này (chốt tối 03/09 lúc dừng)
+
+1. **Ôn bù 2 hàng đang treo** (Incremental ingest · Retrieval 2 tầng) — chưa được tick, chưa được
+   tính mốc +3. Nhắm thẳng vào cặp đã sai: Cặp 1, 2, 8 và Cặp 3, 4, 5, 6 trong
+   [the-phan-biet.md](./the-phan-biet.md). Trôi chảy → tick cột +3 ngày 04/09; không trôi → lại
+   ôn bù, đừng tick.
+2. **Drill Cặp 9 (state ↔ closure)** — cặp mới thêm tối 03/09, sai 4/4 ô, **chưa drill lần nào**.
+   ~6 câu ép chọn state/closure, trả lời liên tục, sửa 1 lượt cuối.
+3. **Chỉ khi 1 và 2 xong** mới quay lại phần còn nợ của Trạm 3 (bảng trace số thật + teach-back +
+   tự sửa note `03-crag.md` + ghi bug-log) — xem
+   [pipeline/00-trace-exercises.md § TRẠM 3](./pipeline/00-trace-exercises.md).
+
+> Ca tối 03/09 dừng sớm vì **mệt**, không phải vì nội dung quá khó — user chọn "mệt, muốn dừng"
+> khi được hỏi thẳng. Không suy ra là hụt kiến thức nền LangGraph; tầng đó chưa kiểm tra được.
