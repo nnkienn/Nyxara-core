@@ -16,9 +16,25 @@
    `CORRECT` (đủ tốt) / `INCORRECT` (tệ) / `AMBIGUOUS` (nửa nạc nửa mỡ).
 4. Tuỳ kết luận:
    - **Đủ tốt** (`CORRECT`/`AMBIGUOUS`) → đi thẳng tới `generate`.
-   - **Tệ** (`INCORRECT`) → quay lại `retrieve`, tìm **rộng hơn**, rồi `grade` lại.
-5. Vòng lặp ở bước 4 **không được lặp mãi** — có bộ đếm `attempts`, thử tối đa vài lần; quá số
-   đó thì **buộc** đi `generate` dù tài liệu chưa hoàn hảo — còn hơn treo mãi.
+   - **Tệ** (`INCORRECT`) → quay lại `retrieve` chạy lại **y hệt lần trước**, rồi `grade` lại.
+
+     > 🐛 **Đây là bug #26, không phải mô tả đúng.** Chữ "tìm **rộng hơn**" từng nằm ở đây là thứ
+     > *định làm* chứ code chưa hề làm. `retrieve_node` lấy `candidate_k`/`top_k` từ **closure**
+     > (đông cứng lúc `build_graph()` chạy — đúng 1 lần, lúc server boot), không lấy từ `state`.
+     > Nên lần retry thứ 2, thứ 3 nhận **y nguyên 4 input như lần 1** → cùng docs → cùng
+     > `verdict INCORRECT` → vòng lặp không bao giờ khá lên, chỉ đốt thêm 2 lượt gọi LLM grader.
+     > Muốn chữ "rộng hơn" thành thật thì cần đủ **2 nửa**: `retrieve_node` phải *đọc*
+     > `candidate_k` từ `state` (closure tụt xuống chỉ còn làm default lần đầu), **và**
+     > `grade_node` — nơi sinh ra `verdict`, nơi đã đếm `attempts + 1` — phải *ghi* một
+     > `candidate_k` lớn hơn vào state khi verdict là `INCORRECT`. Chi tiết: [bug-log #26](../bug-log.md).
+5. Vòng lặp ở bước 4 **không được lặp mãi** — có bộ đếm `attempts`, thử tối đa `max_attempts`
+   lần; quá số đó thì **buộc** đi `generate` dù tài liệu chưa hoàn hảo — còn hơn treo mãi.
+
+   > ⚠️ Vì bug #26 ở trên, hiện tại đây **không phải** van dự phòng hiếm khi chạm tới — nó là
+   > **đường ra duy nhất** mỗi khi verdict là `INCORRECT`. Đã kiểm chứng bằng cách chạy graph
+   > thật với grader giả luôn trả `False` (04/09): `retrieve` chạy đúng 3 lần, cả 3 lần
+   > `candidate_k=10`, `verdict` cuối vẫn `INCORRECT`, `attempts=3`, và vẫn có `answer` trả về
+   > cho người dùng — **không kèm bất kỳ cảnh báo nào** rằng hệ thống tự biết tài liệu không liên quan.
 
 ---
 

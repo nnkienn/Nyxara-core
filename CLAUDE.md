@@ -196,6 +196,28 @@ bằng `rm data/manifest.json`.
   trừu tượng khi cơ chế chưa vững.
   ⚠️ **04/09 thứ tự bắt buộc:** ôn bù 2 hàng treo → drill Cặp 9 → mới quay lại Trạm 3.
   Xem [review-schedule.md § Buổi 2026-09-04](Learning-document/notes/review-schedule.md).
+  **2026-09-04 (21:42-23:30, OT về trễ nên chỉ 1h45): TRẠM 3 XONG PHẦN HIỂU.** Ôn bù 2 hàng treo
+  **9.5/10** (hôm trước 1/4) → đã tick mốc +3. Drill Cặp 9 hai vòng, vẫn còn sai `max_attempts`
+  (đoán state, thực ra closure) + bài đoán output closure Python thuần (4/5 dòng sai).
+  **Chỗ tắc thật mất 3 lượt mới lòi ra:** không phải closure — mà là **không biết `build_graph()`
+  chạy lúc nào**; user hỏi thẳng "chạy hồi nào?". Thiếu mảnh vòng đời app (`lifespan` trước
+  `yield` = 1 lần lúc boot · `ask.py` chỉ lấy lại `app.state.graph`). **Thứ gỡ được nút, ghi nhớ
+  để dùng lại:** khi user đã trượt dự đoán 2-3 lượt liên tiếp thì **thôi bắt tưởng tượng, cho
+  chạy thật và in ra** — chạy `build_graph` + 3 node thật với 4 adapter giả, in `candidate_k` mỗi
+  vòng; 3 dòng `candidate_k=10` giống hệt nhau nói được điều mà 3 lượt giải thích không nói nổi.
+  Đã ghi [bug #26](Learning-document/notes/bug-log.md) + sửa note nói dối "tìm rộng hơn" trong
+  `03-crag.md` — **nhưng do Claude viết, chưa qua bước 6 DOCUMENT thật**, user hẹn tự kể lại 05/09.
+- 🚨 **User tự báo cuối buổi 04/09 — cái quan trọng nhất tuần này:** *"tôi chỉ hiểu chứ hoàn toàn
+  code lại không được, fix bug không được luôn"*. Đúng lỗ hổng mà §1 đặt ra để bịt (mục tiêu là
+  **tự implement lõi + tự debug**, không phải đọc-hiểu trôi chảy). **Hệ quả đã chốt:** buổi T7
+  05/09 **không trace thêm trạm mới**, chuyển sang **code tay** — lấy chính fix #26 làm bài (nhỏ,
+  đã hiểu rõ, có tiêu chí đúng/sai rõ) + 2 test regression. Chi tiết từng ca:
+  [review-schedule.md § Buổi 2026-09-05](Learning-document/notes/review-schedule.md).
+  Từ đây trở đi: **mỗi trạm trace xong phải kèm một việc làm bằng tay**, không dừng ở "hiểu rồi".
+- ⏱️ **Sổ nợ giờ (mới, 04/09):** [Learning-document/notes/so-gio.md](Learning-document/notes/so-gio.md)
+  — cam kết sàn 3h/ngày, ghi cam kết/thực tế/nợ lũy kế mỗi buổi, phân loại `BKK` (không lãi) vs
+  `TRÔI` (lãi 1.5x, hạn trả 7 ngày), trần nợ 6h thì cấm học kỹ thuật mới 1 buổi để re-plan.
+  Nợ hiện tại **2h00, toàn bộ là `BKK`**. Kế hoạch T7 5h trả sạch đúng ngày, không dư phút nào.
   ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)

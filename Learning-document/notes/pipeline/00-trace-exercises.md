@@ -198,18 +198,36 @@ an toàn `attempts >= max_attempts`** trong [decision.py](../../../app/applicati
 chạy được về máy nhưng sai nhà: `retrieve_node` không hề thấy `verdict`, nới rộng là **hệ quả của
 1 vòng thất bại** nên phải nằm cùng chỗ với bộ đếm thất bại.
 
-**⬜ CÒN NỢ — làm đầu tiên khi mở lại Trạm 3:**
-1. Bảng trace số thật (chưa điền được, user dừng vì mệt — KHÔNG phải vì sai): server start
-   `candidate_k=10, top_k=5, max_attempts=3`; query không có tài liệu liên quan → grader chấm
-   toàn `False` → ratio 0.0. Điền: mỗi lượt node chạy thì `candidate_k` thực dùng = ?,
-   `verdict` = ?, `attempts` sau node = ?, `router` gửi đi đâu? Chốt lại: `retrieve` chạy **mấy
-   lần**, thoát bằng nhánh nào của `route()`, user cuối cùng nhận được câu trả lời sinh từ dữ liệu
-   như thế nào. *(Bẫy phải tự thấy: router nhìn `attempts` ĐÃ cộng hay CHƯA cộng?)*
-2. Teach-back 2 ý (chưa làm được tối 03/09): (a) vì sao `candidate_k` không thể đổi giữa 2 lần
-   retry — mấu chốt là `make_retrieve_node` gọi mấy lần và lúc nào; (b) hậu quả thật của bug này.
-3. Tự sửa lại chữ "tìm rộng hơn" trong [03-crag.md](./03-crag.md) **bằng lời mình** (không copy
-   đoạn trên) + ghi bug vào [../bug-log.md](../bug-log.md) đủ 5 mục (triệu chứng → nguyên nhân →
-   cách tìm ra → fix → pattern tổng quát).
+**✅ 2026-09-04 (21:42-23:30) — TRẠM 3 XONG PHẦN HIỂU.** Đường đi tới đó:
+- Ôn bù 2 hàng treo: **9.5/10** (hôm trước 1/4) → đã tick mốc +3.
+- Drill Cặp 9 (state↔closure) 2 vòng: vòng 1 sai 3/7 câu then chốt, vòng 2 vẫn sai `max_attempts`
+  (đoán state, thực ra closure) và sai 4/5 dòng bài đoán output closure thuần Python.
+- **Chỗ tắc thật, mất 3 lượt mới lòi ra:** user không biết `build_graph()` **chạy lúc nào** —
+  hỏi thẳng "chạy hồi nào?". Thiếu mảnh **vòng đời app**, không phải thiếu hiểu closure. Gỡ bằng
+  `main.py` lifespan (trước `yield` = chạy 1 lần lúc boot) + `ask.py:22` (handler chỉ *lấy lại*
+  `request.app.state.graph`, không dựng lại).
+- **Cái thật sự gỡ được nút:** thôi bắt user *tưởng tượng* vòng lặp, chuyển sang **cho chạy thật
+  và in ra**. Chạy `build_graph` thật + 3 node thật, chỉ thay 4 adapter ngoài rìa bằng đồ giả
+  (grader luôn `False`), in `candidate_k` mỗi lượt. Ba dòng `candidate_k=10` giống hệt nhau nói
+  thẳng điều mà 3 lượt giải thích trước đó không nói được. **Ghi nhớ cách này cho các trạm sau:
+  quan sát trước → giải thích sau, khi dự đoán đã trượt 2-3 lần liên tiếp.**
+- Câu chốt xác nhận đã hiểu (user tự trả lời đúng): *"request thứ hai tới thì `candidate_k` là
+  bao nhiêu?"* → vẫn 10, vì hàm được đẻ ra **trước mọi request**.
+- User tự phát biểu được hậu quả: trả tài liệu rác cho người dùng, **dù hệ thống tự biết là rác**.
+
+**⚠️ Ghi chú trung thực:** phần sửa note `03-crag.md` + [bug #26](../bug-log.md) là **Claude viết**,
+không phải user viết bằng lời mình (user xin hỗ trợ để kịp giờ, hẹn trace lại 05/09). Vậy 2 file
+đó **chưa tính là đã qua bước 6 DOCUMENT** — 05/09 phải đọc lại và tự kể lại bằng lời mình.
+
+**⬜ CÒN NỢ — chuyển sang buổi 05/09:**
+1. **CODE TAY bản fix bug #26** (2 nửa: `retrieve_node` đọc `candidate_k` từ state ·
+   `grade_node` ghi giá trị lớn hơn khi `INCORRECT`) + **2 test regression** (test phải bắt được
+   dãy `candidate_k` qua từng vòng là tăng dần, không phải chỉ nhìn output cuối). Xem
+   [bug-log #26](../bug-log.md) mục *Fix* và *Test chặn tái phát*.
+2. **Tự kể lại** nội dung bug #26 + đoạn sửa trong `03-crag.md` bằng lời mình (2 file đó hiện do
+   Claude viết, chưa qua bước DOCUMENT thật).
+3. Ôn lại **Cặp 9** — vòng 2 vẫn còn sai `max_attempts` và bài closure thuần Python.
+4. Sau đó mới mở **Trạm 4 (API)** — 4a…4d chưa đụng.
 
 > Ghi chú phương pháp (rút ra tối 03/09): 2 lần liên tiếp mình gộp nhiều tầng suy luận vào 1 lượt
 > hỏi (teach-back 2 ý cùng lúc) → user tắc ngay, đúng lỗi §3.6 mục 6 đã vá 01/09. Lần sau ở trạm

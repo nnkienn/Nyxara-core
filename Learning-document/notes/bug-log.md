@@ -38,9 +38,67 @@
 | Giả định thứ tự của `set()` — Python không đảm bảo thứ tự lặp qua set | `to_upsert` từ `diff_manifest` (đi qua `set()` union) | #23 |
 | Fake trong unit test khớp *giả định* của code, không khớp *implementation thật* — chỉ lộ khi ghép qua HTTP thật | `main.py` truyền `HybridRetriever` (3 tham số) thay vì `RerankingRetriever` (4 tham số) vào `retrieve_node` | #24 |
 | Cache/manifest bền (đĩa) lệch pha với dữ liệu dễ vỡ (RAM) khi restart — manifest "nói dối" là đã có data | `manifest.json` sống sót qua restart, 3 kho in-memory thì không, khiến ingest lại bị `to_skip` oan | #25 |
+| Note mô tả **ý định** chứ không mô tả **hành vi thật** của code (note nói dối) | "tìm rộng hơn" khi retry CRAG nhưng code chạy lại y hệt (#26); `recursive_chunk` mà thân hàm là fixed-size sliding window | #26 |
+| Tham số đông cứng trong **closure** ở chỗ lẽ ra phải đổi theo **từng vòng lặp** | `candidate_k`/`top_k` chốt lúc `build_graph()` (1 lần, lúc boot) nên mọi vòng retry nhận y nguyên input | #26 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
+
+---
+
+### #26 — vòng retry của CRAG chạy lại y hệt lần trước (`candidate_k` đông cứng trong closure)  ·  Phase 2.3  ·  thật  ·  2026-09-04
+
+- **Triệu chứng:** chạy graph thật với grader giả luôn trả `False` (kho không có tài liệu liên
+  quan). Mong đợi: mỗi lần retry tìm rộng hơn nên có cơ hội khá lên. Nhận được: `retrieve` chạy
+  **3 lần**, cả 3 lần đều `candidate_k=10 top_k=5` **giống hệt nhau**, cả 3 lần `grade` đều
+  `ratio=0.0 → INCORRECT`. State cuối: `verdict=INCORRECT`, `attempts=3`, **vẫn có `answer`** trả
+  về cho người dùng, không kèm cảnh báo gì. Tức 2 vòng retry sau chỉ tốn thêm 2 lượt gọi LLM
+  grader mà không thay đổi được một chữ nào trong kết quả.
+- **Nguyên nhân:** `node.py` — trong `retrieve_node`, `tenant_id`/`query` được đọc từ `state`
+  (`state.get(...)`), nhưng `candidate_k`/`top_k` thì **không có dòng nào đọc từ state** — chúng
+  là tham số của hàm bọc ngoài `make_retrieve_node`, tức nằm trong **closure**. Closure được chốt
+  lại đúng lúc hàm trong được tạo ra, mà `make_retrieve_node(...)` chỉ được gọi **1 lần duy nhất
+  trong cả đời process**: trong `build_graph()`, được gọi từ `lifespan` của `main.py` (phần trước
+  `yield`) lúc server boot. Handler `/ask` chỉ lấy lại `request.app.state.graph` đã dựng sẵn, không
+  bao giờ dựng lại. Vậy chỉ tồn tại **đúng 1 object hàm `retrieve_node`** mang đúng 1 túi biến
+  `(10, 5)`, dùng chung cho mọi request và mọi vòng retry → 4 input của `retriever.search` lần 2,
+  lần 3 y hệt lần 1 → retriever thuần → cùng docs → cùng verdict → lặp vô nghĩa.
+- **Cách tìm ra:** hai bước, bước sau chứng minh bước trước.
+  1. **Phép thử cơ học để phân biệt state vs closure** (không suy đoán theo ngữ nghĩa): nhìn thân
+     hàm trong, có dòng `state.get("<biến>")` / `state["<biến>"]` không? Có → state, đổi được mỗi
+     lần node chạy. Không có, mà tên đó là tham số của hàm bọc ngoài → closure, chốt cứng từ lúc
+     hàm được tạo. *(Bẫy đã mắc thật: suy từ ý định "CRAG lẽ ra phải tìm rộng hơn" nên đoán
+     `candidate_k` là state → đảo ngược cả 4 ô. Ý định của thuật toán không phải bằng chứng.)*
+  2. **In ra để chứng minh:** chạy `build_graph` thật + 3 node thật, chỉ thay 4 adapter ngoài rìa
+     bằng đồ giả, in `candidate_k`/`top_k` **mỗi lần** `retriever.search` được gọi. Ba dòng in ra
+     giống hệt nhau là bằng chứng trực tiếp, không cần lý luận thêm. Câu hỏi chốt để tự kiểm tra
+     xem đã hiểu chưa: *"request thứ hai tới thì `candidate_k` là bao nhiêu?"* — vẫn 10, vì hàm
+     được đẻ ra **trước mọi request**, không phải trong request nào cả.
+- **Fix:** *(chưa code, dự định — 05/09)* cần đủ **2 nửa**, thiếu nửa nào cũng vô dụng:
+  - **Nửa đọc:** `retrieve_node` đổi sang `candidate_k = state.get("candidate_k", candidate_k)` —
+    closure tụt xuống chỉ còn làm giá trị mặc định cho lần đầu.
+  - **Nửa ghi:** `grade_node` khi trả `verdict == "INCORRECT"` thì return thêm `candidate_k` lớn
+    hơn vào dict. Phải là `grade_node` chứ không phải `retrieve_node`: `retrieve_node` chưa bao giờ
+    nhìn thấy `verdict`, nếu nó tự nới rộng thì nó nới **mù**, kể cả khi lát nữa verdict ra
+    `CORRECT` và chẳng có lần 2 nào. "Vòng này trượt" và "lần sau phải rộng hơn" là **cùng một sự
+    kiện** → phải ghi cùng một chỗ, chính là nơi đã đếm `attempts + 1`.
+- **Test chặn tái phát:** *(chưa có)* test phải bắt được **sự khác nhau giữa các vòng**, không phải
+  chỉ bắt kết quả cuối — vì kết quả cuối hiện tại "trông vẫn đúng" (có `answer`, `attempts=3`) nên
+  mọi test chỉ nhìn output cuối đều **xanh giả**. Cụ thể: dùng một retriever giả **ghi lại
+  `candidate_k` của từng lượt gọi**, ép grader luôn trả `False`, rồi assert danh sách ghi được là
+  một dãy **tăng dần** (vd `[10, 20, 40]`), không phải `[10, 10, 10]`. Kèm 1 test cho nhánh
+  ngược lại: verdict `CORRECT` ngay vòng 1 thì `retriever` chỉ được gọi **đúng 1 lần**.
+- **Bài học / pattern:** hai pattern, cả hai đều tái sử dụng được:
+  1. **Note mô tả *ý định* chứ không mô tả *hành vi thật*.** Cùng họ với phát hiện `recursive_chunk`
+     mà thân hàm là fixed-size sliding window, và `split_by_separators` có test xanh nhưng không nơi
+     nào gọi. Dấu hiệu nhận biết: note dùng từ chỉ *mục đích* ("rộng hơn", "recursive", "song song")
+     mà trong code không có biến/dòng nào tương ứng.
+  2. **Tham số đông cứng trong closure ở đúng chỗ lẽ ra phải thay đổi theo vòng lặp.** Chỗ khác
+     trong dự án có cùng hình dạng và đáng soi lại: `max_attempts` trong `router`,
+     `correct_threshold`/`incorrect_threshold` trong `grade_node` — đều là closure. Với chúng thì
+     đông cứng là **đúng** (chính sách cố định của hệ thống); cái sai của #26 không phải "dùng
+     closure" mà là dùng closure cho một đại lượng **thuộc về từng vòng lặp**. Câu hỏi tổng quát:
+     *đại lượng này thuộc về cả server, hay thuộc về một lượt chạy?* Thuộc lượt chạy → phải ở state.
 
 ---
 
