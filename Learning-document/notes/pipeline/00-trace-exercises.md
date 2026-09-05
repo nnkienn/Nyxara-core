@@ -248,7 +248,31 @@ Chi tiết đầy đủ: [bug-log #26](../bug-log.md) · bug phụ sinh ra trong
 
 ## 🚩 TRẠM 4 — API / wiring
 
-**4a.** `lifespan` trong `main.py` chạy **mấy lần** trong đời một process? Nó dựng bao nhiêu
+**4a.** ✅ **Làm 2026-09-05 (23:30-24:00) — phần chẩn đoán xong, phần fix để 06/09.**
+
+- `lifespan` chạy **1 lần** lúc boot *(user trả lời đúng)*. Nó tạo **đúng 1** instance `BM25Index`
+  *(user đoán 2 — sai)*. Hai request `/ingest` đồng thời ghi vào **cùng một object** *(user đoán
+  "object riêng" — sai)*. Bằng chứng: `app.state.bm25_index = bm25_index` trong `main.py`, và
+  `ingest.py:35` chỉ **lấy ra** `request.app.state.bm25_index`, không có dòng `BM25Index()` nào.
+- **Cùng nguyên tắc với bug #26, khác tầng:** dựng 1 lần lúc boot → cả server xài chung.
+  `retrieve_node` cất trong closure · `BM25Index` cất trong `app.state`. Khác biệt duy nhất:
+  `candidate_k` chỉ bị **đọc**, còn `BM25Index` bị **ghi** bởi mọi request.
+- **Chỗ hỏng cụ thể — `bm25_index.py:16`:**
+  `self.doc_count[tenant_id] = self.doc_count.get(tenant_id, 0) + 1` — một dòng nhưng là **ba
+  việc** (đọc → cộng → ghi), không nguyên tử. Handler `/ingest` viết `def` (không `async def`)
+  nên FastAPI chạy nó trong **threadpool nhiều luồng**, luồng có thể bị cắt lượt **giữa** đọc và ghi.
+- **Đã chứng minh bằng thực nghiệm** (4 luồng × 50.000 lần cộng trên đúng dòng lệnh đó, có
+  `sys.setswitchinterval(1e-6)` để ép đổi luồng thường xuyên như khi handler thật nhả GIL lúc gọi
+  embedder/đĩa): đúng ra 200.000, **thực tế 86.180 — mất trắng 56.9%**. Không exception, không log.
+- **Hậu quả:** `doc_count` sai → IDF tưởng kho nhỏ hơn thực tế → đánh giá sai từ hiếm/phổ biến →
+  **thứ tự xếp hạng bị bóp méo không đoán trước được**, mà kết quả trả về trông vẫn bình thường.
+  Loại hỏng tệ nhất: **silent data corruption**. Sập server còn tử tế hơn vì sập thì biết ngay.
+- ⬜ **Còn nợ (06/09):** ai canh cho 2 luồng không ghi đè nhau? Tìm hiểu `threading.Lock`, và
+  cân nhắc: khoá toàn bộ `add_document` hay khoá nhỏ hơn? Chỗ nào khác trong `BM25Index` /
+  `InMemoryDocStore` cũng có dạng đọc-sửa-ghi như vậy? Có nên viết test bắt được race không —
+  và test đó bắt bằng cách nào (gợi ý: đây lại là **assert quá trình**, không phải kết quả cuối)?
+
+**(câu gốc)** `lifespan` trong `main.py` chạy **mấy lần** trong đời một process? Nó dựng bao nhiêu
 instance `BM25Index`? Nếu **2 request `/ingest` tới cùng lúc**, chúng ghi vào **cùng một** object
 `BM25Index` hay 2 object khác nhau? (Nhớ: handler viết `def` → FastAPI chạy nó trong
 **threadpool nhiều luồng**.) → Có vấn đề gì không? Từ khoá tra cứu: *race condition*, *thread-safety*.

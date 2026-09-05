@@ -71,3 +71,14 @@ def test_retry_noi_rong_candidate_k():
     graph.invoke({"tenant_id": "t1", "query": "mèo đen", "attempts": 0})
 
     assert retriever.candidate_ks == [10, 20, 40]   # (3) đọc lại nhật ký từ đâu?
+def test_khong_retry_khi_grader_hai_long():
+    retriever = RecordingRetriever()                    # (1) giống hệt test trước
+
+    graph = build_graph(
+        retriever, FakeDocStore(), AlwaysRelevantGrader(), FakeGenerator(),   # (2) đổi grader
+        candidate_k=10, max_attempts=3,
+    )
+
+    graph.invoke({"tenant_id": "t1", "query": "mèo đen", "attempts": 0})
+
+    assert retriever.candidate_ks == [10]                    # (3)(4) nhật ký phải bằng gì?

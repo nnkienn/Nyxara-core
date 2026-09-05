@@ -25,7 +25,7 @@
 |---|---|---|---|---|---|---|---|
 | 2026-09-03 | Năm | 3h00 | 2h15 | −45' | BKK | **45'** | 2 ca: sáng 6h15-7h15 (ôn +1 trượt → drill phân biệt) · tối ~1h (mở Trạm 3, dừng vì mệt) |
 | 2026-09-04 | Sáu | 3h00 | 1h45 | −1h15 | BKK | **2h00** | OT về trễ, 21:42-23:30. Ôn bù 9.5/10 · drill Cặp 9 vòng 2 · Trạm 3 xong phần hiểu |
-| 2026-09-05 | Bảy | 3h00 | ~3h30 (19:55-23:45, nghỉ 20') | +30' | BKK | **1h30** | OT chiều nên mất ca 14:00-16:30 của kế hoạch. Ca tối: drill closure 4/4 · **tự code xong fix bug #26** · tự viết test bắt quá trình · phát hiện + fix bug #27 → suite 67 xanh lần đầu sau 8 ngày |
+| 2026-09-05 | Bảy | 3h00 | ~3h30 (19:55-00:05, nghỉ 2×20') | +30' | BKK | **1h30** | OT chiều nên mất ca 14:00-16:30 của kế hoạch. Ca tối: drill closure 4/4 · **tự code xong fix bug #26** · tự viết 2 test bắt quá trình · phát hiện + fix bug #27 → suite **68 xanh** (lần đầu xanh sau 8 ngày) · làm luôn Trạm 4a phần chẩn đoán |
 | 2026-09-06 | CN | 3h00 | *(kế hoạch 6h)* | *+3h* | — | *dự kiến **0*** | Trạm 4 (3h) + fix bug #25 (3h). Đủ 6h là trả sạch nợ và đóng sổ Phase 0 |
 
 > **Tình trạng 05/09:** nợ **1h30**, toàn bộ vẫn là `BKK` (3 ngày liên tiếp OT/mệt, không có
