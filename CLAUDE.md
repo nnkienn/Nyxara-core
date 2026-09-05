@@ -162,6 +162,7 @@ bằng `rm data/manifest.json`.
 
 - ✅ Phase 0 ingest (dedup · incremental · multi-store delete-aware) · Phase 1 (Embedding/Qdrant/tenant)
 - ✅ Phase 2.1 Hybrid+RRF · 2.2 Rerank · 2.3 CRAG · `/ingest` + `/ask` chạy thật qua HTTP
+  *(⚠️ `/ingest` từng gãy âm thầm 28/08→05/09 vì bug #27, đã fix. Suite: **67 passed**, đo thật 05/09.)*
 - 🔨 **Đang làm:** trace lại toàn luồng — xem [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md).
   **2026-09-02: Trạm 1 XONG HẲN** — 1a/1b/1c + teach-back qua cổng đóng-sách Method 2.0. Đã
   thêm hàng "Incremental ingest / multi-store diff" vào review-schedule (mốc +1/+3/+7/+14 từ
@@ -214,6 +215,29 @@ bằng `rm data/manifest.json`.
   đã hiểu rõ, có tiêu chí đúng/sai rõ) + 2 test regression. Chi tiết từng ca:
   [review-schedule.md § Buổi 2026-09-05](Learning-document/notes/review-schedule.md).
   Từ đây trở đi: **mỗi trạm trace xong phải kèm một việc làm bằng tay**, không dừng ở "hiểu rồi".
+  **2026-09-05 (19:55-23:45, nghỉ 20' → ~3h30): buổi CODE TAY đầu tiên, và nó chạy.**
+  - Drill closure tự viết 4/4 bài ([drills/2026-09-05-closure.py](Learning-document/drills/2026-09-05-closure.py))
+    — kể cả bài **cố ý gây lại** `UnboundLocalError` rồi tự sửa. Tự lý luận đúng "mỗi lần gọi
+    factory là một hàm mới" (hôm 03/09 trả lời sai đúng câu này).
+  - **Tự code xong bản fix bug #26**, 3 chỗ: `retrieve_node` đọc state · `grade_node` ghi state ·
+    `state.py` khai báo `candidate_k`. Kiểm chứng trên graph thật: `10→10→10` đã thành `10→20→40`.
+  - **Tự viết test bắt quá trình** (`RecordingRetriever` + assert dãy `[10,20,40]`) và tự kiểm
+    chứng nó đỏ đúng lúc phải đỏ. Chính test này phát hiện chỗ thứ ba (schema vứt khoá) mà cả
+    user lẫn Claude đều đọc qua không thấy.
+  - **Tự chẩn đoán được `return grade_node` bị thiếu** chỉ từ thông báo lỗi, không cần gợi ý.
+  - Phát hiện + fix **bug #27**: commit tài liệu 88e6b7d (28/08) âm thầm xoá `save_manifest` →
+    `/ingest` gãy và `pytest` toàn bộ chết ở collection suốt **8 ngày**. Sau fix: **67 passed**.
+  - Lỗi lặp lại cần để ý: **2 lần sửa nhầm hàm**, 2 lần xoá mất dòng đang có người dùng
+    (`attempts = ...`, `return grade_node`), 1 lần lẫn "khoá state" với "node"
+    (`add_node("candidate_k", ...)`). Đều là lỗi lúc mệt, không phải lỗi hiểu — nhưng mỗi lần
+    ngốn ~15 phút.
+- 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
+  1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con
+     rồi tưởng là xanh chính là thứ nuôi bug #27 sống 8 ngày.
+  2. Trước khi commit: đọc `git diff`, đừng tin message mình vừa gõ. Cẩn thận `git add -A` khi
+     trong cây còn sửa đổi dở dang.
+  3. Con số trong tài liệu ("66 test xanh", "`/ingest` chạy thật") phải đến từ **một lần chạy
+     thật**, không phải trí nhớ — cả hai câu đó đã sai suốt 28/08 → 05/09.
 - ⏱️ **Sổ nợ giờ (mới, 04/09):** [Learning-document/notes/so-gio.md](Learning-document/notes/so-gio.md)
   — cam kết sàn 3h/ngày, ghi cam kết/thực tế/nợ lũy kế mỗi buổi, phân loại `BKK` (không lãi) vs
   `TRÔI` (lãi 1.5x, hạn trả 7 ngày), trần nợ 6h thì cấm học kỹ thuật mới 1 buổi để re-plan.
@@ -221,7 +245,8 @@ bằng `rm data/manifest.json`.
   ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
-- ⏳ Kế tiếp: Trạm 2 (Retrieval) → Trạm 3 (CRAG) → Trạm 4 (API) → fix bug #25
+- ⏳ Kế tiếp: **Trạm 4 (API)** → fix bug #25 → nối `split_by_separators` → *(hết Phase 0)*
+  → Document-based chunking (kỹ thuật MỚI đầu tiên của tháng 9). ~~Trạm 2, Trạm 3~~ ✅ 02/09, 05/09
   → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 
 **Phát hiện khi trace (2026-08-25) — chưa xử lý:**

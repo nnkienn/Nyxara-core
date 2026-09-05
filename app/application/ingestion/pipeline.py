@@ -22,6 +22,9 @@ def load_manifest(path: str) -> dict:
         return {}
     with open(path) as f:
         return json.load(f)
+def save_manifest(path: str, manifest: dict) -> None:
+    with open(path, "w") as f:
+        json.dump(manifest, f)
 
 
 

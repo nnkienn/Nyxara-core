@@ -7,9 +7,4 @@ class CRAGeneratorState(TypedDict):
     answer : str
     tenant_id : str
     grades : list[bool]
-    """
-    Represents the state of a CRAG generator.
-    """
-    # Define the fields of the CRAG generator state here
-    # For example:
-    # field_name: field_type                                                
+    candidate_k : int

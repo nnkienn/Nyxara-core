@@ -219,7 +219,18 @@ chạy được về máy nhưng sai nhà: `retrieve_node` không hề thấy `v
 không phải user viết bằng lời mình (user xin hỗ trợ để kịp giờ, hẹn trace lại 05/09). Vậy 2 file
 đó **chưa tính là đã qua bước 6 DOCUMENT** — 05/09 phải đọc lại và tự kể lại bằng lời mình.
 
-**⬜ CÒN NỢ — chuyển sang buổi 05/09:**
+**✅ 2026-09-05 — TRẠM 3 ĐÓNG HOÀN TOÀN (hiểu + làm).** Bản fix bug #26 đã code xong bằng tay,
+có test riêng (`test_retry_noi_rong_candidate_k`) và đã kiểm chứng test đỏ đúng lúc phải đỏ.
+Chi tiết đầy đủ: [bug-log #26](../bug-log.md) · bug phụ sinh ra trong lúc fix: #28 (UnboundLocalError).
+
+**⬜ Còn nợ nhỏ của trạm này (làm khi có thời gian, không chặn Trạm 4):**
+- Test nhánh ngược: verdict `CORRECT` ngay vòng 1 → retriever chỉ được gọi **đúng 1 lần**.
+- Cân nhắc: vòng cuối `grade_node` vẫn ghi `candidate_k=80` dù `route()` đã hết lượt và không ai
+  đọc nữa — có nên ghi khi biết chắc không còn vòng nào không?
+- Chọn lại giá trị mặc định trong `state.get("candidate_k", 0)` — với công thức `* 2` thì `0`
+  là lựa chọn tệ nhất có thể (`0 * 2 = 0` mãi mãi).
+
+**(lưu trữ) ⬜ Danh sách nợ ghi tối 04/09:**
 1. **CODE TAY bản fix bug #26** (2 nửa: `retrieve_node` đọc `candidate_k` từ state ·
    `grade_node` ghi giá trị lớn hơn khi `INCORRECT`) + **2 test regression** (test phải bắt được
    dãy `candidate_k` qua từng vòng là tăng dần, không phải chỉ nhìn output cuối). Xem

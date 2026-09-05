@@ -17,7 +17,7 @@
 | CRAG state machine (`decide()`, `attempts` guard) | 2026-08-12 | — | — | — | — | |
 | Incremental ingest / multi-store diff (`manifest` = `{tenant:{doc:{idx:hash}}}`, `diff_manifest`, `to_upsert/skip/delete`) | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | Qua cổng Trạm 1 ngày 02/09 nhưng +1 hôm sau trượt. Lẫn `to_upsert`/`to_delete` **lần thứ 4** và đảo ngược bền/dễ vỡ. Đã vá bằng drill ([the-phan-biet.md](./the-phan-biet.md) Cặp 1, 2, 8) → 11/12. **Chưa tick sạch — phải ôn bù 04/09 rồi mới tính +3.** |
 | Retrieval 2 tầng (rẻ-rộng Dense+BM25+RRF → đắt-hẹp cross-encoder) + hợp đồng return giữa 2 retriever | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | +1 trượt: tưởng BM25 là model / cross-encoder không phải, và cross-encoder "đắt và **rộng**". Đã vá bằng drill (Cặp 3, 4, 5, 6) → 11/12. **Chưa tick sạch — ôn bù 04/09.** |
-| CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ⬜ 2026-09-05 | ⬜ 2026-09-07 | ⬜ 2026-09-11 | ⬜ 2026-09-18 | Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. |
+| CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⬜ 2026-09-07 | ⬜ 2026-09-11 | ⬜ 2026-09-18 | Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. |
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
 > ôn hết 4 mốc — giữ lại làm log, chỉ ngừng thêm cột ôn tiếp.
@@ -45,7 +45,25 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ## ✅ Buổi 2026-09-04 — đã xong (ôn bù 9.5/10, đã tick +3 cho cả 2 hàng)
 
-## 📌 Buổi 2026-09-05 (T7, kế hoạch 5h: 14:00-16:30 + 19:00-21:30)
+## ✅ Buổi 2026-09-05 — đã xong (xem CLAUDE.md §6). Mốc +1 hàng CRAG tick bằng **code tay**, không phải giảng lại suông.
+
+## 📌 Buổi 2026-09-06 (CN, kế hoạch 6h) — ĐÓNG SỔ PHASE 0
+
+> Mục tiêu của buổi này **không phải học thêm**, mà là **dọn sạch tồn đọng** để thứ Hai 07/09 vào
+> kỹ thuật mới với sổ sạch. Đừng để nó thành buổi vá nền thứ sáu liên tiếp.
+
+1. **Ca 1 (~3h) — Trạm 4 (API/wiring)**, câu 4a→4d trong
+   [pipeline/00-trace-exercises.md](./pipeline/00-trace-exercises.md). Nhẹ hơn Trạm 3 (không có
+   closure), và câu 4c hỏi thẳng về bug #25 nên nó dẫn luôn sang ca 2.
+2. **Ca 2 (~3h) — fix bug #25 thật** + test chặn tái phát. Đây là "việc làm bằng tay" của Trạm 4
+   theo luật mới, đồng thời là milestone riêng trong roadmap tháng 9.
+3. Còn giờ → nối `split_by_separators` (~1h, milestone nhỏ nhất còn lại của Phase 0).
+4. Mốc ôn **+3** của hàng CRAG rơi vào 07/09 — nhớ code-tay-lại phần lõi, đừng chỉ giảng lại.
+
+> ⚠️ **Luật mới rút ra tối 05/09 (bug #27):** trước khi commit phải chạy `pytest -q` **toàn bộ**,
+> không giới hạn thư mục, và đọc `git diff` chứ đừng tin message mình vừa gõ.
+
+## 📌 (lưu trữ) Buổi 2026-09-05 — thứ tự đã chốt tối 04/09
 
 > **Lý do buổi này đổi trọng tâm:** cuối buổi 04/09 user tự báo — *"tôi chỉ hiểu chứ hoàn toàn
 > code lại không được, fix bug không được luôn"*. Đây là đúng lỗ hổng mà cả roadmap tồn tại để

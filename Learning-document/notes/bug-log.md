@@ -40,9 +40,81 @@
 | Cache/manifest bền (đĩa) lệch pha với dữ liệu dễ vỡ (RAM) khi restart — manifest "nói dối" là đã có data | `manifest.json` sống sót qua restart, 3 kho in-memory thì không, khiến ingest lại bị `to_skip` oan | #25 |
 | Note mô tả **ý định** chứ không mô tả **hành vi thật** của code (note nói dối) | "tìm rộng hơn" khi retry CRAG nhưng code chạy lại y hệt (#26); `recursive_chunk` mà thân hàm là fixed-size sliding window | #26 |
 | Tham số đông cứng trong **closure** ở chỗ lẽ ra phải đổi theo **từng vòng lặp** | `candidate_k`/`top_k` chốt lúc `build_graph()` (1 lần, lúc boot) nên mọi vòng retry nhận y nguyên input | #26 |
+| Khoá không khai báo trong schema state → LangGraph **âm thầm vứt**, code trông đúng mà vô dụng | `grade_node` return `candidate_k` nhưng `CRAGeneratorState` chưa khai báo → nhật ký vẫn `[10,10,10]` | #26 |
+| Gán đè lên chính tên biến closure → tên bị coi là biến cục bộ ở **mọi dòng** → `UnboundLocalError` | `candidate_k = state.get("candidate_k", candidate_k)` | #28 |
+| Commit có message nói một đằng, diff đụng một nẻo (thường do `git add -A` gộp sửa đổi dở dang) | commit "sửa CLAUDE.md" xoá mất `save_manifest` trong `pipeline.py`, hỏng 8 ngày | #27 |
+| Chạy test theo thư mục con rồi tưởng là suite xanh | `pytest tests/application/generation` xanh trong khi `pytest` toàn bộ chết ở collection | #27 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
+
+---
+
+### #28 — gán đè lên chính tên biến closure → `UnboundLocalError`  ·  Phase 2.3  ·  thật  ·  2026-09-05
+
+- **Triệu chứng:** khi sửa bug #26, viết `candidate_k = state.get("candidate_k", candidate_k)` bên
+  trong `retrieve_node`. Trông hợp lý tuyệt đối. Chạy test: `UnboundLocalError: local variable
+  'candidate_k' referenced before assignment` — nổ ngay tại chính dòng đó, 3 test đỏ.
+- **Nguyên nhân:** Python quyết định một cái tên là **biến cục bộ của hàm** nếu trong thân hàm có
+  **bất kỳ phép gán nào** cho tên ấy. Quyết định này đưa ra **lúc biên dịch hàm**, trước khi chạy
+  dòng nào, và áp cho **toàn bộ** thân hàm — kể cả các dòng đứng *trước* chỗ gán. Vì có
+  `candidate_k = ...`, Python coi `candidate_k` là biến cục bộ ở mọi dòng → **tên closure bị che
+  khuất hoàn toàn** → vế phải đi tìm biến cục bộ chưa được gán → nổ. Nói gọn: đang bảo nó *"lấy
+  giá trị của X để tính ra X"* trong khi X vừa bị tuyên bố là biến mới toanh.
+- **Cách tìm ra:** đọc thẳng dòng lỗi — nó chỉ đúng file, đúng dòng, đúng tên biến. Rồi hỏi: tên
+  này đang đóng **mấy vai** trong hàm? Ở đây là hai (giá trị mặc định từ closure · giá trị thực
+  dùng cho lượt chạy này) — mà chỉ có một cái tên.
+- **Fix:** hai vai → hai tên. `effective_k = state.get("candidate_k", candidate_k)`, rồi truyền
+  `effective_k` xuống. Không còn phép gán nào lên tên `candidate_k` nên nó vẫn là closure, với tới
+  được bình thường.
+- **Test chặn tái phát:** không cần test riêng — lỗi này nổ ngay lúc chạy, không thể lọt âm thầm.
+  (Đã drill riêng bằng tay: [drills/2026-09-05-closure.py](../drills/2026-09-05-closure.py) bài 3
+  bắt tự **cố ý gây lại** lỗi này rồi tự sửa.)
+- **Bài học / pattern:** ❌ **KHÔNG dùng `nonlocal` để "chữa"** lỗi này, dù nó cũng làm hết nổ.
+  `nonlocal` ghi đè **vĩnh viễn** vào túi biến closure — mà closure dùng chung cho **toàn bộ
+  server** (chỉ có đúng 1 object `retrieve_node`, dựng 1 lần lúc `build_graph`). Hệ quả: user A
+  retry nới lên 40 → user B tiếp theo **bắt đầu luôn ở 40**, không bao giờ về lại 10 cho tới khi
+  restart. Chi phí phình dần, kết quả **mất tính tất định** (câu trả lời của B phụ thuộc vào việc
+  A vừa hỏi gì → bug không tái hiện được), và về bản chất là **rò rỉ trạng thái giữa người dùng**.
+  Ở đây rò rỉ chỉ là một con số nên thiệt hại là hiệu năng; cùng cơ chế đó với một cache theo
+  tenant thì thành rò rỉ dữ liệu giữa khách hàng — lỗi bảo mật thật.
+  > **Nguyên tắc gói lại: closure = trạng thái của cả server (sống suốt đời process). state =
+  > trạng thái của một lượt chạy. Đại lượng nào đổi theo từng lượt thì phải nằm ở state — ghi nó
+  > vào closure là vô tình biến nó thành biến toàn cục.**
+
+---
+
+### #27 — commit "sửa tài liệu" âm thầm xoá mất hàm `save_manifest` trong production  ·  Phase 0  ·  thật  ·  phát hiện 2026-09-05, gây ra 2026-08-28
+
+- **Triệu chứng:** chạy `pytest -q` (toàn bộ, không giới hạn thư mục) →
+  `ImportError: cannot import name 'save_manifest' from 'app.application.ingestion.pipeline'`,
+  `Interrupted: 1 error during collection` — **chết ở khâu collection nên không một test nào được
+  chạy**. Nặng hơn: `pipeline.py:110` **gọi** `save_manifest(manifest_path, manifest)` mà hàm
+  không tồn tại ở đâu trong repo → `ingest_document` ném `NameError` ngay khi chạy tới đó →
+  **`/ingest` gãy trên `main`**. Kéo dài **8 ngày** không ai biết.
+- **Nguyên nhân:** commit `88e6b7d` (28/08/2026), message *"feat: Update CLAUDE.md with tracing
+  instructions and enhance 00-trace-exercises.md for better self-assessment"* — thuần tài liệu
+  theo lời mô tả — nhưng diff đụng vào **3 file**, trong đó có `app/application/ingestion/pipeline.py`,
+  và xoá sạch 3 dòng thân hàm `save_manifest`. Nhiều khả năng do `git add -A` gộp cả một sửa đổi
+  dở dang không liên quan.
+- **Cách tìm ra:** `grep -rn "def save_manifest" app/ tests/` → rỗng, tức không phải import sai
+  đường dẫn mà là **hàm không tồn tại**. Rồi `git log -S "def save_manifest" -- <file>` (cờ `-S`
+  = tìm commit nào **thêm hoặc xoá** một chuỗi) → ra đúng 2 commit: cái tạo ra và cái xoá đi.
+  `git show <sha> --stat` cho thấy commit tài liệu lại đụng vào file production.
+- **Fix:** chép lại nguyên hàm đã bị xoá (3 dòng, lấy thẳng từ dòng `-` trong `git show`).
+  Sau fix: `pytest -q` toàn bộ → **67 passed**, xanh lần đầu sau 8 ngày.
+- **Test chặn tái phát:** không phải chuyện thêm test — test đã tồn tại sẵn và đã đỏ suốt 8 ngày,
+  chỉ là **không ai chạy toàn bộ suite**. Biện pháp đúng là đổi thói quen (xem dưới).
+- **Bài học / pattern:** ba cái, đều đắt:
+  1. **Đọc `git diff` trước khi commit, đừng tin message mình vừa gõ.** Message nói "sửa tài liệu"
+     mà `git status` liệt kê 3 file trong đó có file production — đúng lúc đó phải dừng lại nhìn.
+     Cẩn thận với `git add -A` khi trong cây làm việc còn sửa đổi dở dang.
+  2. **Chạy test theo thư mục con KHÔNG phải là "test xanh".** Tiện thật (cả buổi 05/09 đã dùng
+     `pytest tests/application/generation` để đi vòng qua chỗ đỏ), nhưng chính thói quen đó nuôi
+     cái hỏng này sống 8 ngày. Trước khi commit: chạy **toàn bộ**.
+  3. **Tài liệu nói dối lần nữa** — CLAUDE.md ghi "66 test xanh" và "`/ingest` chạy thật qua HTTP",
+     cả hai sai từ 28/08. Cùng họ với bug #26 (note "tìm rộng hơn" mà code không làm). Con số trong
+     tài liệu phải đến từ một lần chạy thật, không phải từ trí nhớ.
 
 ---
 
@@ -74,20 +146,41 @@
      giống hệt nhau là bằng chứng trực tiếp, không cần lý luận thêm. Câu hỏi chốt để tự kiểm tra
      xem đã hiểu chưa: *"request thứ hai tới thì `candidate_k` là bao nhiêu?"* — vẫn 10, vì hàm
      được đẻ ra **trước mọi request**, không phải trong request nào cả.
-- **Fix:** *(chưa code, dự định — 05/09)* cần đủ **2 nửa**, thiếu nửa nào cũng vô dụng:
-  - **Nửa đọc:** `retrieve_node` đổi sang `candidate_k = state.get("candidate_k", candidate_k)` —
-    closure tụt xuống chỉ còn làm giá trị mặc định cho lần đầu.
-  - **Nửa ghi:** `grade_node` khi trả `verdict == "INCORRECT"` thì return thêm `candidate_k` lớn
-    hơn vào dict. Phải là `grade_node` chứ không phải `retrieve_node`: `retrieve_node` chưa bao giờ
-    nhìn thấy `verdict`, nếu nó tự nới rộng thì nó nới **mù**, kể cả khi lát nữa verdict ra
-    `CORRECT` và chẳng có lần 2 nào. "Vòng này trượt" và "lần sau phải rộng hơn" là **cùng một sự
-    kiện** → phải ghi cùng một chỗ, chính là nơi đã đếm `attempts + 1`.
-- **Test chặn tái phát:** *(chưa có)* test phải bắt được **sự khác nhau giữa các vòng**, không phải
-  chỉ bắt kết quả cuối — vì kết quả cuối hiện tại "trông vẫn đúng" (có `answer`, `attempts=3`) nên
-  mọi test chỉ nhìn output cuối đều **xanh giả**. Cụ thể: dùng một retriever giả **ghi lại
-  `candidate_k` của từng lượt gọi**, ép grader luôn trả `False`, rồi assert danh sách ghi được là
-  một dãy **tăng dần** (vd `[10, 20, 40]`), không phải `[10, 10, 10]`. Kèm 1 test cho nhánh
-  ngược lại: verdict `CORRECT` ngay vòng 1 thì `retriever` chỉ được gọi **đúng 1 lần**.
+- **Fix:** ✅ **đã code 2026-09-05 (user tự gõ)**. Hoá ra cần **3 chỗ**, không phải 2 — chỗ thứ ba
+  chỉ lộ ra khi chạy test:
+  - **Nửa đọc:** `retrieve_node` → `effective_k = state.get("candidate_k", candidate_k)`, truyền
+    `effective_k` xuống `retriever.search`. Closure tụt xuống chỉ còn làm mặc định cho lần đầu.
+    ⚠️ Không được gán đè lên chính tên `candidate_k` — xem bug #28 ngay dưới.
+    Và `retrieve_node` phải **báo cáo lại** `effective_k` trong dict return, nếu không thì không
+    node nào biết vòng vừa rồi đã dùng độ rộng bao nhiêu.
+  - **Nửa ghi:** `grade_node` khi `verdict == "INCORRECT"` thì thêm `candidate_k = <giá trị hiện
+    tại> * 2` vào dict return. Phải là `grade_node` chứ không phải `retrieve_node`: `retrieve_node`
+    chưa bao giờ nhìn thấy `verdict`, nếu nó tự nới rộng thì nó nới **mù**, kể cả khi lát nữa
+    verdict ra `CORRECT` và chẳng có lần 2 nào. "Vòng này trượt" và "lần sau phải rộng hơn" là
+    **cùng một sự kiện** → ghi cùng một chỗ, chính là nơi đã đếm `attempts + 1`.
+    *(Chọn nhân đôi thay vì `+1`: thêm 1 tài liệu không đáng để trả giá thêm 2 lượt gọi LLM
+    grader; nhân đôi mới thực sự mở mặt tìm kiếm.)*
+  - **Chỗ thứ ba, không ai ngờ:** `state.py` phải khai báo `candidate_k : int` trong
+    `CRAGeneratorState`. **Schema của state là hợp đồng — khoá không khai báo thì LangGraph âm
+    thầm vứt đi**, không nổ, không cảnh báo. Thiếu dòng này thì hai chỗ sửa trên đúng hoàn toàn
+    mà vẫn vô dụng: nhật ký vẫn ra `[10, 10, 10]`. Đây là chỗ nguy hiểm nhất của cả bug — mọi thứ
+    *trông như* đang chạy đúng.
+- **Kết quả kiểm chứng bằng graph thật** (cùng script đã dùng để phát hiện bug, không sửa 1 chữ):
+  `candidate_k` qua 3 vòng đã từ `10 → 10 → 10` thành `10 → 20 → 40`.
+- **Test chặn tái phát:** ✅ `test_retry_noi_rong_candidate_k` trong
+  [tests/application/generation/test_graph.py](../../tests/application/generation/test_graph.py)
+  (user tự viết 2026-09-05).
+  - **Cơ chế bắt bug:** một `RecordingRetriever` — fake giữ `self.candidate_ks = []` và mỗi lần
+    `search` bị gọi thì `append(candidate_k)`. Sau `graph.invoke(...)` thì assert
+    `retriever.candidate_ks == [10, 20, 40]`. Tức nó soi **quá trình**, không soi state cuối.
+  - **Vì sao 12 test cũ mù:** chúng chỉ assert `verdict` / `attempts` / `answer` — mà ba giá trị
+    đó **giống hệt nhau** ở bản lỗi lẫn bản đúng (vẫn `INCORRECT`, vẫn 3 vòng, vẫn ra answer).
+    Đã kiểm chứng bằng mô hình tí hon: bản nới rộng và bản không nới cho ra state cuối y chang.
+  - **Đã chứng minh test có tác dụng:** tạm comment khối `if verdict == "INCORRECT"` trong
+    `grade_node` → **đúng 1 test đỏ** (chính nó, với `[10, 10, 10]`), 12 test còn lại vẫn xanh →
+    bỏ comment → 13 xanh. *Một test chưa từng đỏ đúng lúc nó phải đỏ thì chưa được tính là test.*
+  - ⬜ Còn thiếu 1 test cho nhánh ngược: verdict `CORRECT` ngay vòng 1 → retriever chỉ được gọi
+    **đúng 1 lần** (chưa viết, để buổi sau).
 - **Bài học / pattern:** hai pattern, cả hai đều tái sử dụng được:
   1. **Note mô tả *ý định* chứ không mô tả *hành vi thật*.** Cùng họ với phát hiện `recursive_chunk`
      mà thân hàm là fixed-size sliding window, và `split_by_separators` có test xanh nhưng không nơi

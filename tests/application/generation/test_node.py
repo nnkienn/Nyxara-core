@@ -33,7 +33,7 @@ def test_retrieve_node_fills_retrieved_docs_from_ids():
 
     result = node({"tenant_id": "t1", "query": "mèo đen"})
 
-    assert result == {"retrieved_docs": ["con mèo đen", "mèo và chó"]}
+    assert result == {"retrieved_docs": ["con mèo đen", "mèo và chó"], "candidate_k": 10}
 
 
 def test_grade_node_computes_verdict_from_grades():
