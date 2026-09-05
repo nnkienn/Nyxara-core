@@ -231,6 +231,15 @@ bằng `rm data/manifest.json`.
     (`attempts = ...`, `return grade_node`), 1 lần lẫn "khoá state" với "node"
     (`add_node("candidate_k", ...)`). Đều là lỗi lúc mệt, không phải lỗi hiểu — nhưng mỗi lần
     ngốn ~15 phút.
+  - **Tiếng cuối (23:16-00:05):** tự viết nốt test nhánh ngược `test_khong_retry_khi_grader_hai_long`
+    (chọn `== [10]` thay vì `len(...) == 1` — kiểm cả số lần gọi lẫn giá trị) → **68 passed**.
+    Rồi làm luôn **Trạm 4a**: xác định `BM25Index` chỉ có 1 instance dùng chung cả server, và
+    `bm25_index.py:16` là đọc-sửa-ghi không nguyên tử trong khi handler `def` chạy đa luồng →
+    **race condition**, đã dựng thực nghiệm chứng minh mất 56.9% số lần cộng. Ghi thành
+    [bug #29](Learning-document/notes/bug-log.md), **chưa fix**.
+  - **Sợi chỉ xuyên suốt cả buổi, đáng nhắc lại mỗi khi gặp trạng thái dùng chung:** *thứ này
+    thuộc về **cả server** hay thuộc về **một lượt chạy** — và có ai **ghi** vào nó không?*
+    Dùng chung + chỉ đọc → an toàn. Dùng chung + có ghi → phải có người canh.
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
   1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con
      rồi tưởng là xanh chính là thứ nuôi bug #27 sống 8 ngày.

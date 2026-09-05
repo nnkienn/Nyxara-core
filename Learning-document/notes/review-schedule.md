@@ -52,13 +52,20 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 > Mục tiêu của buổi này **không phải học thêm**, mà là **dọn sạch tồn đọng** để thứ Hai 07/09 vào
 > kỹ thuật mới với sổ sạch. Đừng để nó thành buổi vá nền thứ sáu liên tiếp.
 
-1. **Ca 1 (~3h) — Trạm 4 (API/wiring)**, câu 4a→4d trong
-   [pipeline/00-trace-exercises.md](./pipeline/00-trace-exercises.md). Nhẹ hơn Trạm 3 (không có
-   closure), và câu 4c hỏi thẳng về bug #25 nên nó dẫn luôn sang ca 2.
-2. **Ca 2 (~3h) — fix bug #25 thật** + test chặn tái phát. Đây là "việc làm bằng tay" của Trạm 4
-   theo luật mới, đồng thời là milestone riêng trong roadmap tháng 9.
-3. Còn giờ → nối `split_by_separators` (~1h, milestone nhỏ nhất còn lại của Phase 0).
-4. Mốc ôn **+3** của hàng CRAG rơi vào 07/09 — nhớ code-tay-lại phần lõi, đừng chỉ giảng lại.
+> ⚠️ **Sửa kế hoạch (00:05 ngày 06/09):** Trạm **4a đã làm xong** trong tiếng cuối của buổi 05/09,
+> và nó đào ra **bug #29** (race condition ở `BM25Index`) chưa fix. Thứ tự dưới đây đã cập nhật.
+
+1. **~2h — Trạm 4 phần còn lại: 4b, 4c, 4d.** Câu 4c hỏi thẳng về bug #25 nên nó dẫn luôn sang mục 2.
+2. **~2h — fix bug #25 thật** + test chặn tái phát. Milestone riêng trong roadmap tháng 9.
+3. **~1h30 — fix bug #29** (`threading.Lock`) + test. Nghĩ trước hai câu: khoá cả `add_document`
+   hay khoá nhỏ hơn? Và test bắt race bằng cách nào — **lại là assert quá trình**, đồng thời phải
+   ép đổi luồng (`sys.setswitchinterval`) + lặp đủ nhiều, nếu không test sẽ **xanh giả**.
+4. Còn giờ → nối `split_by_separators` (~30-60', milestone nhỏ nhất còn lại của Phase 0).
+5. Mốc ôn **+3** của hàng CRAG rơi vào 07/09 — nhớ code-tay-lại phần lõi, đừng chỉ giảng lại.
+
+> Xong mục 1-3 là **Phase 0 đóng sổ** → thứ Hai 07/09 vào **Document-based chunking**, kỹ thuật
+> mới đầu tiên của tháng 9. Tính đến hết 05/09 mới xong 3/13 milestone tháng 9 (Trạm 2, 3, 4a) —
+> buổi này quyết định tháng 9 có kịp hay không.
 
 > ⚠️ **Luật mới rút ra tối 05/09 (bug #27):** trước khi commit phải chạy `pytest -q` **toàn bộ**,
 > không giới hạn thư mục, và đọc `git diff` chứ đừng tin message mình vừa gõ.

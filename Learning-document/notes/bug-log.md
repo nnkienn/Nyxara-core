@@ -44,9 +44,46 @@
 | Gán đè lên chính tên biến closure → tên bị coi là biến cục bộ ở **mọi dòng** → `UnboundLocalError` | `candidate_k = state.get("candidate_k", candidate_k)` | #28 |
 | Commit có message nói một đằng, diff đụng một nẻo (thường do `git add -A` gộp sửa đổi dở dang) | commit "sửa CLAUDE.md" xoá mất `save_manifest` trong `pipeline.py`, hỏng 8 ngày | #27 |
 | Chạy test theo thư mục con rồi tưởng là suite xanh | `pytest tests/application/generation` xanh trong khi `pytest` toàn bộ chết ở collection | #27 |
+| Đọc-sửa-ghi không nguyên tử trên object dùng chung + handler chạy đa luồng → *lost update* | `doc_count[t] = doc_count.get(t,0)+1` trong `BM25Index.add_document`, mất 56.9% khi 4 luồng | #29 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
+
+---
+
+### #29 — `BM25Index.doc_count` đếm thiếu khi nhiều request `/ingest` chạy cùng lúc (race condition)  ·  Phase 0/7  ·  thật  ·  2026-09-05  ·  ⬜ CHƯA FIX
+
+- **Triệu chứng:** *(chưa gặp trên production — phát hiện bằng suy luận rồi dựng thực nghiệm chứng
+  minh)* nhiều request `/ingest` đồng thời → `doc_count` đếm **thiếu** so với số tài liệu thật.
+  Thực nghiệm: 4 luồng × 50.000 lần cộng trên đúng dòng lệnh đó → đúng ra 200.000, **thực tế
+  86.180, mất trắng 56.9%**. Không exception, không log, không test đỏ.
+- **Nguyên nhân:** [bm25_index.py:16](../../app/application/retrieval/bm25_index.py#L16)
+  `self.doc_count[tenant_id] = self.doc_count.get(tenant_id, 0) + 1` — trông là 1 dòng nhưng là
+  **3 việc tách rời: đọc → cộng → ghi**, không nguyên tử. Cộng với 2 điều kiện:
+  1. Chỉ có **đúng 1 object `BM25Index`** trong cả process (dựng trong `lifespan` lúc boot, cất ở
+     `app.state`, mọi request lấy ra dùng chung — `ingest.py:35`).
+  2. Handler `/ingest` viết `def` chứ không `async def` → FastAPI chạy trong **threadpool nhiều
+     luồng**, luồng có thể bị cắt lượt **ngay giữa** bước đọc và bước ghi.
+  → Luồng A đọc 100, chưa kịp ghi thì B cũng đọc 100, ghi 101; A ghi đè 101. **Hai tài liệu vào,
+  bộ đếm chỉ tăng 1.** Tên gọi: *lost update*.
+- **Cách tìm ra:** không phải từ log hay bug report — từ câu hỏi Trạm 4a *"2 request cùng lúc thì
+  ghi vào cùng một object hay 2 object?"*. Trả lời được "cùng một object" thì câu hỏi tiếp theo tự
+  hiện ra: **ai canh cho 2 luồng không ghi đè nhau?** Rồi dựng thực nghiệm để chứng minh thay vì
+  tranh luận (`sys.setswitchinterval(1e-6)` ép đổi luồng thường xuyên như khi handler thật nhả GIL
+  lúc gọi embedder/đĩa).
+- **Fix:** ⬜ chưa làm — dự kiến 06/09. Hướng: `threading.Lock` quanh phần sửa đổi. Phải quyết:
+  khoá cả `add_document` hay khoá nhỏ hơn (khoá to = an toàn nhưng nghẽn; khoá nhỏ = nhanh nhưng
+  dễ sót chỗ). Và soi luôn: chỗ nào khác trong `BM25Index` / `InMemoryDocStore` cũng có dạng
+  đọc-sửa-ghi tương tự?
+- **Test chặn tái phát:** ⬜ chưa có. Lại là **assert quá trình, không phải kết quả cuối** — cùng
+  bài học với #26. Nghĩ trước: test phải dựng nhiều luồng cùng gọi `add_document` rồi assert
+  `doc_count` đúng bằng tổng số lần gọi. Lưu ý test loại này **hay xanh giả** vì race không phải
+  lúc nào cũng xảy ra → cần ép đổi luồng (`sys.setswitchinterval`) và lặp đủ nhiều.
+- **Bài học / pattern:** **dùng chung + chỉ ĐỌC thì an toàn; dùng chung + có GHI thì phải có
+  người canh.** Ba tầng của cùng một nguyên tắc, gặp trong 1 tối: `candidate_k` (dùng chung, chỉ
+  đọc → chỉ khiến retry vô nghĩa, #26) · `nonlocal candidate_k` (dùng chung, có ghi, 1 luồng → rò
+  rỉ giữa user) · `BM25Index` (dùng chung, có ghi, **nhiều luồng** → hỏng dữ liệu âm thầm).
+  Câu hỏi gốc luôn là: *thứ này thuộc về cả server hay thuộc về một lượt chạy — và có ai ghi vào nó không?*
 
 ---
 
