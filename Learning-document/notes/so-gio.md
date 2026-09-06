@@ -27,6 +27,7 @@
 | 2026-09-04 | Sáu | 3h00 | 1h45 | −1h15 | BKK | **2h00** | OT về trễ, 21:42-23:30. Ôn bù 9.5/10 · drill Cặp 9 vòng 2 · Trạm 3 xong phần hiểu |
 | 2026-09-05 | Bảy | 3h00 | ~3h30 (19:55-00:05, nghỉ 2×20') | +30' | BKK | **1h30** | OT chiều nên mất ca 14:00-16:30 của kế hoạch. Ca tối: drill closure 4/4 · **tự code xong fix bug #26** · tự viết 2 test bắt quá trình · phát hiện + fix bug #27 → suite **68 xanh** (lần đầu xanh sau 8 ngày) · làm luôn Trạm 4a phần chẩn đoán |
 | 2026-09-06 | CN | 3h00 | ~4h00 (13:30-17:30) | +1h00 | — | **30'** | Đổi máy → mất ~40' dựng lại `.venv` + tải 4.4GB weights. Trạm 4b ✅ · Trạm 4c ✅ · **fix thật bug #25** (treo 23 ngày) · phát hiện + fix **bug #31** (lifespan không dọn model → CUDA OOM) · suite **70 passed**. Dừng sớm vì đổi máy, chưa làm 4d / bug #29 / `split_by_separators` |
+| 2026-09-06 | CN *(ca tối)* | — | ~2h00 (20:45-22:45) | — | — | **30'** | Cùng ngày, tính gộp: **6h/ngày → vượt sàn 3h**. Trạm **4d** ✅ (hết bài trace 4 trạm) · **fix bug #29** + test race, tự chứng minh test đỏ được (7560/8000) → **71 passed** |
 
 > **Tình trạng 06/09:** nợ còn **30'**, vẫn toàn bộ `BKK`. Kế hoạch 6h không đạt (làm ~4h, dừng
 > vì đổi máy) nhưng vẫn dư 1h so với sàn 3h → trả được 1h nợ. Chưa chạm trần 6h, chưa phát sinh lãi.

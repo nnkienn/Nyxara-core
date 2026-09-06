@@ -2,6 +2,8 @@ import pytest
 
 from app.application.retrieval.bm25_index import BM25Index
 
+import sys
+import threading
 
 def _build_index() -> BM25Index:
     idx = BM25Index()
@@ -74,3 +76,24 @@ def test_remove_document_updates_doc_count():
     idx = _build_index()
     idx.remove_document("t1", "doc1")
     assert idx.doc_count["t1"] == 2
+def test_add_document_an_toan_khi_nhieu_luong():
+    SO_LUONG = 4
+    MOI_LUONG = 2000
+    index = BM25Index()
+
+    def mot_request(stt):
+        for i in range(MOI_LUONG):
+            index.add_document("t1", f"doc-{stt}-{i}", "mèo đen")
+
+    cu = sys.getswitchinterval()
+    sys.setswitchinterval(1e-6)
+    try:
+        luong = [threading.Thread(target=mot_request, args=(n,)) for n in range(SO_LUONG)]
+        for t in luong:
+            t.start()
+        for t in luong:
+            t.join()
+    finally:
+        sys.setswitchinterval(cu)
+
+    assert index.doc_count["t1"] == SO_LUONG * MOI_LUONG

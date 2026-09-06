@@ -103,7 +103,7 @@
   chuyển từ *mơ hồ* sang *nói dối cụ thể*, tức là **tệ hơn trước**. Kiểm tra bắt buộc sau mỗi
   lần đổi chữ ký: *ai đang hứng giá trị này?* Không chỉ ra được một biến cụ thể thì chưa nối.
 
-### #29 — `BM25Index.doc_count` đếm thiếu khi nhiều request `/ingest` chạy cùng lúc (race condition)  ·  Phase 0/7  ·  thật  ·  2026-09-05  ·  ⬜ CHƯA FIX
+### #29 — `BM25Index.doc_count` đếm thiếu khi nhiều request `/ingest` chạy cùng lúc (race condition)  ·  Phase 0/7  ·  thật  ·  phát hiện 2026-09-05  ·  ✅ **FIX 2026-09-06**
 
 - **Triệu chứng:** *(chưa gặp trên production — phát hiện bằng suy luận rồi dựng thực nghiệm chứng
   minh)* nhiều request `/ingest` đồng thời → `doc_count` đếm **thiếu** so với số tài liệu thật.
@@ -123,14 +123,38 @@
   hiện ra: **ai canh cho 2 luồng không ghi đè nhau?** Rồi dựng thực nghiệm để chứng minh thay vì
   tranh luận (`sys.setswitchinterval(1e-6)` ép đổi luồng thường xuyên như khi handler thật nhả GIL
   lúc gọi embedder/đĩa).
-- **Fix:** ⬜ chưa làm — dự kiến 06/09. Hướng: `threading.Lock` quanh phần sửa đổi. Phải quyết:
-  khoá cả `add_document` hay khoá nhỏ hơn (khoá to = an toàn nhưng nghẽn; khoá nhỏ = nhanh nhưng
-  dễ sót chỗ). Và soi luôn: chỗ nào khác trong `BM25Index` / `InMemoryDocStore` cũng có dạng
-  đọc-sửa-ghi tương tự?
-- **Test chặn tái phát:** ⬜ chưa có. Lại là **assert quá trình, không phải kết quả cuối** — cùng
-  bài học với #26. Nghĩ trước: test phải dựng nhiều luồng cùng gọi `add_document` rồi assert
-  `doc_count` đúng bằng tổng số lần gọi. Lưu ý test loại này **hay xanh giả** vì race không phải
-  lúc nào cũng xảy ra → cần ép đổi luồng (`sys.setswitchinterval`) và lặp đủ nhiều.
+- **Fix:** ✅ **2026-09-06 ca tối, user tự gõ.** `from threading import Lock`, đúc **một** chìa
+  trong `__init__` (`self._lock = Lock()`), rồi `with self._lock:` bao **trọn thân** cả
+  `add_document` **và** `remove_document`.
+  - **Vì sao một chìa duy nhất, gắn lên `self`:** cả server chỉ có **một** object `BM25Index`
+    (dựng trong `lifespan`, cất ở `app.state`). Chìa phải là cùng một cái cho mọi luồng đụng vào
+    object đó. Đúc chìa mới mỗi lần gọi hàm thì mỗi luồng cầm một chìa khác nhau — **không chặn
+    được ai, mà nhìn code lại tưởng đã an toàn**.
+  - **Vì sao khoá TO (trọn thân hàm) chứ không chỉ khoá dòng nguy hiểm nhất:** `doc_count` phải
+    luôn khớp với số mục trong `doc_len`, mà ràng buộc đó **trải qua nhiều dòng**. Khoá riêng dòng
+    16 thì hai luồng vẫn xen kẽ được giữa các dòng và để object rơi vào trạng thái nửa vời (đã đếm
+    mà chưa ghi index). **Khoá phải bao trọn đoạn giữ cho object nhất quán.**
+  - **Vì sao `remove_document` phải dùng ĐÚNG chìa đó:** nó cũng sửa `doc_count`/`doc_len`
+    (`doc_count[t] -= 1`, dòng 57). Hai chìa riêng = hai hàm vẫn chạy song song = vô nghĩa.
+  - **Vì sao `with` chứ không `acquire()`/`release()` thủ công:** `with` tự trả chìa khi ra khỏi
+    khối, **kể cả khi bên trong ném exception**. Quên trả chìa một lần là cả server treo vĩnh viễn.
+  - Phần **chỉ đọc** (`search`, `_idf`, `_score`) không khoá — không ai sửa gì ở đó.
+    Vòng lặp `freq` cũng không cần: `freq` là biến cục bộ, mỗi luồng một cái riêng.
+- **Test chặn tái phát:** ✅ `test_add_document_an_toan_khi_nhieu_luong` trong
+  [tests/application/retrieval/test_bm25_index.py](../../tests/application/retrieval/test_bm25_index.py)
+  (user tự viết). 4 luồng × 2000 tài liệu vào **cùng một** `BM25Index`, `start()` hết rồi mới
+  `join()` hết (2 vòng lặp **riêng** — gộp làm một là hoá tuần tự, chẳng còn race nào để bắt),
+  rồi assert `doc_count["t1"] == SO_LUONG * MOI_LUONG`.
+  - **Bẫy riêng của test race — nó rất dễ XANH GIẢ:** race không phải lúc nào cũng xảy ra, chạy
+    10 lần có thể 9 lần ra đúng. Phải **ép** nó xảy ra: `sys.setswitchinterval(1e-6)` để Python
+    đổi luồng liên tục, + số vòng lặp đủ lớn. Nhớ lưu giá trị cũ và trả lại trong `finally`, nếu
+    không mọi test chạy sau đều bị chậm theo.
+  - **Đã chứng minh test có tác dụng:** tạm đổi `self._lock = Lock()` thành
+    `contextlib.nullcontext()` (một context manager rỗng — gỡ khoá mà **không phải sửa thụt lề**
+    dòng nào) → test mới đỏ với `assert 7560 == 8000`, **mất 440 lần đếm**, trong khi 9 test cũ
+    vẫn xanh. Hoàn nguyên → **71 passed**.
+  - Con số đỏ (7560) **không tròn và mỗi lần chạy một khác** — đó là dấu vân tay của race
+    condition: *không tất định*.
 - **Bài học / pattern:** **dùng chung + chỉ ĐỌC thì an toàn; dùng chung + có GHI thì phải có
   người canh.** Ba tầng của cùng một nguyên tắc, gặp trong 1 tối: `candidate_k` (dùng chung, chỉ
   đọc → chỉ khiến retry vô nghĩa, #26) · `nonlocal candidate_k` (dùng chung, có ghi, 1 luồng → rò

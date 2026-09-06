@@ -290,7 +290,24 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
     → **Phase 0 CHƯA đóng sổ** như kế hoạch.
   **2026-09-06 ca tối (20:45-23:00, ~2h):** Trạm **4d** ✅ → **TRẠM 4 XONG, hết bài trace 4 trạm**.
   Đo thực nghiệm chuyện chặn event loop (3 request: `await` → 2.0s · gọi hàm chặn → 6.0s, tuần tự
-  hoàn toàn). Rồi fix **bug #29** (race condition `BM25Index`) — xem mục dưới cùng.
+  hoàn toàn). Rồi **fix xong [bug #29](Learning-document/notes/bug-log.md)** (race condition `BM25Index`,
+  user tự gõ): `from threading import Lock`, **một** chìa duy nhất trên object
+  (`self._lock = Lock()` trong `__init__`), `with self._lock:` bao **trọn thân** cả
+  `add_document` lẫn `remove_document`. Tự viết test 4 luồng × 2000 tài liệu, và **tự chứng minh
+  test đỏ được** bằng mẹo đổi `Lock()` → `contextlib.nullcontext()` (gỡ khoá mà không phải sửa
+  thụt lề dòng nào) → `assert 7560 == 8000`, mất 440 lần đếm, 9 test cũ vẫn xanh. Hoàn nguyên →
+  **71 passed**. → **Phase 0 coi như đóng, chỉ còn `split_by_separators`.**
+  - **Ba câu hỏi thiết kế user tự quyết đúng:** một object → **một** chìa, gắn lên `self` (chìa
+    mới mỗi lần gọi thì mỗi luồng cầm một chìa, không chặn được ai mà nhìn code tưởng an toàn) ·
+    khoá **TO** trọn thân hàm, vì ràng buộc `doc_count` khớp `doc_len` **trải qua nhiều dòng**,
+    khoá riêng dòng nguy hiểm nhất vẫn để object rơi vào trạng thái nửa vời · `remove_document`
+    phải dùng **đúng** chìa đó, hai chìa riêng = vẫn chạy song song = vô nghĩa.
+  - **Bẫy riêng của test race:** nó **rất dễ xanh giả** vì race không phải lúc nào cũng xảy ra.
+    Phải ép: `sys.setswitchinterval(1e-6)` + lặp đủ nhiều, và trả lại giá trị cũ trong `finally`.
+    Con số đỏ (7560) **không tròn và mỗi lần chạy một khác** — dấu vân tay của race: *không tất định*.
+  - Lỗi lặp: lại **dán đè lên dòng đang có người dùng** (lần thứ 3 — dòng `doc_count` thành bản
+    sao dòng `doc_len`), và **copy nguyên cả lời giải thích của Claude vào file như thể là code**.
+    Đối sách vẫn vậy: sau mỗi lần sửa, `git diff` đọc dòng `-` xem vừa xoá mất gì.
 
 - 📊 **ĐÁNH GIÁ TIẾN ĐỘ THÁNG 9 (chốt 2026-09-06, dùng lại mỗi lần cần kiểm):**
   Đếm theo đúng granularity của [LEARNING_ROADMAP.md dòng 40](Learning-document/LEARNING_ROADMAP.md), ~13 milestone:
@@ -328,11 +345,11 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
 - ⏱️ **Sổ nợ giờ (mới, 04/09):** [Learning-document/notes/so-gio.md](Learning-document/notes/so-gio.md)
   — cam kết sàn 3h/ngày, ghi cam kết/thực tế/nợ lũy kế mỗi buổi, phân loại `BKK` (không lãi) vs
   `TRÔI` (lãi 1.5x, hạn trả 7 ngày), trần nợ 6h thì cấm học kỹ thuật mới 1 buổi để re-plan.
-  Nợ hiện tại **2h00, toàn bộ là `BKK`**. Kế hoạch T7 5h trả sạch đúng ngày, không dư phút nào.
+  Nợ hiện tại **30'** (06/09 làm 6h/ngày, vượt sàn 3h nên trả bớt được).
   ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
-- ⏳ Kế tiếp: **Trạm 4d** → **fix bug #29** (race `BM25Index`) → nối `split_by_separators` → *(hết Phase 0)*  ~~fix bug #25~~ ✅ 06/09
+- ⏳ Kế tiếp: nối `split_by_separators` → *(hết Phase 0)*  ~~Trạm 4d~~ ✅ · ~~bug #29~~ ✅ · ~~bug #25~~ ✅ đều 06/09
   → Document-based chunking (kỹ thuật MỚI đầu tiên của tháng 9). ~~Trạm 2, Trạm 3~~ ✅ 02/09, 05/09
   → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 

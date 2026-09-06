@@ -19,6 +19,7 @@
 | Retrieval 2 tầng (rẻ-rộng Dense+BM25+RRF → đắt-hẹp cross-encoder) + hợp đồng return giữa 2 retriever | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | +1 trượt: tưởng BM25 là model / cross-encoder không phải, và cross-encoder "đắt và **rộng**". Đã vá bằng drill (Cặp 3, 4, 5, 6) → 11/12. **Chưa tick sạch — ôn bù 04/09.** |
 | Vòng đời trạng thái: ephemeral (RAM) vs durable (đĩa) · stale state · `lifespan` mở-và-đóng | 2026-09-06 | ⬜ 2026-09-07 | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #25 + #31. Lần đầu trả lời **sai 2/4** ô bảng (tưởng `InMemoryDocStore` trên đĩa, tưởng `grader` là nơi giữ trạng thái, **bỏ sót manifest**). Mốc +3 phải **code tay lại** khối shutdown trong `lifespan`, không giảng lại suông. |
 | Hợp đồng return giữa 2 tầng · additive vs breaking change · integration test vs unit test | 2026-09-06 | ⬜ 2026-09-07 | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #30. Chỗ vấp: gọi hàm mà **không hứng giá trị trả về** (lần thứ 3 dính dạng "chưa nối dây"). Ôn kèm câu: *test chỉ bắt được bug nằm trên đường nó đi qua.* |
+| Thread-safety: `def` vs `async def` · threadpool vs event loop · đọc-sửa-ghi không nguyên tử · `Lock` | 2026-09-06 | ⬜ 2026-09-07 | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Trạm 4d + bug #29. Mốc +3 phải **code tay lại** cả `Lock` lẫn test race (kể cả mẹo `setswitchinterval` — thiếu nó test **xanh giả**). Câu chốt tự kiểm: *vì sao khoá TO chứ không chỉ khoá dòng nguy hiểm nhất?* |
 | CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⬜ 2026-09-07 | ⬜ 2026-09-11 | ⬜ 2026-09-18 | Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. |
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
@@ -49,7 +50,23 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ## ✅ Buổi 2026-09-05 — đã xong (xem CLAUDE.md §6). Mốc +1 hàng CRAG tick bằng **code tay**, không phải giảng lại suông.
 
-## ✅ Buổi 2026-09-06 (CN, ~4h, dừng sớm vì đổi máy) — LÀM ĐƯỢC GÌ
+## 📌 Buổi 2026-09-07 (T2) — BUỔI ĐẦU TIÊN VÀO KỸ THUẬT MỚI
+
+> Phase 0 coi như đóng (chỉ còn `split_by_separators`). Từ đây áp **luật tiến độ** ở
+> [CLAUDE.md §6](../../CLAUDE.md): 1 kỹ thuật mới / 2 ngày · bug tìm thấy dọc đường thì **ghi vào
+> hàng đợi, không fix ngay** · mốc tự kiểm 10/09.
+
+1. **Ôn trước, bắt buộc (~40'):** 3 mốc tới hạn hôm nay —
+   - **+1** *Vòng đời trạng thái ephemeral vs durable* (bug #25/#31) · *Hợp đồng return giữa 2 tầng* (bug #30)
+   - **+1** *Thread-safety* (Trạm 4d + bug #29 — hàng mới thêm 06/09)
+   - **+3** *CRAG closure vs state* → mốc này phải **code tay lại** phần lõi, không giảng lại suông.
+2. **~30' — nối `split_by_separators`**: milestone cuối của Phase 0, nhỏ nhất còn lại.
+3. **Phần còn lại — Document-based chunking**, kỹ thuật mới đầu tiên của tháng 9, đủ vòng 6 bước.
+   Nhớ luật 05/09: kết thúc phải có phần **tự gõ**, không dừng ở "hiểu rồi".
+
+---
+
+## ✅ Buổi 2026-09-06 (CN, 4h chiều + 2h tối = 6h) — LÀM ĐƯỢC GÌ
 
 > Buổi này **đổi máy** (Fedora mới), nên mất ~40' dựng lại môi trường. `.venv` không đi qua git
 > (đúng CLAUDE.md §7) — phải tạo lại và cài `requirements.txt` từ đầu, kể cả tải ~4.4GB weights.
@@ -62,10 +79,15 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
    Đây là bug **mới toanh**, lòi ra trong lúc viết test cho #25.
 4. Suite: **70 passed in 127.34s** (đo thật, chạy toàn bộ, không giới hạn thư mục).
 
+**Ca tối (20:45-22:45) bổ sung:**
+5. **Trạm 4d** ✅ — `def` vs `async def`, đo thực nghiệm chặn event loop (2.0s vs 6.0s).
+   → **Hết bài trace 4 trạm.**
+6. **Fix bug #29** ✅ (race condition `BM25Index`) + test 4 luồng, đã chứng minh test đỏ được
+   (`assert 7560 == 8000`). Suite **71 passed**.
+
 **Còn nợ sang buổi sau:**
-- **Trạm 4d** (`def` vs `async def` trong handler) — chưa đụng.
-- **Fix bug #29** (race condition `BM25Index`, `threading.Lock`) — chưa đụng. Đã đọc lại code,
-  chưa gõ dòng nào. Câu hỏi cần nghĩ trước: khoá cả `add_document` hay khoá nhỏ hơn? Và test bắt
+- ~~Trạm 4d~~ ✅ xong ca tối 06/09.
+- ~~Fix bug #29~~ ✅ xong ca tối 06/09. Câu hỏi cần nghĩ trước: khoá cả `add_document` hay khoá nhỏ hơn? Và test bắt
   race phải **assert quá trình** + ép đổi luồng (`sys.setswitchinterval`) + lặp đủ nhiều, không
   thì **xanh giả**. Chỗ đọc-sửa-ghi khác cùng loại: `remove_document` dòng 57 (`doc_count -= 1`).
 - Nối `split_by_separators` — chưa đụng.

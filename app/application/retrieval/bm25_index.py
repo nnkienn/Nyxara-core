@@ -1,4 +1,6 @@
 import math
+import threading            
+from threading import Lock  
 
 
 class BM25Index:
@@ -8,19 +10,21 @@ class BM25Index:
         self.index: dict[str, dict[str, dict[str, int]]] = {}
         self.doc_len: dict[str, dict[str, int]] = {}
         self.doc_count: dict[str, int] = {}
+        self._lock = Lock()
 
     def add_document(self, tenant_id: str, doc_id: str, text: str) -> None:
-        tokens = text.lower().split()
+        with self._lock:
+            tokens = text.lower().split()
+            self.doc_len.setdefault(tenant_id, {})[doc_id] = len(tokens)
+            self.doc_count.setdefault(tenant_id, 0)
+            self.doc_count[tenant_id] += 1
 
-        self.doc_len.setdefault(tenant_id, {})[doc_id] = len(tokens)
-        self.doc_count[tenant_id] = self.doc_count.get(tenant_id, 0) + 1
+            freq: dict[str, int] = {}
+            for tok in tokens:
+                freq[tok] = freq.get(tok, 0) + 1
 
-        freq: dict[str, int] = {}
-        for tok in tokens:
-            freq[tok] = freq.get(tok, 0) + 1
-
-        for term, tf in freq.items():
-            self.index.setdefault(tenant_id, {}).setdefault(term, {})[doc_id] = tf
+            for term, tf in freq.items():
+                self.index.setdefault(tenant_id, {}).setdefault(term, {})[doc_id] = tf
     def _idf(self, tenant_id: str, term: str) -> float:
         doc_freq = len(self.index.get(tenant_id, {}).get(term, {}))
         if doc_freq == 0:
@@ -52,12 +56,13 @@ class BM25Index:
         ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
         return ranked[:top_k]
     def remove_document(self, tenant_id : str , doc_id : str) -> None :
-        if tenant_id in self.doc_len and doc_id in self.doc_len[tenant_id]:
-            del self.doc_len[tenant_id][doc_id]
-            self.doc_count[tenant_id] -= 1
+        with self._lock:
+            if tenant_id in self.doc_len and doc_id in self.doc_len[tenant_id]:
+                del self.doc_len[tenant_id][doc_id]
+                self.doc_count[tenant_id] -= 1
 
-        for term in list(self.index.get(tenant_id, {})):
-            if doc_id in self.index[tenant_id][term]:
-                del self.index[tenant_id][term][doc_id]
-                if not self.index[tenant_id][term]:
-                    del self.index[tenant_id][term]
+            for term in list(self.index.get(tenant_id, {})):
+                if doc_id in self.index[tenant_id][term]:
+                    del self.index[tenant_id][term][doc_id]
+                    if not self.index[tenant_id][term]:
+                        del self.index[tenant_id][term]
