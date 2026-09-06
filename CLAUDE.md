@@ -288,6 +288,36 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
     Socratic thuần chỉ dùng cho thứ user đã có đủ vật liệu tự suy ra.
   - ⬜ **Còn nợ:** Trạm 4d · **fix bug #29** (race `BM25Index`) · nối `split_by_separators`.
     → **Phase 0 CHƯA đóng sổ** như kế hoạch.
+  **2026-09-06 ca tối (20:45-23:00, ~2h):** Trạm **4d** ✅ → **TRẠM 4 XONG, hết bài trace 4 trạm**.
+  Đo thực nghiệm chuyện chặn event loop (3 request: `await` → 2.0s · gọi hàm chặn → 6.0s, tuần tự
+  hoàn toàn). Rồi fix **bug #29** (race condition `BM25Index`) — xem mục dưới cùng.
+
+- 📊 **ĐÁNH GIÁ TIẾN ĐỘ THÁNG 9 (chốt 2026-09-06, dùng lại mỗi lần cần kiểm):**
+  Đếm theo đúng granularity của [LEARNING_ROADMAP.md dòng 40](Learning-document/LEARNING_ROADMAP.md), ~13 milestone:
+  ```
+  ✅ Trạm 2-4 trace          (xong 06/09)
+  ✅ fix bug #25             (xong 06/09, treo 23 ngày)
+  ⬜ nối split_by_separators
+  ⬜ 5 chunking: Document-based · Semantic · Contextual · Parent-Child · Versioning
+  ⬜ 6 Phase 2.4: Metadata filter · Query Transform · Temporal · MMR · Compression · Adaptive-RAG
+  ────────────────────────────────────────────────
+  2/13 xong sau 6 ngày · còn 11 milestone / 24 ngày
+  11 × ~6h = 66h cần  vs  24 × 3h = 72h có  →  đệm chỉ 6h cho CẢ THÁNG
+  ```
+  **Chỗ đáng lo:** 11 milestone còn lại **toàn bộ là kỹ thuật mới chưa đụng**, mỗi cái phải đủ vòng
+  6 bước + code tay. Trong khi 6 ngày qua chủ yếu là trace lại + fix bug (**5 bug mới #26→#31 chỉ
+  trong 2 ngày**). Việc đó cực kỳ đáng giá cho lỗ hổng "hiểu mà không code được" và đang có tác
+  dụng thật — nhưng **bug không nằm trong roadmap**, và với nhịp phát hiện bug hiện tại nó sẽ ăn
+  hết 6h đệm rất nhanh.
+
+- 🧭 **Luật tiến độ, áp từ 2026-09-07:**
+  1. **Mỗi 2 ngày phải khởi động xong 1 kỹ thuật mới.** Không ngoại lệ.
+  2. **Bug tìm thấy dọc đường thì GHI vào bug-log, KHÔNG fix ngay** — trừ khi nó chặn việc đang
+     làm, hoặc nó chính là bài tập code-tay của kỹ thuật đang học (như #29 gắn với Trạm 4d).
+     Bug đi vào hàng đợi, không cướp chỗ của milestone.
+  3. **Mốc tự kiểm 2026-09-10:** nếu tới đó chưa khởi động được kỹ thuật mới nào → **dừng lại
+     re-plan thật**, đừng để trôi tới cuối tháng mới biết.
+
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
   1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con
      rồi tưởng là xanh chính là thứ nuôi bug #27 sống 8 ngày.

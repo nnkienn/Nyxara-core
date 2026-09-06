@@ -332,7 +332,23 @@ trong test cũ **thành thừa**. Nó vốn chỉ tồn tại để né bug này
 xung quanh tự rụng** — nếu sửa xong mà phải thêm code đỡ ở khắp nơi, gần như chắc chắn mới chỉ
 chữa triệu chứng.
 
-**4d.** ⬜ **CÒN NỢ (buổi 06/09 dừng trước câu này).** Vì sao 2 handler viết `def` mà không `async def`? Nếu đổi thành `async def` mà bên trong
+**4d.** ✅ **XONG 2026-09-06 ca tối.** FastAPI có **2 đường chạy handler**, tự chọn theo đúng một chữ:
+- **`def`** → FastAPI biết hàm có thể chặn lâu nên **ném sang threadpool**, mỗi request một luồng,
+  **chạy song song thật**.
+- **`async def`** → chạy thẳng trên **event loop**, mà event loop chỉ có **một luồng duy nhất** cho
+  cả server. Nó phục vụ nhiều request bằng cách **luân phiên**, và chỉ nhả lượt ở chỗ có `await`.
+
+Nếu đổi `/ask` sang `async def` mà bên trong vẫn gọi `graph.invoke()` (đồng bộ, không `await`):
+event loop bị giữ chặt, **không nhả lượt cho ai**. Đã đo bằng thực nghiệm (3 request, mỗi cái 2s):
+đúng cách `await` → tổng **2.0s**, cả 3 chạy xen kẽ; sai cách → tổng **6.0s**, và request 2 *chưa
+được bắt đầu* cho tới khi request 1 xong hẳn. Quy ra thật: LLM trả lời 5-30s, 10 người hỏi cùng
+lúc → người cuối chờ ~5 phút, **và cả server đóng băng** kể cả với request nhẹ tênh như `/health`.
+
+→ Nên viết `def` như hiện tại là **đúng**. Nhưng cái giá của nó chính là bug #29:
+`def` → threadpool → nhiều luồng → cùng ghi vào `BM25Index` dùng chung → race condition.
+**Chọn `def` là mua tính song song và trả bằng nghĩa vụ tự lo thread-safety.**
+
+**(câu gốc)** Vì sao 2 handler viết `def` mà không `async def`? Nếu đổi thành `async def` mà bên trong
 vẫn gọi `graph.invoke()` (đồng bộ, chặn) thì chuyện gì xảy ra với **các request khác**?
 
 ---
