@@ -13,6 +13,7 @@ Requires env var OLLAMA_BASE_URL (e.g. http://100.78.59.56:11434 via Tailscale).
 
 from __future__ import annotations
 
+import gc
 import os
 from contextlib import asynccontextmanager
 
@@ -50,8 +51,7 @@ async def lifespan(app: FastAPI):
     grader = OllamaGrader(base_url=ollama_base_url)
     generator = OllamaGenerator(base_url=ollama_base_url)
 
-    manifest_path = os.environ.get("MANIFEST_PATH", "data/manifest.json")
-    os.makedirs(os.path.dirname(manifest_path) or ".", exist_ok=True)
+    app.state.manifest = {}
 
     # lưu lại để /ingest và /ask dùng chung đúng 4 instance này,
     # không dựng mới mỗi request
@@ -59,10 +59,30 @@ async def lifespan(app: FastAPI):
     app.state.vector_store = vector_store
     app.state.bm25_index = bm25_index
     app.state.doc_store = doc_store
-    app.state.manifest_path = manifest_path
     app.state.graph = build_graph(retriever, doc_store, grader, generator)
 
     yield
+
+    # ── shutdown ──────────────────────────────────────────────────────────
+    # lifespan tạo ra 2 model nặng (bge-m3 + bge-reranker, fp32, ~2.3GB VRAM mỗi cái).
+    # Không nhả ra thì mỗi lần dựng lại app (test chạy nhiều TestClient nối tiếp,
+    # hoặc uvicorn --reload) lại chồng thêm một bản -> CUDA OOM trên GPU 8GB.
+    # Nguyên tắc: ai tạo tài nguyên thì người đó dọn.
+    for key in ("embedder", "vector_store", "bm25_index", "doc_store", "manifest", "graph"):
+        if hasattr(app.state, key):
+            delattr(app.state, key)
+
+    del embedder, vector_store, bm25_index, doc_store
+    del hybrid_retriever, reranker, retriever, grader, generator, client
+
+    gc.collect()
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
 
 
 app = FastAPI(

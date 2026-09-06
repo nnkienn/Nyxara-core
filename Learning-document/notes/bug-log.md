@@ -44,12 +44,64 @@
 | Gán đè lên chính tên biến closure → tên bị coi là biến cục bộ ở **mọi dòng** → `UnboundLocalError` | `candidate_k = state.get("candidate_k", candidate_k)` | #28 |
 | Commit có message nói một đằng, diff đụng một nẻo (thường do `git add -A` gộp sửa đổi dở dang) | commit "sửa CLAUDE.md" xoá mất `save_manifest` trong `pipeline.py`, hỏng 8 ngày | #27 |
 | Chạy test theo thư mục con rồi tưởng là suite xanh | `pytest tests/application/generation` xanh trong khi `pytest` toàn bộ chết ở collection | #27 |
+| API trả về con số trung thực với **một** câu hỏi, nhưng client đọc thành câu hỏi **khác** | `chunk_count` đếm nhát cắt, client hiểu là số chunk đã ghi vào kho | #30 |
+| Đổi chữ ký hàm cho trả về giá trị, nhưng nơi gọi **không hứng** — giá trị rơi xuống đất | `ingest_document(...)` gọi trần rồi bịa 3 con số trong response | #30 |
+| Bẻ ngược mũi tên kiến trúc: tầng application import khái niệm của tầng presentation | `from httpx import request` + `request.app.state.manifest` trong `pipeline.py` | #30 |
+| Tạo tài nguyên trong `lifespan`/`__init__` mà không có phần dọn → rò qua mỗi lần dựng lại | 2 model BGE giữ trong `app.state`, dựng app lần 2 là CUDA OOM | #31 |
+| Test có tên nói "restart"/"đồng thời"/"lỗi mạng" nhưng thân test không hề dựng tình huống đó | `test_..._restart` chỉ gán tay `app.state.manifest = {}` trong 1 khối `with` | #30 |
+| Đoán tên biến môi trường thay vì `grep os.environ` | thêm `SEEN_PATH` (không nơi nào đọc), bỏ sót `OLLAMA_BASE_URL` (bắt buộc) | #30 |
 | Đọc-sửa-ghi không nguyên tử trên object dùng chung + handler chạy đa luồng → *lost update* | `doc_count[t] = doc_count.get(t,0)+1` trong `BM25Index.add_document`, mất 56.9% khi 4 luồng | #29 |
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
 
 ---
+
+### #31 — `lifespan` không có phần shutdown → model không được nhả, dựng app 2 lần là CUDA OOM  ·  Phase 7 (wiring)  ·  thật  ·  2026-09-06
+- **Triệu chứng:** test integration `/ingest` mở 2 `TestClient(app)` nối tiếp nhau → lần 2 nổ
+  `CUDACachingAllocator.cpp: memory allocation failed with OOM on device 0`, số thật:
+  `free: 23,461,888 / total: 8,214,937,600` — GPU 8GB còn trống **23MB**.
+- **Nguyên nhân:** `lifespan` trong `main.py` chỉ có phần *dựng lên*, phần sau `yield` (chỗ
+  FastAPI dành cho shutdown) **trống trơn**. `BGEEmbedder` + `BGEReranker` nạp bge-m3 và
+  bge-reranker-v2-m3 ở fp32 (~2.3GB VRAM mỗi cái); mỗi lần dựng app lại chồng thêm một bản mà
+  bản cũ vẫn bị `app.state` giữ tham chiếu nên không ai giải phóng.
+- **Cách tìm ra:** lỗi lộ ra khi viết test restart cho #25 (2 lifespan nối tiếp). Ban đầu tưởng
+  do test viết sai (3 khối `with` lồng nhau — đúng là có sai thật, 3 bản model cùng lúc), nhưng
+  sửa lồng thành nối tiếp rồi vẫn phải dọn tường minh mới về sạch.
+- **Fix:** thêm khối shutdown sau `yield`: `delattr` các khoá trên `app.state`, `del` các biến
+  cục bộ giữ model, `gc.collect()`, rồi `torch.cuda.empty_cache()` (import cục bộ trong `try`
+  để `main.py` không phụ thuộc cứng vào torch).
+- **Test chặn tái phát:** `tests/presentation/api/test_ingest.py::test_restart_thi_quen_sach_khong_skip_oan`
+  — chính nó dựng app 2 lần, nên nó vừa là test của #25 vừa là test của #31. Đo thật sau fix:
+  `2 passed in 68.01s`, `nvidia-smi` báo **21 MiB / 8188 MiB**.
+- **Bài học / pattern:** **ai tạo tài nguyên thì người đó dọn.** `lifespan` là hợp đồng 2 chiều —
+  trước `yield` là mở, sau `yield` là đóng; bỏ trống nửa sau là rò tài nguyên. Đây cũng là lời
+  giải thật cho luật "KHÔNG chạy `uvicorn --reload`" ghi trong CLAUDE.md §5: `--reload` dựng lại
+  app mỗi lần sửa file, mỗi lần lại chồng thêm một bản model vào VRAM.
+
+### #30 — `/ingest` trả `chunk_count` = số chunk **cắt ra**, client đọc thành số chunk **ghi vào kho**  ·  Phase 0/7  ·  thật  ·  2026-09-06
+- **Triệu chứng:** ingest cùng một doc, cùng text, 100 lần liên tiếp → cả 100 lần đều trả
+  `200 {"chunk_count": 5}`, trong khi từ lần 2 trở đi **không một chunk nào được ghi thêm**.
+  Con số không bao giờ đổi nên client không có cách nào phát hiện.
+- **Nguyên nhân:** `ingest.py` tính `chunk_count=len(chunks)` — biến `chunks` là kết quả của
+  `recursive_chunk` ở đầu handler, tức là đếm **nhát cắt**. Còn `to_upsert`/`to_skip`/`to_delete`
+  sinh ra và chết **bên trong** `ingest_document`, mà hàm đó khai `-> None`, không kể lại gì.
+  Không có đường nào cho tầng API biết thực tế đã ghi bao nhiêu.
+- **Cách tìm ra:** trace Trạm 4b — đọc thân handler thay vì tin tên trường. Đặt câu hỏi
+  *"con số này lấy từ dòng nào?"* thay vì *"con số này nên là gì?"*.
+- **Fix:** `ingest_document` đổi `-> None` thành `-> dict[str, int]`, trả về
+  `{"upserted": …, "skipped": …, "deleted": …}`. `IngestResponse` **thêm** 3 trường
+  `chunk_upserted` / `chunk_skipped` / `chunk_deleted` (giữ nguyên `chunk_count` → **additive
+  change**, client cũ không gãy). Handler hứng dict và đọc số từ đó.
+- **Test chặn tái phát:** `tests/presentation/api/test_ingest.py::test_ingest_lan_2_bao_cao_trung_thuc`
+  — **phải là integration test đi qua handler**; test unit ở tầng `ingest_document` xanh giả,
+  vì dòng bịa số nằm ngoài đường chạy của nó.
+- **Bài học / pattern:** ba biến thể của cùng một bệnh gặp trong **một buổi**: `recursive_chunk`
+  không đệ quy · `chunk_count` không đếm cái nó có vẻ đếm · `test_..._restart` không hề restart.
+  **Tên nói một đằng, thân làm một nẻo.** Và bài học phụ, đắt không kém: sau khi thêm 3 trường,
+  bản đầu tiên **bịa số** (`chunk_upserted=len(chunks)`) vì quên hứng giá trị trả về — API
+  chuyển từ *mơ hồ* sang *nói dối cụ thể*, tức là **tệ hơn trước**. Kiểm tra bắt buộc sau mỗi
+  lần đổi chữ ký: *ai đang hứng giá trị này?* Không chỉ ra được một biến cụ thể thì chưa nối.
 
 ### #29 — `BM25Index.doc_count` đếm thiếu khi nhiều request `/ingest` chạy cùng lúc (race condition)  ·  Phase 0/7  ·  thật  ·  2026-09-05  ·  ⬜ CHƯA FIX
 
@@ -232,7 +284,7 @@
 
 ---
 
-### #25 — `manifest.json` (bền/persistent) lệch pha với 3 kho in-memory (dễ vỡ) khi server restart  ·  Phase 0/2 (verify `/ask` qua HTTP thật)  ·  thật  ·  2026-08-14
+### #25 — `manifest.json` (bền/persistent) lệch pha với 3 kho in-memory (dễ vỡ) khi server restart  ·  Phase 0/2  ·  thật  ·  phát hiện 2026-08-14  ·  ✅ **FIX 2026-09-06**
 - **Triệu chứng:** `POST /ingest` trả `200 {"chunk_count":1}` (tưởng thành công), nhưng `POST /ask`
   ngay sau đó vẫn `500` (`IndexError` ở reranker, retrieval trả về rỗng) — dù data "vừa ingest".
 - **Nguyên nhân:** `uvicorn --reload` restart process (do sửa `main.py`) → `BM25Index`/
@@ -245,9 +297,24 @@
   `ingest_document` rồi `RerankingRetriever.search` trực tiếp) → chạy đúng, ra kết quả — chứng
   minh logic KHÔNG sai. Sau đó đọc trực tiếp nội dung `data/manifest.json` trên máy thật → thấy
   entry cũ vẫn còn từ lần ingest trước khi restart → khớp đúng giả thuyết.
-- **Fix (tạm, để test):** `rm data/manifest.json` trước khi ingest lại sau mỗi lần server restart.
-- **Test chặn tái phát:** chưa có (cần integration test giả lập "restart" — tạo lại BM25/Qdrant/
-  DocStore rỗng nhưng giữ nguyên file manifest cũ, verify ingest phải ghi lại đúng).
+- **Fix tạm (14/08 → 06/09):** `rm data/manifest.json` trước khi ingest lại sau mỗi lần restart.
+- **Fix thật (2026-09-06) — chọn hướng "cùng dễ vỡ":** manifest bỏ hẳn file, trở thành `dict`
+  trong RAM đặt cạnh 3 kho kia (`app.state.manifest = {}` trong `lifespan`). `ingest_document`
+  đổi tham số `manifest_path: str` → `manifest: dict`, bỏ `load_manifest`/`save_manifest` khỏi
+  thân hàm (2 hàm đó **giữ lại** cho Phase 5). Sửa 5 chỗ gọi trong `test_pipeline.py`.
+  **Vì sao không chọn "cùng bền":** nó là việc của Phase 5 (Qdrant server thật + persistence cho
+  BM25/DocStore, kèm khoá ghi đồng thời — mà `BM25Index` còn đang mang bug #29). Chọn hướng dễ vỡ
+  là sửa **cái đang lệch**, không phải làm sớm cái chưa tới lượt. Lợi ích của incremental ingest
+  (không gọi lại `embedder.embed`) **giữ nguyên 100%** trong một đời tiến trình — chỉ mất ký ức
+  xuyên restart, mà ký ức đó vốn đang **sai**. Nguyên tắc: *thà quên sạch còn hơn nhớ sai.*
+- **Test chặn tái phát:** `tests/presentation/api/test_ingest.py::test_restart_thi_quen_sach_khong_skip_oan`
+  — **2 khối `with TestClient(app)` NGANG HÀNG** (không lồng nhau) = 2 đời tiến trình; khối 2
+  phải báo `upserted=1, skipped=0`. Đã **chứng minh test đỏ được** bằng script giả lập manifest
+  sống sót: khi đó khối 2 báo `skipped=1` → assert thất bại. Không phải test xanh giả.
+- **Dấu hiệu sửa trúng gốc:** sau khi fix, dòng `monkeypatch.setenv("MANIFEST_PATH", ...)` trong
+  test cũ **thành thừa và bị xoá** — nó vốn tồn tại chỉ để né bug này. Sửa đúng nguyên nhân thì
+  code chống đỡ xung quanh tự rụng; sửa xong mà phải thêm code đỡ ở khắp nơi thì mới chỉ chữa
+  triệu chứng.
 - **Bài học / pattern:** đây là bug thuộc lớp **"2 thành phần có vòng đời (lifecycle) khác nhau
   nhưng phải đồng bộ với nhau"** — mọi thiết kế dùng manifest/cache bền để tối ưu "khỏi ghi lại
   cái đã có" đều phải tự hỏi: "cái mà manifest mô tả có sống LÂU BẰNG manifest không?" Ở đây

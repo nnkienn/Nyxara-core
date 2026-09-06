@@ -78,13 +78,13 @@ def _new_stores():
     return BM25Index(), InMemoryDocStore(), FakeVectorStore(), FakeEmbedder()
 
 
-def test_ingest_document_writes_to_all_three_stores(tmp_path):
-    manifest_path = str(tmp_path / "manifest.json")
+def test_ingest_document_writes_to_all_three_stores():
+    manifest: dict = {}
     bm25, doc_store, vector_store, embedder = _new_stores()
 
     ingest_document(
         "t1", "doc1", ["mèo đen", "chó nâu", "chim xanh"],
-        manifest_path, bm25, vector_store, doc_store, embedder,
+        manifest, bm25, vector_store, doc_store, embedder,
     )
 
     assert bm25.doc_count["t1"] == 3
@@ -97,18 +97,18 @@ def test_ingest_document_writes_to_all_three_stores(tmp_path):
     assert sorted(embedder.calls[0]) == sorted(["mèo đen", "chó nâu", "chim xanh"])
 
 
-def test_ingest_document_second_run_diffs_correctly(tmp_path):
-    manifest_path = str(tmp_path / "manifest.json")
+def test_ingest_document_second_run_diffs_correctly():
+    manifest: dict = {}
     bm25, doc_store, vector_store, embedder = _new_stores()
 
     ingest_document(
         "t1", "doc1", ["mèo đen", "chó nâu", "chim xanh"],
-        manifest_path, bm25, vector_store, doc_store, embedder,
+        manifest, bm25, vector_store, doc_store, embedder,
     )
     # lần 2: chunk 0 giữ nguyên, chunk 1 đổi nội dung, chunk 2 (chim xanh) biến mất
     ingest_document(
         "t1", "doc1", ["mèo đen", "chó nâu ĐỔI"],
-        manifest_path, bm25, vector_store, doc_store, embedder,
+        manifest, bm25, vector_store, doc_store, embedder,
     )
 
     # chunk 2 phải bị xoá khỏi cả 3 store

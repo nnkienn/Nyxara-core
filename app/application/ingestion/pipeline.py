@@ -81,13 +81,12 @@ def ingest_document(
     tenant_id: str,
     doc_id: str,
     chunks: list[str],
-    manifest_path: str,
+    manifest: dict,
     bm25_index: BM25Index,
     vector_store: VectorStore,
     doc_store: DocStore,
     embedder: Embedder,
-) -> None:
-    manifest = load_manifest(manifest_path)
+) -> dict[str, int]:
     old_doc = get_doc_manifest(manifest, tenant_id, doc_id)
     new_doc = {str(i): _hash(chunk) for i, chunk in enumerate(chunks)}
     to_upsert, to_skip, to_delete = diff_manifest(old_doc, new_doc)
@@ -110,5 +109,4 @@ def ingest_document(
         vector_store.upsert(tenant_id, to_upsert_ids, to_upsert_chunks, vectors)
 
     manifest.setdefault(tenant_id, {})[doc_id] = new_doc
-    save_manifest(manifest_path, manifest)
-    
+    return {"upserted": len(to_upsert), "skipped": len(to_skip), "deleted": len(to_delete)}

@@ -37,7 +37,7 @@
 > **Mốc theo tháng (track thật, lệch quá 3-4 ngày → phải ngồi lại re-plan, đừng để trôi âm thầm):**
 > | Tháng | Mục tiêu | Cột mốc (~) |
 > |---|---|---|
-> | **09/2026** | Đóng hẳn Phase 0 (Trạm 2-4 trace, fix bug #25, nối `split_by_separators`, Document-based/Semantic/Contextual/Parent-Child/Versioning) + Phase 2.4 (Metadata filter, Query Transform, Temporal, MMR, Compression, Adaptive-RAG) | ~13 |
+> | **09/2026** | Đóng hẳn Phase 0 (Trạm 2-4 trace ✅ trừ 4d, ~~fix bug #25~~ ✅ 06/09, fix bug #29, nối `split_by_separators`, Document-based/Semantic/Contextual/Parent-Child/Versioning) + Phase 2.4 (Metadata filter, Query Transform, Temporal, MMR, Compression, Adaptive-RAG) | ~13 |
 > | **10/2026** | Phase 3 Eval trọn vẹn (retrieval metrics → golden dataset → custom judge/RAGAS → regression → A/B harness → cost metrics → calibration → online eval) — phase nặng nhất, ưu tiên tuyệt đối, không để trôi sang 11 | ~10 |
 > | **11/2026** | Phase 3.5 Performance (7) + Phase 4 Agent (10) | ~17 |
 > | **12/2026** | Phase 5 Safety (10) + Phase 6 Fine-tune (4, cần GPU) + Phase 7 MLOps (7, infra nặng) + Phase 8 Plugin/Docs (6) + Phase 9 Port core (2-3) | ~29-30 |
@@ -238,6 +238,21 @@ Agent → Safety → Fine-tuning → MLOps → Community → SaaS Bridge.**
 >    tự của `set()` khi viết assert, không phải bug ở `ingest_document`). **66/66 test toàn
 >    project pass.**
 > Toàn bộ pipeline ingest hợp nhất (Việc 1 của buổi) đã xong.
+>
+> **🔨 Trạng thái (2026-09-06) — Phase 0 gần đóng, còn 3 việc:**
+> - ✅ **Bug #25 FIX THẬT** (treo 14/08 → 06/09, 23 ngày). Manifest bỏ file trên đĩa, thành
+>   `dict` trong RAM (`app.state.manifest`) — chọn hướng *"cùng dễ vỡ"* thay vì *"cùng bền"*;
+>   hướng bền (Qdrant server thật + persistence cho BM25/DocStore) đẩy sang **Phase 5**.
+>   Test chặn tái phát: `test_restart_thi_quen_sach_khong_skip_oan` (2 khối `with TestClient`
+>   ngang hàng = 2 đời tiến trình), đã chứng minh đỏ được.
+> - ✅ **Bug #30** — `/ingest` báo cáo trung thực: `ingest_document` trả `dict[str,int]`,
+>   response thêm `chunk_upserted`/`chunk_skipped`/`chunk_deleted` (additive change).
+> - ✅ **Bug #31** — `lifespan` có phần shutdown, nhả model khỏi VRAM.
+> - ⬜ **Bug #29** — race condition `BM25Index.doc_count` (`threading.Lock`). Đã chẩn đoán xong
+>   05/09 (mất 56.9% số lần cộng khi 4 luồng), **chưa fix**.
+> - ⬜ **Trạm 4d** — `def` vs `async def` trong handler.
+> - ⬜ Nối `split_by_separators` vào pipeline (hàm mồ côi từ 17/07, có test xanh, không ai gọi).
+> Suite đo thật 06/09 trên Fedora 44 / Python 3.14.7: **70 passed in 127.34s**.
 >
 > ✅ **Việc 2 — `/ask` API (bọc `graph.py` vào FastAPI) — XONG 2026-08-14, verify qua HTTP
 > thật (không phải chỉ `pytest`):**

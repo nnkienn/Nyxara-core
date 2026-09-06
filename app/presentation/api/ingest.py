@@ -19,6 +19,9 @@ class IngestRequest(BaseModel):
 
 class IngestResponse(BaseModel):
     chunk_count: int
+    chunk_upserted: int
+    chunk_skipped: int
+    chunk_deleted: int
 
 
 @router.post("/ingest", response_model=IngestResponse, tags=["ingest"])
@@ -27,15 +30,19 @@ def ingest(payload: IngestRequest, request: Request) -> IngestResponse:
     # đồng bộ) + vector_store.upsert() (qdrant-client đồng bộ), cùng lý do với /ask.
     chunks = recursive_chunk(payload.text, payload.chunk_size, payload.chunk_overlap)
 
-    ingest_document(
+    result = ingest_document(
         payload.tenant_id,
         payload.doc_id,
         chunks,
-        request.app.state.manifest_path,
+        request.app.state.manifest,
         request.app.state.bm25_index,
         request.app.state.vector_store,
         request.app.state.doc_store,
         request.app.state.embedder,
     )
+    
 
-    return IngestResponse(chunk_count=len(chunks))
+    return IngestResponse(chunk_count=len(chunks), 
+                          chunk_upserted=result["upserted"], 
+                          chunk_skipped=result["skipped"], 
+                          chunk_deleted=result["deleted"])

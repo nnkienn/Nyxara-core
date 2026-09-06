@@ -26,9 +26,14 @@
 | 2026-09-03 | Năm | 3h00 | 2h15 | −45' | BKK | **45'** | 2 ca: sáng 6h15-7h15 (ôn +1 trượt → drill phân biệt) · tối ~1h (mở Trạm 3, dừng vì mệt) |
 | 2026-09-04 | Sáu | 3h00 | 1h45 | −1h15 | BKK | **2h00** | OT về trễ, 21:42-23:30. Ôn bù 9.5/10 · drill Cặp 9 vòng 2 · Trạm 3 xong phần hiểu |
 | 2026-09-05 | Bảy | 3h00 | ~3h30 (19:55-00:05, nghỉ 2×20') | +30' | BKK | **1h30** | OT chiều nên mất ca 14:00-16:30 của kế hoạch. Ca tối: drill closure 4/4 · **tự code xong fix bug #26** · tự viết 2 test bắt quá trình · phát hiện + fix bug #27 → suite **68 xanh** (lần đầu xanh sau 8 ngày) · làm luôn Trạm 4a phần chẩn đoán |
-| 2026-09-06 | CN | 3h00 | *(kế hoạch 6h)* | *+3h* | — | *dự kiến **0*** | Trạm 4 (3h) + fix bug #25 (3h). Đủ 6h là trả sạch nợ và đóng sổ Phase 0 |
+| 2026-09-06 | CN | 3h00 | ~4h00 (13:30-17:30) | +1h00 | — | **30'** | Đổi máy → mất ~40' dựng lại `.venv` + tải 4.4GB weights. Trạm 4b ✅ · Trạm 4c ✅ · **fix thật bug #25** (treo 23 ngày) · phát hiện + fix **bug #31** (lifespan không dọn model → CUDA OOM) · suite **70 passed**. Dừng sớm vì đổi máy, chưa làm 4d / bug #29 / `split_by_separators` |
 
-> **Tình trạng 05/09:** nợ **1h30**, toàn bộ vẫn là `BKK` (3 ngày liên tiếp OT/mệt, không có
+> **Tình trạng 06/09:** nợ còn **30'**, vẫn toàn bộ `BKK`. Kế hoạch 6h không đạt (làm ~4h, dừng
+> vì đổi máy) nhưng vẫn dư 1h so với sàn 3h → trả được 1h nợ. Chưa chạm trần 6h, chưa phát sinh lãi.
+> **Việc trôi sang buổi sau:** Trạm 4d · fix bug #29 · nối `split_by_separators` — tức là
+> **Phase 0 chưa đóng sổ** như kế hoạch. Cần tính lại lịch tháng 9 nếu buổi 07/09 vẫn phải vá nền.
+>
+> *(cũ 05/09)* nợ **1h30**, toàn bộ vẫn là `BKK` (3 ngày liên tiếp OT/mệt, không có
 > ngày nào `TRÔI` → chưa phát sinh lãi, chưa chạm trần 6h). CN 06/09 làm đủ 6h là về 0.
 >
 > *(cũ 04/09)* nợ 2h00, **toàn bộ là `BKK`** (03/09 mệt sau 2 ca, 04/09 OT) → chưa phát

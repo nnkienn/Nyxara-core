@@ -106,6 +106,14 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
    lúc mà chưa giải thích. LUÔN giải thích ngữ cảnh/khái niệm bằng lời trước (được phép theo §2
    mục 1), rồi mới hỏi — kể cả khi đang dùng "full-attempt" (mục 1), câu hỏi đưa ra phải đã được
    giải thích đủ để hiểu **đang hỏi gì**, không chỉ đưa thẳng câu hỏi trần trụi.
+7. **(vá 2026-09-06, sau khi mục 6 bị tái phạm 2 lần trong 1 buổi)** Phân biệt **câu hỏi TRACE**
+   với **câu hỏi THIẾT KẾ**. Câu trace ("dòng này chạy ra gì", "biến này lấy từ đâu") — user có
+   đủ vật liệu trong code để tự suy, cứ hỏi thẳng. Câu thiết kế ("nên sửa theo hướng nào", "đặt
+   trạng thái ở đâu", "chọn kiểu dữ liệu gì") — user **chưa có vật liệu**, vì đó là kinh nghiệm
+   chứ không nằm trong file nào. Với loại này: **GIẢNG TRƯỚC** — liệt kê 2-3 phương án, nêu cái
+   giá cụ thể của từng cái (đo bằng số dòng phải sửa / số test gãy / giờ bỏ ra), đưa **khuyến
+   nghị kèm lý do** — rồi mới hỏi user chốt. Hỏi trần một câu thiết kế = user đoán mò hoặc tắc.
+   Dấu hiệu đã lỡ vi phạm: user trả lời *"không hiểu bạn hỏi gì"* hoặc *"khó quá"*.
 
 ---
 
@@ -139,15 +147,26 @@ Claude phải **nhắc user note lại** sau mỗi phần học xong.
 ## 5. Chạy dự án
 
 ```bash
-.venv/bin/python3 -m pytest -q                  # toàn bộ test
-uvicorn app.main:app --port 8000                # KHÔNG --reload (xem bug #25)
+.venv/bin/python -m pytest -q                   # toàn bộ test — CHẠY TOÀN BỘ, không giới hạn thư mục
+uvicorn app.main:app --port 8000                # KHÔNG --reload (xem bug #31)
 export OLLAMA_BASE_URL=http://<host>:11434      # bắt buộc, Ollama qua Tailscale
 ```
 
-**Bẫy đã biết:** `data/manifest.json` nằm trên đĩa (bền) nhưng 3 kho (`BM25Index`,
-`QdrantStore(":memory:")`, `InMemoryDocStore`) chỉ sống trong RAM → restart xong ingest lại
-bị `to_skip` oan, `/ingest` trả 200 mà kho vẫn rỗng. Xem bug #25. Chưa fix, mới workaround
-bằng `rm data/manifest.json`.
+**Dựng môi trường trên máy mới** (`.venv` KHÔNG đi qua git — xem §7):
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+```
+Lần chạy `pytest` đầu tiên sẽ tải ~4.4GB weights (bge-m3 + bge-reranker-v2-m3) về
+`~/.cache/huggingface` → **~18 phút**. Các lần sau ~2 phút. Đo thật trên Fedora 44 /
+Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
+
+**Bẫy đã biết:**
+- ~~`data/manifest.json` lệch pha với 3 kho in-memory~~ → **bug #25 đã FIX 06/09**: manifest giờ
+  là `dict` trong RAM (`app.state.manifest`), chết cùng tiến trình như 3 kho. Không còn file
+  manifest, không cần `rm` gì nữa.
+- **VRAM:** `lifespan` nạp 2 model BGE fp32 (~2.3GB VRAM mỗi cái) trên GPU 8GB. Đã thêm khối
+  shutdown sau `yield` để nhả ra (bug #31). Đừng bỏ khối đó — bỏ là `--reload` hoặc test dựng
+  app nhiều lần sẽ CUDA OOM.
 
 ---
 
@@ -162,7 +181,7 @@ bằng `rm data/manifest.json`.
 
 - ✅ Phase 0 ingest (dedup · incremental · multi-store delete-aware) · Phase 1 (Embedding/Qdrant/tenant)
 - ✅ Phase 2.1 Hybrid+RRF · 2.2 Rerank · 2.3 CRAG · `/ingest` + `/ask` chạy thật qua HTTP
-  *(⚠️ `/ingest` từng gãy âm thầm 28/08→05/09 vì bug #27, đã fix. Suite: **67 passed**, đo thật 05/09.)*
+  *(⚠️ `/ingest` từng gãy âm thầm 28/08→05/09 vì bug #27, đã fix. Suite: **70 passed**, đo thật 06/09 trên máy Fedora mới.)*
 - 🔨 **Đang làm:** trace lại toàn luồng — xem [Learning-document/notes/pipeline/00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md).
   **2026-09-02: Trạm 1 XONG HẲN** — 1a/1b/1c + teach-back qua cổng đóng-sách Method 2.0. Đã
   thêm hàng "Incremental ingest / multi-store diff" vào review-schedule (mốc +1/+3/+7/+14 từ
@@ -240,6 +259,35 @@ bằng `rm data/manifest.json`.
   - **Sợi chỉ xuyên suốt cả buổi, đáng nhắc lại mỗi khi gặp trạng thái dùng chung:** *thứ này
     thuộc về **cả server** hay thuộc về **một lượt chạy** — và có ai **ghi** vào nó không?*
     Dùng chung + chỉ đọc → an toàn. Dùng chung + có ghi → phải có người canh.
+  **2026-09-06 (CN, ~4h, 13:30-17:30 — ĐỔI MÁY sang Fedora 44 mới):** mất ~40' dựng lại `.venv`
+  (không đi qua git) + tải 4.4GB weights. **Trạm 4b và 4c XONG, và fix thật được 2 bug.**
+  - **Trạm 4b → [bug #30](Learning-document/notes/bug-log.md):** `/ingest` trả `chunk_count` đếm
+    **nhát cắt**, client đọc thành **số chunk ghi vào kho**. Fix: `ingest_document` đổi `-> None`
+    thành `-> dict[str,int]`, response **thêm** 3 trường (additive change). User tự chọn `dict`
+    thay `tuple` và tự lý luận đúng additive vs breaking.
+  - **Trạm 4c → FIX THẬT [bug #25](Learning-document/notes/bug-log.md)** sau 23 ngày treo. Chọn
+    hướng **"cùng dễ vỡ"**: manifest bỏ file, thành `dict` trong RAM cạnh 3 kho. Kèm test giả lập
+    restart bằng **2 khối `with TestClient(app)` ngang hàng**, và **đã chứng minh test đỏ được**.
+  - **[Bug #31](Learning-document/notes/bug-log.md) — MỚI, lòi ra khi viết test #25:** `lifespan`
+    không có phần shutdown sau `yield` → 2 model BGE không được nhả → dựng app lần 2 là **CUDA
+    OOM** (GPU 8GB còn trống 23MB). Đã thêm khối dọn; sau fix `nvidia-smi` báo 21 MiB.
+  - Suite: **70 passed in 127.34s** (chạy toàn bộ, đo thật).
+  - **Sợi chỉ của buổi, gặp 3 lần trong 1 ngày:** `recursive_chunk` không đệ quy · `chunk_count`
+    không đếm cái nó có vẻ đếm · `test_..._restart` không hề restart. **Tên nói một đằng, thân
+    làm một nẻo** — trước khi tin bất cứ cái tên nào, đọc thân.
+  - **Lỗi lặp lại lần thứ 3 (đáng lo):** gọi hàm mà **không hứng giá trị trả về** → bịa số vào
+    response. Cùng dạng với `split_by_separators` mồ côi và schema `candidate_k` thiếu khoá.
+    Kiểm tra bắt buộc sau mỗi lần đổi chữ ký: *ai đang hứng giá trị này?*
+  - **Vấp khác:** viết `from httpx import request` + `request.app.state` **trong tầng
+    application** (`pipeline.py`) — bẻ ngược mũi tên kiến trúc hexagonal; lồng 3 khối `with`
+    thay vì nối tiếp (thụt lề = phạm vi sống).
+  - ⚠️ **Lỗi phương pháp của Claude:** 2 lần hỏi câu **thiết kế kiến trúc** trước khi giảng khái
+    niệm → user phải nói *"không hiểu bạn hỏi gì"* và *"bạn là giáo sư mà không thể để tôi mù mờ
+    như này"*. Tái phạm §3.6 mục 6. **Luật bổ sung: bài THIẾT KẾ (chọn giữa nhiều kiến trúc) thì
+    GIẢNG TRƯỚC — liệt kê phương án + cái giá từng cái + khuyến nghị — rồi mới hỏi user chọn.**
+    Socratic thuần chỉ dùng cho thứ user đã có đủ vật liệu tự suy ra.
+  - ⬜ **Còn nợ:** Trạm 4d · **fix bug #29** (race `BM25Index`) · nối `split_by_separators`.
+    → **Phase 0 CHƯA đóng sổ** như kế hoạch.
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
   1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con
      rồi tưởng là xanh chính là thứ nuôi bug #27 sống 8 ngày.
@@ -254,7 +302,7 @@ bằng `rm data/manifest.json`.
   ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
-- ⏳ Kế tiếp: **Trạm 4 (API)** → fix bug #25 → nối `split_by_separators` → *(hết Phase 0)*
+- ⏳ Kế tiếp: **Trạm 4d** → **fix bug #29** (race `BM25Index`) → nối `split_by_separators` → *(hết Phase 0)*  ~~fix bug #25~~ ✅ 06/09
   → Document-based chunking (kỹ thuật MỚI đầu tiên của tháng 9). ~~Trạm 2, Trạm 3~~ ✅ 02/09, 05/09
   → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 

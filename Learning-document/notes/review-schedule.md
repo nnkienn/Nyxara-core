@@ -17,6 +17,8 @@
 | CRAG state machine (`decide()`, `attempts` guard) | 2026-08-12 | — | — | — | — | |
 | Incremental ingest / multi-store diff (`manifest` = `{tenant:{doc:{idx:hash}}}`, `diff_manifest`, `to_upsert/skip/delete`) | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | Qua cổng Trạm 1 ngày 02/09 nhưng +1 hôm sau trượt. Lẫn `to_upsert`/`to_delete` **lần thứ 4** và đảo ngược bền/dễ vỡ. Đã vá bằng drill ([the-phan-biet.md](./the-phan-biet.md) Cặp 1, 2, 8) → 11/12. **Chưa tick sạch — phải ôn bù 04/09 rồi mới tính +3.** |
 | Retrieval 2 tầng (rẻ-rộng Dense+BM25+RRF → đắt-hẹp cross-encoder) + hợp đồng return giữa 2 retriever | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | +1 trượt: tưởng BM25 là model / cross-encoder không phải, và cross-encoder "đắt và **rộng**". Đã vá bằng drill (Cặp 3, 4, 5, 6) → 11/12. **Chưa tick sạch — ôn bù 04/09.** |
+| Vòng đời trạng thái: ephemeral (RAM) vs durable (đĩa) · stale state · `lifespan` mở-và-đóng | 2026-09-06 | ⬜ 2026-09-07 | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #25 + #31. Lần đầu trả lời **sai 2/4** ô bảng (tưởng `InMemoryDocStore` trên đĩa, tưởng `grader` là nơi giữ trạng thái, **bỏ sót manifest**). Mốc +3 phải **code tay lại** khối shutdown trong `lifespan`, không giảng lại suông. |
+| Hợp đồng return giữa 2 tầng · additive vs breaking change · integration test vs unit test | 2026-09-06 | ⬜ 2026-09-07 | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #30. Chỗ vấp: gọi hàm mà **không hứng giá trị trả về** (lần thứ 3 dính dạng "chưa nối dây"). Ôn kèm câu: *test chỉ bắt được bug nằm trên đường nó đi qua.* |
 | CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⬜ 2026-09-07 | ⬜ 2026-09-11 | ⬜ 2026-09-18 | Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. |
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
@@ -47,7 +49,36 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ## ✅ Buổi 2026-09-05 — đã xong (xem CLAUDE.md §6). Mốc +1 hàng CRAG tick bằng **code tay**, không phải giảng lại suông.
 
-## 📌 Buổi 2026-09-06 (CN, kế hoạch 6h) — ĐÓNG SỔ PHASE 0
+## ✅ Buổi 2026-09-06 (CN, ~4h, dừng sớm vì đổi máy) — LÀM ĐƯỢC GÌ
+
+> Buổi này **đổi máy** (Fedora mới), nên mất ~40' dựng lại môi trường. `.venv` không đi qua git
+> (đúng CLAUDE.md §7) — phải tạo lại và cài `requirements.txt` từ đầu, kể cả tải ~4.4GB weights.
+
+**Xong:**
+1. **Trạm 4b** — trace + fix + integration test. Ghi thành [bug #30](./bug-log.md).
+2. **Trạm 4c + FIX THẬT bug #25** (treo từ 14/08, 23 ngày). Manifest chuyển từ file trên đĩa
+   thành `dict` trong RAM. Kèm test giả lập restart, **và đã chứng minh test đỏ được**.
+3. **Phát hiện + fix bug #31** (`lifespan` không có shutdown → CUDA OOM khi dựng app 2 lần).
+   Đây là bug **mới toanh**, lòi ra trong lúc viết test cho #25.
+4. Suite: **70 passed in 127.34s** (đo thật, chạy toàn bộ, không giới hạn thư mục).
+
+**Còn nợ sang buổi sau:**
+- **Trạm 4d** (`def` vs `async def` trong handler) — chưa đụng.
+- **Fix bug #29** (race condition `BM25Index`, `threading.Lock`) — chưa đụng. Đã đọc lại code,
+  chưa gõ dòng nào. Câu hỏi cần nghĩ trước: khoá cả `add_document` hay khoá nhỏ hơn? Và test bắt
+  race phải **assert quá trình** + ép đổi luồng (`sys.setswitchinterval`) + lặp đủ nhiều, không
+  thì **xanh giả**. Chỗ đọc-sửa-ghi khác cùng loại: `remove_document` dòng 57 (`doc_count -= 1`).
+- Nối `split_by_separators` — chưa đụng.
+- ⏰ Mốc ôn **+3** hàng CRAG đến hạn **07/09**, kèm **code-tay-lại** phần lõi.
+
+**Lỗi phương pháp của Claude trong buổi (ghi để không lặp):** hai lần hỏi câu **thiết kế kiến
+trúc** (chọn hướng fix #25) trước khi giảng khái niệm — user phải nói thẳng *"không hiểu bạn hỏi
+gì"* và *"bạn là giáo sư mà không thể để tôi mù mờ như này được"*. Đúng cái §3.6 mục 6 đã vá
+01/09 mà vẫn tái phạm. **Luật cho lần sau: bài thiết kế (chọn giữa nhiều kiến trúc) thì GIẢNG
+TRƯỚC — liệt kê các phương án + cái giá của từng cái + khuyến nghị — rồi mới hỏi user chọn.**
+Chỉ dùng Socratic thuần cho thứ user đã có đủ vật liệu để tự suy ra.
+
+## 📌 (lưu trữ) Kế hoạch ban đầu buổi 2026-09-06 — ĐÓNG SỔ PHASE 0
 
 > Mục tiêu của buổi này **không phải học thêm**, mà là **dọn sạch tồn đọng** để thứ Hai 07/09 vào
 > kỹ thuật mới với sổ sạch. Đừng để nó thành buổi vá nền thứ sáu liên tiếp.

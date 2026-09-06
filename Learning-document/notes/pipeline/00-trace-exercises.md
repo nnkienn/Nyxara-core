@@ -16,7 +16,7 @@
 | 1 | [01-ingest.md](./01-ingest.md) | `ingestion/pipeline.py` + `chunking/recursive_chunker.py` | ✅ 1a,1b,1c xong + teach-back qua cổng đóng-sách (2026-09-02, retrace theo Method 2.0) |
 | 2 | [02-retrieval.md](./02-retrieval.md) | `retrieval/hybrid_retriever.py` + `reranking_retriever.py` | ✅ 2a,2b,2c xong + teach-back qua cổng (2026-09-02) |
 | 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | 🔨 2026-09-03 sáng: xong phần **khái niệm closure vs state** + bảng "nguồn của 4 biến". Bảng trace lần-2 ⬜ chưa làm — vào thẳng đó ca tối |
-| 4 | [04-api.md](./04-api.md) | `app/main.py` + `presentation/api/*.py` | ⬜ |
+| 4 | [04-api.md](./04-api.md) | `app/main.py` + `presentation/api/*.py` | 🔨 4a ✅ 05/09 · 4b ✅ 06/09 · 4c ✅ 06/09 (fix thật) · **4d ⬜ còn nợ** |
 
 ---
 
@@ -277,20 +277,62 @@ instance `BM25Index`? Nếu **2 request `/ingest` tới cùng lúc**, chúng ghi
 `BM25Index` hay 2 object khác nhau? (Nhớ: handler viết `def` → FastAPI chạy nó trong
 **threadpool nhiều luồng**.) → Có vấn đề gì không? Từ khoá tra cứu: *race condition*, *thread-safety*.
 
-**4b.** `/ingest` trả về `chunk_count = len(chunks)`. Nhưng `ingest_document` bên trong có thể
-xếp phần lớn chunk vào `to_skip` và **không ghi gì cả**.
-→ `chunk_count` đang trả lời câu hỏi nào: *"cắt ra bao nhiêu chunk"* hay *"ghi vào kho bao nhiêu chunk"*?
-→ Client đọc con số đó sẽ **hiểu nhầm** thành cái nào? Muốn trung thực thì `ingest_document`
-phải **trả về** cái gì mà hiện tại nó đang trả về `None`?
+**4b.** ✅ **XONG 2026-09-06 — trace + fix thật + integration test.** Ghi thành [bug #30](../bug-log.md).
 
-**4c.** Bug #25 — vòng đời lệch pha. Liệt kê 4 nơi giữ trạng thái trong `main.py` lifespan, ghi
-rõ mỗi cái sống ở đâu (RAM hay đĩa) và **chết khi nào**.
-→ Cái nào đang **phát biểu về** dữ liệu mà nó **không sở hữu**?
-→ Có 2 cách làm cho nhất quán: cùng bền, hoặc cùng dễ vỡ. Mỗi cách phải sửa gì? Cách nào hợp
-với giai đoạn hiện tại của dự án?
-→ Test chặn tái phát phải giả lập được điều gì? (từ khoá: *ephemeral vs durable*, *source of truth*, *staleness*)
+Chốt lại bằng lời mình: `chunk_count=len(chunks)` lấy số từ **dòng cắt chunk ở đầu handler**, nên
+nó trung thực với câu hỏi *"cắt ra mấy miếng"*. Nhưng người gọi `/ingest` không quan tâm máy cắt
+chạy mấy nhát — họ muốn biết **kho có thêm gì**. Hai câu hỏi khác nhau, chung một cái tên.
+`ingest_document` khai `-> None` nên `to_upsert/to_skip/to_delete` sinh ra rồi chết trong hàm,
+tầng API không có đường nào biết.
 
-**4d.** Vì sao 2 handler viết `def` mà không `async def`? Nếu đổi thành `async def` mà bên trong
+Fix: `-> dict[str, int]` trả 3 con số đếm; `IngestResponse` **thêm** 3 trường (giữ `chunk_count`
+→ *additive change*, client cũ không gãy — nếu đổi tên `chunk_count` thì là *breaking change*).
+Chọn `dict` chứ không `tuple`: thêm khoá vào dict không phá ai, thêm phần tử vào tuple làm nổ
+mọi dòng `a, b, c = ...`; và dict đọc bằng **tên**, không phải nhớ **thứ tự**.
+Chọn trả **số đếm** chứ không trả **danh sách index** (YAGNI — chưa có ai cần biết *chunk nào*).
+
+**Vấp đã ghi lại (đáng nhớ hơn cả đáp án):** bản fix đầu tiên gọi `ingest_document(...)` mà
+**không hứng giá trị trả về**, rồi bịa 3 con số. API chuyển từ *mơ hồ* sang *nói dối cụ thể* —
+tệ hơn trước khi sửa. Lần thứ 3 dính đúng dạng này (sau `split_by_separators` mồ côi và schema
+`candidate_k` thiếu khoá). Kiểm tra bắt buộc: **chỉ ra một biến cụ thể đang hứng, không thì chưa nối.**
+
+**Test:** phải là integration test đi qua handler (`tests/presentation/api/test_ingest.py`).
+Test unit ở tầng `ingest_document` **xanh giả** — dòng bịa số nằm ngoài đường chạy của nó.
+→ Quy tắc rút ra: *test chỉ bắt được bug nằm trên đường nó đi qua.*
+
+**4c.** ✅ **XONG 2026-09-06 — bug #25 FIX THẬT sau 23 ngày treo.** Chi tiết ở [bug-log #25](../bug-log.md).
+
+**Bảng 4 nơi giữ trạng thái** (2/4 trả lời sai lần đầu, ghi lại để nhớ):
+
+| Nơi giữ trạng thái | Sống ở đâu | Bằng chứng |
+|---|---|---|
+| `BM25Index` | RAM | không nhận path nào, chỉ có dict trong `__init__` |
+| `QdrantStore` | RAM | `QdrantClient(location=":memory:")` |
+| `InMemoryDocStore` | RAM | tên class nói thẳng; thân là `self.texts = {}` |
+| `data/manifest.json` | **đĩa** | `os.environ.get("MANIFEST_PATH", ...)` |
+
+**Sai lần đầu:** đoán `doc_store` nằm trên đĩa (tên class ghi rõ `InMemory`), đoán `grader` là nơi
+giữ trạng thái (nó chỉ cất 2 chuỗi cấu hình), và **bỏ sót manifest** — đúng cái vừa phải
+`monkeypatch` trong test 20 phút trước đó.
+**Cách phân biệt cho lần sau:** *thứ này có chứa dữ liệu người dùng nạp vào không?* Có → nơi giữ
+trạng thái. Không → chỉ là công cụ (`embedder`, `reranker`, `grader`, `generator`, và cả
+`retriever` — nó chỉ **mượn** 3 kho, không sở hữu gì).
+
+**Cái nào phát biểu về dữ liệu nó không sở hữu:** `manifest`. Nó sống lâu hơn thứ nó mô tả →
+**stale state**. Tang chứng thật: `data/manifest.json` trên máy còn nguyên entry từ **17/08**,
+19 ngày, khẳng định `t1/doc1` đã trong kho trong khi 3 kho đã chết đi sống lại vô số lần.
+
+**Chọn hướng "cùng dễ vỡ"** (manifest thành `dict` trong RAM) chứ không "cùng bền" — lý do đầy đủ
+ghi ở bug #25. **Test phải giả lập restart**, và cách giả lập là **2 khối `with TestClient(app)`
+ngang hàng**: ra khỏi khối 1 = lifespan kết thúc, vào khối 2 = lifespan chạy lại, dựng 3 kho mới
++ manifest mới. Lồng 2 khối vào nhau thì **không phải restart** (và làm CUDA OOM → [bug #31](../bug-log.md)).
+
+**Điều đẹp nhất học được ở đây:** sau khi fix, dòng `monkeypatch.setenv("MANIFEST_PATH", ...)`
+trong test cũ **thành thừa**. Nó vốn chỉ tồn tại để né bug này. **Sửa trúng gốc thì code chống đỡ
+xung quanh tự rụng** — nếu sửa xong mà phải thêm code đỡ ở khắp nơi, gần như chắc chắn mới chỉ
+chữa triệu chứng.
+
+**4d.** ⬜ **CÒN NỢ (buổi 06/09 dừng trước câu này).** Vì sao 2 handler viết `def` mà không `async def`? Nếu đổi thành `async def` mà bên trong
 vẫn gọi `graph.invoke()` (đồng bộ, chặn) thì chuyện gì xảy ra với **các request khác**?
 
 ---
