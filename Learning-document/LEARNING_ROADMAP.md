@@ -288,6 +288,7 @@ Agent → Safety → Fine-tuning → MLOps → Community → SaaS Bridge.**
 | 8 | **Versioning** | giữ lịch sử chunk, rollback được | 🟡 | — |
 | 9 | **Document-based chunking** | cắt theo cấu trúc doc (heading → section → subsection). Heading do NGƯỜI viết = ranh giới ngữ nghĩa có sẵn → thường thắng Semantic mà rẻ hơn hàng trăm lần. Hợp Markdown/HTML/legal/technical doc | 🔴 | Cây phân cấp / stack (theo dõi heading level) |
 | 10 | **Contextual Retrieval** | LLM sinh 1–2 câu định vị chunk trong document → prepend vào chunk TRƯỚC khi embed. Trả giá lúc ingest thay vì lúc query | 🟡 | — |
+| 11 | **Document parsing — đọc file thật** (PDF có bảng · DOCX · HTML · scan cần OCR) | ⭐ **THÊM 2026-09-06 — lỗ hổng lớn nhất của roadmap.** Cả pipeline hiện bắt đầu từ `text: str` sẵn có, tức bỏ qua đúng chỗ RAG thật chết nhiều nhất. Học: layout-aware parsing · **bảng phải giữ cấu trúc** (bảng flatten thành text là mất nghĩa hoàn toàn) · header/footer/số trang là rác phải lọc · khi nào cần OCR và OCR sai thì hỏng gì downstream · chọn giữa parser rẻ (pypdf) vs layout-aware (Unstructured/Docling) và **cái giá từng cái** | 🔴 | Cây layout · state machine đọc bảng |
 
 ### Cách học hiệu quả (code tay)
 - **CODE TAY:** viết `recursive_chunk(text, size, overlap)` bằng tay TRƯỚC — đừng gọi
@@ -516,6 +517,7 @@ gặp câu hỏi multi-hop thật. **Đừng build hết rồi mới đo** — m
 | 8 | **Online eval** | traffic thật (click · dwell time · thumbs) | 🟡 | feedback loop |
 | 9 | **Cost & Efficiency metrics** | tokens · latency (p50/p95) · cost/query · throughput | 🔴 | profiling |
 | 10 | **Bias & Fairness check** | model có lệch theo niche / độ dài query không | 🟢 | statistical fairness |
+| 11 | **RAG vs long-context — đo để biết khi nào KHÔNG cần RAG** | ⭐ **THÊM 2026-09-06.** Context window đã dài ra rất nhiều, nên *"khi nào KHÔNG nên dùng RAG?"* là câu phân loại Senior. Dựng cùng một golden set, chạy 2 nhánh: (a) RAG top-k · (b) nhét thẳng cả document vào context. So **4 trục**: chất lượng · chi phí/query · độ trễ p95 · khả năng trích dẫn nguồn. Kết luận phải là **một ngưỡng cụ thể** ("dưới N nghìn token thì long-context thắng"), không phải cảm tính | 🔴 | — |
 
 ### Cách học hiệu quả (code tay) — làm theo thứ tự
 1. **CODE TAY retrieval metrics TRƯỚC** (rẻ, deterministic): tự viết `hit_at_k`, `mrr`, `ndcg`
@@ -625,6 +627,7 @@ tests/evaluation/test_retrieval_metrics.py   # tính tay đối chiếu
 | 9 | **Prompt engineering craft** (CoT, few-shot, dynamic example selection) | kỹ năng nền nhất | 🔴 | — |
 | 10 | **Query routing** (multi-source/multi-tool) | chọn kho/tool nào — sâu hơn intent triage | 🟡 | — |
 | 11 | **Human-feedback → training loop** | edit của người duyệt → data train (active learning) | 📡 🟢 | — |
+| 12 | **Agent evaluation — đo ĐƯỜNG ĐI, không chỉ đo câu trả lời** | ⭐ **THÊM 2026-09-06.** Phase 3 đo RAG = đo **kết quả cuối**; agent nhiều bước phải đo **trajectory**: chọn đúng tool không · số bước tới khi xong · có lặp/quẩn không · chi phí + token mỗi task · tỉ lệ chạm HITL gate. Cùng một bài học với bug #26/#29: **assert kết quả cuối là mù với bug nằm trong quá trình** — agent trả lời đúng bằng đường đi ngu ngốc vẫn là hỏng | 🔴 | Graph traversal · so khớp chuỗi hành động |
 
 ### Cách học hiệu quả (code tay)
 - **CODE TAY:** tự dựng StateGraph supervisor bằng LangGraph (bạn đã làm CRAG — tái dùng skill).

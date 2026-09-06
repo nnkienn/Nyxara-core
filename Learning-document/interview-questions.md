@@ -39,6 +39,9 @@
 | 1.6 | 🔴 | Chọn `size` cho một corpus mới thì căn cứ vào đâu? (gợi ý: giới hạn model, độ dài câu hỏi, chi phí) | — | ⬜ |
 | 1.7 | 🔴 | Khi nào Document-based (theo heading) tốt hơn Recursive? Khi nào tệ hơn? | — | ⬜ |
 | 1.8 | 🔴 | Semantic chunking đắt hơn hẳn — lấy gì để biện minh cho chi phí đó? Đo bằng chỉ số nào? | — | ⬜ |
+| 1.9 | 🔴 | *(chưa học)* Document có **bảng** — vì sao flatten bảng thành text là mất nghĩa? Giữ cấu trúc bảng qua chunking bằng cách nào? | — | ⬜ |
+| 1.10 | 🔴 | *(chưa học)* Header/footer/số trang lặp ở mọi trang PDF — không lọc thì hỏng gì ở tầng retrieval? | — | ⬜ |
+| 1.11 | 🔴 | *(chưa học)* Khi nào cần OCR? OCR sai một chữ thì sai lan xuống những khâu nào? | — | ⬜ |
 
 ## 2. Embedding & Vector store
 
@@ -141,6 +144,9 @@
 | 10.4 | 🔴 | "Tên nói một đằng, thân làm một nẻo" — kể 3 ca đã gặp thật trong dự án này. | bug #26, #30 | ⬜ |
 | 10.5 | 🔴 | Chi phí một truy vấn RAG nằm ở những khâu nào? Cắt khâu nào rẻ nhất mà ít mất chất lượng nhất? | — | ⬜ |
 | 10.6 | ⬜ | *(Phase 3 — chưa học)* Đo chất lượng RAG bằng chỉ số gì? Recall@k, MRR, NDCG khác nhau ra sao? | — | ⬜ |
+| 10.7 | 🔴 | *(chưa học)* **Khi nào KHÔNG nên dùng RAG?** Context window dài rồi — so RAG vs nhét thẳng document theo 4 trục: chất lượng · chi phí · độ trễ p95 · khả năng trích dẫn nguồn | — | ⬜ |
+| 10.8 | 🔴 | *(chưa học)* Đo một **agent nhiều bước** khác đo RAG ở chỗ nào? Kể 3 chỉ số chỉ có ý nghĩa với agent | — | ⬜ |
+| 10.9 | 🔴 | *(chưa học)* Agent trả lời **đúng** nhưng đi 11 bước và gọi nhầm tool 3 lần — tính là pass hay fail? Vì sao? | — | ⬜ |
 
 ---
 

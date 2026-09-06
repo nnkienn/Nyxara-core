@@ -369,6 +369,26 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   dụng thật — nhưng **bug không nằm trong roadmap**, và với nhịp phát hiện bug hiện tại nó sẽ ăn
   hết 6h đệm rất nhanh.
 
+- 🔍 **Rà soát roadmap 2026-09-06 (user hỏi "roadmap có đủ so với xu hướng không?"):**
+  Đọc lại cả 10 phase → **roadmap KHÔNG mỏng**, rộng hơn phần lớn JD Senior AI Engineer: đã có
+  vLLM/Triton · LGTM qua OpenTelemetry · RAGAS + **judge calibration (κ/Pearson)** · A/B harness có
+  significance · MCP · LangFuse · output sanitization · circuit breaker · LoRA thuần PyTorch.
+  **Rủi ro thật nằm ở hướng ngược lại: quá rộng so với thời gian còn lại** → tuyệt đối không thêm
+  phase mới.
+  Tìm được **3 lỗ hổng thật** (grep xác nhận, không đoán) và đã **chèn vào phase sẵn có**, không mở
+  phase mới:
+  1. **Phase 0 mục 11 — Document parsing** (`PDF` chỉ xuất hiện 1 lần, `parsing`/`table` 0 lần).
+     Cả pipeline đang bắt đầu từ `text: str` → bỏ qua đúng chỗ RAG thật chết nhiều nhất.
+  2. **Phase 3 mục 11 — RAG vs long-context** (`long context` 0 lần). Câu *"khi nào KHÔNG dùng
+     RAG?"* là câu phân loại Senior; phải trả lời bằng **ngưỡng đo được**, không phải cảm tính.
+  3. **Phase 4 mục 12 — Agent evaluation / trajectory** (`trajectory` 0 lần). Phase 3 đo kết quả
+     cuối; agent phải đo đường đi — **cùng bài học với bug #26/#29: assert kết quả cuối mù với bug
+     nằm trong quá trình**.
+  Đã thêm 6 câu tương ứng vào [interview-questions.md](Learning-document/interview-questions.md).
+  **Ghi nhớ khi bị sốt ruột "học thêm cho đủ":** phỏng vấn Senior không chấm độ dài danh sách kỹ
+  thuật. Tài sản hiếm nhất user đang có là **bug-log 32 bug tự tìm-tự sửa-tự viết test chặn** —
+  kể được một chuyện debug cụ thể thuyết phục hơn liệt kê 40 kỹ thuật.
+
 - 🧭 **Luật tiến độ, áp từ 2026-09-07:**
   1. **Mỗi 2 ngày phải khởi động xong 1 kỹ thuật mới.** Không ngoại lệ.
   2. **Bug tìm thấy dọc đường thì GHI vào bug-log, KHÔNG fix ngay** — trừ khi nó chặn việc đang
