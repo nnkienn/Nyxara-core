@@ -117,6 +117,39 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
 
 ---
 
+## 3.8 Trace KHÔNG dừng lại · Ngân hàng câu hỏi phỏng vấn (chốt 2026-09-06)
+
+Bài trace 4 trạm ([00-trace-exercises.md](Learning-document/notes/pipeline/00-trace-exercises.md))
+đã xong hết ngày 06/09. Nhưng **trace không phải một giai đoạn đã qua** — nó là thói quen thường trực:
+
+1. **Mỗi kỹ thuật mới học xong đều phải trace lại**, đúng cách ở §3.5: đọc thân hàm thật (không tin
+   tên hàm, không tin note), điền bảng bằng **số liệu thật**, tự cài lỗi vào note rồi tìm lại.
+   Lý do: 5 bug nặng nhất của dự án (#25 → #32) đều lòi ra **trong lúc trace**, không phải lúc xây.
+2. **Kỹ thuật mới cũng phải nối lại vào luồng đang chạy** và trace từ HTTP request xuống — không
+   để nó nằm mồ côi. Bài học `split_by_separators`: có test xanh, không nơi nào gọi, tưởng đã có
+   mà thực ra chưa bao giờ chạy thật.
+
+**Ngân hàng câu hỏi phỏng vấn:** [Learning-document/interview-questions.md](Learning-document/interview-questions.md)
+— 65 câu, chia 10 chủ đề × 3 mức 🟢 Junior / 🟡 Mid / 🔴 Senior. Mục đích: biến thứ **đã xây được**
+thành thứ **nói ra được** trong phòng phỏng vấn (qua Tết ~đầu 2027).
+
+- **File cố ý KHÔNG có đáp án.** Đáp án nằm ở note user đã tự viết; cột *Note* trỏ tới đó.
+- **Quy trình bắt buộc:** đóng tài liệu → trả lời thành tiếng/gõ ra hết khả năng → **rồi mới** mở
+  note đối chiếu → chấm ✅/⚠️/❌ → câu ❌⚠️ vào vòng ôn kế tiếp.
+- ⚠️ **Đọc câu hỏi rồi đọc luôn đáp án là vô ích** — cảm giác "à mình biết mà" là *ảo giác quen
+  thuộc*, không phải trí nhớ. Đúng thứ đã làm hỏng 6.5 tuần đầu. Phải cố nhớ ra trước, kể cả nhớ sai.
+- **Thêm câu mới sau mỗi kỹ thuật học xong** — tính là một phần của bước 6 DOCUMENT (§3).
+- Claude được phép dùng file này làm nguồn cho **active-recall giữa buổi** (mớm hỏi kỹ thuật cũ
+  ngay trong lúc làm kỹ thuật mới), nhưng **không đọc đáp án hộ** — vẫn theo §2.
+
+> **Về "học nhồi":** user nêu ý này ngày 06/09 vì sốt ruột tiến độ. Ghi rõ để không trôi: **nhồi
+> kiểu đọc đi đọc lại chính là thứ đã hỏng 6.5 tuần đầu.** Cái nhanh hơn thật sự là **tự vấn đáp
+> có cách quãng** — đã có bằng chứng trong chính dự án này: drill phân biệt đưa 1/4 → 11/12 trong
+> **một** vòng, còn giảng lại lần hai thì 12 tiếng sau vẫn lẫn. Nên tăng tốc = tăng **số lần tự
+> lôi ra khỏi đầu**, không phải tăng số lần đọc.
+
+---
+
 ## 3.7 Cách bắt đầu 1 buổi học (chốt 2026-09-01)
 
 User chỉ cần gõ 1 trong 3 câu sau, không cần nhắc lại luật mỗi lần — Claude tự làm đúng quy trình:
