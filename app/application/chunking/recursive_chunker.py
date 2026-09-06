@@ -1,4 +1,4 @@
-def recursive_chunk(text: str, size: int, overlap: int) -> list[str]:
+def fixed_size_chunk(text: str, size: int, overlap: int) -> list[str]:
     chunks = []
     start = 0
     while start < len(text):

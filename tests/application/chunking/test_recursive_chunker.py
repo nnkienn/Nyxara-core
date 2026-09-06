@@ -1,8 +1,8 @@
-from app.application.chunking.recursive_chunker import recursive_chunk, split_by_separators
+from app.application.chunking.recursive_chunker import fixed_size_chunk, split_by_separators
 
 
 def test_overlap_between_consecutive_chunks():
-    chunks = recursive_chunk("ABCDEFGHIJ", size=6, overlap=2)
+    chunks = fixed_size_chunk("ABCDEFGHIJ", size=6, overlap=2)
 
     assert chunks[0] == "ABCDEF"
     assert chunks[1] == "EFGHIJ"
