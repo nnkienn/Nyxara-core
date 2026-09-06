@@ -60,8 +60,14 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
    - **+1** *Vòng đời trạng thái ephemeral vs durable* (bug #25/#31) · *Hợp đồng return giữa 2 tầng* (bug #30)
    - **+1** *Thread-safety* (Trạm 4d + bug #29 — hàng mới thêm 06/09)
    - **+3** *CRAG closure vs state* → mốc này phải **code tay lại** phần lõi, không giảng lại suông.
-2. **~30' — nối `split_by_separators`**: milestone cuối của Phase 0, nhỏ nhất còn lại.
-3. **Phần còn lại — Document-based chunking**, kỹ thuật mới đầu tiên của tháng 9, đủ vòng 6 bước.
+2. **Phần chính (~2-3h) — VIẾT NỐT RECURSIVE CHUNKER cho xong** *(đổi so với kế hoạch cũ)*.
+   Tối 06/09 đọc kỹ mới thấy `split_by_separators` **không cắm thẳng vào được**: nó mới cắt nhỏ,
+   chưa **gộp** các mẩu liền kề lại cho tới gần `size`, lại nuốt mất separator và không có overlap.
+   Nên đây không phải việc 30' "nối dây" mà là **một kỹ thuật riêng**, đủ vòng 6 bước + code tay.
+   Ba việc cụ thể: **(a)** giữ separator khi cắt · **(b)** bước **gộp** các mẩu tới gần `size` ·
+   **(c)** overlap. Rồi mới nối vào `/ingest` thay `fixed_size_chunk`.
+   *(`fixed_size_chunk` giữ lại, không xoá — Phase 3 còn phải benchmark Recursive vs Fixed-size.)*
+3. Document-based chunking đẩy sang **08/09** — vẫn đúng luật "1 kỹ thuật / 2 ngày".
    Nhớ luật 05/09: kết thúc phải có phần **tự gõ**, không dừng ở "hiểu rồi".
 
 ---

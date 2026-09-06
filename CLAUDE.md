@@ -309,6 +309,15 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
     sao dòng `doc_len`), và **copy nguyên cả lời giải thích của Claude vào file như thể là code**.
     Đối sách vẫn vậy: sau mỗi lần sửa, `git diff` đọc dòng `-` xem vừa xoá mất gì.
 
+  **Cuối buổi tối 06/09 — đổi tên `recursive_chunk` → `fixed_size_chunk`**, và vấp
+  [bug #32](Learning-document/notes/bug-log.md) trên đường: dùng **Replace in Files** thay vì
+  Rename Symbol → `recursive_chunk` là **tiền tố** của `recursive_chunker` nên tên module bị nuốt
+  theo (`ModuleNotFoundError`), và 8 file bị sửa thay vì 3, gồm cả `bug-log.md` — **làm hỏng nghĩa
+  của ghi chép lịch sử** (note cũ biến thành "`fixed_size_chunk` mà thân hàm là fixed-size sliding
+  window", vô nghĩa). Đã `git checkout --` toàn bộ rồi làm lại bằng `perl` với `\b` + liệt kê
+  tường minh 3 file. **Luật mới: đổi tên trong CODE, KHÔNG đổi tên trong GHI CHÉP LỊCH SỬ** — note
+  cũ giữ tên cũ, chỉ thêm dòng "đã đổi tên thành X ngày dd/mm".
+
 - 📊 **ĐÁNH GIÁ TIẾN ĐỘ THÁNG 9 (chốt 2026-09-06, dùng lại mỗi lần cần kiểm):**
   Đếm theo đúng granularity của [LEARNING_ROADMAP.md dòng 40](Learning-document/LEARNING_ROADMAP.md), ~13 milestone:
   ```
@@ -353,10 +362,18 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   → Document-based chunking (kỹ thuật MỚI đầu tiên của tháng 9). ~~Trạm 2, Trạm 3~~ ✅ 02/09, 05/09
   → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 
-**Phát hiện khi trace (2026-08-25) — chưa xử lý:**
-1. `/ingest` gọi `recursive_chunk` nhưng thân hàm là **fixed-size sliding window**, không phải
-   recursive. Roadmap từng ghi "Recursive ✅" → sai, đã hạ xuống ⚠️.
-2. `split_by_separators` (hàm recursive thật) có test xanh nhưng **không nơi nào trong `app/` gọi**.
+**Phát hiện khi trace (2026-08-25):**
+1. ✅ **XỬ LÝ 2026-09-06:** `/ingest` gọi `recursive_chunk` nhưng thân hàm là fixed-size sliding
+   window → **đã đổi tên thành `fixed_size_chunk`** (commit `899a1bc`). Tên hết nói dối. Tên file
+   `recursive_chunker.py` **giữ nguyên** vì recursive chunker thật sẽ nằm trong đó.
+2. ⬜ `split_by_separators` (đệ quy thật) có test xanh nhưng **không nơi nào trong `app/` gọi**.
+   **Đọc kỹ 06/09 mới thấy: nó KHÔNG cắm thẳng vào được**, vì mới làm một nửa recursive chunking —
+   nó chỉ **cắt nhỏ**, không **gộp lại** cho tới gần `size` (cắt `"a b c d"` bằng `" "` ra 4 mẩu
+   bé tí), lại **nuốt mất separator** (`str.split` bỏ luôn dấu) và **không có overlap**.
+   → Milestone roadmap ghi *"nối `split_by_separators`"* là **under-specified**. Nối bừa = chất
+   lượng retrieval tệ đi để đánh dấu tick. Việc đúng là **viết nốt bước gộp + giữ separator +
+   overlap**, và việc đó xứng đáng là **milestone riêng ~2-3h**, không phải cái đuôi 30'.
+   Đã chốt: làm nó ngày **07/09** (thay chỗ Document-based chunking, cả hai đều trong Phase 0).
 
 ---
 

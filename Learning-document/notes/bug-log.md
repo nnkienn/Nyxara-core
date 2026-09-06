@@ -44,6 +44,7 @@
 | Gán đè lên chính tên biến closure → tên bị coi là biến cục bộ ở **mọi dòng** → `UnboundLocalError` | `candidate_k = state.get("candidate_k", candidate_k)` | #28 |
 | Commit có message nói một đằng, diff đụng một nẻo (thường do `git add -A` gộp sửa đổi dở dang) | commit "sửa CLAUDE.md" xoá mất `save_manifest` trong `pipeline.py`, hỏng 8 ngày | #27 |
 | Chạy test theo thư mục con rồi tưởng là suite xanh | `pytest tests/application/generation` xanh trong khi `pytest` toàn bộ chết ở collection | #27 |
+| Tìm-thay **chuỗi** để đổi tên symbol → nuốt luôn tên dài hơn chứa nó, và càn quét file ngoài phạm vi | `recursive_chunk` là tiền tố của `recursive_chunker` → module bị đổi tên theo, 8 file bị sửa thay vì 3 | #32 |
 | API trả về con số trung thực với **một** câu hỏi, nhưng client đọc thành câu hỏi **khác** | `chunk_count` đếm nhát cắt, client hiểu là số chunk đã ghi vào kho | #30 |
 | Đổi chữ ký hàm cho trả về giá trị, nhưng nơi gọi **không hứng** — giá trị rơi xuống đất | `ingest_document(...)` gọi trần rồi bịa 3 con số trong response | #30 |
 | Bẻ ngược mũi tên kiến trúc: tầng application import khái niệm của tầng presentation | `from httpx import request` + `request.app.state.manifest` trong `pipeline.py` | #30 |
@@ -54,6 +55,42 @@
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
+
+---
+
+### #32 — tìm-thay chuỗi khi đổi tên hàm: nuốt luôn tên module + sửa cả ghi chép lịch sử  ·  công cụ/quy trình  ·  thật  ·  2026-09-06
+
+- **Triệu chứng:** đổi tên `recursive_chunk` → `fixed_size_chunk` bằng **Replace in Files** của
+  VS Code. Kết quả: `ModuleNotFoundError: No module named 'app.application.chunking.fixed_size_chunker'`,
+  suite chết ở collection. Và **8 file bị sửa** trong khi chỉ định sửa 3 — trong đó có `CLAUDE.md`,
+  `LEARNING_ROADMAP.md`, `bug-log.md`. Trớ trêu: đúng 2 file *cần* đổi (`recursive_chunker.py`,
+  `ingest.py`) lại **không** đổi.
+- **Nguyên nhân:** hai lỗi chồng nhau.
+  1. **`recursive_chunk` là TIỀN TỐ của `recursive_chunker`.** Tìm-thay chuỗi không hiểu ngữ nghĩa,
+     chỉ thấy ký tự — nên tên **module** `recursive_chunker` cũng bị nuốt thành `fixed_size_chunker`,
+     trong khi file trên đĩa vẫn tên cũ → import trỏ vào hư không.
+  2. **Không giới hạn phạm vi** → càn quét cả `Learning-document/`.
+- **Thiệt hại tinh vi hơn cái ImportError:** nó sửa cả **ghi chép lịch sử**. Bug-log biến thành
+  *"`fixed_size_chunk` mà thân hàm là fixed-size sliding window"* — **vô nghĩa**, vì toàn bộ bài học
+  nằm ở chỗ tên nói *recursive* mà thân không đệ quy. Sửa tên trong note quá khứ = **xoá mất bằng
+  chứng của chính bài học đó**.
+- **Cách tìm ra:** `git status` liệt kê **8 file** trong khi chỉ định sửa 3 → dừng lại đọc `git diff`.
+  Đúng luật đã ghi từ bug #27: *đọc diff, đừng tin ý định của mình*. Lần này luật đó cứu thật.
+- **Fix:** `git checkout --` cả 8 file (mọi thứ đáng giữ đã commit trước đó), rồi làm lại bằng
+  `perl -pi -e 's/\brecursive_chunk\b/fixed_size_chunk/g' <liệt kê thẳng 3 file>` — **hai lớp chắn**:
+  `\b` (word boundary, không khớp `recursive_chunker`) + liệt kê tường minh 3 đường dẫn.
+  *(Rename Symbol của IDE là cách đúng nhất nhưng máy này chưa chạy được Pylance nên không dùng được.)*
+- **Test chặn tái phát:** không phải chuyện test — là chuyện quy trình, xem dưới.
+- **Bài học / pattern:**
+  1. **Đổi tên là việc của SYMBOL, không phải của CHUỖI.** Ưu tiên Rename Symbol (F2 / chuột phải).
+     Không có nó thì bắt buộc dùng `\b` + giới hạn danh sách file.
+  2. **Cẩn thận khi tên cũ là tiền tố/hậu tố của một tên khác.** Trước khi thay, tự hỏi: *chuỗi này
+     có nằm bên trong một cái tên dài hơn không?*
+  3. **Đổi tên trong CODE, KHÔNG đổi tên trong GHI CHÉP LỊCH SỬ.** Note cũ giữ nguyên tên cũ; chỉ
+     thêm một dòng "đã đổi tên thành X ngày dd/mm". Lịch sử phải đọc được đúng như lúc nó xảy ra.
+  4. Cùng họ với **#27** (commit "sửa tài liệu" xoá mất hàm production): cả hai đều là **thao tác
+     hàng loạt chạm vào nhiều file hơn mình tưởng**. Thuốc giải giống nhau: `git status` + `git diff`
+     trước khi commit.
 
 ---
 
