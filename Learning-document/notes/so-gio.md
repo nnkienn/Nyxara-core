@@ -29,8 +29,21 @@
 | 2026-09-06 | CN | 3h00 | ~4h00 (13:30-17:30) | +1h00 | — | **30'** | Đổi máy → mất ~40' dựng lại `.venv` + tải 4.4GB weights. Trạm 4b ✅ · Trạm 4c ✅ · **fix thật bug #25** (treo 23 ngày) · phát hiện + fix **bug #31** (lifespan không dọn model → CUDA OOM) · suite **70 passed**. Dừng sớm vì đổi máy, chưa làm 4d / bug #29 / `split_by_separators` |
 | 2026-09-06 | CN *(ca tối)* | — | 1h15 (20:45-22:00) | — | — | **0** *(dư 45')* | Cùng ngày tính gộp **5h15 vs sàn 3h → trả sạch nợ, dư 45'**. Trạm **4d** ✅ (hết bài trace 4 trạm) · **fix bug #29** + test race, tự chứng minh test đỏ được (7560/8000) · đổi tên `fixed_size_chunk`, vấp [bug #32](./bug-log.md) → **71 passed** |
 | 2026-09-07 | Hai | 3h00 | ~2h00 (20:45-22:41) | −1h00 | BKK | **15'** | Ôn trượt nặng phải vá tại chỗ → lòi lỗ hổng cú pháp Python, phải chèn drill 6 bài (6/6). Cặp 10 `def`↔`async def` vá bằng **tự đo** 2.05s/6.02s sau khi sai 4 lượt. `diff_manifest` 4/4 → Cặp 1 sạch. **`merge_pieces` — hàm đầu tiên user tự viết trọn vẹn, không Copilot.** Dừng vì mệt. Suite 71 passed |
+| 2026-09-08 | Ba | 3h00 | **0** (OT tới đêm) | −3h00 | BKK | **3h15** | Nghỉ trọn buổi, báo trước từ sáng. Không mở máy. Kế hoạch chunker đẩy nguyên khối sang 09/09. **Cam kết bù: 5h ngày 09/09.** |
 
-> **Tình trạng 07/09:** nợ **15'** (dư 45' từ 06/09 − 1h thiếu hôm nay), vẫn toàn bộ `BKK`,
+> **Tình trạng 08/09:** nợ **3h15**, vẫn **toàn bộ `BKK`** (chuỗi 6 ngày, chưa có ngày nào `TRÔI`
+> → chưa phát sinh lãi 1.5x). Chưa chạm trần 6h, nhưng **đây là mức nợ cao nhất từ khi lập sổ** —
+> còn 2h45 nữa là chạm trần và bị cấm học kỹ thuật mới 1 buổi. Cam kết bù **5h ngày 09/09** (sàn 3h
+> + 2h trả nợ) → nếu làm đủ, nợ về **1h15**.
+>
+> ⚠️ **Rủi ro thật của việc nghỉ hôm nay không phải 3h giờ mất, mà là 3 mốc ôn cách quãng cùng rơi
+> vào 09/09** (+7 của 2 hàng ngày 02/09, +3 hàng *Vòng đời trạng thái*), cộng mốc +3 hàng CRAG đã
+> dời sẵn từ 07/09. Ngày mai vừa phải trả nợ giờ, vừa phải trả nợ ôn, vừa phải khép chunker — xem
+> thứ tự cắt việc đã chốt trong [review-schedule.md § Buổi 2026-09-09](./review-schedule.md).
+> Luật "1 kỹ thuật / 2 ngày": chunker đã ăn hết slot 07-08/09 mà chưa xong → **đã trượt**. Mốc tự
+> kiểm 10/09 phải re-plan bằng số thật, đừng bỏ qua.
+>
+> *(cũ 07/09)* nợ **15'** (dư 45' từ 06/09 − 1h thiếu hôm nay), vẫn toàn bộ `BKK`,
 > chưa chạm trần 6h, chưa phát sinh lãi. Buổi ngắn (2h) nhưng **không phải buổi trôi**: 4 hạng mục
 > vá nền + 1 hàm tự viết. Rủi ro thật không nằm ở 1h thiếu này mà ở chỗ **chunker chưa xong** —
 > nếu 08/09 vẫn chưa khép được thì luật "1 kỹ thuật / 2 ngày" bắt đầu trượt, và mốc tự kiểm 10/09

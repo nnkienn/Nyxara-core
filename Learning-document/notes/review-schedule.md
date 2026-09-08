@@ -17,10 +17,10 @@
 | CRAG state machine (`decide()`, `attempts` guard) | 2026-08-12 | — | — | — | — | |
 | Incremental ingest / multi-store diff (`manifest` = `{tenant:{doc:{idx:hash}}}`, `diff_manifest`, `to_upsert/skip/delete`) | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | Qua cổng Trạm 1 ngày 02/09 nhưng +1 hôm sau trượt. Lẫn `to_upsert`/`to_delete` **lần thứ 4** và đảo ngược bền/dễ vỡ. Đã vá bằng drill ([the-phan-biet.md](./the-phan-biet.md) Cặp 1, 2, 8) → 11/12. **Chưa tick sạch — phải ôn bù 04/09 rồi mới tính +3.** |
 | Retrieval 2 tầng (rẻ-rộng Dense+BM25+RRF → đắt-hẹp cross-encoder) + hợp đồng return giữa 2 retriever | 2026-09-02 | ⚠️ 2026-09-03 **TRƯỢT rồi vá** | ✅ 2026-09-04 *(ôn bù: 9.5/10)* | ⬜ 2026-09-09 | ⬜ 2026-09-16 | +1 trượt: tưởng BM25 là model / cross-encoder không phải, và cross-encoder "đắt và **rộng**". Đã vá bằng drill (Cặp 3, 4, 5, 6) → 11/12. **Chưa tick sạch — ôn bù 04/09.** |
-| Vòng đời trạng thái: ephemeral (RAM) vs durable (đĩa) · stale state · `lifespan` mở-và-đóng | 2026-09-06 | ⚠️ 2026-09-07 **TRƯỢT 1/3** | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #25 + #31. Lần đầu trả lời **sai 2/4** ô bảng (tưởng `InMemoryDocStore` trên đĩa, tưởng `grader` là nơi giữ trạng thái, **bỏ sót manifest**). Mốc +3 phải **code tay lại** khối shutdown trong `lifespan`, không giảng lại suông. **+1 (07/09) TRƯỢT:** tưởng quyết định skip đọc 3 kho (thực ra đọc **manifest**); nói nhầm fix sang tầng retrieval. Ôn bù 08/09, chưa tick. |
+| Vòng đời trạng thái: ephemeral (RAM) vs durable (đĩa) · stale state · `lifespan` mở-và-đóng | 2026-09-06 | ⚠️ 2026-09-07 **TRƯỢT 1/3** | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #25 + #31. Lần đầu trả lời **sai 2/4** ô bảng (tưởng `InMemoryDocStore` trên đĩa, tưởng `grader` là nơi giữ trạng thái, **bỏ sót manifest**). Mốc +3 phải **code tay lại** khối shutdown trong `lifespan`, không giảng lại suông. **+1 (07/09) TRƯỢT:** tưởng quyết định skip đọc 3 kho (thực ra đọc **manifest**); nói nhầm fix sang tầng retrieval. Ôn bù dời sang **09/09** (08/09 user OT, nghỉ), chưa tick. |
 | Hợp đồng return giữa 2 tầng · additive vs breaking change · integration test vs unit test | 2026-09-06 | ⚠️ 2026-09-07 (đọc lướt) | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #30. Chỗ vấp: gọi hàm mà **không hứng giá trị trả về** (lần thứ 3 dính dạng "chưa nối dây"). Ôn kèm câu: *test chỉ bắt được bug nằm trên đường nó đi qua.* **+1 (07/09):** sai câu `chunk_count` — chọn "số chunk ghi vào kho", thực ra là **số nhát cắt**. Lỗi đọc lướt, không phải lẫn khái niệm. Xem [Cặp 11](./the-phan-biet.md). |
 | Thread-safety: `def` vs `async def` · threadpool vs event loop · đọc-sửa-ghi không nguyên tử · `Lock` | 2026-09-06 | ✅ 2026-09-07 *(tự đo, không giảng suông)* | ⬜ 2026-09-09 | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Trạm 4d + bug #29. Mốc +3 phải **code tay lại** cả `Lock` lẫn test race (kể cả mẹo `setswitchinterval` — thiếu nó test **xanh giả**). Câu chốt tự kiểm: *vì sao khoá TO chứ không chỉ khoá dòng nguy hiểm nhất?* **+1 (07/09):** ban đầu sai **4 lượt liên tiếp**, đảo ngược có hệ thống, kể cả ngay sau khi đọc bảng. Chỉ vá được khi **tự đo**: `def` 2.05s vs `async def` 6.02s. → [Cặp 10](./the-phan-biet.md). |
-| CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⏭️ dời 08/09 | ⬜ 2026-09-11 | ⬜ 2026-09-18 | Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. | **+3 chưa làm 07/09** (hết giờ, buổi bị ôn bù + drill cú pháp ăn hết) — phải **code tay lại**, dời sang 08/09.
+| CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⏭️ dời 09/09 | ⬜ 2026-09-11 | ⬜ 2026-09-18 | Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. | **+3 chưa làm 07/09** (hết giờ, buổi bị ôn bù + drill cú pháp ăn hết) — phải **code tay lại**, dời sang 09/09 (08/09 nghỉ vì OT).
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
 > ôn hết 4 mốc — giữ lại làm log, chỉ ngừng thêm cột ôn tiếp.
@@ -94,15 +94,42 @@ không code được"** — đúng lỗ hổng user tự chẩn 04/09. Tắt Cop
 
 ---
 
-## 📌 Buổi 2026-09-08 (T3) — HOÀN THÀNH RECURSIVE CHUNKER
+## ⛔ Buổi 2026-09-08 (T3) — NGHỈ, OT TỚI ĐÊM
 
-> User tự chốt cuối buổi 07/09: *"sáng mai trace 1 tiếng 30 lại cái hàm này và hoàn thành toàn bộ
-> recursive chunker, để tối mai qua kiến thức mới."*
+User báo từ sáng: OT tới đêm, không mở máy. Ghi vào [so-gio.md](./so-gio.md): thực tế **0h**,
+chênh −3h00, loại `BKK`, nợ lũy kế lên **3h15** — mức cao nhất từ khi lập sổ, còn 2h45 nữa chạm
+trần 6h. **Cam kết bù: 5h ngày 09/09.**
 
-**Ca sáng (~1h30) — trace + viết nốt:**
+Toàn bộ kế hoạch chunker của hôm nay đẩy nguyên khối sang 09/09 (dưới đây). Không cắt bước nào.
+
+---
+
+## 📌 Buổi 2026-09-09 (T4, cam kết **5h**) — HOÀN THÀNH RECURSIVE CHUNKER + TRẢ NỢ ÔN
+
+> Dời từ 08/09 (user OT). Buổi này **nặng nhất tháng**: vừa trả 2h nợ giờ, vừa có **4 mốc ôn cùng
+> tới hạn**, vừa phải khép chunker. Đừng vào buổi mà chưa đọc mục "thứ tự cắt việc" ở cuối.
+
+### A. Nợ ôn tới hạn 09/09 (làm TRƯỚC, ~1h20)
+
+Bốn mốc chồng nhau — đây là hệ quả trực tiếp của việc nghỉ 08/09, không phải tự dồn:
+
+1. **+7** hàng *Incremental ingest / multi-store diff* (xong 02/09) → mốc +7 bắt buộc **code-tay-lại**
+   phần lõi `diff_manifest`, không giảng suông.
+2. **+7** hàng *Retrieval 2 tầng* (xong 02/09) → cũng **code-tay-lại** phần lõi (RRF).
+3. **+3** hàng *Vòng đời trạng thái* — **07/09 đã TRƯỢT 1/3, chưa tick**. Vừa là ôn bù vừa là +3.
+   Mốc +3 hàng này đã ghi rõ: phải **code tay lại khối shutdown trong `lifespan`**, không giảng lại.
+4. **+3** hàng *CRAG closure ↔ state* — đã dời từ 07/09 vì hết giờ. Cũng phải **code tay lại** phần lõi.
+
+> ⚠️ Bốn mốc này đều rơi vào loại **code-tay-lại**, không phải giảng lại. Nếu bắt đầu thấy sa lầy,
+> áp luật đã có: sai dạng "lẫn A với B" → chuyển drill phân biệt ([the-phan-biet.md](./the-phan-biet.md));
+> sai dạng "không nhớ gõ thế nào" → chèn drill cú pháp ngắn (CLAUDE.md §3.5). Đừng ép đi tiếp.
+
+### B. Khép recursive chunker (~2h20)
+
 1. **Trace lại `merge_pieces`** (~20'), đúng cách §3.5: đọc thân hàm, điền bảng bằng **số thật**,
    không tin tên biến. Kèm: user **kể lại bằng lời mình** Cặp 10 + Cặp 11 (cuối buổi 07/09 do Claude
    viết lúc user đã mệt — giống cách đã làm với `03-crag.md` ngày 04-05/09).
+   *(Bảng trace đã được Claude ra đề sáng 08/09 trước khi user báo OT — dùng lại nguyên đề đó.)*
 2. **Viết 2 test cho `merge_pieces`** — việc còn nợ của buổi 07/09 (bước 5/6 TEST):
    - ca gộp bình thường
    - **ca túi cuối**: input mà vòng lặp KHÔNG BAO GIỜ vào nhánh `else` → chặn đúng con bug vừa mắc
@@ -118,26 +145,21 @@ không code được"** — đúng lỗ hổng user tự chẩn 04/09. Tắt Cop
    trị trả về?* (lỗi "chưa nối dây" đã dính 3 lần). Giữ `fixed_size_chunk`, KHÔNG xoá — Phase 3 còn
    phải benchmark Recursive vs Fixed-size.
 
-**Nợ ôn phải trả trong ngày (đừng để trôi):**
-- **Ôn bù** hàng *Vòng đời trạng thái* (07/09 trượt 1/3, chưa tick).
-- **Mốc +3 hàng CRAG closure ↔ state** — đã dời từ 07/09. Mốc này phải **code tay lại** phần lõi,
-  không giảng lại suông.
+### C. Thứ tự cắt việc nếu không đủ 5h
 
-**⏱️ Ước lượng thật (làm 07/09 tối, đừng lạc quan lại):** trace+kể lại 30' · 2 test 20' ·
-separator 30' · overlap 30' · nối `/ingest` 30' = **~2h20**, cộng nợ ôn ~40' → **~3h**. Ca sáng 1h30
-KHÔNG đủ. Nếu sáng chỉ được 1h30 thì cắt theo thứ tự này: giữ **trace + test + separator + overlap**,
-đẩy **nối `/ingest`** sang ca tối hoặc 09/09 (nó là nối dây, không phải kỹ thuật).
+Cắt theo đúng thứ tự này, đừng cắt tuỳ hứng:
 
-**Ca tối:** ưu tiên **đóng cho sạch chunker** trước. Chỉ mở Document-based chunking khi chunker đã
-xong hẳn và `/ingest` chạy thật qua HTTP.
+- **Bỏ cuối cùng:** A1 + A3 (ôn bù đã trượt + mốc +7 đầu tiên) — nợ ôn trượt tiếp là thứ đắt nhất.
+- **Giữ bằng mọi giá:** B1 → B2 → B3 (trace → test → separator → overlap). Đây là kỹ thuật.
+- **Đẩy trước tiên:** **B4 nối `/ingest`** sang 10/09 — nó là nối dây, không phải kỹ thuật.
+- **Đẩy thứ hai:** A2 (+7 Retrieval) — hàng này 04/09 đã ôn bù 9.5/10, nền vững nhất trong 4 hàng.
 
-> 🧭 **Đếm cho đúng luật tiến độ, đừng tự dồn ép:** **recursive chunker CHÍNH LÀ kỹ thuật mới của
-> slot 07-08/09** — đã chốt 06/09 rằng nó là milestone riêng ~2-3h, không phải cái đuôi 30' của
-> Phase 0. Xong nó ngày 08/09 là **đủ luật "1 kỹ thuật / 2 ngày"**, và mốc tự kiểm **10/09 coi như
-> đạt trước hạn**. Document-based chunking là slot **kế tiếp (09-10/09)**, KHÔNG phải món phải nhét
-> vào tối 08/09. Nhét kỹ thuật mới lên trên một cái nền dở dang đúng là cái vòng đã ăn hết 5 buổi
-> tuần trước (01-05/09).
+**Ca sau:** chỉ mở Document-based chunking khi chunker đã xong hẳn và `/ingest` chạy thật qua HTTP.
 
+> 🧭 **Đếm cho đúng luật tiến độ:** recursive chunker là kỹ thuật của slot 07-08/09. Nghỉ 08/09 →
+> **slot đó đã trượt**, không tự an ủi được nữa. Mốc tự kiểm **10/09** giờ là mốc thật: phải ngồi
+> re-plan tháng 9 bằng số thật, không phải bằng cảm giác. Document-based chunking lùi sang slot
+> 10-11/09.
 ---
 
 ## ✅ Buổi 2026-09-06 (CN, 4h chiều + 2h tối = 6h) — LÀM ĐƯỢC GÌ

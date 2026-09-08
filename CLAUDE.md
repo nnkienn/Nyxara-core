@@ -377,8 +377,18 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
     (2) **trả về CON SỐ thay vì VẬT** — 3 lần trong 1 ngày, đã thành Cặp 11; (3) **chạy file chưa
     lưu** — 3 lần, đã đóng vĩnh viễn bằng auto-save trong `.vscode/settings.json`.
   - Suite: **71 passed** (chạy toàn bộ, đo thật).
-  - ⬜ **Còn nợ sang 08/09:** test cho `merge_pieces` · giữ separator · overlap · nối `/ingest` ·
+  - ⬜ **Còn nợ:** test cho `merge_pieces` · giữ separator · overlap · nối `/ingest` ·
     ôn bù *Vòng đời trạng thái* · mốc **+3** CRAG (đã dời từ 07/09, phải **code tay lại**).
+  **2026-09-08 (T3): NGHỈ — OT tới đêm, không mở máy.** Thực tế 0h, `BKK`, nợ giờ lên **3h15**
+  (cao nhất từ khi lập sổ, trần là 6h). Cam kết bù **5h ngày 09/09**. Toàn bộ kế hoạch chunker đẩy
+  nguyên khối sang 09/09, không cắt bước.
+  ⚠️ **Hệ quả cần nhìn thẳng:** recursive chunker là kỹ thuật của slot 07-08/09 → **slot đã trượt**
+  theo luật "1 kỹ thuật / 2 ngày". Ngày 09/09 vừa phải trả 2h nợ giờ, vừa gánh **4 mốc ôn cùng tới
+  hạn** (+7 của 2 hàng 02/09, +3 *Vòng đời trạng thái* đang treo, +3 CRAG đã dời) — cả 4 đều thuộc
+  loại **code-tay-lại**, không giảng suông. Thứ tự cắt việc nếu không đủ 5h đã chốt sẵn ở
+  [review-schedule.md § Buổi 2026-09-09](Learning-document/notes/review-schedule.md) mục C —
+  đọc trước khi vào buổi, đừng cắt tuỳ hứng. Mốc tự kiểm **10/09** giờ là mốc thật, phải re-plan
+  tháng 9 bằng số thật.
 
 - 📊 **ĐÁNH GIÁ TIẾN ĐỘ THÁNG 9 (chốt 2026-09-06, dùng lại mỗi lần cần kiểm):**
   Đếm theo đúng granularity của [LEARNING_ROADMAP.md dòng 40](Learning-document/LEARNING_ROADMAP.md), ~13 milestone:
