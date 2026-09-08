@@ -29,8 +29,15 @@
 | 2026-09-06 | CN | 3h00 | ~4h00 (13:30-17:30) | +1h00 | — | **30'** | Đổi máy → mất ~40' dựng lại `.venv` + tải 4.4GB weights. Trạm 4b ✅ · Trạm 4c ✅ · **fix thật bug #25** (treo 23 ngày) · phát hiện + fix **bug #31** (lifespan không dọn model → CUDA OOM) · suite **70 passed**. Dừng sớm vì đổi máy, chưa làm 4d / bug #29 / `split_by_separators` |
 | 2026-09-06 | CN *(ca tối)* | — | 1h15 (20:45-22:00) | — | — | **0** *(dư 45')* | Cùng ngày tính gộp **5h15 vs sàn 3h → trả sạch nợ, dư 45'**. Trạm **4d** ✅ (hết bài trace 4 trạm) · **fix bug #29** + test race, tự chứng minh test đỏ được (7560/8000) · đổi tên `fixed_size_chunk`, vấp [bug #32](./bug-log.md) → **71 passed** |
 | 2026-09-07 | Hai | 3h00 | ~2h00 (20:45-22:41) | −1h00 | BKK | **15'** | Ôn trượt nặng phải vá tại chỗ → lòi lỗ hổng cú pháp Python, phải chèn drill 6 bài (6/6). Cặp 10 `def`↔`async def` vá bằng **tự đo** 2.05s/6.02s sau khi sai 4 lượt. `diff_manifest` 4/4 → Cặp 1 sạch. **`merge_pieces` — hàm đầu tiên user tự viết trọn vẹn, không Copilot.** Dừng vì mệt. Suite 71 passed |
+| 2026-09-08 | Ba | 3h00 | **0h** | −3h00 | BKK | **3h15** | **NGHỈ — OT.** Không mở máy. Commit `0ecef0e` lúc 18:53 chỉ là commit lại phần việc của buổi 07/09, không phải giờ học mới |
 
-> **Tình trạng 07/09:** nợ **15'** (dư 45' từ 06/09 − 1h thiếu hôm nay), vẫn toàn bộ `BKK`,
+> **Tình trạng 09/09 (đầu buổi):** nợ **3h15**, vẫn toàn bộ `BKK`, chưa phát sinh lãi, chưa chạm
+> trần 6h. Hôm nay cam kết 4h30 (1h30 sáng + 3h tối) vs sàn 3h → trả 1h30, cuối ngày còn **1h45**.
+> ⚠️ **Rủi ro thật không phải con số nợ** mà là: **recursive chunker sang ngày thứ 3 vẫn chưa đóng**
+> (07/09 xong 1 hàm · 08/09 nghỉ · 09/09 sáng ăn hết vào ôn). Luật "1 kỹ thuật / 2 ngày" đã trượt.
+> Mốc tự kiểm **10/09** phải re-plan thật, đừng để trôi.
+>
+> *(cũ 07/09)* **Tình trạng 07/09:** nợ **15'** (dư 45' từ 06/09 − 1h thiếu hôm nay), vẫn toàn bộ `BKK`,
 > chưa chạm trần 6h, chưa phát sinh lãi. Buổi ngắn (2h) nhưng **không phải buổi trôi**: 4 hạng mục
 > vá nền + 1 hàm tự viết. Rủi ro thật không nằm ở 1h thiếu này mà ở chỗ **chunker chưa xong** —
 > nếu 08/09 vẫn chưa khép được thì luật "1 kỹ thuật / 2 ngày" bắt đầu trượt, và mốc tự kiểm 10/09

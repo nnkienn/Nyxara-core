@@ -214,6 +214,61 @@ Cùng họ với lỗi "gọi hàm mà không hứng giá trị trả về" (CLA
 
 ---
 
+## Cặp 12 — quyển **SỔ** (`manifest`) vs **KỆ HÀNG** (3 kho)  (sai 3 lần trong 1 buổi, 2026-09-09)
+
+> Lỗi dai nhất từ trước tới nay: 07/09 sai 1 lần, 09/09 sai thêm **3 lần liên tiếp** trong cùng
+> một buổi — luôn theo cùng một hướng: **gán quyết định skip cho 3 kho**. Chỉ vá được khi chạy
+> thật và in ra ([drills/2026-09-09-manifest-vs-kho.py](../drills/2026-09-09-manifest-vs-kho.py)).
+
+|  | `manifest` — quyển **SỔ** | `BM25Index` / Qdrant / `DocStore` — **KỆ HÀNG** |
+|---|---|---|
+| Vai trò trong `ingest_document` | nơi **HỎI** | nơi **RA LỆNH** |
+| Dòng code | `old_doc = get_doc_manifest(manifest, …)` | `add_document` · `save` · `upsert` · `delete` |
+| Có dòng nào hỏi nó "trong mày đang có gì" không? | ✅ có — chính là dòng trên | ❌ **KHÔNG MỘT DÒNG NÀO** |
+| Chứa gì | `{chunk_index: hash}` | text / vector / token thật |
+| Sau fix #25 sống ở đâu | `dict` trong RAM (`app.state.manifest`) | RAM cả ba |
+
+**Ba dòng quyết định** ([pipeline.py:96-98](../../app/application/ingestion/pipeline.py#L96-L98)) —
+đọc kỹ xem chúng đụng vào cái gì:
+```
+old_doc = get_doc_manifest(manifest, tenant_id, doc_id)   # ① hash CŨ, lấy từ SỔ
+new_doc = {str(i): _hash(chunk) ...}                      # ② hash text VỪA GỬI LÊN
+to_upsert, to_skip, to_delete = diff_manifest(old_doc, new_doc)   # ③ so hai dict trên
+```
+Chỉ có `manifest` và `chunks`. Ba kho mãi phía dưới mới xuất hiện, và chỉ để **nhận lệnh**.
+
+**Ẩn dụ neo:** thủ kho **chỉ đọc sổ, không bao giờ ra kệ đếm**. Sổ ghi "đủ 3 thùng" → nói *"khỏi
+nhập"*. Kệ bị khuân sạch lúc nào ông cũng không biết.
+
+**Bảng số thật (đo 2026-09-09), cùng một hành động "ingest lại y hệt":**
+
+| Tình huống trước lệnh | kết quả | BM25 sau lệnh |
+|---|---|---|
+| sổ rỗng, kệ rỗng | `3 / 0 / 0` | 3 chunk |
+| sổ đủ, kệ đủ (không restart) | `0 / 3 / 0` | 3 chunk |
+| sổ đủ, **kệ bị dọn sau lưng** | `0 / 3 / 0` | **[] rỗng** ⚠️ |
+| **restart bản đã fix** — sổ chết theo kệ | `3 / 0 / 0` | 3 chunk ✅ |
+| **restart kiểu cũ** — sổ sống dai hơn kệ | `0 / 3 / 0` | **[] rỗng** ⚠️ = bug #25 |
+
+Hai dòng cuối khác nhau **đúng một chuyện**: manifest có chết theo hay không. Đó là toàn bộ nội
+dung fix #25 — không phải "ghi sổ cẩn thận hơn" mà là **"cùng dễ vỡ"**, bắt sổ chết đúng lúc kệ chết.
+
+**Điều "cùng dễ vỡ" KHÔNG chữa được** (dòng 3 của bảng): ai sửa thẳng vào kho sau lưng manifest thì
+vẫn lệch. Fix chỉ bịt con đường **restart** — con đường duy nhất đã gây bug thật.
+
+**Chốt bằng lời user (09/09):** *"con số 3 đó là láo — sổ ghi bỏ qua 3 mà kho không có gì; đáng lẽ
+sổ phải rỗng theo cái kho, sổ với kho đi đúng với nhau."*
+
+⚠️ **Vặn thêm nửa vòng:** con số `3` **không sai về số học** — trong sổ đúng là có 3 hash khớp. Cái
+láo là **lời hứa** đi kèm: `chunk_skipped: 3` nghĩa là *"3 chunk này đã nằm sẵn trong kho, khỏi ghi"*,
+mà vế "đã nằm trong kho" chưa bao giờ được kiểm chứng. **Đếm trên sổ, nhưng phát biểu về kho.**
+Cùng bệnh với [Cặp 11](#) và `recursive_chunk` không đệ quy.
+
+🪤 **Bẫy còn nằm sẵn:** `load_manifest` / `save_manifest` **vẫn còn** trong `pipeline.py` nhưng
+**không ai gọi**. Đọc lướt thấy chúng là kết luận nhầm "manifest trên đĩa".
+
+---
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -243,3 +298,18 @@ quả đo. **Chậm lại ở chỗ đọc là loại chi phí rẻ nhất.**
 
 *(Cặp 10 và 11 do Claude viết cuối buổi lúc user đã mệt — user kể lại bằng lời mình sáng 08/09,
 đúng như đã làm với `03-crag.md` ngày 04-05/09.)*
+
+| 2026-09-09 sáng | drill ép chọn 13 câu (gộp 6 mốc tới hạn) | **9/13** | câu 3 + câu 7 (đều là Cặp 12), câu 4 (lấy nhầm công thức RRF cho BM25), câu 5 (Cặp 4 — tưởng cross-encoder tính sẵn được), câu 10 (thiếu tiêu chí additive) |
+| 2026-09-09 sáng | drill Cặp 12, 6 câu | **sai câu 2 + lý do câu 4** | Cặp 12 — lần thứ 3 trong buổi gán quyết định skip cho 3 kho |
+| 2026-09-09 sáng | chạy thật + in ra (5 kịch bản) | tự giảng lại đúng | Cặp 12 ✅ vá bằng **số**, không phải bằng giảng — lặp lại đúng công thức đã gỡ nút ngày 04/09 và 07/09 |
+
+**Nhận xét 2026-09-09:** lần thứ **ba liên tiếp** một cặp dai chỉ chịu vào sau khi **chạy thật và
+in ra** (04/09 `candidate_k` · 07/09 `def`/`async def` · 09/09 manifest ↔ 3 kho). Ba lần đều đã
+giảng bằng lời trước đó mà không ăn. **Rút thành luật: cặp nào sai tới lần thứ 2 thì đừng giảng
+lần 3 — dựng bài đo ngay.** Giảng lần 3 tốn giờ và làm user nản ("khó quá", "chưa hiểu nhỉ").
+
+⚠️ **Ghi thêm — dấu hiệu cần đổi cách, gặp thật sáng 09/09:** user nhắn *"KHÓ QUÁ BẠN KHÔNG BIẾT
+CHẠY SAO"*. Không phải bí kiến thức — bí **thao tác**: câu lệnh phải đứng ở thư mục `nyxara-core`
+và cần `PYTHONPATH=.`, mà terminal đang ở `Developer`. **Bài đo do Claude dựng thì Claude chạy hộ
+luôn**, đừng bắt user vật lộn với đường dẫn giữa lúc đang tắc khái niệm — trộn hai loại khó vào
+nhau là mất cả hai.
