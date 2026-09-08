@@ -28,8 +28,15 @@
 | 2026-09-05 | Bảy | 3h00 | ~3h30 (19:55-00:05, nghỉ 2×20') | +30' | BKK | **1h30** | OT chiều nên mất ca 14:00-16:30 của kế hoạch. Ca tối: drill closure 4/4 · **tự code xong fix bug #26** · tự viết 2 test bắt quá trình · phát hiện + fix bug #27 → suite **68 xanh** (lần đầu xanh sau 8 ngày) · làm luôn Trạm 4a phần chẩn đoán |
 | 2026-09-06 | CN | 3h00 | ~4h00 (13:30-17:30) | +1h00 | — | **30'** | Đổi máy → mất ~40' dựng lại `.venv` + tải 4.4GB weights. Trạm 4b ✅ · Trạm 4c ✅ · **fix thật bug #25** (treo 23 ngày) · phát hiện + fix **bug #31** (lifespan không dọn model → CUDA OOM) · suite **70 passed**. Dừng sớm vì đổi máy, chưa làm 4d / bug #29 / `split_by_separators` |
 | 2026-09-06 | CN *(ca tối)* | — | 1h15 (20:45-22:00) | — | — | **0** *(dư 45')* | Cùng ngày tính gộp **5h15 vs sàn 3h → trả sạch nợ, dư 45'**. Trạm **4d** ✅ (hết bài trace 4 trạm) · **fix bug #29** + test race, tự chứng minh test đỏ được (7560/8000) · đổi tên `fixed_size_chunk`, vấp [bug #32](./bug-log.md) → **71 passed** |
+| 2026-09-07 | Hai | 3h00 | ~2h00 (20:45-22:41) | −1h00 | BKK | **15'** | Ôn trượt nặng phải vá tại chỗ → lòi lỗ hổng cú pháp Python, phải chèn drill 6 bài (6/6). Cặp 10 `def`↔`async def` vá bằng **tự đo** 2.05s/6.02s sau khi sai 4 lượt. `diff_manifest` 4/4 → Cặp 1 sạch. **`merge_pieces` — hàm đầu tiên user tự viết trọn vẹn, không Copilot.** Dừng vì mệt. Suite 71 passed |
 
-> **Tình trạng 06/09:** nợ còn **30'**, vẫn toàn bộ `BKK`. Kế hoạch 6h không đạt (làm ~4h, dừng
+> **Tình trạng 07/09:** nợ **15'** (dư 45' từ 06/09 − 1h thiếu hôm nay), vẫn toàn bộ `BKK`,
+> chưa chạm trần 6h, chưa phát sinh lãi. Buổi ngắn (2h) nhưng **không phải buổi trôi**: 4 hạng mục
+> vá nền + 1 hàm tự viết. Rủi ro thật không nằm ở 1h thiếu này mà ở chỗ **chunker chưa xong** —
+> nếu 08/09 vẫn chưa khép được thì luật "1 kỹ thuật / 2 ngày" bắt đầu trượt, và mốc tự kiểm 10/09
+> sẽ phải re-plan thật.
+>
+> *(cũ 06/09)* nợ còn **30'**, vẫn toàn bộ `BKK`. Kế hoạch 6h không đạt (làm ~4h, dừng
 > vì đổi máy) nhưng vẫn dư 1h so với sàn 3h → trả được 1h nợ. Chưa chạm trần 6h, chưa phát sinh lãi.
 > **Việc trôi sang buổi sau:** Trạm 4d · fix bug #29 · nối `split_by_separators` — tức là
 > **Phase 0 chưa đóng sổ** như kế hoạch. Cần tính lại lịch tháng 9 nếu buổi 07/09 vẫn phải vá nền.

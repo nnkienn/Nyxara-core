@@ -351,6 +351,35 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   tường minh 3 file. **Luật mới: đổi tên trong CODE, KHÔNG đổi tên trong GHI CHÉP LỊCH SỬ** — note
   cũ giữ tên cũ, chỉ thêm dòng "đã đổi tên thành X ngày dd/mm".
 
+  **2026-09-07 (T2, 20:45-22:41 ≈ 2h): VÁ NỀN + hàm đầu tiên user tự viết trọn vẹn.**
+  Kế hoạch 40' ôn + 2-3h chunker, thực tế ôn trượt nặng nên vá tại chỗ hết buổi.
+  - **Cặp 10 `def` ↔ `async def`:** sai **4 lượt liên tiếp, đảo ngược có hệ thống** — kể cả ngay
+    sau khi vừa đọc bảng giải thích nói đúng điều ngược lại. Chỉ vá được bằng **tự đo**: 2 endpoint
+    thân giống hệt, bắn 3 request → `def` **2.05s** (song song, threadpool) vs `async def` **6.02s**
+    (xếp hàng, 1 event loop). **Bằng chứng sạch nhất từ trước tới nay cho luật "đọc giải thích
+    không cài được phân biệt"** — chỉ số tự đo mới lật được nhãn.
+  - `diff_manifest` dự đoán trước rồi chạy → **4/4**, Cặp 1 (`to_upsert`/`to_delete`) **sạch**.
+  - **Chèn drill cú pháp Python 6 bài → 6/6** (§3.5), sau khi user tự báo "bí rồi" và xác nhận bí
+    ở **cú pháp** chứ không phải logic. Đúng protocol, và hiệu quả lại ngay: gõ xong drill thì viết
+    được `merge_pieces` liền.
+  - **`merge_pieces` (bước "gộp" của recursive chunker) — user TỰ VIẾT, chạy đúng.** Đây là hàm đầu
+    tiên tự viết trọn vẹn kể từ lúc tự chẩn 04/09 *"hiểu mà code lại không được"*. Bản tự viết còn
+    **chặt hơn bản Copilot** đã xoá (có chốt `if current_merge:` chặn túi rỗng; bản Copilot thiếu).
+  - **Chốt thiết kế user tự hỏi ra:** *"phải cắt chữ `ngu` ra à?"* → **KHÔNG.** **`size` là TRẦN,
+    không phải CHỈ TIÊU** — thà túi lưng 8/10 còn hơn chém đôi một từ, vì chém giữa từ đúng là việc
+    `fixed_size_chunk` đã làm. Đây là cả triết lý của recursive chunking, đã in đối chứng thật
+    (`Cho t` | `hich chay` — chunk mở đầu bằng `hich`, vector của rác).
+  - ⚠️ **Copilot gõ hộ giữa buổi** — user tự báo *"do gợi ý code chứ tôi không biết viết"* rồi tự
+    quyết xoá đi viết lại. **Autocomplete đưa thẳng tới trạng thái "hiểu mà không code được"**, đúng
+    lỗ hổng §1 tồn tại để bịt. **Luật: tắt Copilot khi làm phần lõi.**
+  - **Ba lỗi lặp, không cái nào là lỗi quên:** (1) **đọc lướt** — cả 3 lỗi thật của buổi đều là trả
+    lời theo cái mình *tưởng* đề đang hỏi, kể cả tin `0.05s` là kết quả đo trong khi đó là 404;
+    (2) **trả về CON SỐ thay vì VẬT** — 3 lần trong 1 ngày, đã thành Cặp 11; (3) **chạy file chưa
+    lưu** — 3 lần, đã đóng vĩnh viễn bằng auto-save trong `.vscode/settings.json`.
+  - Suite: **71 passed** (chạy toàn bộ, đo thật).
+  - ⬜ **Còn nợ sang 08/09:** test cho `merge_pieces` · giữ separator · overlap · nối `/ingest` ·
+    ôn bù *Vòng đời trạng thái* · mốc **+3** CRAG (đã dời từ 07/09, phải **code tay lại**).
+
 - 📊 **ĐÁNH GIÁ TIẾN ĐỘ THÁNG 9 (chốt 2026-09-06, dùng lại mỗi lần cần kiểm):**
   Đếm theo đúng granularity của [LEARNING_ROADMAP.md dòng 40](Learning-document/LEARNING_ROADMAP.md), ~13 milestone:
   ```
@@ -411,7 +440,8 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   ⚠️ **04/09 phải ôn bù** 2 kỹ thuật này trước, chưa được tính mốc +3.
   (2026-09-01 đã chèn 1 đợt drill cú pháp Python giữa buổi — xem §3.5. Cấu trúc dict-vs-list
   vẫn còn lệch lai rai khi trace, sửa 1 lần là ra.)
-- ⏳ Kế tiếp: nối `split_by_separators` → *(hết Phase 0)*  ~~Trạm 4d~~ ✅ · ~~bug #29~~ ✅ · ~~bug #25~~ ✅ đều 06/09
+- ⏳ Kế tiếp: **recursive chunker** — ~~bước gộp (`merge_pieces`)~~ ✅ 07/09 (user tự viết) · ⬜ test cho nó · ⬜ giữ separator · ⬜ overlap · ⬜ nối `/ingest` → *(hết Phase 0)*
+  ~~Trạm 4d~~ ✅ · ~~bug #29~~ ✅ · ~~bug #25~~ ✅ đều 06/09
   → Document-based chunking (kỹ thuật MỚI đầu tiên của tháng 9). ~~Trạm 2, Trạm 3~~ ✅ 02/09, 05/09
   → Phase 2.4 (Metadata filter → MMR) → Phase 3 (Eval)
 

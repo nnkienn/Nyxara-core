@@ -22,3 +22,17 @@ def split_by_separators(text: str, size: int, separators: list[str]) -> list[str
         else:
             result.append(part)
     return result
+def merge_pieces(pieces: list[str], size:int) -> list[str]:
+    merges = []
+    current_merge = ""    
+    for piece in pieces:
+        if (len(current_merge) + len(piece) <= size):
+            current_merge += piece
+        else:
+            if current_merge:
+                merges.append(current_merge)
+            current_merge = piece
+    if current_merge:
+        merges.append(current_merge)
+    return merges
+

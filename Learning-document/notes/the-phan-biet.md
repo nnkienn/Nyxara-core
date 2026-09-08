@@ -162,6 +162,58 @@ Có → state. Không có, mà nó là **tham số của hàm bọc ngoài** →
 
 ---
 
+## Cặp 10 — `def` vs `async def` trong FastAPI  (Trạm 4d, drill lại 2026-09-07)
+
+⚠️ **Hai từ khoá này nói dối trắng trợn** — chữ "async" nghe như song song, nhưng nó là cái TUẦN TỰ.
+
+| | `def` (hàm thường) | `async def` |
+|---|---|---|
+| FastAPI chạy nó ở đâu | **threadpool** — n luồng thật | **event loop** — đúng 1 luồng |
+| Nhiều request cùng lúc | **song song thật** (parallelism) | **xen kẽ** (concurrency), chỉ nhường lượt tại `await` |
+| Có lệnh chặn bên trong (`time.sleep`) | vẫn song song, luồng khác chạy tiếp | **cả server đứng xếp hàng** |
+| Cần `Lock` cho state dùng chung? | ✅ CÓ — có luồng thật mới có ATM | ❌ không, nếu đoạn đọc-sửa-ghi không có `await` chen vào (nguyên tử sẵn) |
+
+**Số đo thật, tự chạy 2026-09-07** ([drills/2026-09-07-def-vs-async.py](../drills/2026-09-07-def-vs-async.py)) —
+2 endpoint thân giống hệt nhau, mỗi cái `time.sleep(2)`, bắn 3 request đồng thời:
+
+```
+/sync   (def)        -> 2.05s     ← 3 luồng chạy cùng lúc
+/async  (async def)  -> 6.02s     ← xếp hàng, 2+2+2
+```
+
+> Câu thần chú: **`async` là nhường lượt, không phải thêm người làm.**
+>
+> Neo phụ: `BM25Index` cần `Lock` **chính vì** handler là `def` trần. Nếu nó là `async def` và
+> đoạn đọc-sửa-ghi không có `await` nào, khoá đó đã là thừa.
+
+⚠️ **Bẫy đã mắc (07/09, sai 4 lượt liên tiếp):** trả lời **đảo ngược có hệ thống** cả 4 câu —
+kể cả ngay sau khi vừa đọc bảng nói đúng điều ngược lại. Bằng chứng sạch cho luật ở
+[review-schedule.md § Luật bổ sung](./review-schedule.md) mục 2: **đọc giải thích không cài được
+phân biệt.** Chỉ tự đo mới lật được nhãn. Hiểu hậu quả (kể được ví dụ ATM) ≠ nhớ được nhãn nào
+gây ra hậu quả đó.
+
+---
+
+## Cặp 11 — trả về **CON SỐ** vs trả về **VẬT**  (gặp 3 lần trong 1 ngày, 2026-09-07)
+
+Không phải cặp thuật ngữ RAG — đây là **thói quen tay** đang lặp lại, nên ghi vào đây để drill.
+
+| Lần | Trả về nhầm | Người gọi thật sự cần |
+|---|---|---|
+| bài đóng gói (ẩn dụ) | *"giao số túi đã đầy"* | **những cái túi** — nội dung bên trong |
+| [bug #30](./bug-log.md) (06/09) | `chunk_count` = số nhát cắt | **số chunk thật sự ghi vào kho** |
+| `merge_pieces` (07/09) | `current_merge` — một túi (`str`) | `merges` — **danh sách** túi (`list[str]`) |
+
+> Câu tự kiểm trước mỗi lần gõ `return`: **người gọi hàm này cần cầm cái gì trên tay?**
+>
+> Neo phụ: chữ ký hàm đã ghi sẵn câu trả lời. `-> list[str]` mà `return` ra `str` là sai ngay ở
+> dòng đầu, không cần chạy mới biết.
+
+Cùng họ với lỗi "gọi hàm mà không hứng giá trị trả về" (CLAUDE.md §6, đã dính 3 lần) — đều là
+**đứt mạch giữa thứ hàm làm ra và thứ người gọi nhận được**.
+
+---
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -177,3 +229,17 @@ Có → state. Không có, mà nó là **tham số của hàm bọc ngoài** →
 **"có file thì sống · không file thì chết theo process"** (`cat data/manifest.json` mở được;
 không hề tồn tại `bm25_index.json`; và workaround `rm data/manifest.json` phải làm **thủ công**
 chính vì nó không tự mất).
+
+| 2026-09-07 | ôn +1 ba hàng, hỏi mở | **1/3** (vòng đời trạng thái) | quyết định skip đọc **manifest** chứ không đọc 3 kho; fix #25 nói nhầm sang tầng retrieval |
+| 2026-09-07 | drill ép chọn 10 câu | **7/10** | câu 3 (đọc lướt, không phải lẫn), câu 5 (`chunk_count`), câu 8 (`def` → tưởng tuần tự) |
+| 2026-09-07 | drill Cặp 10, 3 câu | **0/3** — đảo ngược hết | Cặp 10 — đọc bảng xong vẫn trả lời ngược. Phải **tự đo** mới vào |
+| 2026-09-07 | sau khi tự đo 2.05s/6.02s | tự giảng lại đúng | Cặp 10 ✅ vá bằng số, không phải bằng giảng |
+| 2026-09-07 | `diff_manifest` 4 ca, dự đoán trước | **4/4** | — → **Cặp 1 SẠCH**, gỡ khỏi danh sách nợ (lần trước sai là đọc lướt, không phải lẫn) |
+
+**Nhận xét 2026-09-07:** ba lỗi thật trong buổi **không có lỗi nào là lỗi quên** — đều là *đọc
+lướt rồi trả lời theo cái mình tưởng đề đang hỏi*. Cùng cơ bắp với `recursive_chunk` không đệ quy,
+`chunk_count` không đếm cái nó có vẻ đếm, và bài đo hôm nay in ra `0.05s` (404) mà vẫn tin là kết
+quả đo. **Chậm lại ở chỗ đọc là loại chi phí rẻ nhất.**
+
+*(Cặp 10 và 11 do Claude viết cuối buổi lúc user đã mệt — user kể lại bằng lời mình sáng 08/09,
+đúng như đã làm với `03-crag.md` ngày 04-05/09.)*
