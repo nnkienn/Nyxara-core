@@ -97,6 +97,22 @@ hay `generation/`.
 > nếu ca tối còn dư; ba món còn lại đẩy sang 10/09 và **ghi vào kế hoạch 10/09 ngay**, đừng để trôi
 > thành nợ ngầm như mốc CRAG đã bị dời 3 lần.
 
+> ⏰ **Ca tối bị co lại 21:30-23:00 (~1h30) — OT về trễ.** 1h30 < ước lượng 2h20 → cắt 1 món.
+> **User chốt phương án A:** tối nay làm sâu (trace → 2 test → separator → overlap nếu kịp),
+> **hoãn nối `/ingest`** sang sáng 10/09.
+>
+> 🚨 **NỢ NỐI DÂY — VIỆC ĐẦU TIÊN SÁNG 10/09, LÀM TRƯỚC KHI MỞ BÀI MỚI:**
+> nối recursive chunker vào [`ingest.py:31`](../../app/presentation/api/ingest.py#L31) thay
+> `fixed_size_chunk`. **Chưa nối thì recursive chunker đếm là 0 cột mốc, không phải 0.9** — nó
+> sẽ thành `split_by_separators` **mồ côi lần thứ hai** (test xanh, không nơi nào gọi, tưởng đã
+> có mà chưa từng chạy thật — §3.8 CLAUDE.md).
+> ⚠️ Kèm theo, quyết định thiết kế còn treo: `/ingest` nhận `chunk_overlap: int = 20`. Nếu
+> recursive chunker chưa có overlap thì tham số đó thành **tham số câm** — nhận rồi lờ đi =
+> nói dối bằng chữ ký hàm, đúng loại bug đang chữa (`chunk_count`, `recursive_chunk` không đệ
+> quy, `test_..._restart` không restart). Phải xử lý tường minh, không được để im.
+> ⚠️ Và kiểm bắt buộc sau khi đổi: ***ai đang hứng giá trị trả về?*** (đã dính 3 lần).
+> Giữ `fixed_size_chunk`, KHÔNG xoá — Phase 3 còn benchmark.
+
 **📌 Ca tối 19:30-22:30 — ĐÓNG HẲN RECURSIVE CHUNKER** (nguyên kế hoạch 08/09, xem mục dưới):
 trace `merge_pieces` (số thật) → 2 test (**ca túi cuối** là test đáng giá) → **giữ separator** →
 **overlap** (⚠️ dán sau khi gộp là vượt `size`, phá đúng hợp đồng vừa hứa) → **nối vào `/ingest`**
