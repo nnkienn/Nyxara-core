@@ -51,7 +51,30 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 > 08/09 nghỉ (OT) → toàn bộ kế hoạch 08/09 dồn sang hôm nay, cộng **6 mốc ôn tới hạn cùng ngày**.
 > Chia ca: **sáng = ôn** (block ngắn, cắt ngang được) · **tối = đóng chunker** (cần 3h liền mạch).
 
-**Ca sáng — làm được:**
+**Ca sáng — code-tay CRAG (mốc +3, đã dời 3 lần) → trả được 1/3:**
+- ✅ `retrieve_node`: đóng sách gõ ra `state.get("candidate_k", candidate_k)` **đúng nguyên văn** —
+  thứ mà 03/09 trả lời ngược cả 4 ô. Phía **ĐỌC** coi như thuộc.
+- ❌ `grade_node`: tái hiện chính xác dict **bản TRƯỚC fix**, rơi mất đúng 2 dòng làm nên fix #26
+  (`if verdict == "INCORRECT": ket_qua["candidate_k"] = state.get("candidate_k", 0) * 2`).
+- ❌ `state.py`: trả lời `attempts : int` (đã có sẵn), đúng là `candidate_k : int`. **Sai vì (2) sai** —
+  không ghi khoá mới nào thì không còn gì để khai báo.
+- ⚠️ **Vi phạm đóng sách:** `state.py` đang mở sẵn trong IDE, con trỏ ngay dòng `attempts : int` —
+  và user chỉ đúng dòng đang nhìn thấy. Mở file mà vẫn sai thì tệ hơn nhắm mắt đoán: chứng tỏ đang
+  **đọc cái đang thấy** chứ không **suy từ bước trước xuống**.
+
+> 🧵 **SỢI CHỈ CỦA CẢ BUỔI SÁNG — ghi to, đây là chẩn đoán đáng giá nhất hôm nay:**
+> **user nắm chắc phía ĐỌC, hụt phía GHI.** Cặp 12: manifest *bị đọc* thì hiểu, "ai *ghi* vào nó,
+> lúc nào" thì trượt 3 lần. Fix #26: `retrieve_node` *đọc* → thuộc nguyên văn; `grade_node` *ghi*
+> → rơi mất. **Từ giờ mọi câu hỏi về trạng thái phải hỏi thành cặp: ai đọc? VÀ ai ghi?**
+
+**Lẫn tên lần thứ 3 trong buổi:** `fixed_size_chunk` bị gắn nhầm vào manifest, rồi vào retriever
+(*"ủa retriever nó giờ thành fixed_size_chunk rồi mà ta"*). Gốc: rename 06/09 `recursive_chunk` →
+`fixed_size_chunk` còn nóng trong đầu nên bám vào mọi chỗ trống. **Mẹo tự kiểm đã chốt: hỏi "cái
+này chạy lúc GHI (`/ingest`) hay lúc ĐỌC (`/ask`)?"** — `fixed_size_chunk` có đúng 1 nơi gọi
+([ingest.py:31](../../app/presentation/api/ingest.py#L31)), không một dòng nào trong `retrieval/`
+hay `generation/`.
+
+**Ca sáng — phần ôn làm được:**
 1. **Drill ép chọn 13 câu** gộp cả 6 mốc tới hạn → **9/13**.
 2. **Cặp 12 (SỔ ↔ KỆ HÀNG) — cặp mới, sai 3 lần liên tiếp trong một buổi.** Cả 3 lần cùng một
    hướng: gán quyết định skip cho 3 kho thay vì manifest. Giảng 2 lần không ăn.
@@ -65,7 +88,7 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 | Hàng | Mốc | Phải code tay lại | Ưu tiên |
 |---|---|---|---|
-| CRAG closure ↔ state | +3 (dời **lần thứ 3**: 07→08→09/09) | phần lõi fix #26 (`retrieve_node` đọc state · `grade_node` ghi state) | **1 — trả trước** |
+| CRAG closure ↔ state | +3 — **trả 1/3 sáng 09/09** | ~~`retrieve_node` đọc state~~ ✅ đóng sách gõ đúng nguyên văn · **`grade_node` ghi state + `candidate_k : int` trong `state.py` ❌ chưa thuộc** | **1 — trả nốt** |
 | Incremental ingest | +7 | `get_doc_manifest` + 3 dòng quyết định của `ingest_document` | 2 |
 | Thread-safety | +3 | `Lock` trên `self` + test race (kèm `setswitchinterval`) | 3 |
 | Retrieval 2 tầng | +7 | `reciprocal_rank_fusion` | 4 |
