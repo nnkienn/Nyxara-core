@@ -46,7 +46,58 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
-## ✅ Buổi 2026-09-09 (T4) — CA SÁNG 6:00-7:30 XONG · CA TỐI 19:30-22:30
+## 📌 Buổi 2026-09-10 (T5) — ĐÓNG CHUNKER, VÀO ĐÚNG CHỖ DỪNG
+
+> **Chỗ dừng chính xác tối 09/09 (22:01):** đang trace `merge_pieces`, bảng đã điền **4/7 dòng**.
+> User dừng vì *"không đủ tỉnh táo đọc code"*, tự chấp nhận trễ hẹn chunker 1 ngày. Đúng quyết định —
+> xem phần "lỗi chú ý" trong [so-gio.md](./so-gio.md).
+
+**Bảng trace đã chốt tới lượt 4** (`pieces = ["Meo","thich","ngu","Cho","thich","chay"]`, `size=10`):
+
+| lượt | `piece` | `len(cm)` | `len(piece)` | tổng | `<=10`? | nhánh | `current_merge` sau | `merges` sau |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `"Meo"` | 0 | 3 | 3 | ✅ | `if` | `"Meo"` | `[]` |
+| 2 | `"thich"` | 3 | 5 | 8 | ✅ | `if` | `"Meothich"` | `[]` |
+| 3 | `"ngu"` | 8 | 3 | 11 | ❌ | `else` | `"ngu"` | `["Meothich"]` |
+| 4 | `"Cho"` | 3 | 3 | 6 | ✅ | `if` | `"nguCho"` | `["Meothich"]` |
+| 5 | `"thich"` | ⬜ | 5 | | | | | |
+| 6 | `"chay"` | ⬜ | 4 | | | | | |
+| — | *sau vòng lặp* | — | — | — | — | — | ⬜ | ⬜ |
+
+**Ba thứ đã gỡ được trong lúc trace (giữ lại, đừng giảng lại từ đầu):**
+1. **`len` vs chỉ số cuối** — user ghi `len("Meo")=2`. `"Meo"` có chỉ số `0,1,2` nhưng **độ dài 3**.
+   Hụt 1 ở mọi chuỗi → rẽ nhầm nhánh ở lượt 3.
+2. **`current_merge` (túi đang cầm) ≠ `merges` (kệ để túi đã đóng)** — user nhét túi lên kệ ở nhánh
+   `if` **2 lần**. Thân nhánh `if` có **đúng 1 dòng** `current_merge += piece`, không có `merges`.
+3. **BA chữ `if` trong `merge_pieces`, phân biệt bằng THỤT LỀ** — user bôi đen dòng 35-36 (`if`
+   ngoài vòng lặp, 4 dấu cách, chạy **1 lần** sau khi hết lặp) và tưởng đó là nhánh `if` của lượt 4
+   (dòng 29, 8 dấu cách, chạy **mỗi lượt**). Câu hỏi user tự đặt ra rất đúng: *"làm gì có đoạn code
+   nào nói `len(current_merge)` lượt N = lượt N−1"* → **không có dòng nào cả**; đó là hệ quả của
+   `current_merge = ""` nằm **ngang hàng** `for`, chạy 1 lần, và không dòng nào reset nó.
+   → **Mẹo đã chốt: thấy khối lệnh, hỏi "nó thụt vào bao nhiêu / sống trong cái gì" TRƯỚC khi hỏi
+   "nó làm gì".** Cùng bài với `with` lồng nhau ngày 06/09.
+
+**Thứ tự 10/09 (ước lượng thật, đừng lạc quan):**
+1. **5'** — điền nốt lượt 5, 6 + dòng sau vòng lặp. Đã có đà, đừng làm lại từ đầu.
+2. **20'** — 2 test cho `merge_pieces`: ca gộp bình thường + **ca túi cuối** (input mà vòng lặp
+   KHÔNG BAO GIỜ vào nhánh `else` → chặn đúng con bug thiếu khối dòng 35-36). Câu hỏi để mở sẵn từ
+   tối 09/09, trả lời nó là viết được test: ***`if` dòng 35 tồn tại để làm gì?***
+3. **30'** — **giữ separator**: `str.split` đang nuốt dấu, ghép chunk lại không ra text gốc.
+   Trace lượt 2 cho thấy tận mắt: `"Meothich"` — hai từ dính liền.
+4. **30'** — **overlap**. ⚠️ Dán overlap SAU khi gộp thì chunk **vượt `size`**, phá đúng hợp đồng
+   hàm vừa hứa. Đây là bug có thật trong bản Copilot đã xoá.
+5. **30' — NỐI `/ingest`. KHÔNG ĐƯỢC BỎ.** Xem khối 🚨 ở mục buổi 09/09. Hết giờ thì cắt mục 4,
+   **không cắt mục 5** — chưa nối thì cả milestone đếm là 0.
+
+**Quyết định còn treo (từ 07/09):** mẩu tự nó dài hơn `size` thì làm gì? Hiện `merge_pieces` cho
+lọt ra nguyên vẹn, vượt `size`. Liên quan thẳng `split_by_separators`.
+
+**Nợ ôn chưa trả (4 món code-tay-lại)** — xem bảng ở mục buổi 09/09. Ưu tiên 1: `grade_node` ghi
+state + `candidate_k : int` (phía **GHI** của fix #26).
+
+---
+
+## ✅ Buổi 2026-09-09 (T4) — CA SÁNG 6:00-7:30 ✅ · CA TỐI 21:30-22:01 (OT, dừng sớm vì mệt)
 
 > 08/09 nghỉ (OT) → toàn bộ kế hoạch 08/09 dồn sang hôm nay, cộng **6 mốc ôn tới hạn cùng ngày**.
 > Chia ca: **sáng = ôn** (block ngắn, cắt ngang được) · **tối = đóng chunker** (cần 3h liền mạch).

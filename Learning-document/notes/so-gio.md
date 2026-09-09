@@ -30,8 +30,24 @@
 | 2026-09-06 | CN *(ca tối)* | — | 1h15 (20:45-22:00) | — | — | **0** *(dư 45')* | Cùng ngày tính gộp **5h15 vs sàn 3h → trả sạch nợ, dư 45'**. Trạm **4d** ✅ (hết bài trace 4 trạm) · **fix bug #29** + test race, tự chứng minh test đỏ được (7560/8000) · đổi tên `fixed_size_chunk`, vấp [bug #32](./bug-log.md) → **71 passed** |
 | 2026-09-07 | Hai | 3h00 | ~2h00 (20:45-22:41) | −1h00 | BKK | **15'** | Ôn trượt nặng phải vá tại chỗ → lòi lỗ hổng cú pháp Python, phải chèn drill 6 bài (6/6). Cặp 10 `def`↔`async def` vá bằng **tự đo** 2.05s/6.02s sau khi sai 4 lượt. `diff_manifest` 4/4 → Cặp 1 sạch. **`merge_pieces` — hàm đầu tiên user tự viết trọn vẹn, không Copilot.** Dừng vì mệt. Suite 71 passed |
 | 2026-09-08 | Ba | 3h00 | **0h** | −3h00 | BKK | **3h15** | **NGHỈ — OT.** Không mở máy. Commit `0ecef0e` lúc 18:53 chỉ là commit lại phần việc của buổi 07/09, không phải giờ học mới |
+| 2026-09-09 | Tư | 3h00 | ~2h10 (6:00-7:30 · 21:30-22:01) | −50' | BKK | **4h05** | Sáng: drill 13 câu 9/13 · **Cặp 12 mới** vá bằng bài đo · code-tay CRAG trả 1/3. Tối OT về 21:30, dừng 22:01 — user tự báo *"không đủ tỉnh táo đọc code"*, chấp nhận trễ hẹn chunker 1 ngày. Trace `merge_pieces` mới xong 4/7 dòng |
 
-> **Tình trạng 09/09 (đầu buổi):** nợ **3h15**, vẫn toàn bộ `BKK`, chưa phát sinh lãi, chưa chạm
+> **Tình trạng 09/09 (cuối ngày):** nợ **4h05**, vẫn toàn bộ `BKK` (OT 3 buổi trong 6 ngày),
+> chưa phát sinh lãi. **Nhưng đã đi 2/3 đường tới trần 6h** — chạm trần là mất trọn 1 buổi để
+> re-plan, tức mất thêm 3h nữa. Hai ngày tới mà còn OT thì chạm.
+>
+> 🔍 **Phát hiện đáng giá nhất của ngày, ảnh hưởng thẳng tới cách xếp lịch:** **lỗi của user hôm
+> nay gần như 100% là lỗi CHÚ Ý, không phải lỗi hiểu.** Đếm được: `len("Meo")=2` (đọc chỉ số cuối
+> thay vì độ dài) · kéo ô `0` của lượt 1 xuống lượt 2 · nhét `current_merge` vào `merges` ở nhánh
+> `if` (2 lần) · nhìn nhầm `if` dòng 35 thành `if` dòng 29 · chọn `attempts` vì nó đang mở trên màn
+> hình · gắn `fixed_size_chunk` vào retriever. **Và chúng tăng dần theo độ mệt:** ca sáng 9/13 với
+> mấy câu trả lời rất chắc, ca tối lệch một ô mỗi dòng bảng.
+> → **Hệ quả xếp lịch: ca sáng đáng giá hơn ca tối rất nhiều đối với user này.** Ca tối sau OT có
+> thể cho sản lượng gần bằng 0 mà vẫn tốn giờ. Cân nhắc: buổi nào OT về sau 21h thì **đổi nội dung
+> ca tối sang loại ít cần chú ý** (drill ép chọn, giảng lại bằng lời) thay vì trace/đọc code, và
+> dồn việc đọc code sang sáng.
+
+> *(cũ, đầu buổi 09/09)* **Tình trạng 09/09 (đầu buổi):** nợ **3h15**, vẫn toàn bộ `BKK`, chưa phát sinh lãi, chưa chạm
 > trần 6h. Hôm nay cam kết 4h30 (1h30 sáng + 3h tối) vs sàn 3h → trả 1h30, cuối ngày còn **1h45**.
 > ⚠️ **Rủi ro thật không phải con số nợ** mà là: **recursive chunker sang ngày thứ 3 vẫn chưa đóng**
 > (07/09 xong 1 hàm · 08/09 nghỉ · 09/09 sáng ăn hết vào ôn). Luật "1 kỹ thuật / 2 ngày" đã trượt.
