@@ -166,10 +166,21 @@ Chúng chữa bằng **ngủ đủ và làm đúng việc vào đúng giờ**.
 
 **Luật xếp việc:**
 
-| Mức tỉnh táo | Hợp với | KHÔNG hợp |
+**Mốc chia KHÔNG phải "sáng / tối" mà là GIỜ BẮT ĐẦU + có OT hay không.** Ca tối bắt đầu ~19h
+khi về sớm vẫn là ca tốt — đừng đọc luật này thành "cấm học buổi tối".
+
+| Ca | Hợp với | KHÔNG hợp |
 |---|---|---|
-| **Sáng / đầu buổi, đầu óc sạch** | đọc thân hàm lạ · trace điền bảng số thật · debug · thiết kế | — |
-| **Tối muộn / sau OT về sau 21h** | drill ép chọn A/B · giảng lại bằng lời · viết note/ghi bug-log · viết test cho thứ **đã hiểu rõ trong ngày** | ❌ **đọc code chưa nạp vào đầu** · ❌ trace code cũ · ❌ bài thiết kế |
+| **Sáng, đầu óc sạch** | đọc thân hàm lạ · trace điền bảng số thật · debug · bài thiết kế | — |
+| **Tối bắt đầu ~19:00-19:30, về sớm, không OT** | **y như ca sáng** — code tay, đọc code, trace, debug đều được | — |
+| **Bắt đầu sau ~21h, hoặc vừa OT về** | drill ép chọn A/B · giảng lại bằng lời · viết note/ghi bug-log · viết test cho thứ **đã hiểu rõ trong ngày** | ❌ **đọc code chưa nạp vào đầu** · ❌ trace code cũ · ❌ bài thiết kế |
+
+> **Bằng chứng cho dòng giữa (đừng cắt ca tối sớm — nó là ca có sản lượng cao nhất dự án này):**
+> **05/09 19:55-23:45** — buổi code tay đầu tiên và tốt nhất: drill closure 4/4, tự code xong fix
+> bug #26, tự viết 2 test bắt quá trình, phát hiện + fix bug #27.
+> **06/09 20:45-22:45** — Trạm 4d + tự fix bug #29 (`Lock`) + test 4 luồng, tự chứng minh test đỏ được.
+> **07/09 20:45-22:41** — `merge_pieces`, hàm đầu tiên user tự viết trọn vẹn không Copilot.
+> Ca hỏng duy nhất là **09/09 21:30 sau OT** — bắt đầu muộn **và** vừa tan ca.
 
 1. **Việc "nạp code lạ vào đầu" chỉ làm lúc tỉnh.** Đọc thân hàm chưa quen, trace code viết từ buổi
    trước, debug — đây là loại tốn chú ý nhất, và là loại sinh ra lỗi rác phải đi sửa hôm sau.
@@ -179,8 +190,9 @@ Chúng chữa bằng **ngủ đủ và làm đúng việc vào đúng giờ**.
 3. **Buổi tối vẫn tính giờ, chỉ đổi nội dung.** Đừng bỏ buổi (nợ giờ là deadline lùi thật, §sổ giờ),
    cũng đừng ép đọc code. Đổi sang drill/giảng lại/ghi note là vẫn tiến, vẫn đúng Method 2.0
    (retrieval practice mới là thứ ăn tiền, không phải số dòng code đọc được).
-4. **Claude phải chủ động hỏi khi buổi bắt đầu sau 21h:** *"hôm nay OT à — đổi sang drill/giảng lại
-   thay vì đọc code nhé?"* Đừng chờ user tự nhận ra lúc đã ngồi 30 phút.
+4. **Claude phải chủ động hỏi khi buổi bắt đầu sau 21h HOẶC user báo vừa OT về:** *"hôm nay OT à —
+   đổi sang drill/giảng lại thay vì đọc code nhé?"* Đừng chờ user tự nhận ra lúc đã ngồi 30 phút.
+   Buổi tối bắt đầu ~19h thì **không cần hỏi**, cứ xếp việc như ca sáng.
 5. **Dấu hiệu phải dừng ngay, không cần hỏi thêm:** sai 2 lượt liên tiếp mà cả 2 đều là lỗi **đọc**
    (nhìn nhầm dòng, nhầm biến, tính nhầm độ dài) chứ không phải lỗi lý luận.
 
@@ -201,9 +213,11 @@ User chỉ cần gõ 1 trong 3 câu sau, không cần nhắc lại luật mỗi 
 - **"Dừng ở đây"** → ghi lại đúng chỗ dừng vào file trạng thái liên quan (trace-exercise/
   roadmap/review-schedule) trước khi kết thúc, để buổi sau tiếp đúng mạch không phải dò lại.
 
-⏰ **Trước khi chốt nội dung buổi, xem giờ đã** — nếu buổi bắt đầu sau **21h** (hoặc user báo vừa
-OT về), áp [§3.9](#39-xếp-việc-theo-mức-tỉnh-táo--không-đọc-code-lúc-mệt-chốt-2026-09-09): **không
+⏰ **Trước khi chốt nội dung buổi, xem giờ đã** — nếu buổi bắt đầu sau **21h** *hoặc* user báo vừa
+OT về, áp [§3.9](#39-xếp-việc-theo-mức-tỉnh-táo--không-đọc-code-lúc-mệt-chốt-2026-09-09): **không
 xếp việc đọc code / trace code cũ**, đổi sang drill ép chọn hoặc giảng lại bằng lời.
+Buổi tối bắt đầu **~19:00-19:30 khi về sớm thì xếp việc y như ca sáng** — đó là ca có sản lượng cao
+nhất dự án này (05/09, 06/09, 07/09), đừng cắt nhầm nó.
 
 ---
 
