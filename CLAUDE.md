@@ -150,6 +150,45 @@ thành thứ **nói ra được** trong phòng phỏng vấn (qua Tết ~đầu 
 
 ---
 
+## 3.9 Xếp việc theo mức tỉnh táo — KHÔNG đọc code lúc mệt (chốt 2026-09-09)
+
+> Đo được thật trong đúng một ngày 09/09: **ca sáng 6:00-7:30** trả lời drill **9/13**, có mấy câu
+> rất chắc (khoá `BM25Index` đủ 3 tầng, `retrieve_node` gõ đóng sách đúng nguyên văn). **Ca tối
+> 21:30-22:01 sau OT**, cùng một người, bảng trace **lệch một ô mỗi dòng**. User tự báo:
+> *"đọc code tối tôi không load nổi"*.
+
+**Điều quan trọng: gần như 100% lỗi ngày 09/09 là lỗi CHÚ Ý, không phải lỗi HIỂU.** Đếm được:
+`len("Meo")=2` (đọc chỉ số cuối thay vì độ dài) · kéo ô của lượt 1 xuống lượt 2 · nhét
+`current_merge` vào `merges` ở nhánh không hề đụng `merges` (2 lần) · nhìn nhầm `if` dòng 35 (ngoài
+vòng lặp) thành `if` dòng 29 (trong vòng lặp) · chọn `attempts` chỉ vì file đang mở ở dòng đó ·
+gắn `fixed_size_chunk` vào retriever. **Không lỗi nào trong số này chữa được bằng giảng thêm.**
+Chúng chữa bằng **ngủ đủ và làm đúng việc vào đúng giờ**.
+
+**Luật xếp việc:**
+
+| Mức tỉnh táo | Hợp với | KHÔNG hợp |
+|---|---|---|
+| **Sáng / đầu buổi, đầu óc sạch** | đọc thân hàm lạ · trace điền bảng số thật · debug · thiết kế | — |
+| **Tối muộn / sau OT về sau 21h** | drill ép chọn A/B · giảng lại bằng lời · viết note/ghi bug-log · viết test cho thứ **đã hiểu rõ trong ngày** | ❌ **đọc code chưa nạp vào đầu** · ❌ trace code cũ · ❌ bài thiết kế |
+
+1. **Việc "nạp code lạ vào đầu" chỉ làm lúc tỉnh.** Đọc thân hàm chưa quen, trace code viết từ buổi
+   trước, debug — đây là loại tốn chú ý nhất, và là loại sinh ra lỗi rác phải đi sửa hôm sau.
+   Làm nó lúc mệt = tốn giờ thật mà sản lượng gần 0, lại còn ghi note sai vào repo.
+2. **Ngoại lệ cho trace:** được trace vào buổi tối **nếu là code chính mình vừa viết trong ngày** —
+   lúc đó code đã ở sẵn trong đầu, không phải nạp lại. Còn trace code cũ thì để sáng.
+3. **Buổi tối vẫn tính giờ, chỉ đổi nội dung.** Đừng bỏ buổi (nợ giờ là deadline lùi thật, §sổ giờ),
+   cũng đừng ép đọc code. Đổi sang drill/giảng lại/ghi note là vẫn tiến, vẫn đúng Method 2.0
+   (retrieval practice mới là thứ ăn tiền, không phải số dòng code đọc được).
+4. **Claude phải chủ động hỏi khi buổi bắt đầu sau 21h:** *"hôm nay OT à — đổi sang drill/giảng lại
+   thay vì đọc code nhé?"* Đừng chờ user tự nhận ra lúc đã ngồi 30 phút.
+5. **Dấu hiệu phải dừng ngay, không cần hỏi thêm:** sai 2 lượt liên tiếp mà cả 2 đều là lỗi **đọc**
+   (nhìn nhầm dòng, nhầm biến, tính nhầm độ dài) chứ không phải lỗi lý luận.
+
+> Không mâu thuẫn với luật cấm "phạt bằng cách cắt giấc ngủ" ở [so-gio.md](Learning-document/notes/so-gio.md):
+> luật này **bảo vệ** đúng thứ đó — ngủ đủ để ca sáng còn dùng được, thay vì đốt cả hai đầu.
+
+---
+
 ## 3.7 Cách bắt đầu 1 buổi học (chốt 2026-09-01)
 
 User chỉ cần gõ 1 trong 3 câu sau, không cần nhắc lại luật mỗi lần — Claude tự làm đúng quy trình:
@@ -161,6 +200,10 @@ User chỉ cần gõ 1 trong 3 câu sau, không cần nhắc lại luật mỗi 
 - **"Hôm nay chỉ ôn lại"** → chỉ làm bước (1) ở trên, không học kỹ thuật mới.
 - **"Dừng ở đây"** → ghi lại đúng chỗ dừng vào file trạng thái liên quan (trace-exercise/
   roadmap/review-schedule) trước khi kết thúc, để buổi sau tiếp đúng mạch không phải dò lại.
+
+⏰ **Trước khi chốt nội dung buổi, xem giờ đã** — nếu buổi bắt đầu sau **21h** (hoặc user báo vừa
+OT về), áp [§3.9](#39-xếp-việc-theo-mức-tỉnh-táo--không-đọc-code-lúc-mệt-chốt-2026-09-09): **không
+xếp việc đọc code / trace code cũ**, đổi sang drill ép chọn hoặc giảng lại bằng lời.
 
 ---
 
