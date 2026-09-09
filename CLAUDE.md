@@ -380,15 +380,29 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   - ⬜ **Còn nợ:** test cho `merge_pieces` · giữ separator · overlap · nối `/ingest` ·
     ôn bù *Vòng đời trạng thái* · mốc **+3** CRAG (đã dời từ 07/09, phải **code tay lại**).
   **2026-09-08 (T3): NGHỈ — OT tới đêm, không mở máy.** Thực tế 0h, `BKK`, nợ giờ lên **3h15**
-  (cao nhất từ khi lập sổ, trần là 6h). Cam kết bù **5h ngày 09/09**. Toàn bộ kế hoạch chunker đẩy
-  nguyên khối sang 09/09, không cắt bước.
-  ⚠️ **Hệ quả cần nhìn thẳng:** recursive chunker là kỹ thuật của slot 07-08/09 → **slot đã trượt**
-  theo luật "1 kỹ thuật / 2 ngày". Ngày 09/09 vừa phải trả 2h nợ giờ, vừa gánh **4 mốc ôn cùng tới
-  hạn** (+7 của 2 hàng 02/09, +3 *Vòng đời trạng thái* đang treo, +3 CRAG đã dời) — cả 4 đều thuộc
-  loại **code-tay-lại**, không giảng suông. Thứ tự cắt việc nếu không đủ 5h đã chốt sẵn ở
-  [review-schedule.md § Buổi 2026-09-09](Learning-document/notes/review-schedule.md) mục C —
-  đọc trước khi vào buổi, đừng cắt tuỳ hứng. Mốc tự kiểm **10/09** giờ là mốc thật, phải re-plan
-  tháng 9 bằng số thật.
+  (cao nhất từ khi lập sổ, trần là 6h). Toàn bộ kế hoạch chunker dồn sang 09/09.
+  **2026-09-09 (T4) ca sáng 6:00-7:30 — ÔN, XONG. Ca tối 19:30-22:30 — đóng chunker.**
+  Cam kết cả ngày 4h30 vs sàn 3h → trả 1h30, cuối ngày nợ còn **1h45**.
+  - Drill ép chọn 13 câu gộp **6 mốc ôn cùng tới hạn** → **9/13**.
+  - **Cặp 12 (SỔ ↔ KỆ HÀNG) — cặp mới, sai 3 lần liên tiếp trong 1 buổi**, cùng một hướng: gán
+    quyết định skip cho 3 kho thay vì **manifest**. Giảng 2 lần không ăn, **chỉ vá được bằng bài
+    đo** ([drills/2026-09-09-manifest-vs-kho.py](Learning-document/drills/2026-09-09-manifest-vs-kho.py),
+    `ingest_document` thật + `BM25Index` thật, 5 kịch bản). Lại đúng cái pattern đã thấy 07/09 với
+    Cặp 10: **đọc giải thích không cài được phân biệt, số tự đo mới lật được nhãn.**
+  - Câu chốt user tự nói ra: *"con số 3 đó là láo — sổ ghi bỏ qua 3 mà kho không có gì; đáng lẽ sổ
+    phải rỗng theo cái kho, sổ với kho đi đúng với nhau."*
+  - ⚠️ **CÒN NỢ: phần (c) code-tay-lại của 4 hàng, chưa trả hàng nào** — thứ tự ưu tiên đã chốt:
+    (1) lõi fix #26 CRAG *(mốc này đã bị dời **3 lần**: 07→08→09/09)* · (2) `get_doc_manifest` +
+    3 dòng quyết định của `ingest_document` · (3) `Lock` + test race · (4) `reciprocal_rank_fusion`.
+    Bảng đầy đủ ở [review-schedule.md § Buổi 2026-09-09](Learning-document/notes/review-schedule.md).
+  - ⚠️ **Lỗi phương pháp của Claude ca sáng:** dựng bài đo xong lại **bắt user tự chạy** → user tắc
+    ở đường dẫn/`PYTHONPATH`, nhắn *"KHÓ QUÁ BẠN KHÔNG BIẾT CHẠY SAO"*. Trộn cái khó **thao tác**
+    vào giữa cái khó **khái niệm** = hỏng cả hai. **Luật: bài đo do Claude dựng thì Claude chạy hộ,
+    user chỉ dự đoán và đọc số.**
+  ⚠️ **Hệ quả cần nhìn thẳng:** recursive chunker là kỹ thuật của slot 07-08/09, sang **ngày thứ 3**
+  vẫn chưa đóng → **slot đã trượt** theo luật "1 kỹ thuật / 2 ngày". Mốc tự kiểm **10/09** giờ là
+  mốc thật, phải re-plan tháng 9 bằng số thật. Và 3 món code-tay-lại còn lại phải **ghi thẳng vào
+  kế hoạch 10/09**, đừng để trôi thành nợ ngầm như mốc CRAG đã bị dời 3 lần.
 
 - 📊 **ĐÁNH GIÁ TIẾN ĐỘ THÁNG 9 (chốt 2026-09-06, dùng lại mỗi lần cần kiểm):**
   Đếm theo đúng granularity của [LEARNING_ROADMAP.md dòng 40](Learning-document/LEARNING_ROADMAP.md), ~13 milestone:
