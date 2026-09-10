@@ -46,7 +46,56 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
-## ✅ Buổi 2026-09-09 (T4) — CA SÁNG 6:00-7:30 XONG · CA TỐI 19:30-22:30
+## 🔨 Buổi 2026-09-10 (T5) — MỐC TỰ KIỂM · chọn NGÀY B (vá nền đọc code)
+
+**Ca chiều 15:12-~17:15 — làm bù cho tối 09/09 (chỉ 30', "hoàn toàn mù"):**
+1. Chỗ tắc tối 09/09, user tự chọn: *không hiểu đề bảo làm gì* + *hiểu đề mà không biết bắt đầu* +
+   *biết bước mà không gõ ra được* — kẹt **cả 3 tầng cùng lúc**.
+2. Trace tay `merge_pieces(["Toi","an","com","roi","di","ngu"], 6)` —
+   [drills/2026-09-10-trace-merge-pieces.md](../drills/2026-09-10-trace-merge-pieces.md).
+   Cột `current_merge` **đúng 6/6 vòng** (kể cả ca biên `6 <= 6`). Cột `merges` **sai 3 ô**.
+   Câu kiểm nhanh (`merges=["A","B"]`, thùng `"CD"`, món `"E"` không vừa) → vẫn bỏ `"E"` lên xe.
+3. **6 lỗ hổng lòi ra — KHÔNG lỗ nào là lỗi chunking**, tất cả là *mô hình chạy của Python*:
+
+   | Lỗi | Thuộc về |
+   |---|---|
+   | Tưởng `current_merge = ""` (dòng 27) chạy lại mỗi vòng | thụt lề = phạm vi |
+   | Tưởng dòng 35-36 chạy trong vòng | thụt lề = phạm vi |
+   | Tưởng sau dòng 34 xuống dòng 35 (thật ra quay lên 28) | luồng `for` |
+   | Dán `"Toian"`+`"di"` thành 1 chuỗi thay vì thêm ô mới | `+=` chuỗi ↔ `append` list |
+   | Dòng 33 bỏ **món mới** lên xe thay vì **thùng cũ** — **3 lần** | giá trị biến *tại đúng lúc* dòng chạy |
+   | Viết `{"A","B"}` cho list | `{}` set ↔ `[]` list |
+
+4. Thứ gỡ được nút (lại đúng pattern Cặp 10 / Cặp 12): **chạy hàm thật và in ra**, không giảng suông —
+   bảng từng dòng bằng `sys.settrace`, rồi dừng *trước* dòng 32/33/34 in biến → thấy `'CD'` còn trong
+   thùng lúc dòng 33 chạy.
+
+**Quyết định mốc tự kiểm 10/09 (user chọn):** thêm 1 ngày, **phương án B**. Không chọn A (chỉ vá riêng
+hàm này — `split_by_separators` đệ quy sẽ đâm vào đúng bức tường đó, còn khó hơn). Không chọn C (đi tiếp
+separator/overlap trên nền lỏng = lặp lại tối 09/09).
+
+**📌 Ca tối 10/09 (~3h) — NGÀY B:**
+1. **~30' debugger VS Code** — breakpoint · F10 từng dòng · khung Variables. Khối **thao tác riêng**,
+   không trộn vào giữa bài khái niệm. Mục đích: kẹt ở máy kia thì tự xem biến, không phải chờ Claude in bảng.
+2. **~1h drill đọc-chạy** — [drills/2026-09-10-doc-chay.py](../drills/2026-09-10-doc-chay.py), 9 bài
+   Python thuần, mỗi bài nhắm 1 hàng trong bảng lỗi trên. User dự đoán hết → Claude chạy → so 1 lượt.
+3. **~1h đóng file, tự viết lại `merge_pieces`** → debugger đi từng dòng → 2 test đã hẹn từ 07/09
+   (ca gộp thường · ca túi cuối).
+4. **~15' re-plan tháng 9 bằng số thật** — đệm tháng 9 đã ≈ 0, ngày B phải được trả bằng cái gì lùi lại.
+
+**Vẫn treo, KHÔNG nhét vào tối nay:** 4 món code-tay-lại (bảng ở Buổi 09/09) · **11/09 tới hạn +7 CRAG**.
+
+**Lỗi phương pháp của Claude (ghi để không lặp):**
+1. Bài tối 09/09 giao **5 việc liền**, trong đó 3 việc là **câu thiết kế** (giữ separator · overlap đặt đâu ·
+   mẩu dài hơn `size`) — giao trần, chưa giảng. Tái phạm §3.6 mục 7 lần thứ 3.
+2. Tối 09/09 sửa ~3 lần **bằng lời** trước khi chuyển sang chạy thật — luật đã có từ 04/09: trượt 2-3 lượt
+   thì thôi bắt tưởng tượng, cho chạy và in ra.
+3. Bảng trace dạng TRƯỚC/SAU theo vòng **giấu mất giữa vòng** — đúng chỗ lỗi dòng 33 sống. Vòng lặp có
+   nhiều dòng đổi biến thì bảng trace phải có mốc **sau từng dòng đổi biến**, không chỉ đầu/cuối vòng.
+
+---
+
+## ✅ Buổi 2026-09-09 (T4) — CA SÁNG 6:00-7:30 XONG · ❌ CA TỐI chỉ 30', 0 dòng code (xem 10/09)
 
 > 08/09 nghỉ (OT) → toàn bộ kế hoạch 08/09 dồn sang hôm nay, cộng **6 mốc ôn tới hạn cùng ngày**.
 > Chia ca: **sáng = ôn** (block ngắn, cắt ngang được) · **tối = đóng chunker** (cần 3h liền mạch).
@@ -73,6 +122,9 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 > Bốn món này **không nhét hết vào ca tối được** (ca tối đã có ~2h20 chunker). Chỉ trả **món 1**
 > nếu ca tối còn dư; ba món còn lại đẩy sang 10/09 và **ghi vào kế hoạch 10/09 ngay**, đừng để trôi
 > thành nợ ngầm như mốc CRAG đã bị dời 3 lần.
+
+> ❌ **Kết quả thật ca tối:** chỉ 30', kẹt ngay bước đầu (trace `merge_pieces`), "hoàn toàn mù" —
+> không bước nào phía sau được đụng tới. Chẩn đoán + quyết định ở **Buổi 10/09** phía trên.
 
 **📌 Ca tối 19:30-22:30 — ĐÓNG HẲN RECURSIVE CHUNKER** (nguyên kế hoạch 08/09, xem mục dưới):
 trace `merge_pieces` (số thật) → 2 test (**ca túi cuối** là test đáng giá) → **giữ separator** →
