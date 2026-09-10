@@ -74,6 +74,9 @@ Mẫu đã dùng thật, hiệu quả tốt: [Learning-document/notes/pipeline/0
 3. Khi user bí: gợi ý **hướng nhìn**, không đưa đáp án — giữ đúng luật ở §2.
 4. Xong 1 trạm: tự sửa note sai bằng lời mình (không copy) + ghi bug mới vào `bug-log.md` +
    cập nhật trạng thái thật vào roadmap (có thể phải hạ ✅ xuống ⏳/⚠️ nếu note cũ nói sai).
+5. **(thêm 2026-09-10) Chỉ dòng code bằng NGUYÊN VĂN, không bằng số dòng** — nhất là trong file drill user
+   đã chèn dự đoán/ghi chú vào: số dòng lệch ngay, user hiểu nhầm dòng nào (gặp thật tối 10/09: bảo "xoá
+   dòng 115" → user tưởng là `vi = tien`). Viết lại cả dòng, kèm mũi tên `← XOÁ dòng NÀY` trong khối code.
 
 **Dấu hiệu cần dừng lại đổi cách (đã gặp thật, 2026-08-28):** nếu user vấp **liên tục** (2+ lần
 mớm hỏi vẫn sai) ở **cú pháp Python cơ bản** (dict/set/list comprehension, `enumerate`, `()` gọi

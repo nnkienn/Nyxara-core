@@ -32,8 +32,12 @@
 | 2026-09-08 | Ba | 3h00 | **0h** | −3h00 | BKK | **3h15** | **NGHỈ — OT.** Không mở máy. Commit `0ecef0e` lúc 18:53 chỉ là commit lại phần việc của buổi 07/09, không phải giờ học mới |
 | 2026-09-09 | Tư | 3h00 | 2h00 (sáng 6:00-7:30 · tối 30') | −1h00 | BKK | **4h15** | Ca sáng: drill ép chọn 9/13 · Cặp 12 vá bằng bài đo. **Ca tối chỉ 30': bài trace `merge_pieces` mèo/chó — user tự báo "hoàn toàn mù", 0 dòng code, Claude sửa ~3 lần bằng lời không ăn.** Xếp `BKK` chứ không `TRÔI`: có ngồi làm thật, tắc vì bài giao sai cách (xem [review-schedule.md § 10/09](./review-schedule.md)) |
 | 2026-09-10 | Năm *(ca chiều)* | 3h00 | ~2h00 (15:12-~17:15) | — | — | *(gộp sau ca tối)* | Làm bù tối 09/09. Trace tay `merge_pieces` input mới: cột `current_merge` đúng 6/6 vòng, cột `merges` sai 3 ô → lòi **6 lỗ nền Python, không lỗ nào là chunking**. Mốc tự kiểm 10/09 → chọn **ngày B** (vá nền đọc code) |
+| 2026-09-10 | Năm *(ca tối, máy Mac)* | — | ~50' (21:47-~22:40) | — | BKK | **~4h25** | Ngập, chỉ được ~1h. Cả ngày ~2h50 vs sàn 3h → −10'. Áp §3.9 (bắt đầu sau 21h): chỉ drill đọc-chạy → **8/9** (bài 7 = `merge_pieces` đội lốt, đúng kèm trace) · tự tìm ra input **ca túi cuối** · drill list↔set↔dict **3/6**, chưa sạch → drill lại sáng 11/09 |
 
-> **Tình trạng 10/09 (sau ca chiều):** nợ **4h15**, vẫn toàn `BKK`. Ca tối cam kết 3h → ngày 10/09 tổng
+> **Tình trạng 10/09 (cuối ngày):** nợ **~4h25**, vẫn toàn `BKK` (ngập). Cách trần 6h còn **~1h35**
+> → **11/09 hụt quá 1h35 là chạm trần**, mất trọn 1 buổi re-plan. Ca sáng 11/09 là ca phải giữ bằng mọi giá.
+>
+> *(cũ)* **Tình trạng 10/09 (sau ca chiều):** nợ **4h15**, vẫn toàn `BKK`. Ca tối cam kết 3h → ngày 10/09 tổng
 > ~5h vs sàn 3h → trả 2h → nợ còn **2h15**. ⚠️ Nếu ca tối **không** diễn ra: ngày 10/09 thiếu 1h → nợ
 > **5h15, sát trần 6h** — thêm một ngày hụt nữa là chạm trần, cấm học kỹ thuật mới 1 buổi.
 >

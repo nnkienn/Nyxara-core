@@ -115,6 +115,8 @@ def bai_7():
             vi = tien 
     tui.append(vi) 
     print(tui, vi)
+
+    
     
     v1: vi = 0 + 4 = 4 rơi nhánh if vi = 4
     v2: vi = 4 + 3 = 7 rơi nhánh if vi = 7

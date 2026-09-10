@@ -113,6 +113,46 @@ như chỉ giữ phần *key* của dict). Phân biệt bằng **dấu hai chấ
 `merge_pieces`: lỡ viết `merges = {}` → được dict rỗng → `merges.append(...)` nổ `AttributeError`.
 → Ứng viên cặp phân biệt mới **list ↔ set ↔ dict**, chưa drill.
 
+**Giảng lại "ca túi cuối" qua bài 7 → ✅ user TỰ TÌM RA.** Hỏi: xoá dòng `tui.append(vi)` ngoài vòng
+`for` thì mất bao nhiêu → đúng `6` (ví cuối = 5 + 1). Hỏi tiếp: danh sách nào làm túi **rỗng hoàn toàn**?
+→ user tự lý luận đúng *"không chạm được nhánh else thì lấy đâu mà nhét tiền"*. Lần đầu lệch số (đọc giới
+hạn thành 9 thay vì 7, quên **cộng dồn**) → sửa 1 lượt → `4 1 1 1` / `4 0 1 1` ✅, *"nhiều lắm"*.
+→ Đây chính là loại input cho **test "ca túi cuối"** của `merge_pieces`: các mẩu gộp vừa trong 1 chunk →
+vòng lặp không bao giờ vào `else` → thiếu khối `if current_merge: merges.append(current_merge)` ngoài vòng
+thì hàm `return []`, mất sạch văn bản mà không báo lỗi.
+
+⚠️ **Lỗi của Claude:** gọi dòng bằng **số dòng** trong file drill user đã chèn dự đoán vào → số lệch → user
+hiểu nhầm dòng nào bị xoá (*"ý bạn là dòng vi = tien hả"*). **Luật: file đã có chữ user chèn vào thì trích
+NGUYÊN VĂN dòng code, không gọi bằng số dòng.** (đã thêm vào CLAUDE.md §3.5)
+
+**Drill ép chọn list ↔ set ↔ dict, 6 câu (~22:35) → 3/6 — CHƯA SẠCH, KHÔNG TICK:**
+
+| Câu | User | Thật | |
+|---|---|---|---|
+| `x = {}` rồi `x.append(1)` | nổ | `AttributeError` — `{}` rỗng là dict, không có `append` | ✅ |
+| `len({"a", "b", "a", "c"})` | 4 | **3** | ❌ |
+| `print({"a": 1, "a": 5})` | in cả 2 cặp | **`{'a': 5}`** — key trùng, cái sau đè | ❌ |
+| `{"a", "b"}` là gì | set | set | ✅ |
+| `len(["a", "b", "a", "c"])` | 3 | **4** | ❌ |
+| `merges` khởi tạo bằng | `[]` | `[]` | ✅ *(chưa nêu lý do)* |
+
+→ Câu 2 và 5 **đảo ngược đúng nhau** (set ra 4, list ra 3) — dạng đảo nhãn giống Cặp 10.
+→ Câu 2 và 3 sai **dù ~20 phút trước vừa xem demo chạy thật đúng hai hành vi đó** (`{"x","y","x"}` → len 2 ·
+`{"x": 1, "x": 2}` → `{'x': 2}`). Bắt đầu 21:47, drill lúc ~22:35 → lẫn lỗi mệt với lỗi hiểu, chưa tách được.
+→ **Drill lại sáng 11/09 lúc tỉnh** (CLAUDE.md §3.9: lỗ nền phải drill lúc tỉnh). Sạch thì thêm thành **Cặp 13**
+trong the-phan-biet.md.
+
+**📌 Sáng 11/09 — thứ tự (dời từ ca tối 10/09):**
+1. **~10'** drill lại list ↔ set ↔ dict (đổi số, cùng 3 hành vi: set bỏ trùng · list giữ trùng · dict key trùng thì đè).
+2. **~30'** debugger VS Code — breakpoint · F10 · khung Variables.
+3. **~1h** đóng file, tự viết lại `merge_pieces` → debugger đi từng dòng → 2 test (ca gộp thường · **ca túi
+   cuối — loại input user đã tự tìm ra tối 10/09**).
+4. **~15'** re-plan tháng 9 bằng số thật.
+
+⏰ Ca sáng thường chỉ 1h30 → **không đủ hết** (cần ~1h55). Cắt từ dưới lên, dời phần thiếu sang ca tối 11/09
+(nếu về sớm ~19h thì ca tối làm được y như ca sáng — §3.9). **11/09 tới hạn +7 CRAG** — phía GHI
+(`grade_node` ghi `candidate_k` + `candidate_k : int` trong `state.py`) vẫn nợ.
+
 **Lỗi phương pháp của Claude (ghi để không lặp):**
 1. Bài tối 09/09 giao **5 việc liền**, trong đó 3 việc là **câu thiết kế** (giữ separator · overlap đặt đâu ·
    mẩu dài hơn `size`) — giao trần, chưa giảng. Tái phạm §3.6 mục 7 lần thứ 3.
