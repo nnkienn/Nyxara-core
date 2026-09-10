@@ -518,6 +518,33 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   3. **Mốc tự kiểm 2026-09-10:** nếu tới đó chưa khởi động được kỹ thuật mới nào → **dừng lại
      re-plan thật**, đừng để trôi tới cuối tháng mới biết.
 
+- 🧾 **MỐC TỰ KIỂM 2026-09-10 — BÁO CÁO TRUNG THỰC (user yêu cầu, ghi 22:45 ngày 10/09):**
+  ```
+  Mốc tháng 9:  2/13 xong — Y NGUYÊN như 06/09. Bốn ngày 07→10/09: 0 mốc đóng.
+  Đường thẳng:  ngày 10/30 lẽ ra ~4.3 mốc → hụt ~2.3 mốc ≈ 4-5 ngày lịch
+                → CHẠM/VƯỢT ngưỡng "lệch 3-4 ngày → re-plan" của roadmap.
+  Lịch còn lại: 11 mốc × 2 ngày = 22 ngày  vs  20 ngày (11→30/09) → thiếu 2 ngày ngay trên giấy.
+  Giờ cần:      11 × ~6h = 66h  vs  20 × 3h = 60h − nợ 4h25 ≈ 55h (thiếu ~10h)
+                theo nhịp THẬT 2h27/ngày ≈ 49h (thiếu ~17h ≈ 3 mốc).
+  Giờ 03→10/09: ~19h35 / 24h cam kết → nợ ~4h25 (toàn BKK). Chỉ 2/8 ngày đạt sàn 3h (05, 06/09).
+  Code 07→10/09: 14 dòng app (`merge_pieces`), 0 test. Mọi commit còn lại là docs/drill.
+  Suite:        71 passed đo lần cuối 07/09, chưa chạy lại từ đó.
+  ```
+  **Luật tiến độ mục 1** ("mỗi 2 ngày khởi động xong 1 kỹ thuật mới"): **TRƯỢT** — recursive chunker
+  khởi động 07/09, sang ngày thứ 4 chưa đóng; Document-based chưa đụng. **Mục 3** (mốc tự kiểm): đúng
+  chữ thì có khởi động 1 kỹ thuật, nhưng tinh thần luật là **nhịp** — nhịp đã trượt → **bắt buộc re-plan**.
+  ⚠️ **Re-plan bằng số đã bị hoãn 2 lần** (09/09 hẹn "10/09 phải re-plan thật" → 10/09 xếp mục cuối →
+  dời 11/09). Sáng 11/09 nó là **VIỆC SỐ 1, ~15', trước khi đụng code** — không được là việc cuối nữa.
+  Không re-plan tối 10/09 vì §3.9 cấm bài thiết kế sau 21h.
+  **Được gì thật (không phải an ủi):** 10/09 bóc ra gốc rễ của "hiểu mà không code được" — **6 lỗ nền mô
+  hình chạy Python**, không phải lỗ RAG. Tối 10/09 drill đọc-chạy 8/9, bài `merge_pieces` đội lốt đúng
+  kèm trace, tự tìm ra input "ca túi cuối". Đây là nền để code tay nhanh lên — nhưng **nền không nằm
+  trong 13 mốc**, nên lịch vẫn trượt. ~6h/mốc có thể **lạc quan**: recursive chunker (mốc dễ) đã ngốn
+  ~3h mà còn ~2h20 việc.
+  **Sai của Claude trong kỳ:** sáng 09/09 báo *"chưa tới ngưỡng re-plan, slack bằng 0"* — **quá dễ dãi**
+  (không so với đường thẳng, không tính nhịp giờ thật) · tối 09/09 vẫn đẩy bài trace khi user vừa OT về ·
+  *"gần như 100% lỗi chú ý"* nói quá (đã sửa) · gọi số dòng trong file user đã chèn chữ.
+
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
   1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con
      rồi tưởng là xanh chính là thứ nuôi bug #27 sống 8 ngày.
