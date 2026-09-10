@@ -85,6 +85,34 @@ separator/overlap trên nền lỏng = lặp lại tối 09/09).
 
 **Vẫn treo, KHÔNG nhét vào tối nay:** 4 món code-tay-lại (bảng ở Buổi 09/09) · **11/09 tới hạn +7 CRAG**.
 
+**🌧️ Ca tối thực tế (máy Mac) — bắt đầu 21:47, chỉ ~1h05 vì ngập → áp CLAUDE.md §3.9:**
+chỉ làm **mục 2 (drill đọc-chạy)** — bài nhỏ 3-10 dòng, không phải nạp codebase. Mục 1 (debugger),
+mục 3 (tự viết lại `merge_pieces` + 2 test), mục 4 (re-plan tháng 9) **dời sáng 11/09**.
+
+**Kết quả drill đọc-chạy → 8/9 ✅** ([drills/2026-09-10-doc-chay.py](../drills/2026-09-10-doc-chay.py)):
+
+| Bài | Kết quả | Lỗ nền nhắm tới (bảng 6 lỗ ở trên) |
+|---|---|---|
+| 1a · 1b | ✅ ✅ | dòng gán trong / ngoài `for` — thụt lề = phạm vi |
+| 2 | ✅ *(chỉ lệch định dạng: `print` 2 đối số chèn 1 dấu cách, mỗi `print` 1 dòng)* | dòng ngoài `for` chạy 1 lần, sau vòng |
+| 3 | ✅ | `+=` chuỗi ↔ `append` list |
+| 4a · 4b | ✅ ✅ | giá trị biến tại đúng lúc dòng chạy |
+| 5 | ✅ khớp 7/7 dòng | luồng `for` — hết thân vòng thì **quay lên** |
+| 6 | ❌ `3 3` (thật `3 2`) | `[]` list ↔ `{}` set |
+| 7 | ✅ + trace đủ 4 vòng | `merge_pieces` đội lốt — **đúng chỗ dòng 33** |
+
+→ **Bài 7 là tín hiệu mạnh nhất:** vòng 3 user viết `tui.append(vi) => [7]` **rồi mới** `vi = tien => 5`
+— bỏ ví **CŨ** lên túi trước, xong mới đổi. Lỗi "bỏ món mới lên xe thay vì thùng cũ" sai **3 lần** chiều
+10/09, tối nay đúng kèm trace từng vòng.
+→ **Không có lỗi đọc lướt nào** dù bắt đầu 21:47.
+
+**Bài 6 — lỗ MỚI lòi ra: set ↔ dict.** User tự ghi: *"set là nó gộp giá trị giống nhau theo dạng key
+value"*. Phần "loại trùng" đúng; phần **"key value" sai** — set **không có value**, chỉ có phần tử (giống
+như chỉ giữ phần *key* của dict). Phân biệt bằng **dấu hai chấm**: `{"x", "y"}` = set · `{"x": 1}` = dict.
+🪤 **Bẫy:** `{}` rỗng là **DICT**, không phải set — set rỗng phải viết `set()`. Hệ quả thật cho
+`merge_pieces`: lỡ viết `merges = {}` → được dict rỗng → `merges.append(...)` nổ `AttributeError`.
+→ Ứng viên cặp phân biệt mới **list ↔ set ↔ dict**, chưa drill.
+
 **Lỗi phương pháp của Claude (ghi để không lặp):**
 1. Bài tối 09/09 giao **5 việc liền**, trong đó 3 việc là **câu thiết kế** (giữ separator · overlap đặt đâu ·
    mẩu dài hơn `size`) — giao trần, chưa giảng. Tái phạm §3.6 mục 7 lần thứ 3.
