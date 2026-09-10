@@ -27,7 +27,7 @@
 | Thứ Bảy, Chủ Nhật | **6h** | 10' + 20' + ~45' trả nợ | **4h45** |
 
 - Trung bình tuần **3.86h/ngày** — nằm trong biên "3-4h/ngày" của cam kết 28/08 **nếu tính trung bình**.
-  Nhưng **từng ngày cuối tuần 6h là mức MỚI**, cao hơn trần 4h cũ → **chờ user xác nhận**.
+  Nhưng **từng ngày cuối tuần 6h là mức MỚI**, cao hơn trần 4h cũ → ✅ **user chốt 10/09**.
 - **Từ 11/09 ghi `giờ-mốc: Xh` ở đầu cột Ghi chú** = giờ thật sự đổ vào mốc (không tính ôn, drill, dọn môi
   trường, sửa note). Đây là số dùng để kiểm giả định ~6h/mốc tại checkpoint 17/09.
 - **Hụt 6h một ngày cuối tuần ≈ mất ~1 mốc tháng 9.** Luật lãi 1.5x cho `TRÔI` và trần 6h giữ nguyên.

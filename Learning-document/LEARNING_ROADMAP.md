@@ -70,7 +70,7 @@
 > chunker, một mốc dễ, đã ngốn ~3h mà còn ~3h việc).
 >
 > **Kế hoạch tháng 9 — 12 mốc / 20 ngày (11→30/09):**
-> - **Giờ:** Thứ Hai→Thứ Sáu ≥3h · Thứ Bảy, Chủ Nhật 6h. Sức chứa 14×3 + 6×6 = **78h**.
+> - **Giờ:** Thứ Hai→Thứ Sáu ≥3h · Thứ Bảy, Chủ Nhật 6h — ✅ **user chốt 10/09**. Sức chứa 14×3 + 6×6 = **78h**.
 > - **Chi phí cố định:** mỗi ngày 10' drill nền + 20' ôn (= 3h20 + 6h40) · trả nợ 4h25 ≈ 45' mỗi ngày cuối
 >   tuần → còn **~63.5h cho mốc** (ngày thường 2h30 · cuối tuần 4h45).
 > - **Hộp giờ cứng:** phần còn lại của recursive chunker ~3h · Metadata filter 🔴 **8h** · mỗi mốc 🟡 **5h**.
@@ -111,7 +111,7 @@
 > ghi giờ-mốc thật của Metadata filter · Document-based · MMR. Tại checkpoint 17/09 nếu mốc 🟡 trung bình
 > **> 6h** → giả định 6h/mốc sai → toán cả năm sai → **dừng lại, cùng user quyết lại phạm vi**.
 >
-> **Phương án B — ĐỀ XUẤT của Claude, chờ user xác nhận. Chỉ bật khi trượt checkpoint:**
+> **Phương án B — ✅ USER CHỐT 10/09. Chỉ bật khi trượt checkpoint:**
 > - 17/09 đóng **< 4 mốc**, hoặc 24/09 **< 8 mốc** → dời mốc **từ đuôi lên** sang đầu tháng 10, theo thứ
 >   tự **Versioning → Temporal → Adaptive-RAG**.
 > - ⚠️ **B không giảm tổng khối lượng.** Mỗi mốc dời = +5h đè lên tháng 10 (Eval — phase nặng nhất, luật

@@ -556,7 +556,7 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
     **24/09 = 8 mốc**. Giả định 6h/mốc phải kiểm bằng giờ-mốc thật tại 17/09.
   - **Đầu mỗi buổi Claude phải nói ra:** đang ở mốc nào · hộp giờ còn bao nhiêu · hôm nay có trễ checkpoint không.
   - **Trong buổi Claude phải chặn:** bug ngoài mốc → bug-log · trace trạm cũ → không · ôn/drill quá 30' → dừng.
-  - **Phương án B** (dời Versioning → Temporal → Adaptive-RAG sang tháng 10) là **đề xuất, chờ user xác nhận**.
+  - **Phương án B** (dời Versioning → Temporal → Adaptive-RAG sang tháng 10) — ✅ **user chốt 10/09**, cùng mức **6h Thứ Bảy/Chủ Nhật**.
     Cắt độ sâu vòng 6 bước **chỉ user được quyết**.
 
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
