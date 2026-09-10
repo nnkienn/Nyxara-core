@@ -139,6 +139,9 @@ NGUYÊN VĂN dòng code, không gọi bằng số dòng.** (đã thêm vào CLAU
 → Câu 2 và 5 **đảo ngược đúng nhau** (set ra 4, list ra 3) — dạng đảo nhãn giống Cặp 10.
 → Câu 2 và 3 sai **dù ~20 phút trước vừa xem demo chạy thật đúng hai hành vi đó** (`{"x","y","x"}` → len 2 ·
 `{"x": 1, "x": 2}` → `{'x': 2}`). Bắt đầu 21:47, drill lúc ~22:35 → lẫn lỗi mệt với lỗi hiểu, chưa tách được.
+→ **User tự báo ngay sau khi chấm (~22:40):** câu 2 *"biết là set, nhìn nhầm"*; câu 6 lý do *"nhìn dấu
+ngoặc; nếu là set thì nuốt mất phần tử trùng"* — **ý đúng** (nhỏ: set không có `append`, set dùng `add`);
+*"hoa mắt rồi"*. Câu 3 (dict key trùng thì đè) **chưa được giải thích** → sáng mai nhắm kỹ câu này.
 → **Drill lại sáng 11/09 lúc tỉnh** (CLAUDE.md §3.9: lỗ nền phải drill lúc tỉnh). Sạch thì thêm thành **Cặp 13**
 trong the-phan-biet.md.
 
