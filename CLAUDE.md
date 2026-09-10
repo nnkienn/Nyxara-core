@@ -520,12 +520,13 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
 
 - 🧾 **MỐC TỰ KIỂM 2026-09-10 — BÁO CÁO TRUNG THỰC (user yêu cầu, ghi 22:45 ngày 10/09):**
   ```
-  Mốc tháng 9:  2/13 xong — Y NGUYÊN như 06/09. Bốn ngày 07→10/09: 0 mốc đóng.
-  Đường thẳng:  ngày 10/30 lẽ ra ~4.3 mốc → hụt ~2.3 mốc ≈ 4-5 ngày lịch
-                → CHẠM/VƯỢT ngưỡng "lệch 3-4 ngày → re-plan" của roadmap.
-  Lịch còn lại: 11 mốc × 2 ngày = 22 ngày  vs  20 ngày (11→30/09) → thiếu 2 ngày ngay trên giấy.
-  Giờ cần:      11 × ~6h = 66h  vs  20 × 3h = 60h − nợ 4h25 ≈ 55h (thiếu ~10h)
-                theo nhịp THẬT 2h27/ngày ≈ 49h (thiếu ~17h ≈ 3 mốc).
+  Mốc tháng 9:  2/14 xong — Y NGUYÊN như 06/09. Bốn ngày 07→10/09: 0 mốc đóng.
+                (đếm lại 10/09: danh sách 06/09 ghi "13" nhưng liệt kê ra 14 mục → CÒN 12, không phải 11)
+  Đường thẳng:  ngày 10/30 lẽ ra ~4.7 mốc → hụt ~2.7 mốc ≈ 5-6 ngày lịch
+                → VƯỢT ngưỡng "lệch 3-4 ngày → re-plan" của roadmap.
+  Lịch còn lại: 12 mốc × 2 ngày = 24 ngày  vs  20 ngày (11→30/09) → thiếu 4 ngày ngay trên giấy.
+  Giờ cần:      12 × ~6h = 72h  vs  20 × 3h = 60h − nợ 4h25 ≈ 55h (thiếu ~17h)
+                theo nhịp THẬT 2h27/ngày ≈ 49h − nợ ≈ 45h (thiếu ~27h ≈ 4-5 mốc).
   Giờ 03→10/09: ~19h35 / 24h cam kết → nợ ~4h25 (toàn BKK). Chỉ 2/8 ngày đạt sàn 3h (05, 06/09).
   Code 07→10/09: 14 dòng app (`merge_pieces`), 0 test. Mọi commit còn lại là docs/drill.
   Suite:        71 passed đo lần cuối 07/09, chưa chạy lại từ đó.
@@ -543,7 +544,20 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   ~3h mà còn ~2h20 việc.
   **Sai của Claude trong kỳ:** sáng 09/09 báo *"chưa tới ngưỡng re-plan, slack bằng 0"* — **quá dễ dãi**
   (không so với đường thẳng, không tính nhịp giờ thật) · tối 09/09 vẫn đẩy bài trace khi user vừa OT về ·
-  *"gần như 100% lỗi chú ý"* nói quá (đã sửa) · gọi số dòng trong file user đã chèn chữ.
+  *"gần như 100% lỗi chú ý"* nói quá (đã sửa) · gọi số dòng trong file user đã chèn chữ. · báo cáo lúc
+  22:45 đếm "còn 11 mốc" — **sai, còn 12** (sửa ngay trong tối 10/09).
+
+- 🧮 **RE-PLAN 2026-09-10** (làm ngay tối 10/09 theo yêu cầu user, dù §3.9 khuyên để sáng). Bản đầy đủ ở
+  [LEARNING_ROADMAP.md § RE-PLAN 2026-09-10](Learning-document/LEARNING_ROADMAP.md) — roadmap là nguồn sự thật.
+  Tóm tắt để Claude áp **mỗi buổi**:
+  - **Toán cả năm:** nhịp thật 2h27/ngày → xong nội dung ~03/03/2027, **sau Tết 06/02/2027 → không kịp**.
+    Sàn 3h → ~30/01 (~1 tuần ôn). **3h ngày thường + 6h T7/CN** → ~30/12 (~5.5 tuần ôn).
+  - **Tháng 9:** 12 mốc theo thứ tự cố định, hộp giờ cứng (🔴 8h · 🟡 5h), checkpoint **17/09 = 4 mốc**,
+    **24/09 = 8 mốc**. Giả định 6h/mốc phải kiểm bằng giờ-mốc thật tại 17/09.
+  - **Đầu mỗi buổi Claude phải nói ra:** đang ở mốc nào · hộp giờ còn bao nhiêu · hôm nay có trễ checkpoint không.
+  - **Trong buổi Claude phải chặn:** bug ngoài mốc → bug-log · trace trạm cũ → không · ôn/drill quá 30' → dừng.
+  - **Phương án B** (dời Versioning → Temporal → Adaptive-RAG sang tháng 10) là **đề xuất, chờ user xác nhận**.
+    Cắt độ sâu vòng 6 bước **chỉ user được quyết**.
 
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
   1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con

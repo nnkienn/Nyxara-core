@@ -145,16 +145,22 @@ ngoặc; nếu là set thì nuốt mất phần tử trùng"* — **ý đúng** 
 → **Drill lại sáng 11/09 lúc tỉnh** (CLAUDE.md §3.9: lỗ nền phải drill lúc tỉnh). Sạch thì thêm thành **Cặp 13**
 trong the-phan-biet.md.
 
-**📌 Sáng 11/09 — thứ tự (dời từ ca tối 10/09):**
-1. **~10'** drill lại list ↔ set ↔ dict (đổi số, cùng 3 hành vi: set bỏ trùng · list giữ trùng · dict key trùng thì đè).
-2. **~30'** debugger VS Code — breakpoint · F10 · khung Variables.
-3. **~1h** đóng file, tự viết lại `merge_pieces` → debugger đi từng dòng → 2 test (ca gộp thường · **ca túi
-   cuối — loại input user đã tự tìm ra tối 10/09**).
-4. **~15'** re-plan tháng 9 bằng số thật.
-
-⏰ Ca sáng thường chỉ 1h30 → **không đủ hết** (cần ~1h55). Cắt từ dưới lên, dời phần thiếu sang ca tối 11/09
-(nếu về sớm ~19h thì ca tối làm được y như ca sáng — §3.9). **11/09 tới hạn +7 CRAG** — phía GHI
-(`grade_node` ghi `candidate_k` + `candidate_k : int` trong `state.py`) vẫn nợ.
+**📌 11/09 (T6) — theo RE-PLAN 10/09** ([LEARNING_ROADMAP.md § RE-PLAN 2026-09-10](../LEARNING_ROADMAP.md)):
+Re-plan tháng 9 **đã làm tối 10/09**. Không còn "ngày B" đứng riêng — nền Python vá **lồng trong** code tay
+của từng mốc. Ngày thường 3h = **30' cố định** (10' drill nền + 20' ôn) + **2h30 giờ-mốc**.
+1. **10'** drill nền list ↔ set ↔ dict (đổi số; nhắm kỹ **dict key trùng thì đè** — tối 10/09 chưa giải thích).
+2. **20'** ôn: **+7 CRAG tới hạn hôm nay** → code-tay-lại phía GHI (`grade_node` ghi `candidate_k` ·
+   `candidate_k : int` trong `state.py`). Hết 20' là dừng, dở thì nợ sang 12/09.
+3. **2h30 — MỐC 1/12: đóng recursive chunker** (hộp ~3h, tràn ~30' sang 12/09):
+   tự viết lại `merge_pieces` đóng file → 2 test (ca gộp thường · **ca túi cuối — loại input user đã tự tìm
+   ra tối 10/09**) → giữ separator → overlap → **nối `/ingest`**. Debugger VS Code học **tại chỗ** (~15')
+   lúc cần xem biến, không tách 30' riêng.
+   ⚠️ Ba câu **thiết kế** nằm trong mốc này (overlap đặt ở đâu · mẩu dài hơn `size` xử lý sao · tham số
+   `chunk_overlap` của `/ingest` khi chunker mới chưa dùng) → Claude **GIẢNG TRƯỚC + khuyến nghị** rồi mới
+   hỏi (§3.6 mục 7). Không hỏi trần.
+   Tràn giờ thì thứ tự giữ: **nối `/ingest` KHÔNG được bỏ** — chưa nối thì mốc đếm là 0.
+→ **12/09 (T7, 6h):** ~30' trace qua HTTP + chạy toàn bộ suite → **đóng mốc 1** → mở **Metadata filtering**
+  (mốc 2, 🔴, hộp 8h, dự kiến đóng 13/09).
 
 **Lỗi phương pháp của Claude (ghi để không lặp):**
 1. Bài tối 09/09 giao **5 việc liền**, trong đó 3 việc là **câu thiết kế** (giữ separator · overlap đặt đâu ·

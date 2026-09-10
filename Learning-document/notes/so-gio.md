@@ -19,6 +19,21 @@
 5. **Không bao giờ dùng làm phạt:** cắt giấc ngủ · bỏ bước trong vòng 6 bước · bỏ buổi ôn cách
    quãng. Ba thứ đó phá đúng cái đang xây, phạt kiểu đó là tự bắn vào chân.
 
+## Cam kết từ 2026-09-11 (re-plan 10/09 — [LEARNING_ROADMAP.md § RE-PLAN 2026-09-10](../LEARNING_ROADMAP.md))
+
+| Ngày | Sàn | Cố định trong đó | Giờ-mốc |
+|---|---|---|---|
+| Thứ Hai → Thứ Sáu | **3h** | 10' drill nền + 20' ôn | **2h30** |
+| Thứ Bảy, Chủ Nhật | **6h** | 10' + 20' + ~45' trả nợ | **4h45** |
+
+- Trung bình tuần **3.86h/ngày** — nằm trong biên "3-4h/ngày" của cam kết 28/08 **nếu tính trung bình**.
+  Nhưng **từng ngày cuối tuần 6h là mức MỚI**, cao hơn trần 4h cũ → **chờ user xác nhận**.
+- **Từ 11/09 ghi `giờ-mốc: Xh` ở đầu cột Ghi chú** = giờ thật sự đổ vào mốc (không tính ôn, drill, dọn môi
+  trường, sửa note). Đây là số dùng để kiểm giả định ~6h/mốc tại checkpoint 17/09.
+- **Hụt 6h một ngày cuối tuần ≈ mất ~1 mốc tháng 9.** Luật lãi 1.5x cho `TRÔI` và trần 6h giữ nguyên.
+- Toán cả năm: nhịp thật 03→10/09 là **2h27/ngày** → xong nội dung ~03/03/2027, **sau Tết**. Mức cam kết
+  trên là mức **tối thiểu** để xong ~30/12/2026.
+
 ## Nhật ký
 
 | Ngày | Thứ | Cam kết | Thực tế | Chênh | Loại | Nợ lũy kế | Ghi chú |

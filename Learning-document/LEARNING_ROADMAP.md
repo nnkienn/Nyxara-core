@@ -37,13 +37,87 @@
 > **Mốc theo tháng (track thật, lệch quá 3-4 ngày → phải ngồi lại re-plan, đừng để trôi âm thầm):**
 > | Tháng | Mục tiêu | Cột mốc (~) |
 > |---|---|---|
-> | **09/2026** | Đóng hẳn Phase 0 (Trạm 2-4 trace ✅ trừ 4d, ~~fix bug #25~~ ✅ 06/09, fix bug #29, nối `split_by_separators`, Document-based/Semantic/Contextual/Parent-Child/Versioning) + Phase 2.4 (Metadata filter, Query Transform, Temporal, MMR, Compression, Adaptive-RAG) | ~13 |
+> | **09/2026** | Đóng hẳn Phase 0 (Trạm 2-4 trace ✅ trừ 4d, ~~fix bug #25~~ ✅ 06/09, fix bug #29, nối `split_by_separators`, Document-based/Semantic/Contextual/Parent-Child/Versioning) + Phase 2.4 (Metadata filter, Query Transform, Temporal, MMR, Compression, Adaptive-RAG) | **14** *(đếm lại 10/09 — còn 12)* |
 > | **10/2026** | Phase 3 Eval trọn vẹn (retrieval metrics → golden dataset → custom judge/RAGAS → regression → A/B harness → cost metrics → calibration → online eval) — phase nặng nhất, ưu tiên tuyệt đối, không để trôi sang 11 | ~10 |
 > | **11/2026** | Phase 3.5 Performance (7) + Phase 4 Agent (10) | ~17 |
 > | **12/2026** | Phase 5 Safety (10) + Phase 6 Fine-tune (4, cần GPU) + Phase 7 MLOps (7, infra nặng) + Phase 8 Plugin/Docs (6) + Phase 9 Port core (2-3) | ~29-30 |
 >
 > Tháng 12 đang nặng nhất trên giấy — nếu tháng 9-10 xong sớm, kéo bớt Phase 5 hoặc 3.5 lên
 > sớm hơn để giảm dồn cục cuối năm.
+>
+> ### 🧮 RE-PLAN 2026-09-10 (mốc tự kiểm — số thật, không khen)
+> **Vì sao phải re-plan:** tới 10/09 tháng 9 mới xong 2 mốc (y như 06/09); 4 ngày 07→10/09 không đóng
+> mốc nào; lệch ~5-6 ngày so với tiến độ đều → vượt ngưỡng "lệch 3-4 ngày". Số chi tiết:
+> [CLAUDE.md §6 — MỐC TỰ KIỂM 2026-09-10](../CLAUDE.md). Làm ngay tối 10/09 theo yêu cầu user.
+>
+> **Đếm lại mốc tháng 9:** hàng tháng 9 ghi "~13" nhưng liệt kê ra 14 mục → **còn 12, không phải 11**:
+> nối `split_by_separators` (= đóng recursive chunker) · Document-based · Semantic · Contextual ·
+> Parent-Child · Versioning · Metadata filter · Query Transform · Temporal · MMR · Compression · Adaptive-RAG.
+> ⚠️ **Document parsing (Phase 0 #11, thêm 06/09) chưa nằm trong tháng nào** → 1 mốc chưa xếp lịch.
+> Cùng ngày 06/09 còn thêm Phase 3 #11 và Phase 4 #12 → cả năm giờ còn **~70 mốc** (±2), không phải 68.
+>
+> **Toán cả năm từ 11/09** (112 ngày tới 31/12 · Tết Đinh Mùi = **06/02/2027**):
+> cần ~70 × 6h + nợ 4h25 ≈ **424h** (±2 mốc = ±12h ≈ ±4 ngày).
+>
+> | Nhịp giữ được | Xong nội dung | Thời gian ôn phỏng vấn trước Tết |
+> |---|---|---|
+> | **Nhịp thật 03→10/09: 2h27/ngày** | ~03/03/2027 | ❌ **không kịp** — xong sau Tết ~3.5 tuần |
+> | Sàn 3h mọi ngày | ~30/01/2027 | ⚠️ **đúng ngày hạn trễ tối đa 30/01** → **~1 tuần** |
+> | **3h ngày thường + 6h T7/CN** (TB 3.86h/ngày) | ~30/12/2026 | ✅ đúng hạn 31/12 → **~5.5 tuần** |
+>
+> → **Kết luận thẳng:** ở nhịp hiện tại **không kịp Tết**. Kịp **chỉ khi** giữ 3h/6h liên tục ~16 tuần,
+> không nghỉ dài, **và** giả định ~6h/mốc đứng vững — giả định này **chưa được kiểm chứng** (recursive
+> chunker, một mốc dễ, đã ngốn ~3h mà còn ~3h việc).
+>
+> **Kế hoạch tháng 9 — 12 mốc / 20 ngày (11→30/09):**
+> - **Giờ:** Thứ Hai→Thứ Sáu ≥3h · Thứ Bảy, Chủ Nhật 6h. Sức chứa 14×3 + 6×6 = **78h**.
+> - **Chi phí cố định:** mỗi ngày 10' drill nền + 20' ôn (= 3h20 + 6h40) · trả nợ 4h25 ≈ 45' mỗi ngày cuối
+>   tuần → còn **~63.5h cho mốc** (ngày thường 2h30 · cuối tuần 4h45).
+> - **Hộp giờ cứng:** phần còn lại của recursive chunker ~3h · Metadata filter 🔴 **8h** · mỗi mốc 🟡 **5h**.
+>   Tổng 3 + 8 + 10×5 = **61h** → dư **~2.5h cho cả tháng**. Hết hộp = **dừng**, ghi phần dở thành nợ
+>   trong roadmap, sang mốc kế. **Không gia hạn.**
+> - **Thứ tự:** 🔴 và mốc roadmap ghi "BẮT ĐẦU TẠI ĐÂY" lên trước; mốc giá trị thấp nhất xuống cuối để nếu
+>   trượt thì trượt vào đó.
+>
+> | # | Mốc | Hộp giờ | Dự kiến đóng |
+> |---|---|---|---|
+> | 1 | Đóng recursive chunker + nối `/ingest` | ~3h | 12/09 |
+> | 2 | Metadata filtering 🔴 | 8h | 13/09 |
+> | 3 | Document-based chunking | 5h | 15/09 |
+> | 4 | MMR | 5h | 17/09 |
+> | — | **🔍 CHECKPOINT 17/09 — phải đóng đủ 4 mốc** | | |
+> | 5 | Parent-Child retrieval | 5h | 19/09 |
+> | 6 | Query Transformation (Multi-Query · HyDE · Step-back) | 5h | 20/09 |
+> | 7 | Contextual Retrieval | 5h | 21/09 |
+> | 8 | Semantic chunking | 5h | 23/09 |
+> | — | **🔍 CHECKPOINT 24/09 — phải đóng đủ 8 mốc** | | |
+> | 9 | Context Compression + Lost-in-the-Middle | 5h | 25/09 |
+> | 10 | Adaptive-RAG / Self-RAG | 5h | 26/09 |
+> | 11 | Temporal / Freshness | 5h | 27/09 |
+> | 12 | Versioning | 5h | 29/09 |
+> | — | 30/09: ~2.5h dư + re-plan tháng 10 | | |
+>
+> **Luật chặn đúng những chỗ đã ăn giờ tuần 07→10/09:**
+> 1. **Không còn "ngày vá nền" đứng riêng.** Nền Python vá bằng 10' drill đầu buổi + chính phần code tay của
+>    mốc. (Ngày B 10/09 cho ra hiểu biết thật nhưng **0 mốc**.)
+> 2. **Bug gặp dọc đường → bug-log, không fix**, trừ khi chặn mốc đang làm (luật tiến độ 07/09 mục 2).
+> 3. **Không mở bài trace trạm cũ.** Chỉ trace kỹ thuật vừa làm (§3.8), và **nằm trong** hộp giờ của mốc.
+> 4. **Ôn cách quãng tối đa 20'/ngày**, gồm cả 4 món code-tay-lại đang nợ (~15'/món, trả dần).
+> 5. **Buổi bắt đầu sau 21h / sau OT** (CLAUDE.md §3.9) vẫn tính giờ nhưng không đẩy được mốc → giờ-mốc hụt
+>    phải bù vào T7/CN. ⚠️ Cuối tuần 6h **đồng thời** là đệm OT: **OT ăn quá ~2.5h giờ-mốc cả tháng thì
+>    12/12 không đạt.**
+>
+> **Kiểm chứng giả định "đầu tháng vá nền thì về sau nhanh lên" — phải đo, không tin:**
+> ghi giờ-mốc thật của Metadata filter · Document-based · MMR. Tại checkpoint 17/09 nếu mốc 🟡 trung bình
+> **> 6h** → giả định 6h/mốc sai → toán cả năm sai → **dừng lại, cùng user quyết lại phạm vi**.
+>
+> **Phương án B — ĐỀ XUẤT của Claude, chờ user xác nhận. Chỉ bật khi trượt checkpoint:**
+> - 17/09 đóng **< 4 mốc**, hoặc 24/09 **< 8 mốc** → dời mốc **từ đuôi lên** sang đầu tháng 10, theo thứ
+>   tự **Versioning → Temporal → Adaptive-RAG**.
+> - ⚠️ **B không giảm tổng khối lượng.** Mỗi mốc dời = +5h đè lên tháng 10 (Eval — phase nặng nhất, luật
+>   "không để trôi sang 11"). B chỉ dời chỗ đau. Cần gạt thật chỉ có hai: **giờ học** và **giờ/mốc**.
+> - Cắt độ sâu (bỏ bước trong vòng 6 bước cho mốc 🟡) trái quyết định 28/08 "không cắt kỹ thuật, giữ vòng
+>   6 bước" → **chỉ user được quyết**, Claude không tự làm.
 
 ---
 
