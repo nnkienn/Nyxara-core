@@ -22,4 +22,6 @@ class CRAGeneratorState(TypedDict):
 
 # Phần 2 — node chấm điểm (bản thật nằm ở node.py)
 def make_grade_node(grader, correct_threshold=0.6, incorrect_threshold=0.0):
-    ...
+    def grade_node(state : CRAGeneratorState) :
+        ...
+    return grade_node

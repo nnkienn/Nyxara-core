@@ -138,6 +138,16 @@ trên giấy vẫn vừa nhưng **đệm = 0**.
   Hệ quả: câu *"chạy file chưa lưu — đã đóng vĩnh viễn bằng auto-save"* (07/09) **chưa bao giờ đúng trên Mac**.
   → Đã tạo `/Users/nnkienn/Developer/.vscode/settings.json` (ngoài repo, áp cho mọi project trong `Developer`):
   auto-save 1s · tắt Copilot · `editor.inlineSuggest.enabled: false`. Cách sạch hơn: mở VS Code đúng thư mục `nyxara-core`.
+- **B2 phần 2 — 2a (vỏ `make_grade_node`) ✅ 00:09 ngày 12/09**, sau khi Claude đổi sang **khung điền chỗ trống**
+  (ví dụ "quán chào" + bảng đối chiếu → user: *"khó hiểu quá, bên kia dễ hơn"*; khung 3 chỗ trống thì làm được).
+  Vấp: xoá mất dòng `...` → `IndentationError: expected an indented block` (thân hàm trong rỗng) → thêm lại là chạy.
+  Máy chấm in `dùng BÀI CỦA BẠN` ✅. ⚠️ 2 kịch bản báo **XANH GIẢ**: `verdict=None`, `attempts=0` — node chưa chấm
+  gì, nhật ký `[10]` khớp chỉ vì graph đi thẳng. *(Claude dự đoán sai "3 kịch bản sẽ NỔ" — LangGraph bản này coi
+  `None` là "không cập nhật state".)*
+- ⬜ Còn: **2b** lấy key từ `state` · **2c** gọi grader + `decide` · **2d** dựng dict kết quả (`candidate_k` chỉ khi INCORRECT).
+- ⬜ **Bước 0 chưa làm**: 2 bản nháp kẹt (`ingest.py` 06/09 · drill `merge-pieces` 07:38) vẫn còn trong VS Code Backups lúc 00:09.
+- **Rút ra về cách dẫn:** với user này lúc khuya, **khung điền chỗ trống** ăn hơn ví dụ song song + bảng đối chiếu
+  (bảng đối chiếu bắt nạp 2 đoạn code cùng lúc — đúng loại việc §3.9 cấm sau 21h).
 
 ---
 
