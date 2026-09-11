@@ -175,7 +175,17 @@ của từng mốc. Ngày thường 3h = **30' cố định** (10' drill nền +
   `merge_pieces(['abcdefghijkl', 'xy'], 5)` → `['', 'abcdefghijkl', 'xy']` (thật: `['abcdefghijkl', 'xy']`).
   Đúng con bug của bản Copilot đã xoá 07/09. User tự tìm nguyên nhân — Claude không chỉ dòng (§2).
 - Copilot đã tắt trong `.vscode/settings.json` — **chỉ máy Mac** (`.vscode/` bị gitignore, Fedora chưa có).
-- ⚠️ File drill trên đĩa **chưa được lưu** lúc 07:28 dù đã bật auto-save → phải kiểm lại auto-save.
+- **Sửa bug chunk rỗng — 5 lượt, chưa xong:** (1) trỏ nhầm câu điều kiện `len(current) + len(piece) <= size`
+  (câu đó đúng, giống bản thật) · (2) *"thùng thì chứa mẩu"* → Claude cho in ra: vòng 1 `current = ''` ngay
+  trước `append` · (3) `if current(piece)` — lẫn `()` gọi hàm với câu điều kiện · (4) `if current:` **đúng
+  chỗ** nhưng `IndentationError` (dòng `append` không thụt vào) · (5) bản 07:38 thụt **cả** `current = piece`
+  vào trong `if` → mẩu đầu dài hơn `size` bị **MẤT**: `['xy']` thay vì `['abcdefghijkl', 'xy']`. Vẫn 4/5 —
+  lỗi đổi từ "đẻ thêm chunk rỗng" sang "làm mất mẩu". **Thụt lề = phạm vi** — đúng lỗ nền số 1 của 10/09.
+- ⚠️ **VS Code không ghi được xuống đĩa từ 07:25:52** (user đã báo Cmd+S; file không khoá, chỉ có 1 bản).
+  Bản mới nhất chỉ nằm trong `~/Library/Application Support/Code/Backups`. Nguyên nhân chưa rõ → **tối kiểm
+  trước khi code** (thông báo lỗi góc dưới VS Code · File > Save).
+- **Tối 11/09 tiếp mốc 1 từ đúng chỗ này:** đưa `current = piece` về lại nấc của `else` → lưu được thật →
+  chạy lại 5 ca → 2 test (ca gộp thường · ca túi cuối) → separator → overlap → nối `/ingest`.
 
 **Lỗi phương pháp của Claude (ghi để không lặp):**
 1. Bài tối 09/09 giao **5 việc liền**, trong đó 3 việc là **câu thiết kế** (giữ separator · overlap đặt đâu ·
