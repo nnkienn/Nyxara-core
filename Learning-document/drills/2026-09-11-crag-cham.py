@@ -12,6 +12,9 @@ import importlib.util
 
 spec = importlib.util.spec_from_file_location("bai", "Learning-document/drills/2026-09-11-crag-phia-ghi.py")
 bai = importlib.util.module_from_spec(spec)
+# Python 3.9 (máy Mac): LangGraph đọc kiểu của TypedDict qua sys.modules[tên module] → phải đăng ký, không thì KeyError: 'bai'
+import sys
+sys.modules["bai"] = bai
 spec.loader.exec_module(bai)
 
 import app.application.generation.graph as g
