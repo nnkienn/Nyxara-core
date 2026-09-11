@@ -162,6 +162,21 @@ của từng mốc. Ngày thường 3h = **30' cố định** (10' drill nền +
 → **12/09 (T7, 6h):** ~30' trace qua HTTP + chạy toàn bộ suite → **đóng mốc 1** → mở **Metadata filtering**
   (mốc 2, 🔴, hộp 8h, dự kiến đóng 13/09).
 
+**Kết quả sáng 11/09 (07:06-~07:51, chỉ 45' trước giờ đi làm):**
+- **Drill list ↔ set ↔ dict (đổi số) → 4/6.** Câu 3 (dict key trùng thì đè) **đúng** — tối 10/09 sai.
+  Sai câu 4 (`d = {}` rồi `.add`) và câu 6 (`{"a": 1}` → trả lời set) — **cùng một niềm tin "thấy `{}`
+  là set"**, lần thứ 2.
+- **Ép chọn 6 literal → 3/6, đảo ngược đúng chỗ dấu `:`** (`{"x"}` → dict · `{"x": 0}` → set ·
+  `{"x": "y"}` → set). Chạy thật in `type()` → user tự nêu luật *"có `:` là dict"* — **thiếu nửa "`{}`
+  rỗng cũng là dict"**. **Chưa sạch → drill lại 12/09**; sạch mới thêm Cặp 13 vào the-phan-biet.md.
+- **Mốc 1 — tự viết lại `merge_pieces` đóng sách (07:21-07:27):** chạy 5 input cạnh bản thật → **4/5**.
+  Đúng: bỏ thùng **CŨ** lên xe rồi mới đổi (chỗ sai 3 lần chiều 10/09) · khối cất túi cuối sau vòng lặp
+  (ca túi cuối). **Sai 1 ca:** mẩu **đầu tiên** dài hơn `size` → trả thêm chunk rỗng ở đầu:
+  `merge_pieces(['abcdefghijkl', 'xy'], 5)` → `['', 'abcdefghijkl', 'xy']` (thật: `['abcdefghijkl', 'xy']`).
+  Đúng con bug của bản Copilot đã xoá 07/09. User tự tìm nguyên nhân — Claude không chỉ dòng (§2).
+- Copilot đã tắt trong `.vscode/settings.json` — **chỉ máy Mac** (`.vscode/` bị gitignore, Fedora chưa có).
+- ⚠️ File drill trên đĩa **chưa được lưu** lúc 07:28 dù đã bật auto-save → phải kiểm lại auto-save.
+
 **Lỗi phương pháp của Claude (ghi để không lặp):**
 1. Bài tối 09/09 giao **5 việc liền**, trong đó 3 việc là **câu thiết kế** (giữ separator · overlap đặt đâu ·
    mẩu dài hơn `size`) — giao trần, chưa giảng. Tái phạm §3.6 mục 7 lần thứ 3.
