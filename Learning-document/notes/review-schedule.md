@@ -131,6 +131,13 @@ trên giấy vẫn vừa nhưng **đệm = 0**.
   chạy thật `ModuleNotFoundError`; file bị sửa từ terminal lúc 21:54 khi đổi tên — bug #32) và drill
   `merge-pieces` 07:38. **Phải Revert cả hai, KHÔNG Overwrite** — Overwrite `ingest.py` là app không khởi động.
   **Luật: Claude không ghi vào file user đang mở trong VS Code.**
+- 🔍 **Vì sao tắt Copilot sáng 11/09 KHÔNG ăn, và auto-save cũng không ăn** (tìm ra 00:05 ngày 12/09): VS Code trên
+  Mac đang mở **thư mục cha `/Users/nnkienn/Developer`** làm gốc (workspaceStorage xác nhận) → file
+  `nyxara-core/.vscode/settings.json` **bị bỏ qua hoàn toàn**. Settings cấp user là `files.autoSave: "onWindowChange"`
+  → chỉ lưu khi chuyển cửa sổ. Chữ gợi ý đến từ Copilot có sẵn trong VS Code 1.134 + extension `openai.chatgpt`.
+  Hệ quả: câu *"chạy file chưa lưu — đã đóng vĩnh viễn bằng auto-save"* (07/09) **chưa bao giờ đúng trên Mac**.
+  → Đã tạo `/Users/nnkienn/Developer/.vscode/settings.json` (ngoài repo, áp cho mọi project trong `Developer`):
+  auto-save 1s · tắt Copilot · `editor.inlineSuggest.enabled: false`. Cách sạch hơn: mở VS Code đúng thư mục `nyxara-core`.
 
 ---
 

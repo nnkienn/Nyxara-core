@@ -611,3 +611,8 @@ KHÔNG đồng bộ được: `~/.claude/` (memory, transcript, settings user-le
 
 → Trước khi đổi máy: `git add -A && git commit && git push`. Sang máy kia `git pull` là Claude
 đọc lại đúng file này và hành xử giống hệt.
+
+⚠️ **(2026-09-12) VS Code phải mở ĐÚNG thư mục `nyxara-core` làm gốc**, không mở thư mục cha. `.vscode/settings.json`
+chỉ được đọc ở thư mục gốc đang mở — trên Mac từng mở `/Users/nnkienn/Developer` nên auto-save + tắt Copilot đặt trong
+`nyxara-core/.vscode/` bị bỏ qua (đã vá tạm bằng `Developer/.vscode/settings.json`). `.vscode/` bị gitignore → **mỗi
+máy tự tạo**, và tự kiểm bằng cách gõ thử xem còn chữ gợi ý xám không.
