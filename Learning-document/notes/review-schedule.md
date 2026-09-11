@@ -115,6 +115,23 @@ trên giấy vẫn vừa nhưng **đệm = 0**.
 → **T7 12/09:** 10' drill (set bỏ trùng khi `.add`) · B6 overlap · B7 mẩu dài hơn `size` · **B8 nối `/ingest`**
 → đóng mốc 1 → chiều mở **Metadata filtering** (mốc 2, 🔴 hộp 8h).
 
+**🌙 Tối 11/09 (máy Mac, bắt đầu 23:31) — user chọn code luôn dù §3.9 khuyên ngủ:**
+- ⚠️ **Thứ Bảy 12/09 user ĐI LÀM — chỉ lần này, bình thường nghỉ T7.** Tuần này mất ngày 6h.
+  Tính lại bằng hộp giờ đã chốt (ngày thường 2h30 giờ-mốc · CN 4h45):
+  - tối T7 vẫn học 3h → mốc 1 đóng 12/09 · Metadata 15/09 · Document-based 17/09 → **checkpoint 17/09 = 3/4** (MMR tràn ~3h15)
+  - T7 không học → mốc 1 đóng CN 13/09 · Metadata 16/09 · Document-based chưa → **17/09 = 2/4**
+  - Vẫn **lạc quan**: phần còn lại của mốc 1 có 3 câu thiết kế (separator · overlap · mẩu dài hơn `size`).
+  → Rất có thể **phương án B bật tại 17/09** (thiếu 1 → dời Versioning · thiếu 2 → thêm Temporal).
+  Các tuần sau giữ nguyên 6h T7/CN.
+- `make_grade_node` (B2 phần 2) là **bài ôn**, **0 giờ-mốc** — làm xong không đẩy mốc 1 phút nào.
+- **Máy chấm CRAG đã sửa** (`0fac92b`): trên Mac `.venv` là Python 3.9 → LangGraph đọc kiểu của TypedDict qua
+  `sys.modules[tên module]` → nổ `KeyError: 'bai'` cả với bản thật. Đăng ký module trước khi exec → bản thật XANH 3/3.
+- **Gốc lỗi VS Code không lưu được** (log: `Unable to write file ... File Modified Since`) — đúng 2 bản nháp kẹt:
+  `app/presentation/api/ingest.py` từ **06/09 21:43** (import `app.application.chunking.fixed_size_chunk` →
+  chạy thật `ModuleNotFoundError`; file bị sửa từ terminal lúc 21:54 khi đổi tên — bug #32) và drill
+  `merge-pieces` 07:38. **Phải Revert cả hai, KHÔNG Overwrite** — Overwrite `ingest.py` là app không khởi động.
+  **Luật: Claude không ghi vào file user đang mở trong VS Code.**
+
 ---
 
 ## 🔨 Buổi 2026-09-10 (T5) — MỐC TỰ KIỂM · chọn NGÀY B (vá nền đọc code)
