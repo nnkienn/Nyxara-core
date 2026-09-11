@@ -40,7 +40,8 @@
 | Cache/manifest bền (đĩa) lệch pha với dữ liệu dễ vỡ (RAM) khi restart — manifest "nói dối" là đã có data | `manifest.json` sống sót qua restart, 3 kho in-memory thì không, khiến ingest lại bị `to_skip` oan | #25 |
 | Note mô tả **ý định** chứ không mô tả **hành vi thật** của code (note nói dối) | "tìm rộng hơn" khi retry CRAG nhưng code chạy lại y hệt (#26); `recursive_chunk` mà thân hàm là fixed-size sliding window | #26 |
 | Tham số đông cứng trong **closure** ở chỗ lẽ ra phải đổi theo **từng vòng lặp** | `candidate_k`/`top_k` chốt lúc `build_graph()` (1 lần, lúc boot) nên mọi vòng retry nhận y nguyên input | #26 |
-| Khoá không khai báo trong schema state → LangGraph **âm thầm vứt**, code trông đúng mà vô dụng | `grade_node` return `candidate_k` nhưng `CRAGeneratorState` chưa khai báo → nhật ký vẫn `[10,10,10]` | #26 |
+| Khoá không khai báo trong schema state → LangGraph **âm thầm vứt**, code trông đúng mà vô dụng | `grade_node` return `candidate_k` nhưng `CRAGeneratorState` chưa khai báo → nhật ký vẫn `[10,10,10]` · *(drill 11/09: gõ `attemps` thiếu chữ `t` → `attempts` bị vứt mỗi vòng → van `max_attempts` không bao giờ đóng → `GraphRecursionError`)* | #26 |
+| Ghi ra state/giá trị mà **không ai đọc** → tính năng tưởng đã có mà chưa từng tác dụng | `grades` được ghi vào state nhưng không node nào đọc; `generate` vẫn nhận cả tài liệu bị chấm `False` | #33 |
 | Gán đè lên chính tên biến closure → tên bị coi là biến cục bộ ở **mọi dòng** → `UnboundLocalError` | `candidate_k = state.get("candidate_k", candidate_k)` | #28 |
 | Commit có message nói một đằng, diff đụng một nẻo (thường do `git add -A` gộp sửa đổi dở dang) | commit "sửa CLAUDE.md" xoá mất `save_manifest` trong `pipeline.py`, hỏng 8 ngày | #27 |
 | Chạy test theo thư mục con rồi tưởng là suite xanh | `pytest tests/application/generation` xanh trong khi `pytest` toàn bộ chết ở collection | #27 |
@@ -57,6 +58,29 @@
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
 
 ---
+
+### #33 — `grades` được ghi vào state nhưng không ai đọc → `generate` viết câu trả lời trên cả tài liệu bị chê  ·  Phase 2.3  ·  thật  ·  phát hiện 2026-09-11  ·  ⬜ **chưa fix (hàng đợi)**
+
+- **Triệu chứng:** không crash, không test nào đỏ. `grade_node` chấm từng tài liệu ra `grades`
+  (vd `[True, True, True, False, False]` → ratio 0.6 → `CORRECT`), rồi graph sang `generate` —
+  nhưng `generate` nhận **nguyên 5 tài liệu**, gồm cả 2 cái grader vừa chấm `False`. Với
+  `AMBIGUOUS` (`[True, False, False, False, False]`, ratio 0.2) thì 4/5 tài liệu đưa cho LLM là
+  tài liệu đã bị chê.
+- **Nguyên nhân:** code mới làm **nửa đầu** của CRAG — *chấm → gộp thành `verdict` → rẽ đường*.
+  Nửa sau của CRAG gốc — dùng chính `grades` từng tài liệu để **lọc** trước khi viết câu trả lời —
+  chưa có. `grades` chỉ được **ghi**, không có đầu **đọc**.
+- **Cách tìm ra:** user hỏi 11/09 *"grades đã chấm từng tài liệu rồi, sao còn phải đưa vào verdict
+  chấm lại?"*. Trả lời câu đó cần xem ai dùng `grades` → chạy graph thật in cột ĐỌC/GHI của từng
+  node: **không node nào ĐỌC `grades`**. `grep -rn grades app/` xác nhận: chỉ có `node.py` (ghi) và
+  `state.py` (khai báo).
+- **Fix:** ⬜ chưa làm — theo luật tiến độ 07/09 mục 2 (bug ngoài mốc đang làm → hàng đợi).
+  Đây là **bài thiết kế** (lọc ở đâu, lọc hết thì làm gì) → khi tới lượt, Claude giảng phương án +
+  cái giá trước rồi user mới chọn (§3.6 mục 7).
+- **Test chặn tái phát:** chưa có. Lưu ý: test phải assert **tài liệu `generate` nhận được**, không
+  phải `answer` cuối — cùng bài học #26/#29: *assert kết quả cuối mù với bug nằm trong quá trình*.
+- **Bài học / pattern:** cùng họ với `split_by_separators` có test xanh mà không ai gọi, và #30 gọi
+  hàm không hứng giá trị trả về. Khi thấy một giá trị được **ghi** ra, hỏi ngay: *ai **đọc** nó?*
+  Không ai đọc = hoặc thừa, hoặc là một tính năng mới làm nửa.
 
 ### #32 — tìm-thay chuỗi khi đổi tên hàm: nuốt luôn tên module + sửa cả ghi chép lịch sử  ·  công cụ/quy trình  ·  thật  ·  2026-09-06
 

@@ -559,6 +559,17 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
   - **Phương án B** (dời Versioning → Temporal → Adaptive-RAG sang tháng 10) — ✅ **user chốt 10/09**, cùng mức **6h Thứ Bảy/Chủ Nhật**.
     Cắt độ sâu vòng 6 bước **chỉ user được quyết**.
 
+- 📍 **CHỖ DỪNG 2026-09-11 17:25 (máy công ty, đã push)** — chi tiết:
+  [review-schedule.md § Buổi 2026-09-11 ở công ty](Learning-document/notes/review-schedule.md).
+  - Mốc 1/12 (đóng recursive chunker): giờ-mốc hôm nay chỉ ~30', **chưa tiến thêm**. Dự kiến đóng **trưa 12/09**.
+  - Ôn +7 CRAG **không tick**: schema code tay xanh, **`make_grade_node` còn nợ** → việc đầu tiên buổi sau,
+    dẫn 4 mẩu nhỏ, Claude chấm bằng `drills/2026-09-11-crag-cham.py`.
+  - Thứ tự tiếp: `make_grade_node` → B3 `merge_pieces` đóng sách (bug chunk rỗng) → B4 test → B5 separator
+    → T7: overlap → mẩu dài hơn `size` → nối `/ingest`.
+  - Mới: [bug #33](Learning-document/notes/bug-log.md) (`grades` ghi mà không ai đọc) — hàng đợi, chưa fix.
+  - **User chốt 11/09: học kỹ, không cắt/dời bước để kịp mốc.** Thiếu giờ thì báo cái giá, để việc trôi nguyên vẹn.
+  - Suite: **71 passed in 169.38s** (chạy toàn bộ, đo thật 11/09 trên máy công ty).
+
 - 🧭 **Luật mới, bắt buộc từ 2026-09-05 (rút ra từ bug #27):**
   1. Trước khi commit: chạy `pytest -q` **toàn bộ**, không giới hạn thư mục. Chạy theo thư mục con
      rồi tưởng là xanh chính là thứ nuôi bug #27 sống 8 ngày.
