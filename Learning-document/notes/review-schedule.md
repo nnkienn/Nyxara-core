@@ -151,7 +151,18 @@ trên giấy vẫn vừa nhưng **đệm = 0**.
   chỉ thấy từ 2c). Lỗi `()` gọi hàm ↔ `[]` tra dict là **lần thứ 2 trong 24h** (`current(piece)` tối 11/09).
 - ⚠️ **§3.9 mục 5 chạm tại 00:15:** 2 lượt liên tiếp dính lỗi **nhìn** (2a xoá mất `...` có sẵn trong khung · 2b gõ `( )`
   dù khung ghi `[ ]`). Claude khuyên dừng sau 2b; user quyết.
-- ⬜ Còn: **2c** gọi grader + `decide` · **2d** dựng dict kết quả (`candidate_k` chỉ khi INCORRECT).
+- **2c (gọi grader + `decide`) — logic ✅ 00:22, nhưng file thật chưa chạy được:** `grades = grader.grade(query, docs)` ·
+  `verdict = decide(grades, correct_threshold, incorrect_threshold)`. Chạy máy chấm trên **bản sao** đã bỏ 2 chỗ lỗi bên dưới →
+  in đúng `CHẤM: [F,F,F] INCORRECT` · `[T,T,T] CORRECT` · `[T,F,F] AMBIGUOUS`. Hai lỗi **không phải logic** trong file thật:
+  (1) **chép nguyên chữ chú thích `← dòng tạm...` của Claude vào code** → `SyntaxError: invalid character '←'`. Lần thứ 2
+  dính kiểu "copy lời giải thích như thể là code" (lần 1: 06/09). **Lỗi của Claude:** khung *để gõ theo* không được có
+  mũi tên chú thích trên dòng code — dùng `#` hoặc ghi ngoài khối.
+  (2) tự thêm `from app.domain.ports.grader import grader` → `ImportError`: module chỉ có **class `Grader`** (cái khuôn /
+  port), không có `grader`. Còn `grader` trong `make_grade_node` là **tham số** do `build_graph` truyền vào — không cần
+  import. Cùng họ "tên na ná → tưởng là một thứ" (Cặp 12 · `fixed_size_chunk` gắn nhầm retriever).
+- ⚠️ §3.9 mục 5: **lượt thứ 3 liên tiếp** dính lỗi không-phải-logic (00:22).
+- ⬜ Còn: sửa 2 chỗ trên (xoá chữ sau `print(...)` · xoá dòng import) → **2d** dựng dict kết quả (`candidate_k` chỉ khi
+  INCORRECT) → bỏ dòng `print` tạm.
 - ⬜ **Bước 0 chưa làm**: 2 bản nháp kẹt (`ingest.py` 06/09 · drill `merge-pieces` 07:38) vẫn còn trong VS Code Backups lúc 00:09.
 - **Rút ra về cách dẫn:** với user này lúc khuya, **khung điền chỗ trống** ăn hơn ví dụ song song + bảng đối chiếu
   (bảng đối chiếu bắt nạp 2 đoạn code cùng lúc — đúng loại việc §3.9 cấm sau 21h).
