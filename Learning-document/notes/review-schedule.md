@@ -144,7 +144,14 @@ trên giấy vẫn vừa nhưng **đệm = 0**.
   Máy chấm in `dùng BÀI CỦA BẠN` ✅. ⚠️ 2 kịch bản báo **XANH GIẢ**: `verdict=None`, `attempts=0` — node chưa chấm
   gì, nhật ký `[10]` khớp chỉ vì graph đi thẳng. *(Claude dự đoán sai "3 kịch bản sẽ NỔ" — LangGraph bản này coi
   `None` là "không cập nhật state".)*
-- ⬜ Còn: **2b** lấy key từ `state` · **2c** gọi grader + `decide` · **2d** dựng dict kết quả (`candidate_k` chỉ khi INCORRECT).
+- **2b (lấy key từ `state`) ✅ 00:15** — lượt đầu `state(query)` / `state(retrieved_docs)`: **ngoặc tròn** thay ngoặc
+  vuông + **thiếu dấu nháy** (dù khung ghi `[ ]` và đã nhắc nháy). Claude cho chạy ví dụ danh bạ: `danh_ba("Lan")` →
+  `TypeError: 'dict' object is not callable` · `danh_ba[Lan]` → `NameError` · `danh_ba["Lan"]` → `0901` → sửa đúng
+  ngay lượt sau: `state["query"]`, `state["retrieved_docs"]`. Graph chạy không nổ, vẫn xanh giả (đúng dự đoán — hiệu quả
+  chỉ thấy từ 2c). Lỗi `()` gọi hàm ↔ `[]` tra dict là **lần thứ 2 trong 24h** (`current(piece)` tối 11/09).
+- ⚠️ **§3.9 mục 5 chạm tại 00:15:** 2 lượt liên tiếp dính lỗi **nhìn** (2a xoá mất `...` có sẵn trong khung · 2b gõ `( )`
+  dù khung ghi `[ ]`). Claude khuyên dừng sau 2b; user quyết.
+- ⬜ Còn: **2c** gọi grader + `decide` · **2d** dựng dict kết quả (`candidate_k` chỉ khi INCORRECT).
 - ⬜ **Bước 0 chưa làm**: 2 bản nháp kẹt (`ingest.py` 06/09 · drill `merge-pieces` 07:38) vẫn còn trong VS Code Backups lúc 00:09.
 - **Rút ra về cách dẫn:** với user này lúc khuya, **khung điền chỗ trống** ăn hơn ví dụ song song + bảng đối chiếu
   (bảng đối chiếu bắt nạp 2 đoạn code cùng lúc — đúng loại việc §3.9 cấm sau 21h).
