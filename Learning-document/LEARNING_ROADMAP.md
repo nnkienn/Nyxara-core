@@ -119,6 +119,36 @@
 > - Cắt độ sâu (bỏ bước trong vòng 6 bước cho mốc 🟡) trái quyết định 28/08 "không cắt kỹ thuật, giữ vòng
 >   6 bước" → **chỉ user được quyết**, Claude không tự làm.
 
+> ### 🧮 RECALC 13/09 00:30 — ✅ USER CHỐT bật phương án B (mức 1: dời **Versioning**)
+> **Vì sao:** T7 12/09 đi làm → mất trọn ngày 6h, buổi mở 23:13 chỉ được ~1h và **0 giờ-mốc**.
+> Nợ giờ ≈ **7h59 → vượt trần 6h lần đầu**. CN 13/09 user chỉ học được **5h** (7-8h sáng · 13-17h chiều,
+> đi câu cá giữa ngày) → dưới sàn cuối tuần 6h, nợ nhích lên ≈ **8h59**. Mốc 1 **quá hạn** (hạn 12/09).
+> Luật trần nợ (cấm kỹ thuật mới 1 buổi để re-plan) được thực hiện bằng recalc này thay vì đốt cả buổi CN —
+> bản re-plan 10/09 mới 3 ngày tuổi, đốt 1 buổi 6h để viết lại chính là thứ luật 10/09 vừa cấm.
+>
+> **Toán lại 13→30/09** (13 ngày thường × 2h30 + 4 ngày cuối tuần × 4h45 + CN 13/09 4h30):
+>
+> | | giờ-mốc |
+> |---|---|
+> | Có | **56h** |
+> | Cần (11 mốc — đã dời Versioning): mốc 1 còn 2h30 + Metadata 8h + 9 × 5h | **55h30** |
+> | Thiếu — nếu nợ ~9h trừ vào giờ-mốc (cách tính của bản 10/09) | **−8h30** |
+> | Thiếu — nếu giờ trả nợ vẫn đẩy được mốc | **+30' (vừa khít)** |
+>
+> ⚠️ **Hai cách tính lệch nhau 9h = gần 2 mốc.** Chênh này nằm ở một giả định chưa bao giờ nói rõ: giờ
+> trả nợ có **đẩy mốc** được không, hay chỉ bù cho giờ ôn/drill đã ăn mất. Không đoán — **đo ở 17/09**.
+>
+> **Quyết định hôm nay:** dời **Versioning** → đầu tháng 10 (mức 1 của phương án B, user đã chốt 10/09).
+> Tháng 9 còn **11 mốc**. Hai mốc kế tiếp trong hàng đợi dời — **Temporal** rồi **Adaptive-RAG** — chỉ dời
+> tại checkpoint 17/09, căn cứ **giờ-mốc thật** của Metadata filter · Document-based · MMR:
+> - 🟡 trung bình ≤ 5h → giữ nguyên 11 mốc.
+> - 🟡 trung bình ~6h → dời thêm **Temporal** (còn thiếu ~3h30).
+> - 🟡 trung bình > 6h → dời thêm **Temporal + Adaptive-RAG** (dư ~1h30) **và** giả định 6h/mốc của toán
+>   cả năm sai → dừng, quyết lại phạm vi cùng user (đúng luật đã ghi ở bản 10/09).
+>
+> **Hệ quả phải nói thẳng:** mỗi mốc dời là +5h đè lên tháng 10 (Eval — phase nặng nhất). Phương án B
+> **không giảm khối lượng**, chỉ dời chỗ đau. Hai gạt thật vẫn chỉ có: **giờ học/ngày** và **giờ/mốc**.
+
 ---
 
 ## 🎯 Tầm nhìn dự án

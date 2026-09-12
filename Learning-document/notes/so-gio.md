@@ -51,7 +51,13 @@
 | 2026-09-11 | Sáu *(ca sáng)* | 3h00 | 45' (07:06-07:51) | — | — | *(gộp sau ca tối)* | giờ-mốc: ~30'. Drill list↔set↔dict 4/6 + ép chọn 3/6 (đảo dấu `:`), chưa sạch · tự viết lại `merge_pieces` đóng sách 4/5 ca; sửa bug chunk rỗng 5 lượt chưa xong (lần cuối thụt lề sai → mất mẩu) · VS Code không lưu được xuống đĩa từ 07:25. **Tối phải thêm 2h15** để đạt sàn 3h |
 | 2026-09-11 | Sáu *(ở công ty)* | — | ~2h25 đo được (10:07-11:50 · 16:40-17:25) **+ giờ ngồi quán (chưa ghi)** | — | — | **≤ ~3h49** *(chưa trừ giờ quán + ca tối)* | giờ-mốc: **0**. Công ty rảnh. Drill list↔set↔dict 4/6 → 0/2 → 2/3 (còn lỗ set bỏ trùng khi `.add`) · +7 CRAG không nhớ → dựng lại bằng trace thật → code tay schema xanh lượt 4 · `make_grade_node` còn nợ · lòi [bug #33](./bug-log.md). Cả ngày tới 17:25 = 45' + ~2h25 = **~3h10 ≥ sàn 3h** kể cả chưa tính giờ quán. ⚠️ Đạt sàn giờ nhưng **giờ-mốc cả ngày chỉ ~30'** — ôn phình ra chiếm gần hết |
 | 2026-09-11 | Sáu *(ca tối, máy Mac)* | — | ~55' (23:31-00:25) | — | — | **≤ ~2h59** *(chưa trừ giờ quán)* | giờ-mốc: **0**. Cả ngày ~45' + ~2h25 + ~55' ≈ **4h05 + giờ quán** → đạt sàn. Tối: tìm ra gốc lỗi VS Code (mở thư mục cha làm gốc → settings bị bỏ qua) · sửa máy chấm CRAG cho Python 3.9 · **`make_grade_node` 2a + 2b ✅ · 2c logic ✅** (khung điền chỗ trống). T7 12/09 đi làm (một lần) |
+| 2026-09-12 | Bảy *(đi làm cả ngày)* | 6h00 *(cuối tuần)* | ~1h00 (23:13-00:15) | −5h00 | BKK | **≈7h59 — ⚠️ VƯỢT TRẦN 6h** | giờ-mốc: **0**. T7 đi làm (một lần) → mất trọn ngày 6h. Buổi bắt đầu 23:13 → áp §3.9, đổi nội dung: drill ép chọn `()`↔`[]` + set/list **7/10 → 7/9** (lòi luật sai *"có dấu `:` là dict"*, và `docs["0"]` — sai kiểu thứ nằm trong `[]`) · **`make_grade_node` 2d ✅ XANH 3/3** → trả xong **nợ ôn +7 CRAG** (treo từ 11/09) · giảng lại closure↔state ✅. Mốc 1 **quá hạn 1 ngày** |
 
+> ⚠️ **Tình trạng 13/09 00:15 — CHẠM TRẦN NỢ lần đầu:** nợ ≈ **7h59** (≤2h59 cuối 11/09 + hụt 5h của T7 12/09),
+> vượt trần **6h**. Toàn bộ vẫn `BKK` (T7 đi làm ngoài dự kiến) nên **chưa phát sinh lãi 1.5x**, nhưng luật trần
+> đã kích: **cấm học kỹ thuật mới 1 buổi để re-plan** — đúng lúc mốc 2 (Metadata filter 🔴) định mở chiều CN 13/09.
+> Quyết định cách xử lý là của user (xem § buổi 12-13/09 trong review-schedule.md).
+>
 > **Tình trạng 10/09 (cuối ngày, 22:58):** nợ **~4h04**, vẫn toàn `BKK` (ngập). Cách trần 6h còn **~1h56**
 > → **11/09 hụt quá 1h35 là chạm trần**, mất trọn 1 buổi re-plan. Ca sáng 11/09 là ca phải giữ bằng mọi giá.
 >

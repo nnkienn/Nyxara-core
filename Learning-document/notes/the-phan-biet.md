@@ -269,6 +269,56 @@ Cùng bệnh với [Cặp 11](#) và `recursive_chunk` không đệ quy.
 
 ---
 
+## Cặp 13 — `()` **CHẠY** vs `[]` **TRA**  (dính 3 lần trong 24h, drill 2026-09-12 khuya)
+
+> Lịch sử: `current(piece)` (tối 11/09) · `state(query)` (00:15 12/09) · `d("x")` trong drill ép chọn
+> (23:2x 12/09) — cùng một hướng sai: **dùng `()` cho chỗ chứa dữ liệu**. Lần thứ 3 mới lòi ra
+> **cái luật user đang dùng**, và chính cái luật đó là thứ phải thay.
+
+**Luật user tự nêu (SAI):** *"có dấu `:` là dict → `[]`, còn lại `()`"*.
+Nó trả đúng **mọi** ô có dict nên trông như đúng, rồi gãy ở list: `separators` không có `:` → bị đẩy sang `()`.
+
+|  | `()` — **CHẠY** | `[]` — **TRA** |
+|---|---|---|
+| Dùng cho | hàm · method · class | dict · list · tuple · chuỗi |
+| Câu hỏi tự đặt | *"nó có chạy được không?"* | *"nó có chứa dữ liệu không?"* |
+| Ví dụ trong repo | `decide(grades, …)` · `grader.grade(q, docs)` | `state["query"]` · `docs[0]` · `separators[0]` |
+| Python nổ ra chữ gì khi sai | `not callable` | `not subscriptable` |
+
+**Bảng số thật (chạy 2026-09-12, `.venv/bin/python`):**
+```
+separators()   -> NỔ TypeError: 'list' object is not callable
+separators[0]  -> '\n\n'
+ten()          -> NỔ TypeError: 'str' object is not callable
+ten[0]         -> 'M'
+counts()       -> NỔ TypeError: 'dict' object is not callable
+counts["a"]    -> 3
+decide([True]) -> 'CORRECT'
+decide[True]   -> NỔ TypeError: 'function' object is not subscriptable
+```
+→ **Chữ trong câu nổ chính là cái luật:** `callable` = chạy được · `subscriptable` = tra được.
+Dấu `:` không liên quan, nó chỉ là **cách viết** dict ra giấy.
+
+### Cặp 13b — trong `[]` thì để **SỐ** hay để **KHOÁ CHUỖI**  (sai ngay sau khi 13 đã đúng)
+
+User viết `docs["0"]` — chọn `[]` đúng rồi, nhưng nhét **chuỗi** vào chỗ cần **số thứ tự**.
+
+|  | list / chuỗi | dict |
+|---|---|---|
+| Trong `[]` để gì | **số thứ tự**, không nháy: `docs[0]` | **đúng khoá như lúc tạo**: `counts["a"]` |
+| Sai thì nổ gì | `TypeError: list indices must be integers or slices, not str` | `KeyError` |
+
+```
+docs["0"]     -> NỔ TypeError: list indices must be integers or slices, not str
+docs[0]       -> 'tài liệu A'
+counts[0]     -> NỔ KeyError: 0
+counts["0"]   -> 'chuỗi số không'      # counts = {"a": 3, "0": "chuỗi số không"}
+```
+**Hai dòng cuối là chỗ neo:** cùng một dict, `counts[0]` nổ mà `counts["0"]` ra giá trị — dấu nháy
+**đổi hẳn thứ đang tìm**, không phải trang trí.
+
+---
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |

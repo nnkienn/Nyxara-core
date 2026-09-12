@@ -20,7 +20,7 @@
 | Vòng đời trạng thái: ephemeral (RAM) vs durable (đĩa) · stale state · `lifespan` mở-và-đóng | 2026-09-06 | ⚠️ 2026-09-07 **TRƯỢT 1/3** | ✅ 2026-09-09 *(vá bằng bài đo, không giảng suông)* | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #25 + #31. Lần đầu trả lời **sai 2/4** ô bảng (tưởng `InMemoryDocStore` trên đĩa, tưởng `grader` là nơi giữ trạng thái, **bỏ sót manifest**). Mốc +3 phải **code tay lại** khối shutdown trong `lifespan`, không giảng lại suông. **+1 (07/09) TRƯỢT:** tưởng quyết định skip đọc 3 kho (thực ra đọc **manifest**); nói nhầm fix sang tầng retrieval. Ôn bù dời sang 09/09 (08/09 nghỉ OT). **+3 (09/09):** bug #31 ✅ ngay. Nhưng "sau fix #25 manifest sống ở đâu" → **❌ trả lời "trên đĩa, restart vẫn còn"** (mô tả trạng thái TRƯỚC fix). Vá bằng 5 kịch bản chạy thật → tự giảng lại đúng bằng lời mình. **Mốc +7 (13/09) vẫn phải code-tay-lại khối shutdown `lifespan`.** |
 | Hợp đồng return giữa 2 tầng · additive vs breaking change · integration test vs unit test | 2026-09-06 | ⚠️ 2026-09-07 (đọc lướt) | ✅ 2026-09-09 *(9/10)* | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Bug #30. Chỗ vấp: gọi hàm mà **không hứng giá trị trả về** (lần thứ 3 dính dạng "chưa nối dây"). Ôn kèm câu: *test chỉ bắt được bug nằm trên đường nó đi qua.* **+1 (07/09):** sai câu `chunk_count` — chọn "số chunk ghi vào kho", thực ra là **số nhát cắt**. Lỗi đọc lướt, không phải lẫn khái niệm. Xem [Cặp 11](./the-phan-biet.md). **+3 (09/09):** `chunk_count` = nhát cắt ✅ (đã sạch) · additive ✅ nhưng **không nêu được tiêu chí** — tiêu chí là *caller cũ có gãy không*; breaking tệ nhất là **giữ nguyên tên, đổi ý nghĩa**. |
 | Thread-safety: `def` vs `async def` · threadpool vs event loop · đọc-sửa-ghi không nguyên tử · `Lock` | 2026-09-06 | ✅ 2026-09-07 *(tự đo, không giảng suông)* | ⚠️ 2026-09-09 *(hiểu ✅ · **chưa code-tay-lại**)* | ⬜ 2026-09-13 | ⬜ 2026-09-20 | Trạm 4d + bug #29. Mốc +3 phải **code tay lại** cả `Lock` lẫn test race (kể cả mẹo `setswitchinterval` — thiếu nó test **xanh giả**). Câu chốt tự kiểm: *vì sao khoá TO chứ không chỉ khoá dòng nguy hiểm nhất?* **+1 (07/09):** ban đầu sai **4 lượt liên tiếp**, đảo ngược có hệ thống, kể cả ngay sau khi đọc bảng. Chỉ vá được khi **tự đo**: `def` 2.05s vs `async def` 6.02s. → [Cặp 10](./the-phan-biet.md). **+3 (09/09):** cả `def`/`async def` (2.05s/6.02s) lẫn câu "vì sao khoá TO" đều trả lời **đầy đủ 3 tầng, không thiếu ý nào** — câu mạnh nhất buổi. **Nhưng mốc +3 yêu cầu code-tay-lại `Lock` + test race: CHƯA làm, còn nợ.** |
-| CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⏭️ dời 08/09 → **09/09 vẫn chưa trả** (hiểu ✅, chưa code tay) | ⚠️ 2026-09-11 *(hiểu phải dựng lại bằng trace · code tay: schema ✅ sau 4 lượt · `make_grade_node` **chưa**)* | ⬜ 2026-09-18 | **+7 (11/09) KHÔNG TICK:** đóng sách thì không bắt đầu được, nhầm node `retrieve` với retriever (BM25/RRF). Dựng lại bằng chạy graph thật in ĐỌC/GHI từng node → hiểu đủ 4 key. Code tay Phần 1 (schema) xanh lượt 4; **Phần 2 `make_grade_node` còn nợ**, chấm bằng [drills/2026-09-11-crag-cham.py](../drills/2026-09-11-crag-cham.py). Xem § Buổi 2026-09-11 ở công ty bên dưới. Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. | **+3 (09/09):** `max_attempts` = closure → ✅ **SẠCH lần đầu** sau khi sai dai từ 03/09. Nhưng phần **code tay** dời lần thứ 3 (07→08→09/09) — ưu tiên trả trước tiên. *(cũ)* **+3 chưa làm 07/09** (hết giờ, buổi bị ôn bù + drill cú pháp ăn hết) — phải **code tay lại**, dời sang 08/09.
+| CRAG closure vs state (`build_graph` 1 lần lúc boot · `candidate_k` đông cứng · van `max_attempts`) | 2026-09-04 | ✅ 2026-09-05 *(code tay, không chỉ giảng lại)* | ⏭️ dời 08/09 → **09/09 vẫn chưa trả** (hiểu ✅, chưa code tay) | ⚠️→✅ 2026-09-11 → **trả xong 13/09 00:05** *(schema ✅ 4 lượt · `make_grade_node` ✅ XANH 3/3 — nhưng phải đỡ bằng khung điền chỗ trống + 3 lượt nhắc)* | ⬜ 2026-09-18 **ĐÓNG SÁCH, KHÔNG khung** | **+7 (11/09) KHÔNG TICK:** đóng sách thì không bắt đầu được, nhầm node `retrieve` với retriever (BM25/RRF). Dựng lại bằng chạy graph thật in ĐỌC/GHI từng node → hiểu đủ 4 key. Code tay Phần 1 (schema) xanh lượt 4; **Phần 2 `make_grade_node` còn nợ**, chấm bằng [drills/2026-09-11-crag-cham.py](../drills/2026-09-11-crag-cham.py). Xem § Buổi 2026-09-11 ở công ty bên dưới. Trạm 3 xong phần **hiểu**, chưa qua phần **làm**. Cặp 9 drill 2 vòng vẫn còn sai `max_attempts` + bài closure Python thuần. Mốc +1 (05/09) phải kèm **code tay bản fix #26**, không chỉ giảng lại. | **+3 (09/09):** `max_attempts` = closure → ✅ **SẠCH lần đầu** sau khi sai dai từ 03/09. Nhưng phần **code tay** dời lần thứ 3 (07→08→09/09) — ưu tiên trả trước tiên. *(cũ)* **+3 chưa làm 07/09** (hết giờ, buổi bị ôn bù + drill cú pháp ăn hết) — phải **code tay lại**, dời sang 08/09.
 
 > Thêm hàng mới mỗi khi 1 kỹ thuật qua checkpoint (e) trong roadmap. Đừng xoá hàng cũ dù đã
 > ôn hết 4 mốc — giữ lại làm log, chỉ ngừng thêm cột ôn tiếp.
@@ -43,6 +43,79 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
    Ghi rõ trượt ở cặp/khái niệm nào vào cột Ghi chú — để lần sau nhắm thẳng vào đó.
 4. **Không mở trạm/kỹ thuật mới trong buổi mà mốc ôn bị trượt.** Ưu tiên vá nền trước
    (đúng §3.6 mục 5 — checkpoint đóng-sách). Đã áp dụng thật sáng 03/09: hoãn Trạm 3 sang ca tối.
+
+---
+
+## 📌 Kế hoạch CN 2026-09-13 — chốt 00:35 (5h: 07:00-08:00 · 13:00-17:00)
+
+> Giữa ngày đi câu cá (08:30 → ~13:00). 5h < sàn cuối tuần 6h → nợ nhích lên ≈ **8h59**, không trả được.
+> Phương án B **mức 1 đã bật** (dời Versioning sang T10) — xem § RECALC 13/09 trong
+> [LEARNING_ROADMAP.md](../LEARNING_ROADMAP.md). **Không re-plan lại trong buổi**, recalc đã làm xong đêm nay.
+> Mục tiêu duy nhất của buổi: **đóng mốc 1** (quá hạn) rồi mở được mốc 2.
+
+**Ca sáng 07:00-08:00 — ca tỉnh nhất, dành cho việc cần chú ý nhất (3 câu THIẾT KẾ):**
+1. **10'** drill ép chọn [Cặp 13 + 13b](./the-phan-biet.md) — `()` chạy ↔ `[]` tra · trong `[]` để số hay khoá chuỗi.
+   Vòng đêm 12/09 là 7/9 và lòi luật sai; phải sạch trước khi code.
+2. **B5 giữ separator** — bài thiết kế. **Claude giảng trước**: liệt kê phương án + cái giá của từng cái +
+   khuyến nghị, rồi user chọn (luật rút ra 06/09, tái phạm 11/09 — không Socratic thuần cho bài thiết kế).
+3. **B6 overlap** — cùng cách: giảng phương án trước, user chọn.
+
+**Ca chiều 13:00-17:00 (4h):**
+4. **20' ôn** (trần 20'/ngày). Hôm nay **3 hàng cùng đến hạn +7**: `lifespan` · hợp đồng return · thread-safety.
+   Không đủ giờ cho cả 3 → ưu tiên hàng `lifespan`, vì mốc +7 của nó ghi rõ phải **code-tay-lại khối shutdown**,
+   không giảng suông. Hai hàng còn lại dời 14/09, ghi rõ là dời chứ không tick.
+5. **B7 + B3** — mẩu dài hơn `size` · `merge_pieces` bug **chunk rỗng** (mẩu đầu tiên dài hơn `size`).
+   Bản đóng sách sáng 11/09 bị VS Code làm cụt → làm lại từ đầu, code tay.
+6. **B4** 2 test (ca gộp thường · ca túi cuối) + **regression test** cho bug chunk rỗng → `pytest -q` **toàn bộ**,
+   không giới hạn thư mục, và đọc `git diff` trước khi commit (luật bug #27).
+7. **B8 nối `split_by_separators` vào `/ingest`** → **đóng mốc 1** ✅ (ghi giờ-mốc thật vào [so-gio.md](./so-gio.md)).
+8. Còn giờ (dự kiến ~1h) → mở **mốc 2 Metadata filtering 🔴** (hộp 8h), bước 1-2 của vòng 6 bước.
+
+**Chặn đúng những chỗ đã ăn giờ tuần này:**
+- ⛔ Không mở lại trạm trace cũ. ⛔ Không "ngày vá nền" đứng riêng — nền vá bằng 10' drill + chính phần code tay.
+- ⛔ Bug gặp dọc đường → [bug-log.md](./bug-log.md), **không fix**, trừ khi chặn mốc 1 (bug #33 đang ở hàng đợi).
+- ⛔ Không viết lại kế hoạch/re-plan trong buổi. Hết hộp giờ mốc 1 → ghi phần dở thành nợ, sang mốc 2.
+- 📵 Bước 0 **chưa làm** từ 11/09: 2 bản nháp kẹt trong VS Code Backups (`ingest.py` 06/09 · drill `merge-pieces`).
+  **Revert, KHÔNG Overwrite** — Overwrite `ingest.py` là app không khởi động. Làm trước khi gõ dòng code đầu tiên.
+
+---
+
+## 🌙 Buổi 2026-09-12 (T7) — đi làm cả ngày, học 23:13 → 00:20 (~1h)
+
+> Thứ Bảy 6h **mất trọn** (đi làm, đã báo trước tối 11/09). Buổi mở lúc 23:13 → áp
+> [§3.9](../../CLAUDE.md) ngay từ đầu: **không** đọc code lạ, **không** 3 câu thiết kế của mốc 1
+> (separator · overlap · mẩu dài hơn `size`), **không** nối `/ingest`. Đổi sang drill + code tay
+> mẩu nhỏ đang dở. **Giờ-mốc = 0** — mốc 1 quá hạn 1 ngày (hạn 12/09).
+
+**1. Drill ép chọn (~12', 10 + 9 ô)** — nhắm lỗ `set .add` bỏ trùng và `()` ↔ `[]`:
+- Vòng 1: **7/10**. Sai: `d("x")` (ô 3) · chọn **list + `.append`** cho việc gom `doc_id` bỏ trùng (ô 8),
+  **ngược với chính ô 1 vừa trả lời đúng** (set `.add` trùng → `len` không tăng). Bỏ trống ô `set()` ↔ `{}`.
+- ⚠️ Ô 3 sai mà ô 9 (`state["query"]`) đúng → thứ đọng lại đang là **chuỗi chữ gõ tối qua**, chưa phải luật.
+- Vòng 2: **7/9**, và lần này lòi ra **cái luật user đang dùng: *"có dấu `:` là dict → `[]`, còn lại `()`"***
+  → gãy ở `separators()` (list không có `:`). Vá bằng bảng số thật `not callable` / `not subscriptable`.
+- Ngay sau đó: `docs["0"]` → nhét **chuỗi** vào chỗ cần **số thứ tự**. → ghi thành
+  [Cặp 13 + 13b](./the-phan-biet.md) kèm output thật.
+
+**2. `make_grade_node` 2d ✅ XANH 3/3** (`[10,20,40]` · `[10]` · `[10]`, `attempts cuối=3/1/1`):
+- 2 ô đầu (`"verdict": verdict`, `"grades": grades`) tự điền đúng. Tự xoá được 2 chỗ làm file nổ
+  (chữ `←` chép vào code · `import grader`).
+- Tắc ở 3 ô còn lại — *"khó hiểu quá"* với khung 5 ô một lượt → **tách thành 3 câu chọn 1-trong-3/2**
+  (`"INCORRECT"` · `*` · `return`) thì làm đúng cả 3. **Bài học dẫn: khuya thì mỗi lượt CHỈ một ô.**
+- Máy chấm bắt được 2 lỗi nối tiếp, cả hai đều là **van `attempts` không đóng**:
+  (1) `GraphRecursionError`, nhật ký phồng `[10,20,40,80,…,40960]` → thiếu hẳn khoá `attempts`;
+  (2) `NameError: name 'attempts' is not defined` → ghi khoá đúng nhưng **tên bên phải chưa tồn tại**
+  (chưa lấy từ state) — cùng họ "chưa nối dây";
+  (3) ghi `attempts` **đúng bằng** giá trị đọc ra → con đếm đứng yên, `attempts cuối=0` in ngay trong
+  nhật ký mà lượt đầu **đọc qua không thấy** (2 lượt liên tiếp sửa nửa chỉ dẫn) → phải trích đúng ô + mũi tên mới sửa.
+- **Giảng lại ✅ cả 2 câu:** vì sao `attempts` ghi mọi lượt mà `candidate_k` chỉ ghi khi INCORRECT ·
+  `max_attempts` = **closure** (đông cứng lúc `build_graph` ở boot) vs `attempts` = **state** (riêng mỗi request).
+  → **Cặp 9 sạch lần thứ 2**, lần này có code xanh chứng minh. Nợ ôn +7 CRAG (treo từ 11/09) **trả xong**.
+
+**Số thật cuối buổi:** nợ giờ ≈ **7h59 → vượt trần 6h lần đầu** (xem [so-gio.md](./so-gio.md)).
+Mốc 1 còn nguyên: B3 bug chunk rỗng · B4 2 test + regression · B5/B6/B7 (3 câu thiết kế) · B8 nối `/ingest`.
+**Checkpoint 17/09** cần ~20h30 giờ-mốc (mốc 1 ~2h30 + Metadata 8h + Document-based 5h + MMR 5h) nhưng
+13→17/09 chỉ có ~14h45 (CN 4h45 + 4×2h30) **trước khi trừ trả nợ** → **nhiều nhất 3/4, thực tế 2/4-3/4**
+→ **phương án B gần như chắc bật** (dời Versioning, có thể thêm Temporal).
 
 ---
 

@@ -6,7 +6,7 @@
 from typing import TypedDict
 
 from app.application.generation.decision import decide
-from app.domain.ports.grader import grader
+
 
 # Phần 1 — schema state của graph (bản thật nằm ở state.py)
 class CRAGeneratorState(TypedDict):
@@ -26,6 +26,11 @@ def make_grade_node(grader, correct_threshold=0.6, incorrect_threshold=0.0):
         query = state["query"]
         docs = state["retrieved_docs"]
         grades = grader.grade(query, docs)
+        attempts = state["attempts"] 
         verdict = decide(grades, correct_threshold, incorrect_threshold)
-        print("CHẤM:", grades, verdict)      ← dòng tạm để NHÌN THẤY kết quả, 2d sẽ xoá
+        ket_qua = {"verdict": verdict, "grades":  grades , "attempts" : attempts+ 1}
+        if verdict == "INCORRECT":
+            ket_qua["candidate_k"] = state["candidate_k"] * 2
+        return ket_qua
+     
     return grade_node
