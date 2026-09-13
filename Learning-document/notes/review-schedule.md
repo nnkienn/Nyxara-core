@@ -46,6 +46,46 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
+## 📌 Kế hoạch 2026-09-14 (T2) — MỐC 2: Metadata filtering 🔴 (hộp cứng 8h)
+
+> Thứ tự do user chốt tối 13/09: **sáng sớm ở nhà = kỹ thuật mới** · **ở công ty = trace trạm 5** ·
+> tối = tiếp mốc 2. Đúng §3.9 — ca chú ý cao nhất dành cho việc nạp cái mới, trace đẩy xuống ca sau.
+> Hộp 8h ở nhịp ngày thường (~2h30 giờ-mốc/ngày) → mốc 2 dự kiến đóng **17/09**, tức checkpoint 17/09 = **2/4**.
+> ⚠️ Đây là mốc để **đo giả định 6h/mốc**: mốc 1 vừa tiêu 6h30 cho một mốc "dễ". Ghi giờ-mốc thật mỗi ca.
+
+**☀️ Ca sáng sớm (~1h, ở nhà) — KHỞI ĐỘNG MỐC 2, không trace:**
+1. **10' Claude giảng khái niệm trước** (đúng §3.6 mục 7 — đây là loại user chưa có vật liệu trong repo để tự suy):
+   metadata filtering là gì · **pre-filter vs post-filter** khác nhau thế nào về **recall** và về **chi phí** ·
+   vì sao Qdrant có `Filter` riêng mà vẫn phải tự viết predicate ở tầng application.
+2. **Bước 1 CODE TAY bắt đầu ngay** — cây predicate (`Filter predicate tree` như roadmap ghi):
+   tự viết hàm **đánh giá một predicate trên metadata của một chunk**, dạng cây lồng nhau `AND` / `OR` / `NOT`
+   + toán tử lá (`eq`, `gt`, `in`...). **Đây lại là đệ quy** — cùng khuôn `split_by_separators` vừa làm xong đêm qua,
+   dùng luôn đà đó.
+3. Không đụng Qdrant trong ca sáng. Chỉ dict Python thuần + in ra.
+
+**🏢 Ca công ty — TRẠM 5 trace** ([pipeline/05-chunking.md](./pipeline/05-chunking.md)): 4 lỗi cài + 5a/5b/5c/5d.
+Trong đó **5b có bài đóng-sách 10'** — món code tay của mốc 1 mà Claude làm hộ tối 13/09, phải tự viết lại.
+⚠️ Máy công ty là Fedora → **`git pull` trước** (tối 13/09 có 5 commit).
+
+**🌙 Ca tối — tiếp mốc 2:** bước 2 BUG CỐ Ý + bước 3 DEBUG BẰNG TAY (in kết quả từng nút của cây predicate).
+
+**Chia hộp 8h (ghi ra để biết lúc nào phải dừng):**
+| Bước | Nội dung | Hộp |
+|---|---|---|
+| 1 | Code tay: đánh giá cây predicate trên dict metadata | 3h |
+| 2 | Bug cố ý (gợi ý hướng: nhánh `OR` cư xử như `AND`, hoặc quên `NOT`) | 30' |
+| 3 | Debug bằng tay: in kết quả từng nút, tự tìm chỗ hỏng | 45' |
+| 4 | Fix + giải thích bug đó làm sai kết quả gì | 30' |
+| 5 | Test: regression đúng ca bug + **so pre-filter vs post-filter trên cùng bộ dữ liệu** | 1h30 |
+| 6 | Document: `algorithms.md` (WHY) · `glossary.md` · `bug-log.md` · thêm câu vào `interview-questions.md` | 45' |
+| 7 | **Nối vào luồng thật** (§3.8): đẩy predicate xuống Qdrant `Filter` trong retriever, trace từ HTTP xuống | 1h |
+> Hết 8h là **dừng**, phần dở ghi thành nợ trong roadmap, sang mốc 3. Không gia hạn.
+
+**Chi phí cố định mỗi ngày (đừng để phình):** 10' drill nền + 20' ôn. Hôm nay 3 hàng `+7` đã dời từ 13/09
+(`lifespan` code-tay khối shutdown · hợp đồng return · thread-safety) — trả **1 hàng**, hai hàng còn lại ghi rõ là dời.
+
+---
+
 ## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, bắt đầu 20:34 *(giờ kết thúc điền khi dừng thật)*
 
 > Kế hoạch 5h (07-08h + 13-17h) **không diễn ra**. Buổi mở 20:34 — trước 21h và không OT, nên theo §3.9
