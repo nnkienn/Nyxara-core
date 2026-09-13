@@ -17,6 +17,7 @@
 | 2 | [02-retrieval.md](./02-retrieval.md) | `retrieval/hybrid_retriever.py` + `reranking_retriever.py` | ✅ 2a,2b,2c xong + teach-back qua cổng (2026-09-02) |
 | 3 | [03-crag.md](./03-crag.md) | `generation/node.py` + `decision.py` + `graph.py` | 🔨 2026-09-03 sáng: xong phần **khái niệm closure vs state** + bảng "nguồn của 4 biến". Bảng trace lần-2 ⬜ chưa làm — vào thẳng đó ca tối |
 | 4 | [04-api.md](./04-api.md) | `app/main.py` + `presentation/api/*.py` | 🔨 4a ✅ 05/09 · 4b ✅ 06/09 · 4c ✅ 06/09 (fix thật) · **4d ⬜ còn nợ** |
+| 5 | [05-chunking.md](./05-chunking.md) | `chunking/recursive_chunker.py` + `presentation/api/ingest.py` | ⬜ soạn 13/09 tối, **trace sáng 14/09 ở công ty** — 5a re.split · 5b vòng lặp dán (kèm bài đóng-sách 10') · 5c đệ quy · 5d hợp đồng `/ingest` + câu thiết kế C2 |
 
 ---
 
