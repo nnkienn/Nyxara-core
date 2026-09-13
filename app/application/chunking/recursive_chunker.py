@@ -23,12 +23,18 @@ def split_by_separators(text: str, size: int, separators: list[str]) -> list[str
         # 1. gom part vào tam
         temp+=part
         # 2. nếu part chính là sep  ->  chốt tam vào ghep, rồi cho tam về rỗng
-        if (part == sep) :
+        # chỉ chốt khi temp ĐÃ CÓ CHỮ — nếu không, văn bản mở đầu bằng dấu tách sẽ sinh ra
+        # một chunk không chứa chữ nào (vector của khoảng trắng, vẫn chiếm chỗ trong kho)
+        if part == sep and temp.strip():
             ghep.append(temp)
             temp =""
     # 3. hết vòng lặp, tam còn chữ thì chốt nốt
     if temp:
-        ghep.append(temp)
+        # phần sót không có chữ (vd đuôi "\n") thì dán vào chunk trước, đừng đứng riêng
+        if temp.strip() or not ghep:
+            ghep.append(temp)
+        else:
+            ghep[-1] += temp
     parts = ghep
     result = []
     for part in parts:

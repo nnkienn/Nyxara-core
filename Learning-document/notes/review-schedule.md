@@ -109,7 +109,22 @@ Vấp: lần đầu **thêm** assert mới mà **giữ** assert cũ (hai lời h
 Bài học vận hành: **`stat` mtime trước khi tin bất cứ câu "done" nào** về file đang mở trong VS Code.
 Việc đầu buổi 14/09: đóng hết tab mở từ trước 12/09.
 
-**Còn nợ sang buổi sau (mốc 1 còn 2 món, sang ngày thứ 8):**
+**9. B3 + B4 ✅ — MỐC 1 ĐÓNG lúc 22:33** *(Claude gõ hộ, user đã nói "mệt quá rồi, fix all đi" — xem việc đóng-sách sáng mai)*:
+- **Bug thật tìm ra bằng quét 80 ca, không đoán:** "chunk rỗng" cũ đã tự khử theo C1 (vì `str.split` mới là thứ đẻ ra mẩu `''`).
+  Thứ còn lại là họ hàng của nó: **chunk không chứa chữ nào** — văn bản mở đầu bằng dấu tách → `temp` gom được mỗi
+  dấu tách rồi chốt luôn → `[' ', 'mo ', ...]`. Vector của khoảng trắng, vẫn chiếm ô trong kho, vẫn được trả về.
+- **Fix 2 chỗ, giữ nguyên tính chất lossless:** chỉ chốt khi `temp.strip()` có chữ · phần sót cuối không có chữ thì
+  dán vào chunk trước (`ghep[-1] += temp`) thay vì đứng riêng. Quét lại 80 ca: **0 chunk trắng, 0 mất chữ**.
+- **5 test mới** (ca gộp thường · ca túi cuối · mẩu dài hơn size giữ nguyên · regression chunk-không-có-chữ ·
+  tính chất `"".join == text`). **Đã chứng minh test đỏ được** bằng cách chạy lại logic cũ. Suite: **76 passed**.
+- ⚠️ `CHUNK > size` khi `size=3` **không phải bug** — đúng thiết kế user tự chốt 07/09: *size là TRẦN, thà túi lưng
+  còn hơn chém đôi một từ*.
+
+**📌 VIỆC ĐẦU TIÊN SÁNG 14/09 (10', đóng sách, trước khi mở Metadata):** tự viết lại một mình đúng 2 dòng fix trên —
+điều kiện chốt `temp` khi gặp dấu tách, và cách xử lý phần sót không có chữ. Không mở file, viết ra giấy/editor trống
+rồi so. Đây là phần code tay của mốc 1 mà tối nay Claude làm hộ.
+
+**Còn nợ sang buổi sau:**
 - ~~Xoá dòng debug `print("PARTS:", parts)`~~ ✅ xong cuối buổi.
 - ~~Sửa `test_splits_by_paragraph_then_word`~~ ✅ · ~~B8 nối `/ingest`~~ ✅ — **chỉ còn B3 (bug chunk rỗng) + B4 (test `merge_pieces`)** là đóng mốc 1.
 - **B3 bug chunk rỗng** — giờ đã có ca tái hiện chắc chắn: `'.Mo dau bang dau cham'` → `['.', 'Mo dau...']`,

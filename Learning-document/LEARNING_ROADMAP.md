@@ -149,6 +149,18 @@
 > **Hệ quả phải nói thẳng:** mỗi mốc dời là +5h đè lên tháng 10 (Eval — phase nặng nhất). Phương án B
 > **không giảm khối lượng**, chỉ dời chỗ đau. Hai gạt thật vẫn chỉ có: **giờ học/ngày** và **giờ/mốc**.
 
+> ### ✅ MỐC 1 ĐÓNG — 2026-09-13 22:33 (trễ 1 ngày so với hạn 12/09)
+> `recursive_chunk` = `split_by_separators` (giữ separator) + `merge_pieces`, **đã nối vào `/ingest`**.
+> Suite **76 passed** (71 + 5 test mới). Chi tiết buổi: [review-schedule.md § buổi 13/09](notes/review-schedule.md).
+> - **B5 giữ separator:** user chọn **phương án C** (`re.split` bắt nhóm) thay vì B — đắt hơn nhưng là cách
+>   thư viện thật làm, và mở đường cho offset. **C1 xong**; **C2 (offset để trích dẫn ngược) = MỐC MỚI, chưa xếp lịch** —
+>   dự kiến ~3-4h, đi cùng Metadata filtering vì offset cũng là một loại metadata của chunk.
+> - **B6 overlap: nợ có chủ ý** → [bug #34](notes/bug-log.md). `/ingest` vẫn nhận `chunk_overlap` nhưng chưa dùng.
+> - **Giờ-mốc thực tế của mốc 1: ~6h30** (07/09 ~2h · 11/09 ~30' · 13/09 ~4h) so với hộp **3h** → **vượt hơn gấp đôi**.
+>   ⚠️ Đây là **điểm dữ liệu đầu tiên** kiểm chứng giả định "6h/mốc": một mốc được xếp loại *dễ* đã ngốn 6h30.
+>   Giữ số này để so tại checkpoint 17/09 với Metadata filter (🔴, hộp 8h).
+> - **Tổng tháng 9: 3/12 mốc** (mốc 1 + 2 mốc đã đóng từ 06/09). Tiếp theo: **mốc 2 Metadata filtering 🔴**, mở sáng 14/09.
+
 ---
 
 ## 🎯 Tầm nhìn dự án
