@@ -46,10 +46,15 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
-## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, học 20:34 → 23:00 (~2h30)
+## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, bắt đầu 20:34 *(giờ kết thúc điền khi dừng thật)*
 
 > Kế hoạch 5h (07-08h + 13-17h) **không diễn ra**. Buổi mở 20:34 — trước 21h và không OT, nên theo §3.9
-> vẫn là **ca tốt**: được đọc code, code tay, làm bài thiết kế. Giờ-mốc ~1h45.
+> vẫn là **ca tốt**: được đọc code, code tay, làm bài thiết kế.
+
+> ⚠️ **Lỗi ghi sổ của Claude, user bắt được lúc 22:01:** đã ghi buổi này là "20:34-23:00, ~2h30" trong khi
+> **chưa xem đồng hồ** — lúc đó mới 21:55. Cùng lỗi với câu "23:10 rồi, ngủ đi" nói trước đó. **Luật: giờ trong
+> sổ phải đến từ lệnh `date`, không được suy từ lượng việc đã làm** — đúng tinh thần luật 05/09 "con số trong
+> tài liệu phải đến từ một lần chạy thật".
 
 **1. Drill 5 câu — 1/5** (câu duy nhất đúng còn thiếu dấu nháy đóng). Sai:
 - `parts["0"]` — **lặp lại nguyên xi** `docs["0"]` của đêm trước, dù đã đo và đã ghi thành [Cặp 13b](./the-phan-biet.md).
@@ -91,9 +96,22 @@ Claude đã giao bước gõ **trước khi** cho thấy hậu quả. Cái vá �
 → gặp thật bài *additive vs breaking* đã ôn 09/09. Câu hỏi giao cho user trả lời đầu buổi sau:
 **đây là additive hay breaking, tiêu chí phân biệt là gì?** (đừng sửa test trước khi trả lời).
 
-**Còn nợ sang buổi sau (mốc 1 vẫn chưa đóng, sang ngày thứ 8):**
+**6. B8 — NỐI `/ingest` ✅ (21:58, khôi phục lại 22:14 sau khi bị tab chết đè):**
+`/ingest` giờ cắt bằng `recursive_chunk` (bọc `split_by_separators` + `merge_pieces`, user tự viết hàm bọc,
+xanh ngay lượt đầu). → Câu trong CLAUDE.md §3.8 *"`split_by_separators` có test xanh nhưng không nơi nào gọi"*
+**hết đúng từ tối nay**. Kèm `# TODO(B6)` + [bug #34](./bug-log.md) cho `chunk_overlap` bị nhận rồi bỏ qua.
+
+**7. Sửa `test_splits_by_paragraph_then_word` + thêm assert tính chất** `"".join(result) == text`.
+Vấp: lần đầu **thêm** assert mới mà **giữ** assert cũ (hai lời hứa cãi nhau, không bao giờ cùng xanh) ·
+`assert.` thừa dấu chấm → `SyntaxError`. → **Suite cuối buổi: 71 passed** (đo thật 22:26).
+
+**8. 🚨 [Bug #35](./bug-log.md) — tab VS Code chết từ 06/09 ghi đè bản fix của Claude lúc 22:12.**
+Bài học vận hành: **`stat` mtime trước khi tin bất cứ câu "done" nào** về file đang mở trong VS Code.
+Việc đầu buổi 14/09: đóng hết tab mở từ trước 12/09.
+
+**Còn nợ sang buổi sau (mốc 1 còn 2 món, sang ngày thứ 8):**
 - ~~Xoá dòng debug `print("PARTS:", parts)`~~ ✅ xong cuối buổi.
-- Sửa `test_splits_by_paragraph_then_word` cho khớp hành vi mới (sau khi trả lời câu additive/breaking).
+- ~~Sửa `test_splits_by_paragraph_then_word`~~ ✅ · ~~B8 nối `/ingest`~~ ✅ — **chỉ còn B3 (bug chunk rỗng) + B4 (test `merge_pieces`)** là đóng mốc 1.
 - **B3 bug chunk rỗng** — giờ đã có ca tái hiện chắc chắn: `'.Mo dau bang dau cham'` → `['.', 'Mo dau...']`,
   chunk đầu **chỉ có mỗi dấu chấm**. Vá 1 phát là xong.
 - **B6 overlap** (chưa đụng) · **B4** 2 test + regression · **B8** nối `/ingest` → mới đóng được mốc 1.

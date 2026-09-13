@@ -59,6 +59,50 @@
 
 ---
 
+### #35 — tab VS Code mở từ 7 ngày trước GHI ĐÈ bản fix vừa ghi từ terminal  ·  công cụ/quy trình  ·  thật  ·  2026-09-13  ·  ✅ đã khôi phục, ⬜ chưa chặn tái phát
+
+**Hiện trường (giờ thật, đo bằng `stat`):**
+```
+2026-09-06 21:43  tab ingest.py mở trong VS Code trên Mac
+2026-09-06 21:54  file bị sửa từ terminal (đổi tên hàm, bug #32) -> VS Code báo "File Modified Since", tab CHẾT
+2026-09-13 21:40  user gõ sửa vào tab đó, bấm lưu, thấy chữ hiện ra bình thường -> TƯỞNG ĐÃ LƯU
+2026-09-13 21:58  Claude ghi bản đúng xuống đĩa bằng terminal
+2026-09-13 22:12  tab chết ghi đè lên -> 2 lỗi cũ quay lại, /ingest KHÔNG import nổi
+```
+
+**Triệu chứng đánh lừa:** user sửa đúng, nhìn thấy chữ mình gõ, không có thông báo lỗi nào đủ to.
+Suốt 30' cả hai bên đều tưởng file đã đúng. Chỉ `stat` mới nói thật: mtime vẫn là `2026-09-06`.
+
+**Hai lần hại trong cùng một buổi:** (1) bản sửa của user không xuống đĩa → tưởng đã nối `/ingest`;
+(2) bản đúng của Claude bị đè ngược → suite từ xanh thành **2 collection error**.
+
+**Cách phát hiện:** `stat -f "%Sm" file` so với giờ hiện tại. Nếu mtime cũ hơn lúc mình vừa gõ → chưa lưu được.
+Đây là phép thử rẻ nhất, nên dùng **trước khi tin bất cứ câu "done" nào** về file đang mở trong VS Code.
+
+**Chặn tái phát (chưa làm, việc đầu buổi 14/09):** đóng hẳn mọi tab mở từ trước 12/09 (`Cmd+W`, Don't Save) ·
+mở VS Code đúng thư mục `nyxara-core` thay vì thư mục cha (xem CLAUDE.md §7) · sau mỗi lần Claude ghi file từ
+terminal, user phải đóng/mở lại tab tương ứng trước khi gõ tiếp.
+**Tab còn nghi kẹt:** `Learning-document/drills/2026-09-11-merge-pieces-dong-sach.py` (mở 11/09 07:38).
+
+### #34 — `/ingest` nhận `chunk_overlap` rồi vứt đi sau khi đổi sang `recursive_chunk`  ·  Phase 0  ·  thật  ·  phát hiện 2026-09-13  ·  ⬜ **nợ có chủ ý, trả ở B6**
+
+**Hiện trường:** B8 nối chunker đệ quy vào `/ingest` (13/09, ~23:20). `recursive_chunk(text, size)` **không có**
+tham số overlap — B6 (overlap cho chunker đệ quy) chưa làm. Nhưng `IngestRequest` vẫn khai báo
+`chunk_overlap: int = 20`, và FastAPI vẫn nhận nó từ body HTTP.
+
+**Hậu quả:** người gọi API gửi `chunk_overlap=20`, nhận về `200 OK`, tưởng chunk có phần chồng lấn —
+thực tế tham số đó **không đi tới đâu cả**. Không có lỗi, không có cảnh báo, không log nào ghi lại.
+
+**Cùng họ với [#33]** (`grades` ghi vào state mà không node nào đọc) và với "đếm trên sổ nhưng phát biểu về kho"
+([Cặp 12](./the-phan-biet.md)): **nhận vào / ghi ra một giá trị rồi không ai dùng, trong khi cái tên vẫn hứa là có dùng.**
+Cả ba đều im lặng, đều chỉ lộ ra khi có người đọc kỹ code hoặc so kết quả với kỳ vọng.
+
+**Quyết định 13/09 (user chọn phương án c, có cân nhắc 3 hướng):** giữ field + ghi nợ ở đây + `# TODO(B6)` ngay
+chỗ gọi. Không chọn (a) để im (= lời hứa láo), không chọn (b) bỏ field (breaking với caller HTTP, mai B6 lại phải thêm lại).
+
+**Trả nợ ở B6:** khi `recursive_chunk` có overlap thật thì nối `payload.chunk_overlap` vào và **xoá TODO** —
+kèm 1 test chứng minh overlap có tác dụng (assert chunk sau chứa đuôi của chunk trước), không chỉ assert số chunk.
+
 ### #33 — `grades` được ghi vào state nhưng không ai đọc → `generate` viết câu trả lời trên cả tài liệu bị chê  ·  Phase 2.3  ·  thật  ·  phát hiện 2026-09-11  ·  ⬜ **chưa fix (hàng đợi)**
 
 - **Triệu chứng:** không crash, không test nào đỏ. `grade_node` chấm từng tài liệu ra `grades`

@@ -51,3 +51,8 @@ def merge_pieces(pieces: list[str], size:int) -> list[str]:
         merges.append(current_merge)
     return merges
 
+def recursive_chunk(text: str, size: int, separators: list[str] = None) -> list[str]:
+    if separators is None:
+        separators = ["\n\n", "\n", " "]
+    pieces = split_by_separators(text,size,separators)
+    return merge_pieces(pieces,size)

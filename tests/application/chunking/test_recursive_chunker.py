@@ -12,5 +12,5 @@ def test_splits_by_paragraph_then_word():
     text = "Meo thich ngu\n\nCho thich chay"
 
     result = split_by_separators(text, size=10, separators=["\n\n", " "])
-
-    assert result == ["Meo", "thich", "ngu", "Cho", "thich", "chay"]
+    assert "".join(result) == text
+    assert result == ['Meo ', 'thich ', 'ngu\n\n', 'Cho ', 'thich ', 'chay']

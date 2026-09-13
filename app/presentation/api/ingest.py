@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
-from app.application.chunking.recursive_chunker import fixed_size_chunk
+from app.application.chunking.recursive_chunker import recursive_chunk
 from app.application.ingestion.pipeline import ingest_document
 
 router = APIRouter()
@@ -28,7 +28,8 @@ class IngestResponse(BaseModel):
 def ingest(payload: IngestRequest, request: Request) -> IngestResponse:
     # `def` thường, không `async def` — ingest_document gọi embedder.embed() (model thật,
     # đồng bộ) + vector_store.upsert() (qdrant-client đồng bộ), cùng lý do với /ask.
-    chunks = fixed_size_chunk(payload.text, payload.chunk_size, payload.chunk_overlap)
+    # TODO(B6): recursive_chunk chưa dùng overlap — payload.chunk_overlap đang bị nhận rồi bỏ qua (bug #34)
+    chunks = recursive_chunk(payload.text, payload.chunk_size)
 
     result = ingest_document(
         payload.tenant_id,

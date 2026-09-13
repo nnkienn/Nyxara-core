@@ -7,4 +7,12 @@ def merge_pieces(pieces: list[str], size: int) -> list[str]:
     merges = []
     current = ""
     for piece in pieces:
-        if(len(current) + len ()
+        if(len(current) + len (piece) <= size):
+            current+=piece
+        else :
+            if current: 
+                merges.append(current)
+                current = piece
+    if current:
+        merges.append(current)
+    return merges
