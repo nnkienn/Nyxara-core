@@ -46,6 +46,62 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
+## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, học 20:34 → 23:00 (~2h30)
+
+> Kế hoạch 5h (07-08h + 13-17h) **không diễn ra**. Buổi mở 20:34 — trước 21h và không OT, nên theo §3.9
+> vẫn là **ca tốt**: được đọc code, code tay, làm bài thiết kế. Giờ-mốc ~1h45.
+
+**1. Drill 5 câu — 1/5** (câu duy nhất đúng còn thiếu dấu nháy đóng). Sai:
+- `parts["0"]` — **lặp lại nguyên xi** `docs["0"]` của đêm trước, dù đã đo và đã ghi thành [Cặp 13b](./the-phan-biet.md).
+- `.extend` ↔ `.append` **đảo ngược hoàn toàn** (đoán `extend` nổ, `append` ra `['a','b','c']`; thật ra ngược lại,
+  `append` cho `['a', ['b','c']]` — dài 2, list lồng list). Đây là cặp nằm **ngay trong** `split_by_separators`.
+- `chunks.len()` thay vì `len(chunks)` · `separators[1:]` tưởng là dict và tưởng ra một chuỗi.
+→ Vá bằng chạy thật + in ra, không giảng.
+
+**2. Câu hỏi của user giữa buổi: "liệu tới Tết kịp?"** → tính lại bằng số thật (~15'):
+giờ học 03→13/09 = **2.54h/ngày** (cam kết 3h/6h) · giờ-mốc 11→13/09 = **1.11h/ngày**. Ở nhịp thật,
+nội dung xong **02/03/2027 = sau Tết 24 ngày**. Chỉ nhịp 3h thường + 6h cuối tuần mới về đích 03/01/2027.
+**User đã đọc bảng và chọn: ưu tiên hiểu, chấp nhận trễ** (*"thà hiểu còn hơn đua thời gian"*). Ghi lại,
+không tranh luận thêm trong buổi.
+
+**3. B5 — user chọn phương án C** (không chọn B mình khuyến nghị): *"chơi luôn C cho máu, dễ quá học làm chi"*.
+Tách thành **C1** (`re.split` giữ dấu tách, ~40') và **C2** (offset để trích dẫn ngược, ~3-4h → **mốc riêng**,
+đi cùng Metadata filtering). Làm C1 tối nay.
+
+**4. C1 ✅ XANH 5/5** — `"".join(kq) == text` đúng cả 5 ca (gồm ca **không có dấu tách nào** và ca **mở đầu bằng dấu tách**):
+- Cơ chế: `mau = "(" + re.escape(sep) + ")"` → `re.split(mau, text)` giữ dấu tách thành ô riêng → vòng lặp
+  **gom-và-chốt** dán dấu tách vào cuối mẩu trước.
+- ⭐ **Vòng lặp đó user tự nghĩ ra**, tự nhận ra nó cùng khuôn với `merge_pieces` mình viết 07/09
+  (gom vào biến tạm → gặp dấu hiệu thì chốt → hết vòng chốt phần sót). Bốn lượt sửa sau đó **không có lỗi logic nào**:
+  `re.sub` thay `re.escape` · `=` thay `==` · thiếu hẳn bước 3 · `tamp`/`temp` thay `tam` · `if temp:` không kéo ra khỏi vòng lặp.
+
+**5. 🔑 Bài học phương pháp lớn nhất buổi (user nói thẳng giữa chừng):**
+*"tại sao phải thay vậy nhỉ tôi chưa hiểu... cứ chép và gõ lại cũng không hiểu được gì cả."*
+Claude đã giao bước gõ **trước khi** cho thấy hậu quả. Cái vá được: chạy cùng văn bản qua **đường ống thật**
+(`split_by_separators` → `merge_pieces`) ở hai bản cũ/mới → chỉ vào chunk hỏng `'Hà Nội là thủ đô Huế là cố đô'`
+(hai sự thật dính làm một, rồi đem đi nhúng vector và dán vào prompt). Khi user vẫn chưa thấy chỗ mất
+(*"tôi có thấy dấu chấm nào đâu"*) thì **thu nhỏ ví dụ còn 3 ký tự**: `"A.B"` → `['A','B']` → dán lại `'AB'`.
+→ Đã ghi thành memory: **cho thấy hậu quả trước, giao bước gõ sau**.
+
+**Ca đệ quy 2 tầng cũng lossless:** `'Meo thich ngu\n\nCho thich chay'` → `['Meo ', 'thich ', 'ngu\n\n', 'Cho ', 'thich ', 'chay']`,
+`"".join(kq)==text` → **True**. `\n\n` được giữ đúng dù cắt ở tầng đệ quy sâu hơn.
+
+⚠️ **`pytest` toàn bộ: 70 passed, 1 FAILED** — `test_splits_by_paragraph_then_word` mong `["Meo","thich",…]`
+(hành vi cũ, nuốt dấu tách) nhưng nay ra `['Meo ','thich ','ngu\n\n',…]`. **Test cũ chính là caller bị gãy**
+→ gặp thật bài *additive vs breaking* đã ôn 09/09. Câu hỏi giao cho user trả lời đầu buổi sau:
+**đây là additive hay breaking, tiêu chí phân biệt là gì?** (đừng sửa test trước khi trả lời).
+
+**Còn nợ sang buổi sau (mốc 1 vẫn chưa đóng, sang ngày thứ 8):**
+- ~~Xoá dòng debug `print("PARTS:", parts)`~~ ✅ xong cuối buổi.
+- Sửa `test_splits_by_paragraph_then_word` cho khớp hành vi mới (sau khi trả lời câu additive/breaking).
+- **B3 bug chunk rỗng** — giờ đã có ca tái hiện chắc chắn: `'.Mo dau bang dau cham'` → `['.', 'Mo dau...']`,
+  chunk đầu **chỉ có mỗi dấu chấm**. Vá 1 phát là xong.
+- **B6 overlap** (chưa đụng) · **B4** 2 test + regression · **B8** nối `/ingest` → mới đóng được mốc 1.
+- **C2 (offset)** = mốc mới, chưa xếp lịch. Trước khi code C2 phải trả lời: đổi `list[str]` → chunk có offset là
+  **additive hay breaking**? (tiêu chí: *caller cũ có gãy không* — ôn 09/09).
+
+---
+
 ## 📌 Kế hoạch CN 2026-09-13 — chốt 00:35 (5h: 07:00-08:00 · 13:00-17:00)
 
 > Giữa ngày đi câu cá (08:30 → ~13:00). 5h < sàn cuối tuần 6h → nợ nhích lên ≈ **8h59**, không trả được.

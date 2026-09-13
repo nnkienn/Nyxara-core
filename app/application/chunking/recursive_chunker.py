@@ -1,3 +1,5 @@
+import re 
+
 def fixed_size_chunk(text: str, size: int, overlap: int) -> list[str]:
     chunks = []
     start = 0
@@ -13,8 +15,21 @@ def split_by_separators(text: str, size: int, separators: list[str]) -> list[str
         return [text]
 
     sep = separators[0]
-    parts = text.split(sep)
-
+    mau = "(" + re.escape(sep)+")"
+    parts = re.split(mau,text)
+    ghep = []
+    temp = ""
+    for part in parts:
+        # 1. gom part vào tam
+        temp+=part
+        # 2. nếu part chính là sep  ->  chốt tam vào ghep, rồi cho tam về rỗng
+        if (part == sep) :
+            ghep.append(temp)
+            temp =""
+    # 3. hết vòng lặp, tam còn chữ thì chốt nốt
+    if temp:
+        ghep.append(temp)
+    parts = ghep
     result = []
     for part in parts:
         if len(part) > size:
