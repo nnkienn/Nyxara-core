@@ -53,6 +53,47 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 > Hộp 8h ở nhịp ngày thường (~2h30 giờ-mốc/ngày) → mốc 2 dự kiến đóng **17/09**, tức checkpoint 17/09 = **2/4**.
 > ⚠️ Đây là mốc để **đo giả định 6h/mốc**: mốc 1 vừa tiêu 6h30 cho một mốc "dễ". Ghi giờ-mốc thật mỗi ca.
 
+
+### 🎒 Bộ câu hỏi soạn sẵn cho ca sáng 14/09 *(soạn tối 13/09 — Claude mai đọc thẳng, không nghĩ lại)*
+
+**① Mớm lại cái cũ (2', active recall — đừng bỏ, đây là lúc nối kỹ thuật mới vào cái đã có):**
+- Hiện tại một query đi qua Hybrid → RRF → cross-encoder. Trong cả chuỗi đó, chỗ nào **loại bớt tài liệu**,
+  và loại dựa trên cái gì? Có chỗ nào loại dựa trên *thuộc tính của tài liệu* (ngôn ngữ, năm, tenant) chưa?
+- `tenant_id` hiện đang được dùng ở đâu trong retriever — nó có phải một dạng metadata filtering không?
+
+**② Sau khi Claude giảng 10' (pre-filter vs post-filter), user trả lời — KHÔNG đưa đáp án trước:**
+- Kho có 1.000.000 chunk, trong đó 1.000 chunk thuộc tenant A. Query của A, `top_k = 5`.
+  Với **post-filter** (search trước, lọc sau): Qdrant tính độ tương đồng trên bao nhiêu vector?
+  Số chunk của A còn lại sau khi lọc có thể bằng **0** không — khi nào?
+- Với **pre-filter**: con số đó đổi thế nào?
+- Cách nào **recall** cao hơn? Cách nào **rẻ** hơn? Vì sao không phải lúc nào cũng chọn cái recall cao hơn?
+- Câu chốt: *filter đặt sai chỗ thì hỏng theo kiểu nào — sai kết quả, hay vẫn đúng nhưng thiếu?*
+
+**③ Bài thiết kế — Claude GIẢNG TRƯỚC rồi user chốt (§3.6 mục 7). Ba cách biểu diễn cây predicate:**
+| | Hình dạng | Được | Mất |
+|---|---|---|---|
+| A | dict lồng: `{"and": [{"eq": ["lang","vi"]}, ...]}` | gần JSON, gửi qua HTTP được ngay, dễ in ra đọc | phải tự kiểm tra hình dạng, gõ sai key là lỗi lúc chạy |
+| B | tuple: `("and", ("eq","lang","vi"), ...)` | ngắn nhất, viết test nhanh | khó đọc khi lồng sâu, không tự mô tả |
+| C | class `And/Or/Not/Eq` | rõ ràng nhất, IDE gợi ý được, khó dùng sai | nhiều code khung, chuyển từ JSON sang phải viết thêm một lớp |
+> Claude nêu khuyến nghị + lý do, **user chốt**. Không tự chọn hộ.
+
+**④ Bước 1 code tay — chỉ đưa KHUNG CHỮ KÝ, không mô tả thuật toán (§2):**
+```python
+def danh_gia(predicate, metadata: dict) -> bool:
+    ...
+```
+Nhắc user một câu duy nhất: *cấu trúc này lồng nhau, và bạn vừa viết một hàm tự gọi lại chính nó tối qua.*
+**Ba ca thử thì user tự nghĩ ra** — không được liệt kê hộ (§2).
+
+**⑤ Nếu user tắc quá 5':** hỏi ngược *"một nút `and` cần biết gì từ các nút con của nó để tự quyết định?"*
+— không chỉ dòng, không viết mẫu.
+
+**⑥ Luật vận hành bắt buộc, rút ra tối 13/09 ([bug #35](./bug-log.md)):** trước khi tin bất cứ câu *"done"* nào
+về file đang mở trong VS Code → chạy `stat -f "%Sm" <file>` xem mtime. Tối 13/09 mất ~30' vì một tab mở từ 06/09
+ghi đè bản fix. Và **Claude không tự sửa file user đang mở**, trừ khi user nói rõ.
+
+---
+
 **☀️ Ca sáng sớm (~1h, ở nhà) — KHỞI ĐỘNG MỐC 2, không trace:**
 1. **10' Claude giảng khái niệm trước** (đúng §3.6 mục 7 — đây là loại user chưa có vật liệu trong repo để tự suy):
    metadata filtering là gì · **pre-filter vs post-filter** khác nhau thế nào về **recall** và về **chi phí** ·
