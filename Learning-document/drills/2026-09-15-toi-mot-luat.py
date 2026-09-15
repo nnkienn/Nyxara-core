@@ -31,10 +31,19 @@ gia_tri_the = metadata[ten_truong]
 
 
 # Rồi một dòng so sánh "nhỏ hơn" giữa gia_tri_the và gia_tri (bạn đã gõ đúng chiều nay):
+if (phep == "lt"):
+    ket_qua = gia_tri_the < gia_tri
+elif( phep == "gt"):
+    ket_qua = gia_tri_the > gia_tri
+elif ( phep == "eq"):
+    ket_qua = gia_tri_the == gia_tri
+  
 
-ket_qua = gia_tri_the < gia_tri
+
 
 print(ket_qua)   # phải ra False   (2021 < 2010 ?)
+
+
 
 
 # ─── BƯỚC 3 ── chưa làm ───────────────────────────────────────────
@@ -42,6 +51,7 @@ print(ket_qua)   # phải ra False   (2021 < 2010 ?)
 # Luật chỉ có ĐÚNG 1 key → dùng món list(....keys())[0] đã luyện sáng nay.
 # Rồi: phép là "lt" thì so <, "gt" thì so >, "eq" thì so ==.
 # (làm sau khi bước 2 chạy đúng)
+
 
 # ─── BƯỚC 4 ── chưa làm ───────────────────────────────────────────
 # def khop(bo_loc: list, metadata: dict) -> bool:

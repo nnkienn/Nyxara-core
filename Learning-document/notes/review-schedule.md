@@ -286,6 +286,42 @@ vào `glossary.md`.
 4. Còn giờ mới sang bản **lồng** (`and`/`or`/`not`, file cây `p2`).
 - Giữ cách dạy đã chạy: **1 file đề**, mỗi lượt 1 mẩu, ẩn dụ bảo vệ cửa, Claude chạy code hộ.
 
+**⏸️ CHỖ DỪNG ca sáng 16/09 (05:22-06:45, ~1h25 — user đi làm) — MẨU (c) ĐÓNG:**
+
+- **Chấm giảng lại** [2026-09-15-toi-giang-lai.md](../drills/2026-09-15-toi-giang-lai.md): A1 ✅ · A2 ✅ (đã hết lỗi "lớn hơn 5") ·
+  A3 A4 A7 A8 ⚠️ *(biểu thức đúng nhưng chỉ trả lời 1 trong 2-3 ý của đề — lỗi **đọc đề**, không phải lỗ hiểu)* ·
+  **A5 ❌** `metadata["tentruong"]` (nháy) · **A6 ❌** sai vế · B1 ⚠️ (gọi `phep` là dict) · **B2 ❌** đảo `gt`/`lt` 2 ô ·
+  **B3 ❌** `bo_loc.keys()` trả lời `eq gt lt` (thật ra `AttributeError`, list không có `.keys()`) · B4 ✅ · B5 ⚠️ · **phần C bỏ trống**.
+- ⚠️ **Hai lỗi RA ĐỀ của Claude, đừng lặp:** A7 — đảo thẻ theo cách trong đề thì `[1]` vẫn ra `lang_count`, không bẫy được
+  (bản đảo đúng: `{"lang","year","lang_count"}` → ra `'year'`). Ván 3 câu 14 — chữ `"lang_count"` có trên **cả hai** giấy nên
+  câu hỏi vô nghĩa; hỏi đúng phải là *"lúc chạy, chữ đó được nhặt ra từ đâu"*.
+- **Drill ép chọn mới** [2026-09-16-ep-chon-phep-va-giay.py](../drills/2026-09-16-ep-chon-phep-va-giay.py) — **đây là chỗ lòi ra cái lủng thật:**
+  - Ván 1 (phép → dấu): **6/6**. ⇒ chẩn đoán ban đầu của Claude ("dán ngược nhãn `gt`/`lt`, giống Cặp 10") là **SAI**.
+  - Ván 2 (ra True/False): **2/6**, và 6/6 câu khớp **đúng khít** cột `luat ? the` khi Claude chạy thử cả hai chiều
+    ⇒ lỗ thật = **vế nào đứng trước dấu so sánh**. 11/12 (`eq`) sống sót chỉ vì `eq` đối xứng — đừng để nó che chẩn đoán.
+  - Ván 3 (LUAT/THE): 6/7 *(câu 14 là đề hỏng)* · câu 19 trả lời **1** ✅ — nắm đúng "chỉ một mảnh lấy từ thẻ".
+  - Ván 4 (nháy/không nháy): **2/4**, câu 20 và 21 **đảo chỗ cho nhau** — đúng lại bug A5 tối qua.
+- **Cái vá được lỗ (dùng lại kiểu này):** giảng bằng lời + SQL/Qdrant + `a < b ≡ b > a` → user nói thẳng ***"bạn nói tôi éo hiểu"***.
+  Đổi sang **kho 3 bài (2015/2021/2022) + luật `year > 2020`, chạy thật cả hai chiều, in ra ai lọt cửa**: cách B cho đúng bài 2015 vào và
+  chặn hai bài mới → *"người ta xin tin mới, nó đưa bài cũ, không nổ không đỏ"*. Rồi hỏi đúng 2 câu tiếng Việt (*"bài 2019 có mới hơn 2020 không?"*).
+  User tự phát biểu **"7 là False"** → sửa lại ván 2 **6/6**. Ván 4 vá y hệt: chạy thật cho thấy `KeyError` (có tra, sai tên) vs `NameError` (chưa tra, không có biến).
+- **Mẩu (c) ĐÓNG** trong [2026-09-15-toi-mot-luat.py](../drills/2026-09-15-toi-mot-luat.py): `if/elif` rẽ theo `phep`, thẻ đứng trước.
+  Claude chạy 3 luật, chỉ đổi dòng `dieu_kien`: `lt`→`False` · `gt`→`True` · `eq`→`True` — **đúng cả 3 hợp đồng**.
+  - Chuỗi đỏ đi qua, mỗi lượt sửa 1 thứ: `else if` → `elif` · thiếu `:` · `=` → `==` · `return` ngoài hàm → `ket_qua =` ·
+    **ghi sẵn `True`/`False` trong nhánh thay vì đi so thật** (user tự nói "sai" khi được hỏi ca `year=2005`) ·
+    **xoá nhầm dòng `print(ket_qua)` — lần thứ 5 xoá trúng dòng đang có người dùng.**
+  - Phần **ruột đúng ngay lần đầu** (3 phép, 3 dấu, thẻ đứng trước); mọi vòng đỏ đều là **vỏ cú pháp**.
+- **Luật dạy rút ra (khớp với hôm qua):** với user, **giải thích dài = hỏng**. Cái ăn tiền là *chạy thật → in hậu quả → hỏi 1 câu tiếng Việt*.
+  Ba lần trong buổi này đều vá được bằng đúng công thức đó.
+
+**➡️ LÀM TIẾP (ca công ty 16/09, theo thứ tự):**
+1. **Bước 4** `khop(bo_loc, metadata) -> bool` — vòng `for` qua **cả tờ luật**, tất cả đạt mới cho vào. Ca thử user tự nghĩ.
+2. Xong mới sang **bản lồng** `and`/`or`/`not` (file cây `p2`).
+3. Rồi mới tới bước 2-7 của hộp 8h (bug cố ý · debug · fix · test pre/post · document · nối Qdrant **và** BM25).
+- ⬜ **Ôn +14 tới hạn 16/09 — CHƯA LÀM:** *Incremental ingest* và *Retrieval 2 tầng* (cả hai còn nợ code-tay-lại từ mốc +7).
+  Trần ôn 20'/ngày — xếp vào ca công ty hoặc ca tối, đừng để trôi thành nợ ngầm như mốc CRAG bị dời 3 lần.
+- ⚠️ **Dòng 14/09 trong [so-gio.md](./so-gio.md) vẫn thiếu** — hỏi user ca tối 14/09 (21:00-00:00) làm thật bao lâu rồi điền, trước khi cộng giờ-mốc của mốc 2.
+
 ---
 
 ## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, bắt đầu 20:34 *(giờ kết thúc điền khi dừng thật)*

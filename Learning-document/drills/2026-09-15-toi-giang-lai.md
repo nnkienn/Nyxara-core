@@ -28,16 +28,17 @@ phep = list(dieu_kien.keys())[0]
 **A4.** Viết biểu thức lấy ra `"lang_count"`, và biểu thức lấy ra `3`. Cả hai **chỉ được dùng `dieu_kien`** hoặc biến `phep`.
 > = phep[0]
 
-dieu_kien[phep][0]
-dieu_kien[phep][1]
+tentruong=dieu_kien[phep][0]
 
 
 **A5.** Viết biểu thức lấy ra **giá trị thật trên thẻ**. Nó ra số mấy?
 Trong 4 biểu thức ở A3, A4, A5, **đúng mấy cái** có chữ `metadata`? Vì sao chỉ có từng đó?
-> metadata[list[metadata.keys[1]][1]] lấy ra số 3 
+> gia_tri = dieu_kien[phep][1]
+gia_tri_the = metadata["tentruong"]
 
 **A6.** Viết dòng so sánh cho luật này, thẻ bên trái. Nó ra `True` hay `False`?
->
+>ket_qua = gia_tri_the < gia_tri
+ra flase
 
 **A7.** Một bạn viết:
 ```python
@@ -45,7 +46,8 @@ ten_truong = list(metadata.keys())[1]
 ```
 Với `metadata` ở trên nó ra gì? Nó sai ở **ý** nào (không phải sai cú pháp)? Đổi thẻ thành
 `{"year": 2019, "lang_count": 5, "lang": "vi"}` thì dòng đó ra gì, và phép so sánh thành ra so cái gì với cái gì?
->
+>ra lang_count
+so sánh langcount ở dưới metadata với cái dieu_kien của lang_count ưởtr trên
 
 **A8.** Một bạn viết:
 ```python
@@ -53,6 +55,9 @@ ket_qua = isinstance(gia_tri_the, gia_tri)
 ```
 Chuyện gì xảy ra khi chạy? `isinstance` dùng để hỏi **câu gì**? Dấu `>` hỏi **câu gì**?
 >
+nổ
+instance để hỏi type thì phải 
+dấu > để hỏi true flase
 
 ---
 
@@ -63,35 +68,43 @@ bo_loc = [{"eq": ["lang", "vi"]}, {"gt": ["year", 2020]}, {"lt": ["lang_count", 
 ```
 
 **B1.** Trong `for luat in bo_loc:`, cái nào là list, cái nào là dict? Vòng lặp chạy **mấy lượt**?
->
+> list là bo_loc
+dict là phep tại vì có : kìa
+chạy 3 lượt
 
 **B2.** Điền bảng (đủ số dòng bằng số lượt):
 
 | lượt | `luat` bằng | `list(luat.keys())[0]` |
 |---|---|---|
 |  |  |  |
-
+vong 1 bang lang : vi
+vong 2 nho hon 2020
+vong 3 lon hon lang_count 9
 >
 
 **B3.** Dòng `bo_loc.keys()` chạy ra gì? Vì sao?
->
+> eq 
+gt 
+lt
 
 **B4.** Hai đoạn dưới **in ra khác nhau chỗ nào**? (số dòng, có ngoặc vuông hay không)
 ```python
 # đoạn 1
 for luat in bo_loc:
     print(list(luat.keys())[0])
-
+    eq
 # đoạn 2
 ten = []
 for luat in bo_loc:
     ten.append(list(luat.keys())[0])
 print(ten)
 ```
->
+eq  
+> khác chứ cái trên 3 donghf không có ngoặc vuông
 
 **B5.** Sáng nay bạn nói *"`q.keys()` ra `["cam","xoai","oi"]`"*. Giải thích bằng lời: câu đó sai ở chỗ **tưởng `q` là cái gì**, còn thực ra `q` là cái gì?
->
+> sai là bên trong đó có dict đâu mà đòi 1.keys phải chạy ra mảng ra dict xong mới get cái keyuy đó ra
+
 
 ---
 
