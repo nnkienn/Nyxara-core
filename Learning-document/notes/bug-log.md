@@ -56,8 +56,39 @@
 | Thụt lề sai phạm vi (không lỗi cú pháp, sai logic) | code lẽ ra trong `if` bị thụt lề ra ngoài → luôn chạy bất kể điều kiện | #10 |
 | Chuẩn hoá 1 bên, quên bên kia | `.upper()` giá trị nhưng so sánh với chuỗi chữ thường → luôn `False` | #19 |
 | Timeout mặc định thư viện quá ngắn cho LLM | `httpx`/`requests` mặc định ~5s, LLM cần lâu hơn (đặc biệt lần load đầu) | #18 |
+| Công cụ báo "ổn" vì đang trả lời câu hỏi KHÁC câu mình đang hỏi | `git status` clean = "hết thứ để commit", không phải "đã đồng bộ" (#36); tab VS Code = nội dung trong RAM editor, không phải trên đĩa (#35) | #35, #36 |
 
 ---
+
+### #36 — commit xong nhưng không push → sáng hôm sau máy kia thấy lịch sử dừng ở 2 ngày trước  ·  công cụ/quy trình  ·  thật  ·  2026-09-14  ·  ✅ đã đẩy lên, ⬜ chưa chặn tái phát
+
+**Hiện trường:**
+```
+13/09 21:38-22:47  máy Mac: 6 commit (mốc 1 đóng · Trạm 5 · kế hoạch + bộ câu hỏi 14/09)
+                   + 1 commit từ 13/09 00:49 còn treo từ hôm trước
+13/09 22:47        kết thúc buổi. KHÔNG chạy git push.
+14/09 sáng         máy công ty (Fedora): git pull -> "Already up to date"
+                   origin/main vẫn là d088681 (12/09 00:24)
+```
+
+- **Triệu chứng:** lên công ty không thấy Trạm 5, không thấy bộ câu hỏi ca sáng, không thấy code
+  mốc 1 vừa đóng. Cảm giác ban đầu là **mất lịch sử git** — thực ra không mất gì, chỉ là chưa rời
+  máy Mac. Mất trọn ca công ty + ca sáng → giờ-mốc ngày 14/09 = 0.
+- **Nguyên nhân:** `git commit` làm việc **cục bộ**. Sau 7 commit, `git status` vẫn nói *working
+  tree clean* — sạch nghĩa là "không còn gì để commit", **không** nghĩa là "đã đồng bộ". Dòng
+  duy nhất nói sự thật là `## main...origin/main [ahead 7]`, mà `git status -s` (dạng ngắn, hay
+  dùng) **không in dòng đó** trừ khi thêm `-b`.
+- **Cách tìm ra:** `git ls-remote origin` — hỏi thẳng GitHub đang giữ commit nào, không tin
+  `origin/main` cục bộ (nó chỉ là bản chụp của lần fetch gần nhất, có thể cũ hàng ngày).
+- **Fix:** `git push origin main` → `d088681..2ca8279`.
+- **Test chặn tái phát:** chưa có. Hướng: hook `post-commit` cảnh báo khi `main` ahead, hoặc đưa
+  `git push` thành **dòng bắt buộc trong sổ giờ** cuối mỗi ca (xem [so-gio.md](./so-gio.md)).
+- **Bài học / pattern:** cùng họ với bug #35 — *trạng thái thật khác trạng thái mình tưởng, và
+  công cụ báo "ổn" vì nó đang trả lời một câu hỏi khác câu mình đang hỏi.* #35: tab VS Code trả
+  lời "nội dung tôi đang giữ", không phải "nội dung trên đĩa". #36: `git status` trả lời "còn gì
+  chưa commit", không phải "máy kia đã thấy chưa". **Cả hai đều chỉ lòi ra khi hỏi nguồn sự thật
+  bên ngoài** (`stat` cho #35, `git ls-remote` cho #36).
+  → Luật chung: *trước khi tin "xong", hỏi đúng cái nguồn mà lần sau mình sẽ đọc từ đó.*
 
 ### #35 — tab VS Code mở từ 7 ngày trước GHI ĐÈ bản fix vừa ghi từ terminal  ·  công cụ/quy trình  ·  thật  ·  2026-09-13  ·  ✅ đã khôi phục, ⬜ chưa chặn tái phát
 

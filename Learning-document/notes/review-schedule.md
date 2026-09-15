@@ -125,6 +125,103 @@ Trong đó **5b có bài đóng-sách 10'** — món code tay của mốc 1 mà 
 **Chi phí cố định mỗi ngày (đừng để phình):** 10' drill nền + 20' ôn. Hôm nay 3 hàng `+7` đã dời từ 13/09
 (`lifespan` code-tay khối shutdown · hợp đồng return · thread-safety) — trả **1 hàng**, hai hàng còn lại ghi rõ là dời.
 
+### 🔁 RE-PLAN 19:15 ngày 14/09 — mất cả ca sáng, ca duy nhất là 21:00-00:00
+
+> **Chuyện gì đã xảy ra:** sáng lên công ty `git pull` không thấy gì mới — 7 commit tối 13/09
+> (gồm Trạm 5, bộ câu hỏi ca sáng, và code mốc 1 vừa đóng) **chưa được push**, `origin/main` còn
+> đứng ở `d088681` ngày 12/09. Mất trọn ca công ty. Ca sáng ở nhà cũng không chạy.
+> → **Giờ-mốc ngày 14/09 tính tới 19:15 = 0.**
+> **Luật rút ra ([bug #36](./bug-log.md)):** kết thúc ca ở máy nào cũng phải `git push` **ngay trong
+> ca đó**, không để sang hôm sau. Commit chỉ nằm ở máy đó = coi như chưa làm, vì máy kia không thấy.
+
+**Ca tối nay bắt đầu 21:00 → rơi vào ô ❌ của §3.9** (user báo **không OT**, đầu óc còn ổn — nên áp
+luật ở mức vừa, không cắt hết). Điều chỉnh:
+
+| Mục kế hoạch gốc | Tối nay | Lý do |
+|---|---|---|
+| ③ bài thiết kế (chọn kiểu biểu diễn cây predicate) | ❌ **bỏ khỏi ca này** — Claude chốt hộ (xem dưới) | §3.9: bài thiết kế không làm sau 21h |
+| ① mớm cái cũ + ② số học pre/post-filter | ✅ giữ | lý luận, không phải đọc code lạ |
+| ④ code tay `danh_gia` | ✅ giữ, hộp thu còn ~1h45 | lúc đó đã là "thứ vừa hiểu trong ngày" |
+| Trạm 5 trace (4 lỗi cài + 5a-5d) | ⏭️ dời sáng 15/09 | trace **code cũ** — §3.9 bắt để lúc tỉnh |
+| Bước 2 (bug cố ý) + bước 3 (debug tay) | ⏭️ dời 15/09 | không nhét vào phần đuôi ca đêm |
+
+**Hộp ca 21:00-00:00 (3h) — hết hộp là dừng, phần dở ghi thành nợ:**
+
+| Giờ | Việc | Ô §3.9 |
+|---|---|---|
+| 21:00-21:20 | Ôn `+7` hàng **Vòng đời trạng thái**: code tay lại khối shutdown `lifespan` (đóng sách) + trả lời vì sao dựng app lần 2 nổ CUDA OOM | ✅ retrieval practice |
+| 21:20-21:30 | Drill nền 10' — cú pháp đọc-chạy trên `dict` lồng (không đụng đệ quy, không mớm lời giải) | ✅ drill |
+| 21:30-21:45 | Claude giảng: metadata filtering · **pre-filter vs post-filter** (recall ↔ chi phí) · vì sao Qdrant có `Filter` mà vẫn phải tự viết predicate ở tầng application | ✅ giảng |
+| 21:45-22:00 | Câu ② — full-attempt, user trả lời trước, Claude sửa **1 lần** | ✅ lý luận |
+| 22:00-23:40 | **Bước 1 CODE TAY** `danh_gia(predicate, metadata) -> bool` | ⚠️ gốc là ❌ sau 21h, mở vì user báo không OT + đây là code **tự viết**, không phải code lạ phải nạp |
+| 23:40-00:00 | Ghi sổ giờ · ghi nợ sang 15/09 · commit **và `git push`** | ✅ ghi note |
+
+**Hai hàng `+7` còn lại (hợp đồng return · thread-safety `Lock` + test race) — DỜI, chưa trả.**
+Ghi rõ ở đây để không tự lừa là đã trả hết: cả hai đã dời từ 13/09, nay dời tiếp sang 15/09.
+
+**③ Kiểu biểu diễn cây predicate — Claude chốt 19:15 (user có quyền lật, nói một câu là đổi):**
+
+Chọn **A — dict lồng kiểu JSON**: `{"and": [{"eq": ["lang", "vi"]}, {"gt": ["year", 2020]}]}`
+
+Giá cụ thể của từng phương án, đo bằng *số dòng phải viết trước khi chạm được kỹ thuật thật*:
+- **A**: 0 dòng phụ. Predicate đến từ body HTTP vốn đã là JSON, và bước 7 của hộp (đẩy xuống
+  `Filter` của Qdrant) cũng là dịch dict → dict. Giá phải trả: hình dạng không được kiểm, gõ sai
+  key thì lỗi lúc chạy — chấp nhận được vì bước 2-3 của vòng 6 bước **cố tình** đi tìm bug.
+- **C (class `And/Or/Not/Eq`)**: rõ nhất, nhưng phải viết thêm ~40-60 dòng lớp dịch JSON → object
+  **trước khi** viết được dòng đệ quy đầu tiên. Đó là plumbing, không phải kỹ thuật đang học.
+- **B (tuple)**: ngắn nhất khi gõ, nhưng bước 3 là *in kết quả từng nút* — tuple lồng sâu in ra
+  gần như không đọc được. Tự bắn vào chân đúng bước debug.
+
+Khung chữ ký duy nhất được đưa (§2 mục 4), không kèm mô tả thuật toán:
+```python
+def danh_gia(predicate, metadata: dict) -> bool:
+    ...
+```
+**Ba ca thử user tự nghĩ** — không liệt kê hộ.
+
+
+### ⏸️ CHỖ DỪNG ca sáng 15/09 (5:25-6:35, ~1h10) — đọc dòng này trước khi làm tiếp ở công ty
+
+**Đã xong:**
+1. **Giảng mốc 2** (~25'): metadata filtering là gì · lọc theo **thuộc tính** (nhị phân) khác xếp hạng
+   theo **độ giống** (điểm số) · pre vs post · vì sao pre không miễn phí (đồ thị HNSW đứt đường khi
+   filter hẹp → kho tự chuyển sang quét thẳng) · vì sao có `Filter` của Qdrant vẫn phải tự viết
+   predicate ở tầng application (5 lý do, quan trọng nhất: **hybrid có 2 nhánh**, chỉ Qdrant lọc thì
+   BM25 vẫn trả về rồi RRF trộn vào).
+2. **Full-attempt 5 câu → chấm 2/5.** Ba lỗi phải nhớ:
+   - **RRF ăn THỨ HẠNG, không ăn điểm** — `dense_ranked = [hit.id for hit in dense_hits]` vứt `hit.score`
+     ngay tại đó; chữ ký `reciprocal_rank_fusion(ranked_lists: list[list[str]], ...)` chỉ có chuỗi id.
+     ⚠️ **Lần thứ 2 dính** (09/09 gán nhầm `1/(k+rank)` cho BM25) → lỗi **phân biệt**, phải drill ép chọn,
+     chưa thêm vào [the-phan-biet.md](./the-phan-biet.md) — **NỢ**.
+   - **`tenant_id` là PRE-filter**, user trả lời post. Nằm ở `QdrantStore.search` (`query_filter=filter`
+     truyền vào `query_points`), KHÔNG nằm ở `RerankingRetriever` — chỗ đó `tenant_id` chỉ đi xuyên qua.
+   - **Nhánh BM25 không lọc — nó PHÂN VÙNG**: `self.index.get(tenant_id, {})`, tenant là khoá ngoài cùng.
+     → repo đang dùng **2 cơ chế khác nhau cho cùng 1 luật** ở 2 nhánh hybrid. Thêm `lang`/`year` vào là
+     hai nhánh lệch nhau ngay. **Đây là chỗ mốc 2 sẽ đâm vào.**
+3. **Gỡ được bí kiểu A (logic đệ quy)** — user tự nói ra: *"cần hàm biến dict thành true/false"* →
+   *"nó tên là `danh_gia`"*. Tự phát hiện đệ quy, không bị mớm.
+4. **Drill cú pháp vòng 1** ([2026-09-15-cu-phap-dict-long.py](../drills/2026-09-15-cu-phap-dict-long.py)):
+   **đúng hẳn 2/13**. Năm lỗi gốc: L1 quên nấc index · L2 `in` trên dict hỏi key · L3 đếm index từ 1 ·
+   L4 `[...]` là list không phải dict · L5 `print` trong `for` ra nhiều dòng.
+   ⚠️ File này **không chạy được** — user ghi chú chèn vào dòng code ở bài 10. Không sửa, để nguyên làm chứng.
+5. **Giảng "cái thang"** — mô hình một cái chung vá cả 5 lỗi: mỗi cặp `[...]` tụt đúng 1 nấc; dict mở bằng
+   **tên**, list mở bằng **số thứ tự**, cùng ký hiệu `[]` nhưng hai việc khác nhau; nấc so le dict→list→dict.
+
+**Dừng ở đâu:** vừa giảng xong "cái thang", user **chưa làm** drill vòng 2. Rồi ngủ quên tới 07:47.
+
+**➡️ VÀO CA CÔNG TY LÀM ĐÚNG THỨ TỰ NÀY:**
+1. **[2026-09-15-cu-phap-vong-2.py](../drills/2026-09-15-cu-phap-vong-2.py)** (~15') — 10 bài, dữ liệu đổi hình,
+   nhắm đúng L1-L5. Bài 8 vs 9 là cặp ép chọn cho L5. **Đếm ngoặc → nói đang ở nấc mấy → mới trả lời**,
+   ghi cả số nấc vào dòng dự đoán.
+2. **Chỉ khi vòng 2 sạch** mới gõ `danh_gia(predicate, metadata) -> bool`. Lý do không đảo thứ tự: L1+L3 chưa
+   chắc mà viết đệ quy trên cây = **sai âm thầm**, hàm vẫn trả `True`/`False`, không nổ phát nào.
+3. Ba ca thử **user tự nghĩ** — không liệt kê hộ.
+
+**Nợ chưa trả (đừng để trôi tiếp):** 3 hàng `+7` (`lifespan` code-tay khối shutdown · hợp đồng return ·
+thread-safety `Lock`+test race) — dời từ 13/09, qua 14/09, nay sang 15/09. · Trạm 5 trace. ·
+Cặp phân biệt **RRF rank ↔ score** chưa thêm vào `the-phan-biet.md`. · `eq/ne/gt/gte/lt/lte/in` chưa thêm
+vào `glossary.md`.
+
 ---
 
 ## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, bắt đầu 20:34 *(giờ kết thúc điền khi dừng thật)*
