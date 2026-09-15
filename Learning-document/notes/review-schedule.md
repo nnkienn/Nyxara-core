@@ -222,6 +222,70 @@ thread-safety `Lock`+test race) — dời từ 13/09, qua 14/09, nay sang 15/09.
 Cặp phân biệt **RRF rank ↔ score** chưa thêm vào `the-phan-biet.md`. · `eq/ne/gt/gte/lt/lte/in` chưa thêm
 vào `glossary.md`.
 
+### 🏢 Ca công ty 15/09 — drill vòng 2 xong, ĐỔI THỨ TỰ bước 1 mốc 2 (user chốt)
+
+- Drill vòng 2 + các câu kiểm tra: L1-L5 cơ bản qua; lòi thêm **Cặp 14** (tưởng `q` là cả `qua`) — đã ghi
+  vào [the-phan-biet.md](./the-phan-biet.md), Claude viết hộ, **chưa teach-back**.
+- Bài cây `p2` ([2026-09-15-predicate-cay.py](../drills/2026-09-15-predicate-cay.py)): tắc ở nấc `[0]`
+  (quên tụt nấc, L1), user báo *"phức tạp quá"*. **Gốc khó là độ sâu lồng 6 nấc, không phải kỹ thuật lọc.**
+- **Quyết định (user chốt, Claude khuyến nghị B):** bước 1 code tay chia đôi —
+  1. **Phẳng trước (ca công ty):** `bo_loc = [{"eq": ["lang","vi"]}, {"gt": ["year",2020]}]`, tất cả phải
+     đúng (ngầm AND). Cùng hình dạng `qua` vừa luyện, sâu 3 nấc, không đệ quy.
+  2. **Lồng sau (ca tối):** `and`/`or`/`not` đệ quy, dùng lại file cây `p2`. `not` bọc list: `{"not": [pred]}`.
+     ⚠️ §3.9: chỉ làm lồng nếu tối bắt đầu ~19h, không OT. Sau 21h/OT → thay bằng test cho bản phẳng.
+- **Không phải bỏ bước** — vòng 6 bước giữ nguyên, chỉ đổi thứ tự độ khó.
+- **Nói thẳng:** phẳng + lồng hôm nay mới là **bước 1 (hộp 3h)** của hộp 8h. Bước 2-7 (bug cố ý · debug ·
+  fix · test so pre/post · document · nối Qdrant **và** BM25) còn ~5h → mốc 2 **không đóng được tối 15/09**,
+  dự kiến 16-17/09, đúng dự báo checkpoint 17/09.
+
+**⏸️ CHỖ DỪNG ca công ty 15/09 — bước 1 bản phẳng, đang ráp NÚT LÁ (chưa gõ hàm):**
+- Giảng bản phẳng bằng code lần 1 → user *"khó hiểu quá"* (Claude đổ quá nhiều chữ mới 1 lượt: nút lá,
+  predicate, `gt`, bộ lọc, chữ ký). **Đổi sang ẩn dụ bảo vệ cửa** (tờ luật = `bo_loc`, dòng luật = điều kiện,
+  thẻ tên = `metadata`) → vào ngay, tự nói ra "phải đạt cả 2 luật".
+- Đã tự gõ được, từng mẩu: `metadata["year"]` · `metadata["year"] < 2010` · `dieu_kien["lt"][0]` ·
+  `ten_truong = dieu_kien["lt"][0]` rồi `metadata[ten_truong]`.
+- Vấp trên đường: dịch `{"eq": ["lang","vi"]}` thành "phải bằng lang" (lẫn **chỗ nhìn** với **thứ để so**) ·
+  gõ `dieu_kien["lt"]["year"]` (dùng tên trên list — Cặp 13b) · tưởng cần `isinstance` để ra True/False ·
+  `list(metadata.keys())[1]` — **lấy tên dòng từ THẺ thay vì từ LUẬT**, chạy ra đúng do may (chép khuôn bài 6).
+  Mấy lượt cuối là dấu hiệu mỏi → dừng.
+- **Làm tiếp từ đây:** (1) biểu thức lấy `2010` = `[1]`; (2) ráp một dòng so sánh không gõ cứng chữ nào;
+  (3) phép cũng phải lấy từ luật (`lt`/`gt`/`eq` là key duy nhất — món `list(d.keys())[0]`), rồi chọn dấu theo
+  phép; (4) mới gõ `khop(bo_loc, metadata) -> bool` = vòng `for` qua list luật (hình dạng `qua`).
+- **Luật dạy rút ra:** với user lúc mỏi, ẩn dụ đời thường + **một mẩu gõ mỗi lượt** chạy được; giảng bằng
+  bảng thuật ngữ thì không.
+
+**⏸️ CHỖ DỪNG ca tối 15/09 (20:40-21:09, không OT) — file đề duy nhất [2026-09-15-toi-mot-luat.py](../drills/2026-09-15-toi-mot-luat.py):**
+- User báo *"nhiều đề quá có khi tôi nhầm"* → gom hết vào 1 file, bước 1-4. **Giữ cách này: 1 file đề, không rải đề trong chat.**
+- ✅ **Bước 2** (`gia_tri`, so sánh) · ✅ **Bước 3 mẩu (a)** `phep = list(dieu_kien.keys())[0]` · ✅ **mẩu (b)** thay
+  `"lt"` bằng `dieu_kien[phep]`. Claude chạy: luật `lt` → `False` đúng; đổi sang `gt` → **không sập** nhưng vẫn
+  `False` (vẫn dùng dấu `<`) — đó đúng là việc của mẩu (c).
+- Vấp: `isinstance` thay cho `<` (**2 lần** — tưởng phải có hàm mới ra True/False; vá bằng chạy `kq = a < b`) ·
+  hai vế ngược (`gia_tri < gia_tri_the`), rồi sửa bằng đổi dấu thay vì đổi vế · `[1]` trên list key dài 1 ·
+  thay **cả vế phải** bằng `phep` thay vì chỉ chữ trong ngoặc · **dán cả mũi tên giải thích của Claude vào code**
+  (lặp lỗi 06/09) · **xoá mất dòng `gia_tri_the`** đang có người dùng (lặp lỗi cũ). Từ 21:04 là lỗi thao tác
+  liên tiếp → dừng code theo §3.9.
+- **Sáng 16/09 làm tiếp:** mẩu (c) chọn dấu theo `phep` (`lt` `<` · `gt` `>` · `eq` `==`) — kiểm bằng luật `gt`
+  phải ra `True` → bước 4 `khop(bo_loc, metadata)`. Sau đó mới tới bản lồng.
+- **Ca 22:00-23:00 tối nay:** không code mới — giảng lại bằng lời "một luật = 3 mảnh, mảnh nào lấy từ luật / từ thẻ" ·
+  teach-back Cặp 14 · commit **và push**.
+
+**⏸️ DỪNG HẲN 15/09 ~22:45 — user: *"hết nổi rồi"*.** File giảng lại
+[2026-09-15-toi-giang-lai.md](../drills/2026-09-15-toi-giang-lai.md) mới làm A1-A4:
+- A1 ✅ (sau 2 lần lẫn: "3 mảnh" ≠ `lt/gt/eq` · ≠ "dict/list/value").
+- A2 ❌ còn *"lớn hơn **5**"* — **lấy số trên THẺ đặt vào LUẬT, lần thứ 3 trong tối** → lỗi phân biệt, cần drill ép chọn luật↔thẻ.
+- A3 ❌ `list(dieu_kien.keys[0])` → `TypeError` (thiếu `()` của `keys`, `[0]` đặt trong ngoặc — Cặp 13).
+- A4 ❌ `phep[0]` → `'g'` (index chuỗi thay vì mở luật); thiếu biểu thức lấy `3`.
+- A5 → C4 chưa làm.
+
+**➡️ SÁNG 16/09 (bắt đầu 4:00, ca tỉnh) — làm đúng thứ tự:**
+1. **~25', hộp cứng:** sửa A2/A3/A4 + làm A5 → C4 **đóng sách** → Claude chấm **một lần**, chạy thật câu nào có code.
+   Nếu câu luật↔thẻ vẫn sai → Claude dựng 5 câu ép chọn "mảnh này nằm trên LUẬT hay THẺ", không giảng lần 3.
+2. **Mẩu (c)** trong [2026-09-15-toi-mot-luat.py](../drills/2026-09-15-toi-mot-luat.py): chọn dấu theo `phep`.
+   Claude kiểm bằng 3 luật: `lt` → `False` · `gt` → `True` · `eq` trên `"lang"` → `True`.
+3. **Bước 4** `khop(bo_loc, metadata) -> bool` — vòng `for` qua list luật (hình dạng `qua`). Ca thử user tự nghĩ.
+4. Còn giờ mới sang bản **lồng** (`and`/`or`/`not`, file cây `p2`).
+- Giữ cách dạy đã chạy: **1 file đề**, mỗi lượt 1 mẩu, ẩn dụ bảo vệ cửa, Claude chạy code hộ.
+
 ---
 
 ## 🌙 Buổi 2026-09-13 (CN) — sinh nhật vợ, bắt đầu 20:34 *(giờ kết thúc điền khi dừng thật)*

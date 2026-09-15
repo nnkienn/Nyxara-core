@@ -319,6 +319,44 @@ counts["0"]   -> 'chuỗi số không'      # counts = {"a": 3, "0": "chuỗi s�
 
 ---
 
+## Cặp 14 — **một phần tử** (trước `in`) vs **cả list** (sau `in`)  (drill dict lồng, 2026-09-15 ở công ty)
+
+> *(Claude ghi hộ theo yêu cầu user lúc học ở công ty — **chưa qua teach-back**. Buổi sau user kể
+> lại bằng lời mình, đóng note, rồi mới tính là hiểu.)*
+
+**Mô hình sai đã bóc ra, câu nguyên văn của user:** *"`q.keys()` thì sẽ ra được cái list
+`["cam","xoai","oi"]`"*. User tưởng `q` là **cả** `qua`, nên đoán vòng `for` chỉ chạy 1 lượt
+(bài 8, bài 9 vòng 2, và câu kiểm tra `tu["do_an"]`). Tức là **lỗi B không phải lỗi đếm lượt**,
+gốc là nhầm biến lặp với cả list.
+
+```python
+qua = [{"cam": 1}, {"xoai": 2}, {"oi": 3}]
+for q in qua:
+    print(list(q.keys())[0])
+```
+
+|  | `qua` (đứng **sau** `in`) | `q` (đứng **trước** `in`) |
+|---|---|---|
+| Là gì | **list**, cả hàng hộp | **dict**, một hộp đang cầm trong lượt này |
+| Có `.keys()` không | ❌ `AttributeError: 'list' object has no attribute 'keys'` | ✅ |
+| Đổi theo lượt không | không | có, lượt 1 `{"cam":1}` · lượt 2 `{"xoai":2}` · lượt 3 `{"oi":3}` |
+
+Đọc `for q in qua` thành *"với **MỖI** `q` trong `qua`"*. List có bao nhiêu phần tử thì có bấy nhiêu
+lượt, và kẻ bảng bấy nhiêu dòng **trước khi** ghi output.
+
+**Ba mẩu đi kèm, cùng buổi:**
+- `list(d.keys())[0]` ra **tên key** (bên trái dấu `:`), **không ra value**. Muốn value thì dùng
+  tên đó để mở: `d[ten]`. *(Bài 6 và 10 đoán `ten = "python"` / `2021`. Tự bắt được lỗi này nếu đọc
+  dòng kế: `con[2021]` sẽ nổ `KeyError`, dự đoán tự mâu thuẫn.)*
+- `x in dict` chỉ hỏi **key**, chỉ nhìn **một nấc** ngoài cùng, trả `True`/`False`, không đào xuống.
+- `hop[...]` hỏi thứ không tồn tại thì **nổ** (`IndexError`/`KeyError`), chỉ `.get()` mới ra `None`.
+  Sẽ gặp lại trong `danh_gia`: metadata của chunk có thể **thiếu** key.
+
+**Thói quen chữa L1 (quên nấc):** đếm **hết** số cặp `[...]` trên dòng rồi mới chốt. Câu cuối vẫn quên
+cặp `[0]` ngoài cùng, ghi `["cam"]` thay vì `cam`.
+
+---
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -363,3 +401,13 @@ CHẠY SAO"*. Không phải bí kiến thức — bí **thao tác**: câu lệnh
 và cần `PYTHONPATH=.`, mà terminal đang ở `Developer`. **Bài đo do Claude dựng thì Claude chạy hộ
 luôn**, đừng bắt user vật lộn với đường dẫn giữa lúc đang tắc khái niệm — trộn hai loại khó vào
 nhau là mất cả hai.
+
+| 2026-09-15 công ty | drill vòng 2 dict lồng, bài 1-5 | **4/5** | L3 (bài 5 đếm `[1]` từ 1 — bài 4 cùng biểu thức lại đúng) |
+| 2026-09-15 công ty | kiểm tra `mau[...]` 4 câu | **2/4** | `mau[4]` đoán `None` → thật là `IndexError` (lẫn với `.get`) |
+| 2026-09-15 công ty | vòng 2 bài 6-10 | **1/5 sạch** (bài 7) | lỗi A `list(d.keys())[0]` tưởng ra value (6, 10) · lỗi B `for` chỉ đi lượt 1 (8, 9) |
+| 2026-09-15 công ty | chạy thật + in từng lượt | lỗi B lòi gốc | Cặp 14 — tưởng `q` là cả `qua` |
+| 2026-09-15 công ty | `so` + `qua` điền bảng lượt | **đúng** 2 cột `q` / `keys` | còn quên cặp `[0]` ngoài cùng ở cột "in ra" (L1 nhẹ) |
+
+**Nhận xét 2026-09-15:** lỗi B sai 2 lần khi giảng bằng lời, chỉ bóc ra gốc khi user **tự nói ra cách
+mình đang nghĩ** (*"`q.keys()` ra `["cam","xoai","oi"]`"*) — rồi chạy thật in từng lượt là vào ngay.
+Đúng luật 09/09: sai lần 2 thì dựng bài đo, đừng giảng lần 3.

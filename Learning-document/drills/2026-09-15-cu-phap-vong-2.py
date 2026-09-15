@@ -18,6 +18,8 @@ def bai_1():
     print(list(kho.keys()))
     print(len(kho))
 # DỰ ĐOÁN 1:
+["sach"]
+1
 
 
 def bai_2():
@@ -25,13 +27,18 @@ def bai_2():
     print("ten" in kho)
     print("python" in kho)
 # DỰ ĐOÁN 2:
-
+True
+False
+false
 
 def bai_3():
     print(len(kho["sach"]))
     print(type(kho["sach"]).__name__)
     print(type(kho["sach"][0]).__name__)
 # DỰ ĐOÁN 3:
+3 
+list
+dict
 
 
 def bai_4():
@@ -39,13 +46,16 @@ def bai_4():
     print(kho["sach"][1])
     print(kho["sach"][2])
 # DỰ ĐOÁN 4:
+{"ten": ["python", 120]}
+{"tac_gia": ["nam", 7]}
+{"nam": [2021]}
 
 
 def bai_5():
     con = kho["sach"][1]
     print(list(con.keys())[0])
 # DỰ ĐOÁN 5:
-
+con = {"tac_gia": ["nam", 7]} => key = "tac_gia"
 
 def bai_6():
     con = kho["sach"][0]
@@ -57,6 +67,12 @@ def bai_6():
 # DỰ ĐOÁN 6:
 
 
+con = {"ten": ["python", 120]}
+ten = "python"
+con[ten][0] = "python"
+con[ten][1] = 120
+con[ten] = ["python", 120]
+
 def bai_7():
     print(isinstance(kho["sach"], list))
     print(isinstance(kho["sach"][2], dict))
@@ -64,13 +80,16 @@ def bai_7():
     print(isinstance(kho["sach"][2]["nam"], list))
 # DỰ ĐOÁN 7:
 
-
+True
+True
+false => list
+true
 def bai_8():
     for con in kho["sach"]:
         print(list(con.keys())[0])
 # DỰ ĐOÁN 8:
-
-
+kho = {"sach": [{"ten": ["python", 120]}, {"tac_gia": ["nam", 7]}, {"nam": [2021]}]}
+"ten"
 def bai_9():
     ket_qua = []
     for con in kho["sach"]:
@@ -78,10 +97,11 @@ def bai_9():
     print(ket_qua)
 # DỰ ĐOÁN 9:
 # (bài 8 và bài 9 in ra KHÁC nhau chỗ nào? ghi rõ.)
+["ten"]
 
 
 def bai_10():
-    con = kho["sach"][2]
-    ten = list(con.keys())[0]
-    print(len(con[ten]))
+    con = kho["sach"][2] = {"nam": [2021]}
+    ten = list(con.keys())[0] 2021
+    print(len(con[ten])) 1
 # DỰ ĐOÁN 10:
