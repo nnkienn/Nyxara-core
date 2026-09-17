@@ -93,6 +93,14 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
   một VIỆC LÀM** (code tay mã giả, hoặc tìm lỗi trên code Claude viết). Hết giờ thì thu hẹp phạm vi, không thay bằng hỏi-đáp.
   Claude đã chạy gần trọn ca sáng bằng hỏi-đáp — đọc nhầm Cách A thành "user trả lời bằng miệng".
 
+5. **GÕ THẬT (bù cuối buổi, theo luật mới)** — [drills/2026-09-18-post-filter.py](../drills/2026-09-18-post-filter.py):
+   user tự gõ ruột `post_filter`, **tên tiếng Anh**, **XANH NGAY LẦN ĐẦU, 0 lượt đỏ** → `['luat-dn-2020']`.
+   Hai thứ thiếu trong mã giả (`list_out = []` ngoài vòng for · `return`) thì lúc gõ tay đã tự có.
+
+**Luật dạy thứ 3 vá trong buổi:** *"phải cho tôi code tay cho nhớ cú pháp và debug lỗi nữa"* + *"hàm phải viết bằng
+tiếng Anh"* → [CLAUDE.md §3.6 mục 9](../../CLAUDE.md) (mỗi buổi bắt buộc có **gõ thật** 3-10 dòng ruột + **debug thật**)
+và [CLAUDE.md §2](../../CLAUDE.md) (tên định danh: **đang hiểu** thì tiếng Việt được, **đã hiểu/gõ lại/vào `app/`** thì bắt buộc tiếng Anh).
+
 **⏸️ CHỖ DỪNG — làm tiếp từ đây:**
 - **Chỗ lát 0 đâm vào (đã chứng minh bằng chạy thật):** *không kho nào đang giữ metadata văn bản luật.*
   Payload Qdrant chỉ có `tenant_id · text · doc_id` → `danh_gia({"gt": ["nam", 2020]}, payload)` nổ `KeyError: 'nam'`.

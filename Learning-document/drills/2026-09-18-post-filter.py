@@ -18,8 +18,11 @@ predicate = {"gt": ["year", 2020]}
 
 
 def post_filter(ranked_ids: list, predicate: dict, metadata_store: dict) -> list:
-    # ✍️ GÕ Ở ĐÂY — 5 dòng: chồng chứa · vòng lặp · lấy thẻ · so · giữ lại · trả ra
-    pass
-
-
+    list_out = []
+    for doc_id in ranked_ids:
+        card = metadata_store[doc_id]
+        result = evaluate(predicate , card)
+        if result == True :
+            list_out.append(doc_id)
+    return list_out
 print(post_filter(ranked_ids, predicate, metadata_store))   # phải ra: ['luat-dn-2020']

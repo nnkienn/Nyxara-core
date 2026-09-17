@@ -48,11 +48,15 @@ KHÔNG phải đưa đáp án.
 
 **Ngoại lệ:** nếu user nói rõ *"chỉ luôn đi"* / *"cho đáp án"* thì mới đưa thẳng.
 
-**Đặt tên trong CODE = TIẾNG ANH (user chốt 2026-09-18):** mọi tên hàm, tên biến, tên file `.py` viết bằng **tiếng Anh**
-(`evaluate`, `match_one_rule`, `post_filter`, `metadata_store`) — KHÔNG đặt tên tiếng Việt (`danh_gia`, `xet_mot_luat`,
-`loc_sau`). Lý do: code này là **portfolio đem đi phỏng vấn**, người đọc là nhà tuyển dụng/đồng nghiệp quốc tế.
-Vẫn được viết **tiếng Việt** ở: mã giả (bước 2 Cách A) · comment giải thích · file trong `Learning-document/` · note.
-Claude phải sửa ngay khi thấy tên tiếng Việt lọt vào code, kể cả code do chính Claude vừa viết.
+**Đặt tên trong CODE — hai giai đoạn (user chốt 2026-09-18):**
+- **Lúc ĐANG HIỂU** (mã giả, file drill đầu tiên của một khái niệm, ẩn dụ đang dựng): **được đặt tên tiếng Việt**
+  (`danh_gia`, `xet_mot_luat`, `to_luat`, `the`) — lúc này tên là **công cụ hiểu**, ép tiếng Anh vào chỉ thêm một
+  lớp phải dịch trong đầu.
+- **Lúc ĐÃ HIỂU rồi gõ lại / đưa vào `app/`: BẮT BUỘC tiếng Anh**, không ngoại lệ — `evaluate`, `match_one_rule`,
+  `post_filter`, `metadata_store`, `doc_type`, `issuer`, `year`. Áp cho tên hàm, tên biến, tên file `.py`.
+Lý do: repo là **portfolio đem đi phỏng vấn**, người đọc là nhà tuyển dụng/đồng nghiệp quốc tế.
+Vẫn viết **tiếng Việt** ở: mã giả (bước 2 Cách A) · comment giải thích · `Learning-document/` · mọi note.
+Claude phải nhắc đổi tên ngay ở lượt gõ lại, và không để tên tiếng Việt lọt vào `app/`, kể cả code Claude tự viết.
 
 **Cách A — áp từ 2026-09-17 (user chốt, lý do: gõ cú pháp ăn hết giờ, logic thì làm được):**
 - **Lõi thuật toán:** user viết **mã giả tiếng Việt** từng bước → Claude **dịch nguyên văn** mỗi bước thành đúng 1 dòng
