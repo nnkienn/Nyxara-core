@@ -59,3 +59,20 @@ print(ket_qua)   # phải ra False   (2021 < 2010 ?)
 # bo_loc có hình dạng giống `qua`: list các dict, mỗi dict 1 key.
 # Cho vào khi TẤT CẢ luật đều đạt.
 # (làm sau khi bước 3 chạy đúng)
+def khop(bo_loc: list, metadata: dict) -> bool:
+    for i = 0 in bo_loc :
+        phep = list(dieu_kien.keys())[0]
+            ten_truong = dieu_kien[phep][i]    
+            gia_tri = dieu_kien[phep][i+1]       
+            gia_tri_the = metadata[ten_truong]   
+        if (phep == "lt"):
+    ket_qua = gia_tri_the < gia_tri
+elif( phep == "gt"):
+    ket_qua = gia_tri_the > gia_tri
+elif ( phep == "eq"):
+    ket_qua = gia_tri_the == gia_tri
+  
+
+
+
+print(ket_qua)   # phải ra False   (2021 < 2010 ?)
