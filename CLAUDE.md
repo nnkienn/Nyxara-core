@@ -129,6 +129,29 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
    giá cụ thể của từng cái (đo bằng số dòng phải sửa / số test gãy / giờ bỏ ra), đưa **khuyến
    nghị kèm lý do** — rồi mới hỏi user chốt. Hỏi trần một câu thiết kế = user đoán mò hoặc tắc.
    Dấu hiệu đã lỡ vi phạm: user trả lời *"không hiểu bạn hỏi gì"* hoặc *"khó quá"*.
+8. **(vá 2026-09-18, user nói thẳng "bạn hỏi mơ hồ quá")** **Hỏi phải RÕ RÀNG — cấm hỏi mơ hồ.**
+   Mỗi câu hỏi bắt buộc nêu đủ 3 thứ, viết ra hẳn, không để user tự đoán:
+   - **Hỏi trên dữ liệu nào** — chỉ đích danh thẻ/biến/văn bản/file đang xét, kèm giá trị cụ thể.
+     Không dùng đại từ trống ("nó", "cái này", "chỗ đó").
+   - **Hỏi cái gì** — một câu hỏi, một ô cần điền. Không ghép kiểu *"nói ruột ra trước rồi mới lật"*
+     (đó là 2 việc), không kèm mệnh lệnh phụ về thứ tự làm.
+   - **Trả lời dưới dạng nào** — `True`/`False` · tên biến · một dòng code · một câu tiếng Việt.
+     Nếu câu trả lời có nhiều ô thì đưa **khung điền chỗ trống** liệt kê sẵn từng ô.
+   Từ ngữ ẩn dụ ("lọt cửa", "chặn") chỉ được dùng khi **đang có cảnh cụ thể kèm theo** (kho mấy văn
+   bản, tờ luật nào) — bỏ cảnh đi mà vẫn dùng ẩn dụ thì thành mơ hồ.
+   Dấu hiệu đã lỡ vi phạm: user trả lời lệch sang chuyện khác, trả lời một nửa, hoặc nói thẳng là mơ hồ.
+9. **(vá 2026-09-18, user: *"kiểu hỏi và trả lời này đọc quài là quên"*)** **Mỗi mẩu học phải kết
+   thúc bằng một VIỆC LÀM, không được dừng ở hỏi-đáp.** Hỏi-đáp chỉ là phần dẫn vào; nó không đọng.
+   Việc làm hợp lệ có đúng 2 dạng:
+   - **CODE TAY** — user viết **mã giả tiếng Việt** phần lõi, Claude dịch nguyên văn sang Python (Cách A, §2).
+   - **TÌM LỖI** — Claude viết code chạy được có cài lỗi LOGIC, user chạy/đọc và chỉ ra chỗ hỏng **bằng lời**,
+     Claude sửa theo lời user rồi chạy lại.
+   **Cân giờ (user chốt 18/09):** nếu code tay cả khối sẽ ăn hết ca (vỏ cú pháp, thụt lề, sửa dòng nhầm) thì
+   **thu hẹp phạm vi chứ không bỏ việc làm**: gõ ruột 1-3 dòng · hoặc đổi sang dạng TÌM LỖI trên khối Claude viết.
+   Không bao giờ thay việc làm bằng thêm một vòng hỏi-đáp.
+   **Nối dây vẫn là việc của Claude** (§2 Cách A) — nhưng sau khi Claude viết, user phải có một việc làm gắn
+   vào nó (chỉ ra lỗi cài sẵn, hoặc tự viết mã giả cho hàm lõi mà dây đó nối vào).
+   Đầu mỗi mẩu Claude phải nói rõ: **mẩu này bạn LÀM gì** — nếu không trả lời được câu đó thì mẩu đang hỏng.
 
 ---
 

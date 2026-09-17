@@ -55,6 +55,57 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
+## 🌅 Buổi 2026-09-18 (T6) — ca sáng 06:01 → 07:05 (~1h05) · LÁT 0 · NGÀY ĐO CHUẨN CỦA CÁCH A
+
+> Buổi đầu tiên chạy theo thiết kế lại 17/09 (lát cắt, Cách A, bỏ sổ nợ giờ). User chốt: hôm nay **đo cho chuẩn**,
+> không ép tiến độ. **giờ-mốc ~55'** (trừ ~10' sửa CLAUDE.md).
+
+**Xong:**
+1. **Vòng đoán `not`** (nợ từ 17/09) — [drills/2026-09-18-not-doan.py](../drills/2026-09-18-not-doan.py), đã đổi thẻ
+   sang **metadata văn bản luật thật** (`loai_van_ban · co_quan · nam · con_hieu_luc`), bỏ `lang/year` đồ chơi.
+   Dòng 1 ✅ · **dòng 2 ❌** · dòng 3 đúng đáp án nhưng lý do chưa chắc → kiểm lại bằng Thông tư 08/2010, **4/4 ô đúng** ⇒ hiểu thật.
+2. **Lỗi DUY NHẤT của cả vòng: VÀ ↔ HOẶC** — thấy con đầu trượt là chặn luôn, không xét con 2. Vá bằng kho 3 văn bản
+   chạy cả hai chiều: `HOẶC` cho 2 văn bản vào, `VÀ` cho **KHÔNG AI** vào (kho rỗng, không đỏ không nổ).
+   User tự phát biểu lại đúng: *"nếu không cho nó lọt thì đang đọc hoặc thành và"*. → **cặp phân biệt mới, cần drill ép chọn.**
+3. **Bug cố ý mẩu D lộ diện:** `not` nhận 2 con thì lấy `[0]`, **vứt con thứ 2 không nói gì**. User chốt phương án (b) →
+   thêm guard `len(pred["not"]) != 1` → `ValueError`. Chạy: 1 con ✅ · 2 con NỔ · 0 con NỔ.
+4. **CODE TAY (Cách A, lần đầu):** user viết mã giả tiếng Việt cho `loc_sau(danh_sach_doc_id, bo_loc, kho_metadata)`
+   → [drills/2026-09-18-loc-sau.py](../drills/2026-09-18-loc-sau.py). Claude dịch **nguyên văn, giữ nguyên chỗ thiếu**.
+   - Làm bằng tay trước (3 tờ giấy, tờ luật `nam > 2020`) → chọn đúng `luat-dn-2020`.
+   - Mã giả user có 3/5 bước. **Thiếu: khởi tạo `danh_sach_ra = []` và `return`** — cả hai lòi ra bằng chạy thật
+     (`NameError` → rồi `None`), user tự nói ra cả hai. Dạng "làm xong mà không hứng kết quả" — **tái phát lần 4**.
+   - Chọn đúng **A** (khai báo trước vòng `for`); Claude chạy cả A lẫn B: B ra `[]` **im lặng**. User tự giải thích đúng:
+     *"trong vòng for thì nó lại reset danh sách ra rỗng"*.
+
+**Đo được (số để so cho các buổi sau):**
+| | Số |
+|---|---|
+| giờ-mốc | ~55' |
+| Lỗi LOGIC của user | 3 — VÀ↔HOẶC · thiếu khởi tạo chồng chứa · thiếu `return` |
+| Lỗi VỎ CÚ PHÁP của user | 1 — `["luat-dn-2020": "2021"]` (trộn `:` của dict vào list) |
+| Vòng đỏ do gõ/thao tác | **0** (Claude gõ) |
+⇒ Cách A đúng như giả định: cột cú pháp gần như biến mất, thời gian dồn vào logic. Giữ.
+
+**Hai luật dạy phải vá ngay trong buổi (user cắt ngang 2 lần):**
+- *"bạn hỏi mơ hồ quá"* → [CLAUDE.md §3.6 mục 8](../../CLAUDE.md): mỗi câu hỏi phải nêu **dữ liệu cụ thể · đúng 1 ô · dạng trả lời**;
+  ẩn dụ ("lọt cửa/chặn") chỉ dùng khi cảnh còn trước mắt; không ghép 2 việc vào 1 lượt.
+- *"kiểu hỏi và trả lời này đọc quài là quên"* → [CLAUDE.md §3.6 mục 9](../../CLAUDE.md): **mỗi mẩu phải kết thúc bằng
+  một VIỆC LÀM** (code tay mã giả, hoặc tìm lỗi trên code Claude viết). Hết giờ thì thu hẹp phạm vi, không thay bằng hỏi-đáp.
+  Claude đã chạy gần trọn ca sáng bằng hỏi-đáp — đọc nhầm Cách A thành "user trả lời bằng miệng".
+
+**⏸️ CHỖ DỪNG — làm tiếp từ đây:**
+- **Chỗ lát 0 đâm vào (đã chứng minh bằng chạy thật):** *không kho nào đang giữ metadata văn bản luật.*
+  Payload Qdrant chỉ có `tenant_id · text · doc_id` → `danh_gia({"gt": ["nam", 2020]}, payload)` nổ `KeyError: 'nam'`.
+  `BM25Index` chỉ giữ chữ; `DocStore` chỉ giữ text; `ingest_document` không nhận metadata.
+- **Việc của Claude (nối dây):** `ingest_document` + `QdrantStore.upsert` mang 4 trường metadata vào payload ·
+  dựng kho metadata cho nhánh BM25 · cắm `loc_sau` vào `HybridRetriever`.
+- **Việc của user (lõi, mã giả tiếng Việt):** dịch cây `and/or/not` → `Filter` của Qdrant (`must` / `should` / `must_not`) —
+  đây là **pre-filter**, khác hẳn `loc_sau` (post-filter) vừa viết. Kèm câu phải trả lời được: *lọc sau thì `candidate_k` phải làm sao?*
+- **Nợ:** drill ép chọn **VÀ ↔ HOẶC** (chưa thêm vào [the-phan-biet.md](./the-phan-biet.md)) · `eq/ne/gt/gte/lt/lte/in` chưa vào
+  [glossary.md](./glossary.md) · sổ vấn đáp vẫn **0/129 câu**, chưa mở lần nào → xếp vào slot công ty hôm nay.
+
+---
+
 ## 📌 Kế hoạch 2026-09-14 (T2) — MỐC 2: Metadata filtering 🔴 (hộp cứng 8h)
 
 > Thứ tự do user chốt tối 13/09: **sáng sớm ở nhà = kỹ thuật mới** · **ở công ty = trace trạm 5** ·
