@@ -170,6 +170,16 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
    - **DEBUG THẬT** — user chạy, tự đọc traceback, tự chỉ ra dòng hỏng. Claude không được chỉ thẳng dòng sai (§2),
      chỉ được in thêm số/chạy thêm ca để hiện trường rõ ra.
    Mã giả tiếng Việt vẫn giữ (nó là bước ra logic), nhưng **không được dừng ở mã giả** — mã giả xong thì user gõ ruột.
+   **Bốn loại VIỆC LÀM hợp lệ (vá 18/09, tăng cường — user: *"tăng cường code tay và rà bug, thêm thiết kế"*):**
+   | Loại | User làm gì | Claude làm gì | Nhịp tối thiểu |
+   |---|---|---|---|
+   | **1. Code tay** | gõ ruột 3-10 dòng (vòng lặp, `if`, `return`, biến chứa), tên tiếng Anh | gõ khung + nối dây + chạy hộ | **mỗi buổi core** |
+   | **2. Rà bug** | chạy, đọc traceback/số in ra, chỉ dòng hỏng **bằng lời** | cài lỗi LOGIC vào code chạy được; KHÔNG chỉ dòng sai, chỉ in thêm số | **mỗi buổi core** |
+   | **3. Bài thiết kế** | chốt phương án **và nói ra lý do + cái giá** phải trả | giảng trước 2-3 phương án kèm giá cụ thể (§3.6 mục 7), rồi mới hỏi | **≥1 lần/tuần**, và mỗi lần mở tính năng mới |
+   | **4. Giảng lại / nói** | đóng sách, giảng nguyên lý bằng lời mình | chấm, chỉ chỗ thiếu ý | cuối mỗi kỹ thuật |
+   Loại 3 chính là vòng **System design AI** của phỏng vấn (roadmap mục K vòng 3) — đừng để nó chỉ nằm trong kế hoạch
+   tháng 12; tập ngay từ mỗi tính năng đang làm, quy mô nhỏ cũng được.
+   **Buổi nào chỉ có loại 4 = buổi hỏng**, phải ghi rõ vào sổ là buổi hỏng chứ không ghi là đã học.
 
 ---
 

@@ -106,7 +106,9 @@
 > | **01/2027** | Nộp đơn khi vẫn đi làm · mock interview (tiếng Anh + tiếng Việt) · 🟢 nói được |
 
 > ## I. Nhánh song song (slot công ty 1h/ngày)
-> - **Tiếng Anh (~30'):** kể project trong 60 giây · trả lời câu phỏng vấn bằng tiếng Anh · tự ghi âm nghe lại.
+> - **Tiếng Anh (~30') — cách làm user chốt 18/09:** user **tự viết text ra** (kể project 60 giây, câu trả lời phỏng vấn) →
+>   **Claude chỉnh lại** (ngữ pháp, từ dùng sai, câu Việt-hoá, cách diễn đạt tự nhiên hơn — giữ nguyên ý của user, chỉ sửa
+>   cách nói) → user **đọc nhẩm** bản đã chỉnh cho quen miệng. Không bắt nói ngẫu hứng khi chưa có bản viết.
 > - **Python thực tế (~15-20'):** 1 bài ngắn dict/chuỗi/logic đời thường — trị thẳng lỗ cú pháp.
 > - **Câu phỏng vấn (~10-15'):** [interview-questions.md](interview-questions.md), theo lịch hẹn ❌/⚠️/✅.
 > - **Orchestrator:** agent làm, user định hướng nghiên cứu. Muốn đưa vào CV cần **số benchmark thật**
