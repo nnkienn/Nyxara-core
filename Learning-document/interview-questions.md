@@ -14,7 +14,10 @@
 > 1. **Đóng hết tài liệu.** Trả lời **thành tiếng** hoặc gõ ra, hết khả năng.
 > 2. **Rồi mới** mở note đối chiếu.
 > 3. Chấm vào cột trạng thái: ✅ trôi chảy · ⚠️ nói được nhưng lắp bắp/thiếu ý · ❌ không nói được.
-> 4. Câu ❌ và ⚠️ → đưa vào vòng ôn kế tiếp. Câu ✅ → ôn lại sau 7 ngày.
+> 4. **Hẹn lại (từ 17/09):** ❌ → +2 ngày · ⚠️ → +5 ngày · ✅ → +14 ngày. Ghi vào cột trạng thái, vd `❌→19/09`.
+>
+> 🧭 **Từ 17/09 đích là AI Engineer mức Mid** ([LEARNING_ROADMAP § THIẾT KẾ LẠI](./LEARNING_ROADMAP.md)): ưu tiên 🟢 + 🟡 trước,
+> 🔴 để sau. Mục 11-18 thêm 17/09 theo 5 vòng phỏng vấn thật (roadmap mục K). Câu *(lát N)* = chưa học, đừng ôn trước.
 >
 > ⚠️ **Đọc câu hỏi rồi đọc luôn đáp án = vô ích.** Cảm giác "à đúng rồi, mình biết mà" là
 > *ảo giác quen thuộc*, không phải trí nhớ. Chính nó làm hỏng 6.5 tuần đầu của dự án này.
@@ -147,6 +150,106 @@
 | 10.7 | 🔴 | *(chưa học)* **Khi nào KHÔNG nên dùng RAG?** Context window dài rồi — so RAG vs nhét thẳng document theo 4 trục: chất lượng · chi phí · độ trễ p95 · khả năng trích dẫn nguồn | — | ⬜ |
 | 10.8 | 🔴 | *(chưa học)* Đo một **agent nhiều bước** khác đo RAG ở chỗ nào? Kể 3 chỉ số chỉ có ý nghĩa với agent | — | ⬜ |
 | 10.9 | 🔴 | *(chưa học)* Agent trả lời **đúng** nhưng đi 11 bước và gọi nhầm tool 3 lần — tính là pass hay fail? Vì sao? | — | ⬜ |
+
+## 11. Lý thuyết LLM *(🟢 đọc hiểu — slot công ty 10-11/2026)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 11.1 | 🟢 | LLM sinh chữ thế nào? "Dự đoán token tiếp theo" nghĩa là gì? | — | ⬜ |
+| 11.2 | 🟢 | Token là gì? Vì sao tiếng Việt thường tốn nhiều token hơn tiếng Anh cho cùng một câu? | — | ⬜ |
+| 11.3 | 🟡 | BPE, WordPiece, tokenization theo ký tự — khác nhau và đánh đổi gì? | — | ⬜ |
+| 11.4 | 🟢 | Temperature và top-p là gì? Tăng/giảm thì đầu ra đổi thế nào? Khi nào đặt temperature = 0? | — | ⬜ |
+| 11.5 | 🟢 | Context window là gì? Vượt quá thì chuyện gì xảy ra? Tài liệu dài thì xử lý thế nào? | — | ⬜ |
+| 11.6 | 🟡 | Self-attention làm gì? Q, K, V là gì? Vì sao chi phí tăng theo bình phương độ dài? | — | ⬜ |
+| 11.7 | 🟡 | Encoder-only, decoder-only, encoder-decoder khác nhau thế nào? Mỗi loại dùng cho việc gì? (gợi ý nối: bi-encoder BGE vs LLM sinh chữ) | — | ⬜ |
+| 11.8 | 🟡 | KV cache là gì? Vì sao nó làm suy luận nhanh hơn, và đổi lại tốn gì? | — | ⬜ |
+| 11.9 | 🟡 | Time to first token (TTFT) và tokens/giây khác nhau thế nào? Người dùng cảm nhận cái nào? | — | ⬜ |
+| 11.10 | 🔴 | Mixture of Experts (MoE) tiết kiệm ở đâu? | — | ⬜ |
+
+## 12. Evaluation *(lát 1 + 3)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 12.1 | 🟢 | Hit@k, Recall@k, MRR, NDCG — mỗi cái đo gì? *(lát 1)* | — | ⬜ |
+| 12.2 | 🟡 | Dựng golden dataset thế nào? Vì sao phải versioned, và sửa lén golden thì hỏng gì? *(lát 1)* | — | ⬜ |
+| 12.3 | 🟡 | Đánh giá một chatbot/RAG thế nào — tách tầng retrieval và tầng generation ra sao? *(lát 1, 3)* | — | ⬜ |
+| 12.4 | 🟡 | LLM-as-judge là gì? Judge lệch theo những kiểu nào? Làm sao biết judge đáng tin? *(lát 3)* | — | ⬜ |
+| 12.5 | 🟡 | Faithfulness đo gì? Khác answer correctness chỗ nào? *(lát 3)* | — | ⬜ |
+| 12.6 | 🟡 | Phát hiện và giảm bịa (hallucination) bằng những cách nào? *(lát 3)* | — | ⬜ |
+| 12.7 | 🔴 | Chatbot trả lời **tự tin nhưng sai** — debug theo thứ tự nào? *(lát 3)* | — | ⬜ |
+| 12.8 | 🔴 | A/B hai cấu hình retrieval: vì sao chỉ đổi **một** biến? Chênh 2% thì đã tin được chưa? *(lát 1)* | — | ⬜ |
+| 12.9 | 🔴 | Retrieval đang recall 60% — chẩn đoán thế nào? *(lát 1-2)* | — | ⬜ |
+
+## 13. Agent & tool use *(lát 5)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 13.1 | 🟢 | Hệ thống thế nào thì gọi là "agentic"? Ngoài LLM, agent cần những thành phần gì? | — | ⬜ |
+| 13.2 | 🟡 | Agent quyết định gọi tool nào bằng cách nào? Structured output giúp gì? | — | ⬜ |
+| 13.3 | 🟡 | **Khi nào agent là lựa chọn SAI?** | — | ⬜ |
+| 13.4 | 🟡 | Chặn vòng lặp vô hạn / đặt điều kiện dừng thế nào? *(nối: van `max_attempts` của CRAG)* | bug #26 | ⬜ |
+| 13.5 | 🟡 | Tool lỗi thì retry thế nào? Idempotency là gì và vì sao cần khi retry? | — | ⬜ |
+| 13.6 | 🔴 | Rủi ro bảo mật lớn nhất của agent có gọi tool? Sandbox tool thế nào? | — | ⬜ |
+| 13.7 | 🟡 | MCP là gì, giải quyết vấn đề gì so với tự định nghĩa tool trong từng app? | — | ⬜ |
+| 13.8 | 🔴 | Theo dõi agent chạy trên production bằng gì (trace từng bước)? | — | ⬜ |
+
+## 14. Chi phí & độ trễ *(lát 6)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 14.1 | 🟢 | Giảm chi phí token bằng những cách nào? | — | ⬜ |
+| 14.2 | 🟡 | Giảm độ trễ app LLM bằng những cách nào? Streaming giúp gì? | — | ⬜ |
+| 14.3 | 🟡 | Đo từng lần gọi LLM trong pipeline nhiều bước để tìm nút cổ chai thế nào? p50 vs p95? | — | ⬜ |
+| 14.4 | 🟡 | Caching thường vs semantic caching — ngưỡng tương đồng đặt sai thì hỏng gì? Prompt caching là gì? | — | ⬜ |
+| 14.5 | 🟡 | Khi nào model nhỏ/mã nguồn mở là "đủ tốt"? Model routing (tiering) là gì? | — | ⬜ |
+| 14.6 | 🔴 | Ước ngân sách: RAG cho 300.000 văn bản pháp luật, 10.000 câu hỏi/ngày — nêu từng khoản và giả định. | — | ⬜ |
+| 14.7 | 🔴 | App nhận 1 triệu query/ngày — tối ưu chi phí theo thứ tự nào? | — | ⬜ |
+
+## 15. Guardrails & monitoring *(lát 3, 6)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 15.1 | 🟢 | Prompt injection là gì? Khác jailbreak thế nào? | — | ⬜ |
+| 15.2 | 🟡 | Chống prompt injection bằng những lớp nào? Vì sao không có lớp nào đủ một mình? | — | ⬜ |
+| 15.3 | 🟡 | Xử lý PII trong prompt và trong log thế nào? | — | ⬜ |
+| 15.4 | 🟡 | Đo tỉ lệ bịa **trên production** (không có đáp án chuẩn) bằng cách nào? | — | ⬜ |
+| 15.5 | 🔴 | Thử model/prompt mới trước khi rollout hết thế nào? | — | ⬜ |
+
+## 16. Fine-tune *(🟢 nói được)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 16.1 | 🟡 | Khi nào fine-tune, khi nào prompt, khi nào RAG? Cho ví dụ từng loại. | — | ⬜ |
+| 16.2 | 🟢 | LoRA / PEFT là gì? Vì sao train được trên GPU nhỏ? | — | ⬜ |
+| 16.3 | 🟢 | Quantization là gì? Đánh đổi kích thước — tốc độ — độ chính xác? | — | ⬜ |
+| 16.4 | 🟡 | Instruction tuning khác pre-training thế nào? | — | ⬜ |
+| 16.5 | 🔴 | RLHF gồm những bước gì? DPO đơn giản hoá chỗ nào? | — | ⬜ |
+
+## 17. System design AI *(nói 45' — tháng 12 → 01)*
+
+> Mỗi đề: tự nói theo 4 bước **làm rõ yêu cầu → kiến trúc tổng → đi sâu 1 khối → đánh đổi & điểm hỏng**, rồi Claude chấm.
+
+| # | Mức | Đề | Note | Trạng thái |
+|---|---|---|---|---|
+| 17.1 | 🟡 | Thiết kế hệ thống hỏi đáp tài liệu (RAG) cho một công ty. | — | ⬜ |
+| 17.2 | 🟡 | Thiết kế trợ lý tra cứu pháp luật có trích dẫn Điều/Khoản, không được trả lời bằng điều đã hết hiệu lực. | — | ⬜ |
+| 17.3 | 🔴 | Scale RAG từ 60K lên 10 triệu văn bản — cái gì gãy trước? | — | ⬜ |
+| 17.4 | 🔴 | Thiết kế workflow agent nhiều bước (vd xử lý ticket hỗ trợ: phân loại → soạn trả lời → đẩy người). | — | ⬜ |
+| 17.5 | 🔴 | Thiết kế hệ thống xử lý 10.000 file tải lên/tháng (PDF, ảnh scan) để trích thông tin. | — | ⬜ |
+| 17.6 | 🔴 | Chat AI cho 1 triệu người dùng/ngày — đánh đổi chất lượng, chi phí, độ trễ. | — | ⬜ |
+
+## 18. Trình bày project & hành vi *(11/2026 → 01/2027, cả tiếng Việt lẫn tiếng Anh)*
+
+| # | Mức | Câu hỏi | Note | Trạng thái |
+|---|---|---|---|---|
+| 18.1 | 🟢 | Giới thiệu Nyxara-core trong **60 giây**: bài toán → kiến trúc → một con số. | — | ⬜ |
+| 18.2 | 🟡 | Đi qua project từ đầu tới cuối. Vì sao chọn hybrid + rerank + CRAG thay vì chỉ vector search? | pipeline/ | ⬜ |
+| 18.3 | 🟡 | Bug khó nhất bạn từng tìm ra — triệu chứng, cách lần ra, cách chặn tái phát. | bug-log | ⬜ |
+| 18.4 | 🟡 | Nếu làm lại từ đầu, bạn đổi quyết định nào? Vì sao? | — | ⬜ |
+| 18.5 | 🟡 | Nyxara-Orchestrator: câu hỏi nghiên cứu là gì, đo bằng gì, kết quả ra sao? | — | ⬜ |
+| 18.6 | 🟢 | Vì sao bạn chuyển từ backend sang AI engineering? | — | ⬜ |
+| 18.7 | 🟡 | Kể một lần phải làm việc với yêu cầu mơ hồ (STAR). | — | ⬜ |
+| 18.8 | 🟡 | Kể một lần sai và bạn sửa thế nào (STAR). | bug-log | ⬜ |
 
 ---
 

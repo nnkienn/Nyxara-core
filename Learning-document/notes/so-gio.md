@@ -1,5 +1,10 @@
 # ⏱️ Sổ nợ giờ
 
+> 🛑 **NGỪNG ÁP DỤNG TỪ 2026-09-17** (user chốt khi thiết kế lại): bỏ nợ lũy kế, lãi 1.5x và trần 6h.
+> Thay bằng mục tiêu theo slot (sáng 1h30 · công ty 1h · tối 2h), ngày OT = 30' trace, và **Claude cảnh báo hụt giờ
+> rõ ràng** thay vì cộng nợ. Luật mới: [LEARNING_ROADMAP.md § THIẾT KẾ LẠI 2026-09-17 mục J](../LEARNING_ROADMAP.md).
+> File giữ lại làm **log giờ thật** (dùng để đo giờ/mốc) — chỉ ghi giờ, không tính nợ.
+
 > Lập 2026-09-04 theo yêu cầu của user ("nếu không đạt cam kết thì đề xuất phương án phạt").
 > Gắn với [LEARNING_ROADMAP.md § DEADLINE ÉP TIẾN ĐỘ](../LEARNING_ROADMAP.md): cam kết **sàn 3h/ngày**
 > (biên độ 3-4h). Toàn bộ bài toán deadline 31/12/2026 chỉ đóng được ở mức này — ~437h khả dụng
@@ -55,8 +60,10 @@
 | 2026-09-13 | CN *(sinh nhật vợ)* | 6h00 *(cuối tuần)* | **~1h45 (20:34-22:26)** | −4h15 | BKK | **≈12h14** | giờ-mốc: **~1h45**. Kế hoạch 5h (sáng 1h + chiều 4h) không diễn ra — sinh nhật vợ; buổi mở 20:34. Drill 5 câu **1/5** (`parts["0"]` lặp lại lỗi đêm trước · `.extend`↔`.append` đảo ngược hoàn toàn · `chunks.len()`) → đo chạy thật. ~15' tính lại toán tới Tết theo yêu cầu user. **C1 XANH 5/5**: `split_by_separators` giữ separator bằng `re.split` có ngoặc bắt nhóm, `"".join(kq)==text` đúng cả 5 ca. User tự nghĩ ra vòng lặp gom-và-chốt; 4 lượt sửa còn lại toàn lỗi gõ/thụt lề |
 | 2026-09-15 | Ba *(không OT)* | 3h00 | **~4h10** (sáng 5:25-6:35 · công ty ~2h user ước · tối 20:38-~21:40) | +1h10 | — | *(chưa gộp — **thiếu dòng 14/09**, bổ sung trước khi cộng)* | giờ-mốc: **~2h**, còn ~2h là **vá nền** (vượt xa hạn 30'/ngày). Sáng: giảng mốc 2 + full-attempt 2/5 · drill dict lồng vòng 1 **2/13**. Công ty: vòng 2 bài 1-5 **4/5** · 6-10 lòi lỗi A (`keys()[0]` tưởng ra value) + lỗi B → gốc **Cặp 14** (tưởng `q` là cả `qua`) · cây `p2` quá sâu → **đổi sang lọc PHẲNG trước** (user chốt) · ẩn dụ bảo vệ cửa vào ngay. Tối: ráp **một luật** `phep`/`dieu_kien[phep][0]`/`[1]`/`metadata[ten_truong]` chạy đúng `lt` + không sập với `gt` · từ 21:04 lỗi thao tác liên tiếp → dừng code · giảng lại A1 ✅ A2-A4 ❌ (lấy số thẻ thay số luật lần 3 · `keys[0]` thiếu `()` · `phep[0]` ra `'g'`) |
 | 2026-09-16 | Tư *(ca sáng)* | 3h00 | **~1h25** (05:22-06:45) | — | — | *(gộp cuối ngày)* | giờ-mốc: **~1h25**, toàn bộ vào mốc 2. Chấm giảng lại đóng sách (A+B) · drill ép chọn mới → **lòi lỗ thật: vế nào đứng trước dấu so sánh**, không phải nhãn `gt`/`lt` như chẩn ban đầu · **mẩu (c) ĐÓNG** — `if/elif` theo `phep`, 3 luật ra đúng hợp đồng `False/True/True` |
+| 2026-09-16 | Tư *(công ty + tối)* | — | **không rõ** — user không nhớ (hỏi 17/09) | — | — | *(không cộng được)* | Theo file thì trong khoảng này đã viết xong `khop` / `khop_hoac` / `xet_mot_luat` — có thể một phần làm sáng 17/09. Không đoán giờ |
+| 2026-09-17 | Năm *(ca sáng)* | 3h00 | **~2h00** (03:00-05:00) | — | — | *(gộp cuối ngày)* | giờ-mốc: **~2h**, toàn bộ vào mốc 2. [2026-09-17-khop.py](../drills/2026-09-17-khop.py): `xet_mot_luat` · `khop` · `khop_hoac` · [2026-09-17-cay.py](../drills/2026-09-17-cay.py) bản lồng mẩu A/B/C chạy đúng hợp đồng. Chưa ghi chỗ dừng vào review-schedule |
 
-> 📌 **Giờ-mốc cộng dồn của mốc 2 (hộp 8h):** 15/09 ~2h + 16/09 sáng ~1h25 ≈ **3h25**, **chưa tính ca tối 14/09 (21:00-00:00) vì dòng 14/09 còn thiếu trong sổ** — hỏi user rồi bổ sung, đừng đoán. Tính cả ca đó thì mốc 2 nhiều khả năng đã tiêu quá nửa hộp mà mới xong **bước 1 bản phẳng**.
+> 📌 **Giờ-mốc cộng dồn của mốc 2 (hộp 8h), cập nhật 17/09 15:45:** 15/09 ~2h + 16/09 sáng ~1h25 + 17/09 sáng ~2h ≈ **5h25 đã đo được** → hộp còn **≤ 2h35**. **Không đo được:** tối 14/09 (dòng còn thiếu) · công ty + tối 16/09 (user không nhớ). Con số thật chắc chắn **lớn hơn** 5h25. Tính cả ca đó thì mốc 2 nhiều khả năng đã tiêu quá nửa hộp mà mới xong **bước 1 bản phẳng**.
 
 > ⚠️ **Tình trạng 13/09 22:26 (chốt buổi):** nợ ≈ **12h14**, gần **gấp đôi trần 6h**. Vẫn 100% `BKK` (T7 đi làm · CN sinh nhật vợ)
 > nên chưa phát sinh lãi 1.5x. Hai ngày cuối tuần — nền móng của cả kế hoạch 3h/6h — **không ngày nào đạt 6h**

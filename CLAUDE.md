@@ -13,10 +13,14 @@
 kiến trúc hexagonal (`domain/ports` ← `application` ← `infrastructure/adapters` ← `presentation`).
 
 Nhưng mục đích số 1 **không phải** ship sản phẩm nhanh. Nó là **giáo trình sống**: user đang
-xây từng lớp bằng tay để đạt trình Senior AI Engineer — tự implement được lõi + tự debug được.
+xây từng lớp bằng tay — tự implement được lõi + tự debug được.
 
-Lộ trình chuẩn (nguồn sự thật duy nhất): [Learning-document/LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md)
-— bám Phase 0 → 9 theo đúng thứ tự, không nhảy cóc.
+> 🧭 **Thiết kế lại 2026-09-17 (đọc trước mọi thứ khác):** đích qua Tết = **AI Engineer mức Mid** (bậc thang →
+> Senior remote ~2028) · phỏng vấn **khi vẫn đi làm** · project chính = **Nyxara-core miền pháp luật VN**
+> (Zalo Legal 61K điều, baseline NDCG@10 0.8488) + **Nyxara-Orchestrator** · N Assistant tạm gác.
+
+Lộ trình chuẩn (nguồn sự thật duy nhất): [Learning-document/LEARNING_ROADMAP.md § THIẾT KẾ LẠI 2026-09-17](Learning-document/LEARNING_ROADMAP.md)
+— bám **lát cắt 0 → 6** theo thứ tự (mục F). Các Phase 0→9 là kho kiến thức, độ sâu theo 🔴/🟡/🟢.
 
 ---
 
@@ -43,6 +47,14 @@ KHÔNG phải đưa đáp án.
 > **hỏi ngược lại** để dẫn dắt. Đó mới là cách dùng đúng.
 
 **Ngoại lệ:** nếu user nói rõ *"chỉ luôn đi"* / *"cho đáp án"* thì mới đưa thẳng.
+
+**Cách A — áp từ 2026-09-17 (user chốt, lý do: gõ cú pháp ăn hết giờ, logic thì làm được):**
+- **Lõi thuật toán:** user viết **mã giả tiếng Việt** từng bước → Claude **dịch nguyên văn** mỗi bước thành đúng 1 dòng
+  Python, **giữ nguyên cả chỗ sai**. Claude KHÔNG sửa logic hộ, KHÔNG thêm bước user chưa viết, KHÔNG gợi ý thuật toán.
+  Các luật "TUYỆT ĐỐI KHÔNG" ở trên vẫn áp cho phần logic.
+- **Test + nối dây** (adapter, API, Qdrant, Docker, CI): **Claude viết**. User đọc/trace 1 lượt và giảng lại bằng lời.
+  User **không** cần tự viết nhiều test — user chốt: *"viết test nhiều không giúp giỏi code, vấn đề là thuật toán"*.
+- Luật "không liệt kê sẵn test cases" chỉ còn áp khi đề bài là **tự nghĩ ca biên** (vd ca túi cuối) — đó là bài tư duy.
 
 ---
 
@@ -133,7 +145,7 @@ Bài trace 4 trạm ([00-trace-exercises.md](Learning-document/notes/pipeline/00
    mà thực ra chưa bao giờ chạy thật.
 
 **Ngân hàng câu hỏi phỏng vấn:** [Learning-document/interview-questions.md](Learning-document/interview-questions.md)
-— 65 câu, chia 10 chủ đề × 3 mức 🟢 Junior / 🟡 Mid / 🔴 Senior. Mục đích: biến thứ **đã xây được**
+— ~120 câu, 18 chủ đề (mục 11-18 thêm 17/09 theo 5 vòng phỏng vấn thật, roadmap mục K) × 3 mức 🟢 Junior / 🟡 Mid / 🔴 Senior. Mục đích: biến thứ **đã xây được**
 thành thứ **nói ra được** trong phòng phỏng vấn (qua Tết ~đầu 2027).
 
 - **File cố ý KHÔNG có đáp án.** Đáp án nằm ở note user đã tự viết; cột *Note* trỏ tới đó.
@@ -273,7 +285,15 @@ Python 3.14.7 / RTX 4060 8GB ngày 06/09: **70 passed in 127.34s**.
 
 ## 6. Trạng thái hiện tại (cập nhật khi đổi)
 
-> ⏰ **Deadline thật (không phải tự đặt suông, cập nhật 2026-08-28):** qua Tết (~đầu 2027) user
+> 🧭 **THIẾT KẾ LẠI 2026-09-17 — thay khối deadline ngay dưới.** Đích = **Mid** (không phải Senior) qua Tết, **không nghỉ
+> việc trước khi có offer**, nộp đơn ~tháng 1/2027. Lộ trình = lát cắt 0→6 miền pháp luật VN. Giờ: sáng 1h30 · công ty 1h
+> (tiếng Anh + Python thực tế + câu phỏng vấn) · tối 2h · OT → 30' trace và **Claude phải cảnh báo hụt giờ**. **Bỏ sổ nợ có
+> lãi/trần.** Ôn = ngân hàng câu hỏi + bảng trắng 5', hẹn ❌+2/⚠️+5/✅+14. Chi tiết: [LEARNING_ROADMAP.md § THIẾT KẾ LẠI](Learning-document/LEARNING_ROADMAP.md).
+> **Đầu mỗi buổi Claude nói:** đang ở lát/mốc nào · so với bảng tháng (mục H) sớm hay trễ · hôm qua có hụt giờ không.
+> ✅ Orchestrator 1h/ngày **nằm ngoài** 4h30 (chốt 17/09) → tổng 5h30/ngày. Là **sản phẩm thật**; tới Tết làm M0→M2 lát đầu, **Preview Marketplace 03/2027**. Chi tiết: roadmap mục L.
+> ✅ **Ngày ngắn thì cắt theo thứ tự ngược:** giữ tối 2h core → sáng 1h30 → slot công ty → **Orchestrator cắt đầu tiên, không tính hụt**.
+>
+> *(lịch sử, không còn hiệu lực)* ⏰ **Deadline thật (cập nhật 2026-08-28):** qua Tết (~đầu 2027) user
 > nghỉ việc đi phỏng vấn Senior AI Engineer. Hạn xong nội dung toàn bộ Phase 0-8 (+ Port Phase 9):
 > **31/12/2026**, trễ tối đa tới **30/01/2027**. Không cắt kỹ thuật, giữ nguyên vòng 6 bước. Cam
 > kết 3-4h/ngày, mỗi ngày — rủi ro số 1 là nghỉ dài, không phải phương pháp. Mốc theo tháng +

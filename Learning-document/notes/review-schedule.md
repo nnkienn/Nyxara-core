@@ -46,6 +46,15 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
+## 🧭 Từ 2026-09-17: lịch ôn chuyển sang NGÂN HÀNG CÂU HỎI (bảng dưới là LOG, không thêm cột)
+
+> Thiết kế lại 17/09 — nguồn sự thật: [LEARNING_ROADMAP.md § THIẾT KẾ LẠI 2026-09-17](../LEARNING_ROADMAP.md).
+> Ôn = tự trả lời câu trong [interview-questions.md](../interview-questions.md) (nói to, đóng sách) + **bài bảng trắng 5'**
+> (viết lõi 1 hàm, không chạy, sai cú pháp không sao). Hẹn lại theo kết quả: ❌ +2 ngày · ⚠️ +5 ngày · ✅ +14 ngày.
+> Các hàng ⬜ quá hạn ở bảng dưới **không trả theo lịch cũ** — đã quy đổi thành câu hỏi/bài bảng trắng trong hàng đợi ôn.
+
+---
+
 ## 📌 Kế hoạch 2026-09-14 (T2) — MỐC 2: Metadata filtering 🔴 (hộp cứng 8h)
 
 > Thứ tự do user chốt tối 13/09: **sáng sớm ở nhà = kỹ thuật mới** · **ở công ty = trace trạm 5** ·
