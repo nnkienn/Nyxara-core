@@ -48,6 +48,12 @@ KHÔNG phải đưa đáp án.
 
 **Ngoại lệ:** nếu user nói rõ *"chỉ luôn đi"* / *"cho đáp án"* thì mới đưa thẳng.
 
+**Đặt tên trong CODE = TIẾNG ANH (user chốt 2026-09-18):** mọi tên hàm, tên biến, tên file `.py` viết bằng **tiếng Anh**
+(`evaluate`, `match_one_rule`, `post_filter`, `metadata_store`) — KHÔNG đặt tên tiếng Việt (`danh_gia`, `xet_mot_luat`,
+`loc_sau`). Lý do: code này là **portfolio đem đi phỏng vấn**, người đọc là nhà tuyển dụng/đồng nghiệp quốc tế.
+Vẫn được viết **tiếng Việt** ở: mã giả (bước 2 Cách A) · comment giải thích · file trong `Learning-document/` · note.
+Claude phải sửa ngay khi thấy tên tiếng Việt lọt vào code, kể cả code do chính Claude vừa viết.
+
 **Cách A — áp từ 2026-09-17 (user chốt, lý do: gõ cú pháp ăn hết giờ, logic thì làm được):**
 - **Lõi thuật toán:** user viết **mã giả tiếng Việt** từng bước → Claude **dịch nguyên văn** mỗi bước thành đúng 1 dòng
   Python, **giữ nguyên cả chỗ sai**. Claude KHÔNG sửa logic hộ, KHÔNG thêm bước user chưa viết, KHÔNG gợi ý thuật toán.
@@ -152,6 +158,14 @@ nhanh-sửa nhanh (không phải vòng 6 bước chậm) — xong quay lại bà
    **Nối dây vẫn là việc của Claude** (§2 Cách A) — nhưng sau khi Claude viết, user phải có một việc làm gắn
    vào nó (chỉ ra lỗi cài sẵn, hoặc tự viết mã giả cho hàm lõi mà dây đó nối vào).
    Đầu mỗi mẩu Claude phải nói rõ: **mẩu này bạn LÀM gì** — nếu không trả lời được câu đó thì mẩu đang hỏng.
+   **(vá thêm cùng ngày 18/09, user: *"phải cho tôi code tay cho nhớ cú pháp và debug lỗi nữa"*)** Cách A **KHÔNG**
+   có nghĩa là user không gõ dòng nào. Mỗi buổi bắt buộc có đủ **hai** thứ sau, dù ngắn:
+   - **GÕ THẬT** — user tự gõ **phần ruột** (khoảng 3-10 dòng: vòng lặp, `if`, `return`, khởi tạo biến chứa).
+     Mục đích là **giữ phản xạ cú pháp**, thứ sẽ bị hỏi trong vòng phỏng vấn code. Claude chỉ gõ phần khung/nối dây,
+     KHÔNG gõ hộ ruột trừ khi user nói rõ là mệt/hết giờ.
+   - **DEBUG THẬT** — user chạy, tự đọc traceback, tự chỉ ra dòng hỏng. Claude không được chỉ thẳng dòng sai (§2),
+     chỉ được in thêm số/chạy thêm ca để hiện trường rõ ra.
+   Mã giả tiếng Việt vẫn giữ (nó là bước ra logic), nhưng **không được dừng ở mã giả** — mã giả xong thì user gõ ruột.
 
 ---
 
