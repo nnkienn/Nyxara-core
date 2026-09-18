@@ -68,13 +68,13 @@
 > | Lát | Tính năng | 🔴 Sâu | 🟡 Nhỏ | Phase gốc |
 > |---|---|---|---|---|
 > | **0** | Đóng mốc 2 đang dở | Metadata filter (cây `and/or/not` → nối Qdrant **và** BM25, dùng metadata văn bản luật) | — | P2 |
-> | **1** | **Nền đo** — nạp 61K điều luật, đo baseline | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp 36 bug cũ) | Bảng BM25 / dense / hybrid / +rerank so SOTA 0.8488 | P3 #1 #4 #5 #6 |
+> | **1** | **Nền đo + LÊN MẠNG** — nạp 61K điều luật, đo baseline, **deploy demo công khai** | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp 36 bug cũ) | Bảng BM25 / dense / hybrid / +rerank so SOTA 0.8488 · **chạy RAGAS 1 lần đối chiếu metric tự viết** · **so 2-3 embedding model** trên tập có nhãn · **demo URL + UI React** *(kéo từ lát 6 lên — chuẩn Mid là "đã ship cho người dùng thật")* | P3 #1 #4 #5 #6 |
 > | **2** | **Retrieval pháp luật** | Chunk theo cấu trúc **Điều/Khoản** (Document-based) · Query Transform (câu đời thường → ngôn ngữ luật, HyDE) · Parse văn bản (HTML/PDF) | MMR · overlap ([bug #34](notes/bug-log.md)) · Parent-Child (khớp Khoản, trả cả Điều) · Contextual (gắn tên Luật/Chương vào chunk) | P0 #4 #9 #10 #11 · P2 #2 #4 |
 > | **3** | **Trả lời có trích dẫn, không bịa** | Trích dẫn Điều/Khoản (offset, C2) · Judge tự viết + faithfulness · Từ chối "không có căn cứ" (gộp [bug #33](notes/bug-log.md)) · Chống prompt injection | Hiệu chỉnh judge vs 50 nhãn tay · Lost-in-the-Middle / compression | P3 #2 #3 #7 · P4 #5 · P5 #1 |
-> | **4** | **Hiệu lực văn bản** — không trích điều đã hết hiệu lực / bị thay thế | — | Temporal + versioning theo trạng thái hiệu lực | P2 #3 |
+> | **4** | **Hiệu lực + tham chiếu chéo** — không trích điều đã hết hiệu lực / bị thay thế | — | Temporal + versioning theo trạng thái hiệu lực · **GraphRAG multi-hop trên tham chiếu pháp lý** *(🟢→🟡 ngày 18/09: JD Việt Nam gọi tên đích danh, và Điều-dẫn-chiếu-Điều là ca dùng GraphRAG kinh điển)* | P2 #3 #7 |
 > | **5** | **Agent pháp lý + MCP** | Tool calling + structured output · Supervisor nhỏ · Tracing · Đo đường đi (trajectory) · **MCP server** tra cứu luật | Memory hội thoại · HITL | P4 |
-> | **6** | **Production + portfolio** | — | Docker + CI chạy regression eval · deploy + **demo URL** · latency p50/p95 + cache + chi phí/query · README dạng spec + bảng số · bài viết tiếng Anh | P3.5 · P7 |
-> | 🟢 | **Nói được** | Fine-tune (LoRA, khi nào FT vs RAG) · Quantization · K8s · Drift · GraphRAG · Multimodal · Phase 8, 9 | | |
+> | **6** | **Production + portfolio** | — | Docker + CI chạy regression eval · latency p50/p95 + cache + chi phí/query · README dạng spec + bảng số · **port lõi sang LangChain/LlamaIndex một lần** *(để trả lời "why not LangChain" bằng "tôi đã làm cả hai")* · bài viết tiếng Anh *(deploy + demo URL đã kéo lên lát 1)* | P3.5 · P7 |
+> | 🟢 | **Nói được** | Fine-tune (LoRA, khi nào FT vs RAG) · Quantization · K8s · Drift · Multimodal · Phase 8, 9 *(GraphRAG đã lên 🟡 lát 4)* | | |
 
 > ### Bản đồ: 10 Phase bên dưới → thực chất học gì (thêm 17/09)
 > Các Phase **không bị xoá** — chúng là **kho kiến thức** (công thức, WHY, bug cố ý gợi ý). Thứ tự làm = lát 0→6.
@@ -109,11 +109,15 @@
 > ## H. Mốc theo tháng
 > | Tháng | Mục tiêu |
 > |---|---|
-> | **09** (18→30) | Lát 0 đóng · Lát 1 xong (có bảng baseline đầu tiên) |
-> | **10** | Lát 2 · Lát 3 nửa đầu |
-> | **11** | Lát 3 xong · Lát 4 · Lát 5 nửa đầu · trace Orchestrator |
-> | **12** | Lát 5 xong · Lát 6 (deploy, demo, README, bài viết) · CV |
-> | **01/2027** | Nộp đơn khi vẫn đi làm · mock interview (tiếng Anh + tiếng Việt) · 🟢 nói được |
+> | **09** (18→30) | Lát 0 đóng · Lát 1 xong (bảng baseline đầu tiên) |
+> | **10** | **🚀 DEMO LÊN MẠNG + repo public + bài viết đầu tiên** *(kéo từ tháng 12)* · Lát 2 |
+> | **11** | Lát 3 · **nộp đơn thăm dò 3-5 chỗ** *(lấy phản hồi thật, không đợi tới hạn)* · Lát 4 |
+> | **12** | Lát 5 · Lát 6 (Docker/CI, latency, README spec, port LangChain) · CV · **mock interview người thật** |
+> | **01/2027** | Nộp đơn diện rộng khi vẫn đi làm · 🟢 nói được |
+>
+> ⚠️ **Đổi 18/09:** deploy dời từ 12 lên **10**. Chuẩn Mid quốc tế mở đầu bằng *"đã ship ít nhất 1 RAG
+> cho người dùng thật"* — để demo tới tháng 12 là nộp đơn trước khi có bằng chứng đó. Repo nằm trên
+> máy thì không ai thấy độ sâu, dù nó vượt chuẩn Mid.
 
 > ## I. Nhánh song song (slot công ty 1h/ngày)
 > - **Tiếng Anh (~30') — cách làm user chốt 18/09:** user **tự viết text ra** (kể project 60 giây, câu trả lời phỏng vấn) →
@@ -160,6 +164,27 @@
 >
 > ## K. Chuẩn bị phỏng vấn — 5 vòng thật (rà 17/09 từ bộ câu hỏi phỏng vấn thật 2026)
 > Ngân hàng câu hỏi: [interview-questions.md](interview-questions.md) (mục 11-18 thêm 17/09).
+>
+> ### K0. CHỨC DANH NHẮM — chốt 18/09 sau khi rà thị trường thật
+> **Hồ sơ thật:** 2 năm fullstack (Python backend + React). **Không** có năm kinh nghiệm AI/ML.
+>
+> | Nhắm | Vì sao |
+> |---|---|
+> | ✅ **AI Backend Engineer · LLM Engineer · AI Software Engineer** | JD loại này = *dựng RAG workflow · indexing/embeddings · tích hợp LLM API vào backend (Django/FastAPI)*. **2 năm backend được tính đủ**, phần AI là phần đang xây |
+> | ❌ **AI Engineer / ML Engineer thuần** | JD đòi 3-5 năm AI/ML. 2 năm fullstack ở đây bị tính gần như 0 — đấu với người 4 năm ML là tự thua |
+>
+> **Số thật:** phân tích 43.500 tin AI engineering — phần lớn nhắm **2-6 năm**, phổ biến 4-6, nhưng **chỉ 33% tin
+> ghi yêu cầu số năm**. Portfolio ăn đứt số năm: *"xây một thứ thật mà người lạ dùng được là đủ lấy ghế mid;
+> người mất hai năm thường là người đi học thay vì đi ship"*.
+> **Lương nhắm hợp lý:** 25-35tr (Mid VN 30-45tr yêu cầu 3-5 năm; khung AI-backend đẩy bạn lên đầu trên).
+>
+> **Hai lỗ so với chuẩn Mid, phải vá bằng lát cắt chứ không bằng học thêm:**
+> 1. *"Đã ship cho người dùng thật"* → deploy tháng 10 (mục H), UI React tự làm.
+> 2. *"3-5 dự án end-to-end"* → Nyxara-core + **Orchestrator tính là dự án số 2 chính thức**, không phải nhánh phụ.
+>
+> **Từ khoá phải có trên CV** (JD Việt Nam gọi tên đích danh, thiếu là rớt vòng lọc trước khi ai nghe bạn nói):
+> `LangChain` / `LangGraph` / `LlamaIndex` · `RAGAS` · `Graph RAG` · `Qdrant` · `FastAPI` · `Docker`.
+> Cả ba cái đầu đã được cắm vào lát 1/4/6 — **không cần học thêm gì ngoài lộ trình**.
 > | Vòng | Cần gì | Đến từ đâu trong kế hoạch |
 > |---|---|---|
 > | **1. Lý thuyết** (45-90') | RAG · eval · agent · chi phí/latency · guardrails · monitoring · fine-tune · **lý thuyết LLM** | Lát 0-6 + 🟢 + ⚠️ **lý thuyết LLM (mới)** |
@@ -178,7 +203,9 @@
 > | Hành vi STAR (5-6 chuyện, lấy từ bug-log + chuyện đổi nghề) | Soạn + nói to | 01/2027 | ~4h |
 > **Tổng thêm ~53h.**
 >
-> ## L. Nyxara-Orchestrator — làn song song (chốt 17/09)
+> ## L. Nyxara-Orchestrator — **DỰ ÁN SỐ 2 CHÍNH THỨC** (nâng cấp 18/09, trước là "làn song song")
+> ⚠️ Đổi 18/09: thị trường muốn **3-5 dự án end-to-end**, bạn có 1. Orchestrator không còn là nhánh phụ —
+> nó là dự án thứ hai trong CV. Vẫn cắt đầu tiên khi ngày ngắn, nhưng **không được bỏ hẳn**.
 > - **Là sản phẩm thật, không chỉ bài thử nghiệm/benchmark** (user nói rõ 17/09). Repo: `~/My-project/Nyxara-Orchestrator`
 >   (TypeScript, agent code là chính, user định hướng + kiểm). Roadmap riêng: `docs/ROADMAP.md` của repo đó (M0 → M7 ước 23-41 tuần).
 > - **Giờ:** 1h/ngày, **nằm ngoài** 4h30 của Nyxara-core → tổng 5h30/ngày.
@@ -199,6 +226,23 @@
 >   Tối CN: 2 tuần liền Orchestrator ăn vào giờ core → hạ xuống 3 buổi/tuần.
 
 
+> ## M. RA NGOÀI — làn thứ tư, thêm 18/09 (~2h/tuần, cắt vào giờ Orchestrator khi cần)
+>
+> > **Vì sao thêm:** user nói *"phỏng vấn + project thực tế + hiểu sâu... vẫn cảm thấy chưa đủ"*.
+> > Đúng — vì cả ba đều là **chuẩn bị**. Không có cái nào khiến người ta **gọi bạn**.
+> > Ba làn kia làm bạn sẵn sàng khi chuông reo; làn này làm chuông reo.
+>
+> | Việc | Làm gì | Khi nào |
+> |---|---|---|
+> | **Repo public + README dạng spec** | Bảng số thật (BM25/dense/hybrid/+rerank so SOTA 0.8488), kiến trúc, 1 GIF demo. README **là CV kỹ thuật** | ngay khi lát 1 có số (10/2026) |
+> | **Demo URL người lạ dùng được** | UI React tối giản, 1 ô hỏi + trích dẫn Điều/Khoản | 10/2026 |
+> | **Viết bài trong lúc làm, không để cuối** | 1 bài/tháng, tiếng Việt trước (cộng đồng AI VN), bản tiếng Anh sau. Chủ đề có sẵn: *vì sao BM25 trượt `"o to"`* · *tự viết NDCG@10 rồi đối chiếu RAGAS* · *36 bug khi tự xây RAG* | từ 10/2026 |
+> | **Nộp đơn thăm dò SỚM** | 3-5 chỗ từ **11/2026**, không đợi 01/2027. Mục đích là **lấy phản hồi thật**, không phải để đậu. Rớt sớm rẻ hơn rớt muộn | 11/2026 |
+> | **Mock interview người thật** | 1-2 buổi, tiếng Việt + tiếng Anh. Claude chấm được nội dung, **không** chấm được áp lực người thật | 12/2026 |
+>
+> **Luật:** bài viết và README ăn theo việc đang làm, **không** thành mốc riêng ngốn giờ.
+> Viết về đúng thứ vừa xây xong trong tuần — nếu phải nghiên cứu thêm để viết thì chọn sai chủ đề.
+>
 ## 🎯 Tầm nhìn dự án
 
 **Nyxara Open** = AI Engineering Toolkit mã nguồn mở (Core MIT), phục vụ 3 mục tiêu cùng lúc:

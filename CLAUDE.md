@@ -17,7 +17,9 @@ Mục đích số 1 **không phải** ship nhanh. Nó là **giáo trình sống*
 tự debug được. Đích: **AI Engineer mức Mid**, nộp đơn ~01/2027 **khi vẫn đi làm**.
 Miền: **pháp luật VN** (Zalo Legal 61K điều, baseline NDCG@10 0.8488).
 
-Lộ trình: [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md) — bám **lát cắt 0→6**.
+Lộ trình: [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md) — bám **lát cắt 0→6** (mục F).
+**Chức danh nhắm = AI Backend / LLM Engineer** (mục K0), KHÔNG phải ML Engineer thuần — hồ sơ thật là
+2 năm fullstack Python+React, 0 năm AI. Làn thứ tư **RA NGOÀI** (mục M): ship demo 10/2026, nộp thăm dò 11/2026.
 Kho kiến thức 10 Phase: [phases.md](Learning-document/phases.md) (tra cứu, không đọc mỗi buổi).
 
 ---
