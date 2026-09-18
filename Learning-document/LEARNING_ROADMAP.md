@@ -712,16 +712,20 @@ sánh với chuỗi chữ thường → luôn `False` (xem [bug-log](notes/bug-l
 
 ### 2.4 Còn lại của Advanced RAG — ⏳ chưa build
 
-| # | Kỹ thuật | Học được gì | Ưu tiên | CTDLGT |
-|---|----------|------------|---------|--------|
-| 1 | **Metadata filtering** | lọc trước semantic search (dùng thật trong Comment Assistant) | 🔴 | Filter predicate tree |
-| 2 | **Query Transformation** (Multi-Query · HyDE · **Step-back**) | query↔doc space mismatch; mở rộng/nâng cấp query | 🟡 | — |
-| 3 | **Temporal / Freshness-aware** + **time-decay** | `harvested_at` → payload Qdrant → recency scoring; chunk cũ = rác dù đúng topic. **Flag niche:** tài chính/news bật gắt | 🟡 (🔴 news) | — |
-| 4 | **MMR** (Maximal Marginal Relevance) | tránh top-k gần trùng → bao phủ nhiều khía cạnh | 🟡 | Priority queue |
-| 5 | **Context Compression** + **Lost-in-the-Middle** | cắt nhiễu; LLM quên phần giữa → đặt chunk quan trọng ở đầu/cuối | 🟡 | — |
-| 6 | **Adaptive-RAG / Self-RAG** | quyết định *có nên retrieve không* ngay từ đầu (anh em ruột CRAG) | 🟡 | — |
-| 7 | **GraphRAG** (Knowledge Graph + multi-hop) | câu hỏi nối nhiều mẩu; vector thuần yếu chỗ này | 🟢 | **Graph BFS/DFS** |
-| 8 | **Multimodal RAG** | ảnh sản phẩm / bảng / PDF, transcript | 🟢 | — |
+> 🧭 **Đồng bộ 2026-09-18:** cột **Ưu tiên** dưới đây đã chỉnh lại cho khớp **bản đồ lát cắt 17/09 (mục F)** —
+> mục F là nguồn sự thật, bảng này trước đó còn giữ mức cũ. Thêm cột **Lát** để khỏi phải dò lại.
+> Thay đổi thật: **#2 Query Transformation 🟡 → 🔴** · **#6 Adaptive-RAG 🟡 → 🟢**.
+
+| # | Kỹ thuật | Học được gì | Ưu tiên | Lát | CTDLGT |
+|---|----------|------------|---------|-----|--------|
+| 1 | **Metadata filtering** | lọc trước semantic search (dùng thật trong Comment Assistant) | 🔴 | **0** | Filter predicate tree |
+| 2 | **Query Transformation** (Multi-Query · HyDE · **Step-back**) | query↔doc space mismatch; mở rộng/nâng cấp query. **Miền luật:** dân hỏi *"mở quán cà phê cần giấy gì"*, luật viết *"đăng ký kinh doanh hộ cá thể"* | 🔴 | **2** | — |
+| 3 | **Temporal / Freshness-aware** + **time-decay** | `harvested_at` → payload Qdrant → recency scoring; chunk cũ = rác dù đúng topic. **Miền luật:** gắn với trạng thái **còn/hết hiệu lực**, không chỉ là mới/cũ | 🟡 | **4** | — |
+| 4 | **MMR** (Maximal Marginal Relevance) | tránh top-k gần trùng → bao phủ nhiều khía cạnh | 🟡 | **2** | Priority queue |
+| 5 | **Context Compression** + **Lost-in-the-Middle** | cắt nhiễu; LLM quên phần giữa → đặt chunk quan trọng ở đầu/cuối | 🟡 | **3** | — |
+| 6 | **Adaptive-RAG / Self-RAG** | quyết định *có nên retrieve không* ngay từ đầu (anh em ruột CRAG) | 🟢 | — | — |
+| 7 | **GraphRAG** (Knowledge Graph + multi-hop) | câu hỏi nối nhiều mẩu; vector thuần yếu chỗ này | 🟢 | — | **Graph BFS/DFS** |
+| 8 | **Multimodal RAG** | ảnh sản phẩm / bảng / PDF, transcript | 🟢 | — | — |
 
 ### Cách học hiệu quả (code tay) cho 2.4
 - **MMR — bài CTDLGT đẹp nhất:** tự viết vòng chọn k phần tử, mỗi bước maximize
@@ -740,8 +744,10 @@ app/application/graphrag/                       # entity extract → graph → m
 ```
 
 ### Next steps
-Metadata filtering + MMR trước (🔴/🟡 dùng thật). GraphRAG/Multimodal để radar tới khi
-gặp câu hỏi multi-hop thật. **Đừng build hết rồi mới đo** — mỗi cái xong đẩy qua Phase 3.
+*(cập nhật 18/09 — theo lát cắt, không theo thứ tự bảng)* **Lát 0:** metadata filtering.
+**Lát 2:** Query Transformation (🔴) rồi MMR (🟡). **Lát 3:** compression. **Lát 4:** temporal theo hiệu lực.
+Adaptive-RAG / GraphRAG / Multimodal chỉ cần **nói được** — đọc ~1h, trả lời 3-5 câu đóng sách, không build.
+**Đừng build hết rồi mới đo** — mỗi cái xong đẩy qua Phase 3 (lát 1 dựng sẵn harness để làm đúng việc đó).
 
 ---
 
