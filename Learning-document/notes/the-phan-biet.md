@@ -357,6 +357,42 @@ cặp `[0]` ngoài cùng, ghi `["cam"]` thay vì `cam`.
 
 ---
 
+## Cặp 15 — BM25 khớp **MẶT CHỮ** ↔ dense khớp **NGHĨA**  (đảo nhãn, slot công ty 2026-09-18)
+
+**Câu nguyên văn của user:** *"BM25 là thuật toán tìm kiếm **chính xác về ngữ nghĩa**"* — ngược hẳn.
+Nguy hiểm hơn Cặp 3: Cặp 3 hỏi *"có phải model không"*, cặp này hỏi *"nó khớp theo cái gì"* — trả lời
+sai vế này thì **không giải thích nổi vì sao phải có hybrid**, mà đó là câu mở đầu của mọi vòng phỏng vấn RAG.
+
+|  | **BM25** (`BM25Index`, tự viết) | **Dense** (BGE + Qdrant) |
+|---|---|---|
+| Khớp theo | **mặt chữ** — token trùng nhau, đếm TF × IDF | **nghĩa** — khoảng cách giữa 2 vector |
+| Hỏi `"o to"`, doc ghi `"xe hoi"` | **rỗng** — không token nào trùng | trả về được, vì 2 vector gần nhau |
+| Hỏi mã lỗi `"E1042"`, tên riêng, số hiệu văn bản | **mạnh nhất** — chữ hiếm, IDF cao | dễ trượt, vector của chuỗi lạ không neo vào đâu |
+| Gõ thiếu dấu cách (`"oto"`) | rỗng — khác token là khác hẳn | vẫn còn cơ hội |
+
+**Bài đo thật (chạy `BM25Index` thật, slot công ty 18/09), kho chỉ có 1 doc `"gia xe hoi tang manh trong nam nay"`:**
+```
+A hỏi "xe hoi" : [('d1', 1.386)]
+A hỏi "o to"   : []          ← doc NÓI VỀ ĐÚNG CÁI ĐÓ, vẫn rỗng
+A hỏi "oto"    : []
+```
+
+> Mẹo nhớ: **BM25 không biết `xe hơi` với `ô tô` là một.** Nó chỉ biết đếm. Cái biết hai chữ đó
+> cùng nghĩa là **model nhúng** — và đó chính là lý do tồn tại của hybrid: một nhánh bắt **chữ**,
+> một nhánh bắt **nghĩa**, RRF trộn hai thứ đó lại.
+
+**Kèm theo, cùng bài đo — `tenant` là PHÂN VÙNG chứ không phải lọc:**
+```
+B hỏi "xe hoi" : [('d3', 0.575)]   ← d3 nội dung Y HỆT d1, nhưng A hỏi không bao giờ thấy nó
+doc_count = {'congty_A': 2, 'congty_B': 1}
+```
+`self.index[tenant_id][term][doc_id]` — tenant là **khoá ngoài cùng**, doc tenant khác không vào nổi
+vòng lặp để được chấm điểm (`bm25_index.py:51`). Hai con số `1.386` vs `0.575` tuy chữ y hệt là vì
+`doc_count` đếm **riêng từng tenant** → **IDF cũng tính riêng**. Bên Qdrant thì ngược lại: đó là
+**lọc thật**, `query_filter=filter` (`qdrant_store.py:61`).
+
+---
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
