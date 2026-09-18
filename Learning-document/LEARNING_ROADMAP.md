@@ -131,6 +131,33 @@
 > - Ngày bận biết trước (sinh nhật…) ghi sẵn là ngày nghỉ.
 > - Tối Chủ Nhật 10': đếm **lát/mốc đóng + số câu phỏng vấn đã trả lời**, so với bảng H.
 >
+> ### J2. NHỊP NGÀY — chốt 2026-09-18 (tỷ lệ: XÂY ~70% · DRILL ~20% · META ~5%)
+>
+> > Lý do: đo tối 18/09 thấy lớp META ăn ~35% giờ học. Cắt META, **không cắt giờ xây**.
+> > Drill KHÔNG thay code tay — buổi sản lượng cao nhất dự án đều là buổi ngồi xây.
+>
+> | Ca | Phút | Làm gì |
+> |---|---|---|
+> | **Sáng 1h30** *(ca quý nhất — đầu óc sạch)* | **10'** | **Vấn đáp đóng sách 2-3 câu** tới hạn. Đặt ĐẦU buổi để không bao giờ bị cắt |
+> | | **75'** | **XÂY** — code tay lõi · rà bug · nối dây. Việc lát cắt hiện hành |
+> | | **5'** | Ghi note ≤15 dòng + chỗ dừng |
+> | **Công ty 1h** *(chia ba, mỗi phần 20')* | **20'** | **Python gõ tay thuần cú pháp**, KHÔNG domain RAG — `dict`/`list`/vòng lặp/`in`/`return`. Vá lỗ đã chẩn 3 lần (28/08 · 10/09 · 18/09) mà chưa vá |
+> | | **20'** | **Vấn đáp đóng sách 3 câu** + chấm + hẹn lại (❌+2 · ⚠️+5 · ✅+14) |
+> | | **20'** | **Tiếng Anh** — pitch 4 móc đóng sách + 1 câu vặn vẹo |
+> | **Tối — bắt đầu ≤20:30, không OT** | **105'** | **XÂY**, y như ca sáng |
+> | | **15'** | Note + chốt chỗ dừng |
+> | **Tối — bắt đầu >21:00 hoặc vừa OT** | **30'** | Drill ép chọn / giảng lại bằng lời |
+> | | **15'** | Gõ ruột ngắn trên code **viết trong ngày** |
+> | | — | **HẾT 45' LÀ DỪNG, ĐI NGỦ.** Không kéo cho đủ 2h. Tối 18/09 kéo tới 23:40 = sáng hôm sau trả giá |
+>
+> **Luật kèm theo:**
+> - **Ca sáng không bao giờ dùng để drill suông** — drill là việc của ca mệt và của 10' đầu buổi.
+> - **META ≤5%**: chỉ ghi note. **Không vá luật dạy giữa buổi** — có lỗi phương pháp thì ghi 1 dòng
+>   vào note, cuối tuần mới sửa, và **sửa thì phải bỏ một luật khác** (CLAUDE.md ≤150 dòng).
+> - **Bài thiết kế ≥1 lần/tuần** (CLAUDE.md §4 loại 3) — cắm vào ca sáng, không cắm ca tối.
+> - Thứ tự cắt khi ngày ngắn (giữ nguyên từ 17/09): **Orchestrator cắt đầu tiên** → slot công ty →
+>   sáng 1h30 → **tối 2h giữ đến cùng**.
+>
 > ## K. Chuẩn bị phỏng vấn — 5 vòng thật (rà 17/09 từ bộ câu hỏi phỏng vấn thật 2026)
 > Ngân hàng câu hỏi: [interview-questions.md](interview-questions.md) (mục 11-18 thêm 17/09).
 > | Vòng | Cần gì | Đến từ đâu trong kế hoạch |

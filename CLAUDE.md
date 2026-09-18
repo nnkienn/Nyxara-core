@@ -3,9 +3,8 @@
 > Claude tự nạp file này mỗi session, trên MỌI máy. Mọi luật sống qua nhiều máy phải nằm ở đây,
 > KHÔNG nằm trong `~/.claude/` (thư mục đó gắn path tuyệt đối từng máy, không đồng bộ được).
 >
-> 🧹 **Dọn 2026-09-18:** file này từng dài 689 dòng (11 lần vá luật trong 21 ngày + 340 dòng nhật ký
-> trùng với `review-schedule.md`). Bản đầy đủ: [archive/2026-09-18-CLAUDE.md](Learning-document/archive/2026-09-18-CLAUDE.md).
-> **Luật mới: file này không được vượt ~150 dòng.** Muốn thêm luật thì phải bỏ một luật.
+> 🧹 **Dọn 18/09** (bản 689 dòng: [archive/](Learning-document/archive/2026-09-18-CLAUDE.md)).
+> **Luật: file này ≤150 dòng — muốn thêm luật thì phải bỏ một luật.**
 
 ---
 
@@ -25,11 +24,10 @@ Kho kiến thức 10 Phase: [phases.md](Learning-document/phases.md) (tra cứu,
 
 ## 2. ⚠️ LUẬT GỐC — Claude KHÔNG code hộ phần lõi
 
-**ĐƯỢC:** giải thích kỹ thuật là gì (định nghĩa, WHY, cấu trúc dữ liệu) · hỏi mớm từng bước ·
-gợi **hướng nhìn** khi user bí · đưa khung trống chữ ký hàm · sửa tài liệu.
-
-**KHÔNG:** viết sẵn code lõi cho user chép · viết ý tưởng thuật toán vào comment ·
-gợi ý sẵn chỗ đặt bug cố ý · liệt kê sẵn test case · **chỉ thẳng dòng code sai khi user đang debug**.
+**ĐƯỢC:** giải thích kỹ thuật là gì (định nghĩa, WHY, cấu trúc dữ liệu) · hỏi mớm từng bước · gợi
+**hướng nhìn** khi user bí · đưa khung trống chữ ký hàm · sửa tài liệu.
+**KHÔNG:** viết sẵn code lõi cho user chép · viết ý tưởng thuật toán vào comment · gợi ý sẵn chỗ đặt
+bug cố ý · liệt kê sẵn test case · **chỉ thẳng dòng code sai khi user đang debug**.
 
 **Ngoại lệ:** user nói rõ *"chỉ luôn đi"* / *"cho đáp án"* / *"tôi mệt, gõ hộ"*.
 
@@ -38,18 +36,14 @@ từng bước thành đúng 1 dòng Python, **giữ nguyên cả chỗ sai**. T
 Docker, CI) = Claude viết, user trace 1 lượt và giảng lại.
 **Mã giả xong KHÔNG được dừng ở đó** — user phải gõ ruột.
 
-**Đặt tên trong code:** đang hiểu (mã giả, drill đầu tiên) → tiếng Việt được.
-**Đã hiểu / gõ lại / vào `app/` → BẮT BUỘC tiếng Anh**, không ngoại lệ (repo là portfolio phỏng vấn).
-Mã giả · comment · `Learning-document/` vẫn tiếng Việt.
+**Đặt tên trong code:** đang hiểu (mã giả, drill đầu) → tiếng Việt được; **đã hiểu / gõ lại / vào `app/`
+→ BẮT BUỘC tiếng Anh** (repo là portfolio phỏng vấn). Mã giả · comment · `Learning-document/` vẫn tiếng Việt.
 
 ---
 
 ## 3. Vòng 6 bước cho mỗi kỹ thuật cốt lõi
 
-```
-1. CODE TAY   → 2. BUG CỐ Ý   → 3. DEBUG BẰNG TAY
-4. FIX        → 5. TEST       → 6. DOCUMENT
-```
+`CODE TAY → BUG CỐ Ý → DEBUG BẰNG TAY → FIX → TEST → DOCUMENT`
 Xong 6 bước mới được thay bằng thư viện chuẩn và so kết quả.
 
 ---
@@ -112,6 +106,11 @@ Mốc chia là **giờ bắt đầu + có OT hay không**, không phải "sáng/
 - **"Hôm nay chỉ ôn lại"** → chỉ làm bước (1).
 - **"Dừng ở đây"** → ghi chỗ dừng vào `review-schedule.md` trước khi kết thúc.
 
+**NHỊP NGÀY (chốt 18/09) — bảng đầy đủ ở [LEARNING_ROADMAP.md mục J2](Learning-document/LEARNING_ROADMAP.md):**
+sáng 1h30 = 10' vấn đáp + **75' XÂY** + 5' note · công ty 1h = 20' Python thuần cú pháp + 20' vấn đáp +
+20' tiếng Anh · tối ≤20:30 = **105' XÂY** + 15' note · tối >21h hoặc OT = 30' drill + 15' gõ ruột, **45' là DỪNG**.
+Tỷ lệ: **XÂY ~70% · DRILL ~20% · META ~5%**. Ca sáng không bao giờ dùng để drill suông.
+
 **Note mỗi buổi tối đa 15 dòng** (luật 18/09): drill gì · điểm · hỏng chỗ nào · mai bắt đầu từ đâu.
 Ghi trung thực buổi hỏng / hụt giờ. Note dài hơn buổi học là note sai.
 
@@ -119,13 +118,11 @@ Ghi trung thực buổi hỏng / hụt giờ. Note dài hơn buổi học là no
 
 ## 8. Ghi chú bắt buộc
 
-| File | Ghi gì |
-|---|---|
-| [notes/algorithms.md](Learning-document/notes/algorithms.md) | WHY — vì sao thuật toán đó đúng/tồn tại |
-| [notes/glossary.md](Learning-document/notes/glossary.md) | Từ mới, thuật ngữ |
-| [notes/bug-log.md](Learning-document/notes/bug-log.md) | Bug: triệu chứng → nguyên nhân → cách tìm ra → fix → pattern |
-| [notes/the-phan-biet.md](Learning-document/notes/the-phan-biet.md) | Cặp dễ lẫn + nhật ký drill ép chọn |
-| [interview-questions.md](Learning-document/interview-questions.md) | Câu phỏng vấn — **cố ý không có đáp án**. Đóng sách trả lời trước, rồi mới mở note đối chiếu. Đọc câu rồi đọc luôn đáp án là **vô ích** |
+Ghi cái gì vào sổ nào: [notes/README.md](Learning-document/notes/README.md) (bảng đầy đủ, đừng chép lại vào đây).
+Bắt buộc sau mỗi phần học xong — Claude phải nhắc. Hai chỗ hay bị quên:
+**[the-phan-biet.md](Learning-document/notes/the-phan-biet.md)** mỗi khi lẫn 2 thứ na ná nhau, và
+**[interview-questions.md](Learning-document/interview-questions.md)** — file **cố ý không có đáp án**;
+đóng sách trả lời trước rồi mới mở note đối chiếu, đọc câu rồi đọc luôn đáp án là **vô ích**.
 
 ---
 
@@ -146,13 +143,11 @@ sau `yield`** (bug #31), bỏ là CUDA OOM.
 
 ## 10. Trạng thái + đồng bộ 2 máy
 
-**Trạng thái hiện tại nằm ở [review-schedule.md](Learning-document/notes/review-schedule.md)** (chỗ dừng
-mới nhất) và bảng checklist cuối [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md).
-Không chép lại vào đây — trước 18/09 file này giữ 340 dòng nhật ký trùng lặp, đó là lý do nó phình.
+**Trạng thái hiện tại = chỗ dừng mới nhất trong [review-schedule.md](Learning-document/notes/review-schedule.md)**
++ checklist cuối [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md). **Không chép lại vào đây** —
+trước 18/09 file này giữ 340 dòng nhật ký trùng lặp, đó chính là lý do nó phình.
 
-Sống qua git: `CLAUDE.md` · `Learning-document/` · `.claude/settings.json` · code + test.
-KHÔNG qua git: `~/.claude/` · `.env` · `.venv/`.
-Đổi máy: `git add -A && git commit && git push` → máy kia `git pull`.
-
-⚠️ VS Code phải mở **đúng thư mục `nyxara-core`** làm gốc, không mở thư mục cha — `.vscode/settings.json`
-chỉ được đọc ở gốc đang mở (auto-save + tắt Copilot nằm trong đó). `.vscode/` bị gitignore → mỗi máy tự tạo.
+Qua git: `CLAUDE.md` · `Learning-document/` · `.claude/settings.json` · code + test.
+Không qua git: `~/.claude/` · `.env` · `.venv/` · `.vscode/`. Đổi máy: commit + push → máy kia `git pull`.
+⚠️ VS Code phải mở **đúng thư mục `nyxara-core`** làm gốc (không mở thư mục cha), nếu không
+`.vscode/settings.json` — nơi đặt auto-save + tắt Copilot — bị bỏ qua. Mỗi máy tự tạo file đó.
