@@ -1,0 +1,1202 @@
+# Learning Roadmap — Nyxara Open (AI Engineering Toolkit)
+
+> Tài liệu chính thức. Ghi lại **những gì đã học, file đã build, kiến thức WHY**, và
+> **bản đồ còn lại** để trở thành Senior AI Engineer qua việc xây một toolkit RAG/Agent
+> production-grade, open source (Core MIT).
+> Cập nhật mỗi khi hoàn thành một kỹ thuật mới.
+
+> # 🧭 THIẾT KẾ LẠI — 2026-09-17 (NGUỒN SỰ THẬT HIỆN HÀNH)
+> **Thay thế** các phần *DEADLINE ÉP TIẾN ĐỘ 28/08*, *RE-PLAN 10/09*, *RECALC 13/09* bên dưới — chúng giữ lại làm lịch sử.
+> Các Phase 0→9 bên dưới vẫn là **kho kiến thức**; thứ tự làm và độ sâu giờ theo mục này.
+
+> ## A. Vì sao thiết kế lại (số thật)
+> - Checkpoint 17/09: **1/4 mốc**. Mốc 1 tốn **6h30** / hộp 3h; mốc 2 đã **≥5h25** / hộp 8h mà chưa xong.
+> - Kế hoạch cũ cần ~70 mốc × ~10h ≈ **700h** trong ~20 tuần — **không khả thi từ đầu**, không phải do lười.
+> - Chậm nhất là **gõ cú pháp**, không phải logic: note 16/09 *"ruột đúng ngay lần đầu, mọi vòng đỏ là vỏ cú pháp"*.
+> - Sổ nợ giờ có lãi/trần biến mỗi sự kiện đời thường (sinh nhật, OT) thành "nợ" → nản dần.
+> - Rà thị trường (6.964 tin tuyển quốc tế + tin VN, 17/09): **chatbot RAG đã quá phổ thông**; thứ làm nổi là **số eval
+>   thật, chi phí, deploy, chiều sâu 1-2 mảng**. **Senior** (VN lẫn remote) đòi 4-5+ năm + ≥2 năm LLM production —
+>   side project **không thay được**.
+
+> ## B. Quyết định user chốt 17/09
+> | | Chốt |
+> |---|---|
+> | **Đích qua Tết** | **Bậc thang: AI Engineer mức Mid** (VN hoặc remote hợp đồng) để lấy 1-2 năm LLM production → **Senior remote ~2028** |
+> | **Hồ sơ hiện tại** | Backend/fullstack < 3 năm · công ty **không** có cơ hội làm AI · tiếng Anh nói **cơ bản** |
+> | **Nghỉ việc** | **Phỏng vấn khi vẫn đi làm**, nộp từ ~tháng 1/2027, chỉ nghỉ khi có offer |
+> | **Project chính** | **Nyxara-core miền pháp luật Việt Nam** (dữ liệu công khai, có baseline) + **Nyxara-Orchestrator** (agent + chi phí token) |
+> | **N Assistant** (`nyxara`) | **Tạm gác** — quay lại sau khi có việc AI |
+> | **Cách code** | **Cách A** (mục D). Test + nối dây: **Claude viết**, user đọc/trace — user không cần viết nhiều test |
+> | **Giờ** | Sáng **1h30** · công ty **1h** · tối **2h bắt buộc** · OT mệt → **30' trace** + Claude **phải cảnh báo** hụt giờ |
+> | **Ôn** | Câu phỏng vấn nói to + bài bảng trắng 5', hẹn lại ❌+2 · ⚠️+5 · ✅+14 ngày — bắt đầu tối 17/09 |
+> | **Nhánh song song** | Code Python thực tế · Tiếng Anh phỏng vấn · Portfolio · Orchestrator (~1h/ngày) |
+> | **Độ sâu** | **Vẫn học kỹ như cách đang làm** — vòng 6 bước cho mọi kỹ thuật 🔴, không cắt bước để kịp mốc |
+
+> ## C. Dữ liệu (đã kiểm chứng tồn tại 17/09)
+> - **Zalo AI Legal Text Retrieval** — HF `GreenNode/zalo-ai-legal-text-retrieval-vn`: **61,4K điều luật · 818 câu hỏi test có qrels**,
+>   có trong MTEB (`ZacLegalTextRetrieval`). **SOTA công khai NDCG@10 = 0.8488** → baseline để so số của mình.
+> - Văn bản gốc có metadata (loại văn bản, cơ quan, năm, hiệu lực): các bộ `vbpl` / `vietnamese-legal-documents` trên HF.
+> - ⚠️ Kiểm license từng bộ trước khi đưa lên demo công khai.
+
+> ## D. Cách học mới — "Cách A" cho lõi thuật toán
+> 1. Claude **giảng** kỹ thuật (là gì, WHY, cấu trúc dữ liệu) — như cũ.
+> 2. User viết **mã giả tiếng Việt**, từng bước — **logic 100% của user**.
+> 3. Claude **dịch nguyên văn** mỗi bước → đúng 1 dòng Python, **giữ nguyên cả chỗ sai**, không sửa logic hộ, không gợi ý thuật toán.
+> 4. User chạy (Claude chạy hộ nếu vướng thao tác) → thấy sai → **tự sửa bước mã giả** hoặc sửa thẳng dòng Python.
+> 5. Bug cố ý · debug · fix · document: **như vòng 6 bước cũ**. Test do **Claude viết**, user đọc để biết test bắt gì.
+> - **Nối dây** (adapter, API, Qdrant, Docker, CI): Claude viết, user **trace** 1 lượt + giải thích lại bằng lời.
+> - **Bảng trắng** (trong giờ ôn) giữ phản xạ tự gõ lõi mà không tốn vòng sửa dấu.
+
+> ## E. Mức độ sâu (theo đích Mid + miền pháp luật)
+> | Mức | Nghĩa | ~Giờ/mốc |
+> |---|---|---|
+> | 🔴 Sâu | Đủ vòng 6 bước + A/B trên golden set → **ra số** | ~5h *(chưa kiểm chứng — đo ở mốc đầu tiên theo cách A)* |
+> | 🟡 Nhỏ | Một bản chạy được + một phép đo | ~3h |
+> | 🟢 Nói được | Đọc ~1h + trả lời 3-5 câu phỏng vấn đóng sách | ~1h |
+
+> ## F. Lộ trình theo LÁT CẮT (mỗi lát ra một tính năng + một bảng số)
+> | Lát | Tính năng | 🔴 Sâu | 🟡 Nhỏ | Phase gốc |
+> |---|---|---|---|---|
+> | **0** | Đóng mốc 2 đang dở | Metadata filter (cây `and/or/not` → nối Qdrant **và** BM25, dùng metadata văn bản luật) | — | P2 |
+> | **1** | **Nền đo** — nạp 61K điều luật, đo baseline | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp 36 bug cũ) | Bảng BM25 / dense / hybrid / +rerank so SOTA 0.8488 | P3 #1 #4 #5 #6 |
+> | **2** | **Retrieval pháp luật** | Chunk theo cấu trúc **Điều/Khoản** (Document-based) · Query Transform (câu đời thường → ngôn ngữ luật, HyDE) · Parse văn bản (HTML/PDF) | MMR · overlap ([bug #34](notes/bug-log.md)) · Parent-Child (khớp Khoản, trả cả Điều) · Contextual (gắn tên Luật/Chương vào chunk) | P0 #4 #9 #10 #11 · P2 #2 #4 |
+> | **3** | **Trả lời có trích dẫn, không bịa** | Trích dẫn Điều/Khoản (offset, C2) · Judge tự viết + faithfulness · Từ chối "không có căn cứ" (gộp [bug #33](notes/bug-log.md)) · Chống prompt injection | Hiệu chỉnh judge vs 50 nhãn tay · Lost-in-the-Middle / compression | P3 #2 #3 #7 · P4 #5 · P5 #1 |
+> | **4** | **Hiệu lực văn bản** — không trích điều đã hết hiệu lực / bị thay thế | — | Temporal + versioning theo trạng thái hiệu lực | P2 #3 |
+> | **5** | **Agent pháp lý + MCP** | Tool calling + structured output · Supervisor nhỏ · Tracing · Đo đường đi (trajectory) · **MCP server** tra cứu luật | Memory hội thoại · HITL | P4 |
+> | **6** | **Production + portfolio** | — | Docker + CI chạy regression eval · deploy + **demo URL** · latency p50/p95 + cache + chi phí/query · README dạng spec + bảng số · bài viết tiếng Anh | P3.5 · P7 |
+> | 🟢 | **Nói được** | Fine-tune (LoRA, khi nào FT vs RAG) · Quantization · K8s · Drift · GraphRAG · Multimodal · Phase 8, 9 | | |
+
+> ### Bản đồ: 10 Phase bên dưới → thực chất học gì (thêm 17/09)
+> Các Phase **không bị xoá** — chúng là **kho kiến thức** (công thức, WHY, bug cố ý gợi ý). Thứ tự làm = lát 0→6.
+> Mỗi Phase giờ chỉ có **một phần** được học sâu; phần còn lại ở mức 🟡 hoặc 🟢. Số `#` = số dòng trong bảng của Phase đó.
+>
+> | Phase | Đã xong | 🔴 Học sâu (lát) | 🟡 Nhỏ (lát) | 🟢 Chỉ nói được |
+> |---|---|---|---|---|
+> | **0** Ingestion | #1 recursive · #6 dedup · #7 incremental | #9 Document-based theo Điều/Khoản · #11 parse văn bản *(lát 2)* | #4 Parent-Child · #10 Contextual *(lát 2)* · #8 Versioning *(lát 4)* | #2 Semantic · #3 Proposition · #5 Multi-vector |
+> | **1** Vector | ✅ toàn bộ | — | — | — |
+> | **2** Retrieval | Hybrid · RRF · Rerank · CRAG | #1 Metadata filter *(lát 0)* · #2 Query Transform *(lát 2)* | #4 MMR *(lát 2)* · #5 Compression / Lost-in-the-Middle *(lát 3)* · #3 Temporal *(lát 4)* | #6 Adaptive-RAG · #7 GraphRAG · #8 Multimodal |
+> | **3** Eval ⭐ | — | #1 Hit@k/MRR/NDCG · #4 Golden · #5 Regression · #6 A/B *(lát 1)* · #2 Judge · #3 Faithfulness *(lát 3)* | #7 Hiệu chỉnh judge *(lát 3)* · #9 Chi phí/latency *(lát 6)* | #8 Online eval · #10 Bias · #11 RAG vs long-context |
+> | **3.5** Performance | — | — | #1 Đo latency từng chặng · #6 Cache + prompt caching *(lát 6)* | #2 Payload index · #3 HNSW · #4 Quantization · #5 Budget 2 tầng · #7 Async batching · #8 Semantic cache |
+> | **4** Agent | — | #1 Supervisor · #2 Tool calling · #7 Tracing · #8 MCP · #12 Đo đường đi *(lát 5)* · #5 Từ chối *(lát 3)* | #4 Memory · #6 HITL *(lát 5)* | #3 Intent triage · #10 Routing · #11 Feedback → train · #9 Prompt craft *(luyện xuyên suốt, không thành mốc)* |
+> | **5** Safety | — | #1 Chống prompt injection *(lát 3)* | — | #2 PII · #3 Moderation · #4 Output sanitization · #5 Red-team · #6-#11 |
+> | **6** Fine-tune | — | — | — | Toàn bộ: LoRA/QLoRA · quantization · synthetic data · embedding FT |
+> | **7** MLOps | Vector delete/sync (kéo lên P0) | — | CI/CD chạy regression eval · deploy + demo URL · Load test p50/p95 *(lát 6)* | Model serving (vLLM) · LGTM · Drift · Embedding migration · Retrain · Canary |
+> | **8** Community | — | — | — | Toàn bộ (plugin registry, entry-points) |
+> | **9** SaaS Bridge | Multi-tenancy (P1) | — | — | Toàn bộ (Metering/Entitlement Port) — xét lại khi quay về N Assistant |
+>
+> **Tóm lại, học sâu thật ở 5 Phase:** **0** (phần còn lại) · **2** (phần còn lại) · **3** · **4** · **5** (một mục).
+> **3.5 và 7** học ở mức nhỏ trong lát 6. **6, 8, 9** chỉ học để nói được trong phỏng vấn.
+
+> **Tạm ước:** 🔴 ~16 × 5h = 80h · 🟡 ~11 × 3h = 33h · 🟢 ~10h · trace Orchestrator ~4h → **~120h**.
+
+> ## G. Toán thời gian tới lúc nộp đơn (~15/01/2027, ~17 tuần)
+> | | Giờ-mốc có (sáng 1h30 + tối 1h40, 5 ngày/tuần, trừ 25% OT/đời thường) |
+> |---|---|
+> | Orchestrator 1h/ngày **nằm ngoài** 4h30 | **~200h** → đủ ~120h, dư ~80h (kể cả khi 🔴 tốn 8h: ~168h, vẫn đủ) |
+> | Orchestrator 1h/ngày **trừ vào** 4h30 | **~135h** → đủ ở 5h/🔴, **thiếu** nếu 🔴 tốn 8h |
+> ✅ **User chốt 17/09: Orchestrator 1h/ngày NẰM NGOÀI** → tổng **5h30/ngày**, giờ-mốc Nyxara-core ~200h. Slot công ty 1h (tiếng Anh + câu phỏng vấn + Python thực tế) tính riêng.
+
+> ## H. Mốc theo tháng
+> | Tháng | Mục tiêu |
+> |---|---|
+> | **09** (18→30) | Lát 0 đóng · Lát 1 xong (có bảng baseline đầu tiên) |
+> | **10** | Lát 2 · Lát 3 nửa đầu |
+> | **11** | Lát 3 xong · Lát 4 · Lát 5 nửa đầu · trace Orchestrator |
+> | **12** | Lát 5 xong · Lát 6 (deploy, demo, README, bài viết) · CV |
+> | **01/2027** | Nộp đơn khi vẫn đi làm · mock interview (tiếng Anh + tiếng Việt) · 🟢 nói được |
+
+> ## I. Nhánh song song (slot công ty 1h/ngày)
+> - **Tiếng Anh (~30') — cách làm user chốt 18/09:** user **tự viết text ra** (kể project 60 giây, câu trả lời phỏng vấn) →
+>   **Claude chỉnh lại** (ngữ pháp, từ dùng sai, câu Việt-hoá, cách diễn đạt tự nhiên hơn — giữ nguyên ý của user, chỉ sửa
+>   cách nói) → user **đọc nhẩm** bản đã chỉnh cho quen miệng. Không bắt nói ngẫu hứng khi chưa có bản viết.
+> - **Python thực tế (~15-20'):** 1 bài ngắn dict/chuỗi/logic đời thường — trị thẳng lỗ cú pháp.
+> - **Câu phỏng vấn (~10-15'):** [interview-questions.md](interview-questions.md), theo lịch hẹn ❌/⚠️/✅.
+> - **Orchestrator:** agent làm, user định hướng nghiên cứu. Muốn đưa vào CV cần **số benchmark thật**
+>   (token/task thành công so với agent trực tiếp) + **user tự giảng lại được vòng Planner → Repair**.
+
+> ## J. Luật giờ mới (bỏ sổ nợ có lãi/trần)
+> - Mục tiêu mỗi ngày: sáng 1h30 · công ty 1h · tối 2h. **Không lãi, không trần.**
+> - Ngày OT mệt: **30' trace**, ưu tiên code viết trong ngày. **Claude phải nói rõ**: hôm nay hụt bao nhiêu,
+>   tuần này đã hụt bao nhiêu, ảnh hưởng mốc tháng nào — **không im lặng**.
+> - Ngày bận biết trước (sinh nhật…) ghi sẵn là ngày nghỉ.
+> - Tối Chủ Nhật 10': đếm **lát/mốc đóng + số câu phỏng vấn đã trả lời**, so với bảng H.
+>
+> ## K. Chuẩn bị phỏng vấn — 5 vòng thật (rà 17/09 từ bộ câu hỏi phỏng vấn thật 2026)
+> Ngân hàng câu hỏi: [interview-questions.md](interview-questions.md) (mục 11-18 thêm 17/09).
+> | Vòng | Cần gì | Đến từ đâu trong kế hoạch |
+> |---|---|---|
+> | **1. Lý thuyết** (45-90') | RAG · eval · agent · chi phí/latency · guardrails · monitoring · fine-tune · **lý thuyết LLM** | Lát 0-6 + 🟢 + ⚠️ **lý thuyết LLM (mới)** |
+> | **2. Code** (45-60') | Code thực tế (dict/chuỗi/retry/parse) · cosine NumPy · Python sâu (race, GIL, async) · **DSA easy/medium** | Nhánh Python thực tế · ✅ bug #29 · ⚠️ **DSA (mới)** |
+> | **3. System design AI** (60') | Làm rõ yêu cầu → kiến trúc → đi sâu 1 khối → đánh đổi, điểm hỏng · ước chi phí | ⚠️ **Luyện nói (mới)** |
+> | **4. Trình bày project** (30-60') | Vì sao chọn · cái gì hỏng · debug thế nào · con số · làm lại đổi gì · 60 giây · tiếng Anh | ✅ bug-log 36 bug + bảng số lát 1-6 · ⚠️ **kịch bản (mới)** |
+> | **5. Hành vi** (30-60') | 5-6 câu chuyện STAR: thử thách kỹ thuật, việc mơ hồ, vì sao sang AI | ⚠️ **Mới** |
+>
+> **5 việc bổ sung** — gần hết nằm trong **slot công ty 1h/ngày** (~85h/17 tuần), không ăn giờ lát cắt:
+> | Việc | Làm thế nào | Khi nào | ~Giờ |
+> |---|---|---|---|
+> | Lý thuyết LLM (transformer, attention, KV cache, tokenization, temperature/top-p, context window) | 🟢 đọc + trả lời mục 11 ngân hàng câu hỏi | 10 → 11/2026 | ~8h |
+> | DSA cơ bản (hash map, sort, two pointers, stack/queue) | 1 bài easy/medium/ngày, **thay phiên** với bài Python thực tế | từ 11/2026 | ~25h |
+> | System design nói | 1 đề/tuần: tự nói 45' → Claude chấm theo 4 bước | 12/2026 → 01/2027 | ~10h |
+> | Trình bày project (60 giây + bản 30' hỏi dồn), tiếng Việt + tiếng Anh | Soạn khung từ tháng 11, hoàn thiện sau lát 6, tự ghi âm | 11/2026 → 01/2027 | ~6h |
+> | Hành vi STAR (5-6 chuyện, lấy từ bug-log + chuyện đổi nghề) | Soạn + nói to | 01/2027 | ~4h |
+> **Tổng thêm ~53h.**
+>
+> ## L. Nyxara-Orchestrator — làn song song (chốt 17/09)
+> - **Là sản phẩm thật, không chỉ bài thử nghiệm/benchmark** (user nói rõ 17/09). Repo: `~/My-project/Nyxara-Orchestrator`
+>   (TypeScript, agent code là chính, user định hướng + kiểm). Roadmap riêng: `docs/ROADMAP.md` của repo đó (M0 → M7 ước 23-41 tuần).
+> - **Giờ:** 1h/ngày, **nằm ngoài** 4h30 của Nyxara-core → tổng 5h30/ngày.
+> - **Luật Nyxara-core (Cách A, không code hộ) KHÔNG áp cho repo này** — ở đó agent code.
+>
+> | Thời gian | Orchestrator | Ra được gì |
+> |---|---|---|
+> | **09-10/2026** | M0 Baseline (tái hiện lỗi task lớn, chụp số N0) → M1 Đo lường (một lệnh so D1 agent trực tiếp vs N0) · **user trace + giảng lại được kiến trúc và harness benchmark (~4h)** | Bảng số đầu tiên |
+> | **11-12/2026** | M2 — lát đầu (ngân sách theo model sau feature flag) → so D1 / N0 / N1 | Token cho mỗi task thành công, số thật |
+> | **01-02/2027** | Chuẩn bị phát hành: chọn license (roadmap repo gợi ý Apache-2.0) · `SECURITY.md` + giải thích quyền ghi file/chạy lệnh · quickstart · CI kiểm VSIX · README chỉ ghi số đã đo | Đưa vào CV lúc phỏng vấn: repo + số benchmark + *"Marketplace preview Q1/2027"* |
+> | **03/2027** | **Preview trên VS Code Marketplace** | Link Marketplace |
+> | Sau đó | M3 → M7 | |
+>
+> - **Cộng hưởng không tốn giờ:** kỷ luật đo học bằng tay ở lát 1 Nyxara-core (golden, A/B một biến, regression) = kỷ luật M1 cần.
+> - **Chưa nối kỹ thuật core ↔ Orchestrator** (vd MCP) trước Tết — khác ngôn ngữ, tốn giờ; xét lại cùng M5.
+> - **Kể trong phỏng vấn:** *"tôi thiết kế nghiên cứu + benchmark + kiến trúc, dùng AI agent để code, tự kiểm chứng bằng số"* — chỉ nói được khi đã trace ở mốc 09-10.
+> - ✅ **Luật ưu tiên khi ngày ngắn — user chốt 17/09:** tối 2h core → sáng 1h30 → slot công ty → **Orchestrator cắt đầu tiên, không tính hụt**.
+>   Tối CN: 2 tuần liền Orchestrator ăn vào giờ core → hạ xuống 3 buổi/tuần.
+
+> ## 🔁 RESET — 2026-07-13
+> Đã **xóa sạch** code cũ (harvester + toàn bộ bộ não RAG + 74 test) và bắt đầu lại từ đầu:
+> giữ Docker + khung hexagonal rỗng, code lại từng phase theo **vòng 6 bước** (tự tay + tự hiểu).
+> **Kiến thức/công thức bên dưới GIỮ LẠI** (đã học rồi) — nhưng mọi trạng thái ✅ cũ đã về ⏳:
+> phải **build lại bằng tay**, KHÔNG copy từ git history (`817d2d1` chỉ để tham khảo khi bí).
+> Notes học kèm: [notes/](notes/) — design-system · algorithms · glossary · bug-log.
+
+> ## 🎯 DEADLINE ÉP TIẾN ĐỘ — chốt 2026-08-28, cập nhật 2026-08-28 (deadline thật, không phải tự đặt suông)
+> **Bối cảnh thật:** qua Tết (~đầu 2027) sẽ **nghỉ việc, đi phỏng vấn Senior AI Engineer thật**.
+> Không phải deadline tự tưởng tượng — đây là mốc đời thật.
+> - **Hạn xong nội dung (code tay đủ 6 bước, mọi phase):** 2026-12-31, được phép trễ tối đa
+>   tới **2027-01-30** nếu cần (buffer 30 ngày).
+> - Sau đó tới Tết: **không học kỹ thuật mới nữa** — dành riêng cho ôn phỏng vấn (mock interview,
+>   ôn lại toàn bộ bằng "giảng lại", trau chuốt README/portfolio).
+> - Quyết định của user: **không cắt kỹ thuật nào**, giữ nguyên vòng 6 bước. Cam kết thời gian:
+>   **3-4 tiếng/ngày, mỗi ngày**.
+>
+> **Toán thật (đừng ảo tưởng, đừng nản — cả 2 đều hại tiến độ):** ~68-70 cột mốc lớn còn lại
+> (đếm đúng theo tag 🛠️ + 🔴/🟡 đã có sẵn trong roadmap này, loại phần tự nhận 🟢/📡 = "biết
+> để sau"). 125 ngày × 3.5h ≈ 437h khả dụng. ~6h/cột mốc trung bình (nhiều cái 3-4h, vài cái
+> nặng — golden dataset, observability stack, LoRA — tốn 12-16h) → cần ~400-420h. **Vừa khít**,
+> gần như không có buffer cho nghỉ dài. 1 tuần nghỉ (đã xảy ra 1 lần, 2026-08-2x) = mất ~24h =
+> ~4 cột mốc — dồn áp lực thẳng sang tháng sau. Đây là rủi ro thật số 1, không phải phương pháp.
+>
+> **Ranh giới đã có sẵn trong kiến trúc (không phải cắt mới):** Phase 9 (SaaS Bridge) — phần
+> Port (`MeteringPort`, `EntitlementPort`, adapter rỗng) thuộc `nyxara-core`, tính vào hạn này.
+> Phần triển khai cloud thật (wallet hold/settle, Stripe adapter, dashboard) sống ở repo khác
+> (`nyxara-cloud`) theo đúng "Ranh giới Core ↔ Cloud" — nằm ngoài hạn 31/12 của repo này.
+>
+> **Mốc theo tháng (track thật, lệch quá 3-4 ngày → phải ngồi lại re-plan, đừng để trôi âm thầm):**
+> | Tháng | Mục tiêu | Cột mốc (~) |
+> |---|---|---|
+> | **09/2026** | Đóng hẳn Phase 0 (Trạm 2-4 trace ✅ trừ 4d, ~~fix bug #25~~ ✅ 06/09, fix bug #29, nối `split_by_separators`, Document-based/Semantic/Contextual/Parent-Child/Versioning) + Phase 2.4 (Metadata filter, Query Transform, Temporal, MMR, Compression, Adaptive-RAG) | **14** *(đếm lại 10/09 — còn 12)* |
+> | **10/2026** | Phase 3 Eval trọn vẹn (retrieval metrics → golden dataset → custom judge/RAGAS → regression → A/B harness → cost metrics → calibration → online eval) — phase nặng nhất, ưu tiên tuyệt đối, không để trôi sang 11 | ~10 |
+> | **11/2026** | Phase 3.5 Performance (7) + Phase 4 Agent (10) | ~17 |
+> | **12/2026** | Phase 5 Safety (10) + Phase 6 Fine-tune (4, cần GPU) + Phase 7 MLOps (7, infra nặng) + Phase 8 Plugin/Docs (6) + Phase 9 Port core (2-3) | ~29-30 |
+>
+> Tháng 12 đang nặng nhất trên giấy — nếu tháng 9-10 xong sớm, kéo bớt Phase 5 hoặc 3.5 lên
+> sớm hơn để giảm dồn cục cuối năm.
+>
+> ### 🧮 RE-PLAN 2026-09-10 (mốc tự kiểm — số thật, không khen)
+> **Vì sao phải re-plan:** tới 10/09 tháng 9 mới xong 2 mốc (y như 06/09); 4 ngày 07→10/09 không đóng
+> mốc nào; lệch ~5-6 ngày so với tiến độ đều → vượt ngưỡng "lệch 3-4 ngày". Số chi tiết:
+> [CLAUDE.md §6 — MỐC TỰ KIỂM 2026-09-10](../CLAUDE.md). Làm ngay tối 10/09 theo yêu cầu user.
+>
+> **Đếm lại mốc tháng 9:** hàng tháng 9 ghi "~13" nhưng liệt kê ra 14 mục → **còn 12, không phải 11**:
+> nối `split_by_separators` (= đóng recursive chunker) · Document-based · Semantic · Contextual ·
+> Parent-Child · Versioning · Metadata filter · Query Transform · Temporal · MMR · Compression · Adaptive-RAG.
+> ⚠️ **Document parsing (Phase 0 #11, thêm 06/09) chưa nằm trong tháng nào** → 1 mốc chưa xếp lịch.
+> Cùng ngày 06/09 còn thêm Phase 3 #11 và Phase 4 #12 → cả năm giờ còn **~70 mốc** (±2), không phải 68.
+>
+> **Toán cả năm từ 11/09** (112 ngày tới 31/12 · Tết Đinh Mùi = **06/02/2027**):
+> cần ~70 × 6h + nợ 4h25 ≈ **424h** (±2 mốc = ±12h ≈ ±4 ngày).
+>
+> | Nhịp giữ được | Xong nội dung | Thời gian ôn phỏng vấn trước Tết |
+> |---|---|---|
+> | **Nhịp thật 03→10/09: 2h27/ngày** | ~03/03/2027 | ❌ **không kịp** — xong sau Tết ~3.5 tuần |
+> | Sàn 3h mọi ngày | ~30/01/2027 | ⚠️ **đúng ngày hạn trễ tối đa 30/01** → **~1 tuần** |
+> | **3h ngày thường + 6h T7/CN** (TB 3.86h/ngày) | ~30/12/2026 | ✅ đúng hạn 31/12 → **~5.5 tuần** |
+>
+> → **Kết luận thẳng:** ở nhịp hiện tại **không kịp Tết**. Kịp **chỉ khi** giữ 3h/6h liên tục ~16 tuần,
+> không nghỉ dài, **và** giả định ~6h/mốc đứng vững — giả định này **chưa được kiểm chứng** (recursive
+> chunker, một mốc dễ, đã ngốn ~3h mà còn ~3h việc).
+>
+> **Kế hoạch tháng 9 — 12 mốc / 20 ngày (11→30/09):**
+> - **Giờ:** Thứ Hai→Thứ Sáu ≥3h · Thứ Bảy, Chủ Nhật 6h — ✅ **user chốt 10/09**. Sức chứa 14×3 + 6×6 = **78h**.
+> - **Chi phí cố định:** mỗi ngày 10' drill nền + 20' ôn (= 3h20 + 6h40) · trả nợ 4h25 ≈ 45' mỗi ngày cuối
+>   tuần → còn **~63.5h cho mốc** (ngày thường 2h30 · cuối tuần 4h45).
+> - **Hộp giờ cứng:** phần còn lại của recursive chunker ~3h · Metadata filter 🔴 **8h** · mỗi mốc 🟡 **5h**.
+>   Tổng 3 + 8 + 10×5 = **61h** → dư **~2.5h cho cả tháng**. Hết hộp = **dừng**, ghi phần dở thành nợ
+>   trong roadmap, sang mốc kế. **Không gia hạn.**
+> - **Thứ tự:** 🔴 và mốc roadmap ghi "BẮT ĐẦU TẠI ĐÂY" lên trước; mốc giá trị thấp nhất xuống cuối để nếu
+>   trượt thì trượt vào đó.
+>
+> | # | Mốc | Hộp giờ | Dự kiến đóng |
+> |---|---|---|---|
+> | 1 | Đóng recursive chunker + nối `/ingest` | ~3h | 12/09 |
+> | 2 | Metadata filtering 🔴 | 8h | 13/09 |
+> | 3 | Document-based chunking | 5h | 15/09 |
+> | 4 | MMR | 5h | 17/09 |
+> | — | **🔍 CHECKPOINT 17/09 — phải đóng đủ 4 mốc** | | |
+> | 5 | Parent-Child retrieval | 5h | 19/09 |
+> | 6 | Query Transformation (Multi-Query · HyDE · Step-back) | 5h | 20/09 |
+> | 7 | Contextual Retrieval | 5h | 21/09 |
+> | 8 | Semantic chunking | 5h | 23/09 |
+> | — | **🔍 CHECKPOINT 24/09 — phải đóng đủ 8 mốc** | | |
+> | 9 | Context Compression + Lost-in-the-Middle | 5h | 25/09 |
+> | 10 | Adaptive-RAG / Self-RAG | 5h | 26/09 |
+> | 11 | Temporal / Freshness | 5h | 27/09 |
+> | 12 | Versioning | 5h | 29/09 |
+> | — | 30/09: ~2.5h dư + re-plan tháng 10 | | |
+>
+> **Luật chặn đúng những chỗ đã ăn giờ tuần 07→10/09:**
+> 1. **Không còn "ngày vá nền" đứng riêng.** Nền Python vá bằng 10' drill đầu buổi + chính phần code tay của
+>    mốc. (Ngày B 10/09 cho ra hiểu biết thật nhưng **0 mốc**.)
+> 2. **Bug gặp dọc đường → bug-log, không fix**, trừ khi chặn mốc đang làm (luật tiến độ 07/09 mục 2).
+> 3. **Không mở bài trace trạm cũ.** Chỉ trace kỹ thuật vừa làm (§3.8), và **nằm trong** hộp giờ của mốc.
+> 4. **Ôn cách quãng tối đa 20'/ngày**, gồm cả 4 món code-tay-lại đang nợ (~15'/món, trả dần).
+> 5. **Buổi bắt đầu sau 21h / sau OT** (CLAUDE.md §3.9) vẫn tính giờ nhưng không đẩy được mốc → giờ-mốc hụt
+>    phải bù vào T7/CN. ⚠️ Cuối tuần 6h **đồng thời** là đệm OT: **OT ăn quá ~2.5h giờ-mốc cả tháng thì
+>    12/12 không đạt.**
+>
+> **Kiểm chứng giả định "đầu tháng vá nền thì về sau nhanh lên" — phải đo, không tin:**
+> ghi giờ-mốc thật của Metadata filter · Document-based · MMR. Tại checkpoint 17/09 nếu mốc 🟡 trung bình
+> **> 6h** → giả định 6h/mốc sai → toán cả năm sai → **dừng lại, cùng user quyết lại phạm vi**.
+>
+> **Phương án B — ✅ USER CHỐT 10/09. Chỉ bật khi trượt checkpoint:**
+> - 17/09 đóng **< 4 mốc**, hoặc 24/09 **< 8 mốc** → dời mốc **từ đuôi lên** sang đầu tháng 10, theo thứ
+>   tự **Versioning → Temporal → Adaptive-RAG**.
+> - ⚠️ **B không giảm tổng khối lượng.** Mỗi mốc dời = +5h đè lên tháng 10 (Eval — phase nặng nhất, luật
+>   "không để trôi sang 11"). B chỉ dời chỗ đau. Cần gạt thật chỉ có hai: **giờ học** và **giờ/mốc**.
+> - Cắt độ sâu (bỏ bước trong vòng 6 bước cho mốc 🟡) trái quyết định 28/08 "không cắt kỹ thuật, giữ vòng
+>   6 bước" → **chỉ user được quyết**, Claude không tự làm.
+
+> ### 🧮 RECALC 13/09 00:30 — ✅ USER CHỐT bật phương án B (mức 1: dời **Versioning**)
+> **Vì sao:** T7 12/09 đi làm → mất trọn ngày 6h, buổi mở 23:13 chỉ được ~1h và **0 giờ-mốc**.
+> Nợ giờ ≈ **7h59 → vượt trần 6h lần đầu**. CN 13/09 user chỉ học được **5h** (7-8h sáng · 13-17h chiều,
+> đi câu cá giữa ngày) → dưới sàn cuối tuần 6h, nợ nhích lên ≈ **8h59**. Mốc 1 **quá hạn** (hạn 12/09).
+> Luật trần nợ (cấm kỹ thuật mới 1 buổi để re-plan) được thực hiện bằng recalc này thay vì đốt cả buổi CN —
+> bản re-plan 10/09 mới 3 ngày tuổi, đốt 1 buổi 6h để viết lại chính là thứ luật 10/09 vừa cấm.
+>
+> **Toán lại 13→30/09** (13 ngày thường × 2h30 + 4 ngày cuối tuần × 4h45 + CN 13/09 4h30):
+>
+> | | giờ-mốc |
+> |---|---|
+> | Có | **56h** |
+> | Cần (11 mốc — đã dời Versioning): mốc 1 còn 2h30 + Metadata 8h + 9 × 5h | **55h30** |
+> | Thiếu — nếu nợ ~9h trừ vào giờ-mốc (cách tính của bản 10/09) | **−8h30** |
+> | Thiếu — nếu giờ trả nợ vẫn đẩy được mốc | **+30' (vừa khít)** |
+>
+> ⚠️ **Hai cách tính lệch nhau 9h = gần 2 mốc.** Chênh này nằm ở một giả định chưa bao giờ nói rõ: giờ
+> trả nợ có **đẩy mốc** được không, hay chỉ bù cho giờ ôn/drill đã ăn mất. Không đoán — **đo ở 17/09**.
+>
+> **Quyết định hôm nay:** dời **Versioning** → đầu tháng 10 (mức 1 của phương án B, user đã chốt 10/09).
+> Tháng 9 còn **11 mốc**. Hai mốc kế tiếp trong hàng đợi dời — **Temporal** rồi **Adaptive-RAG** — chỉ dời
+> tại checkpoint 17/09, căn cứ **giờ-mốc thật** của Metadata filter · Document-based · MMR:
+> - 🟡 trung bình ≤ 5h → giữ nguyên 11 mốc.
+> - 🟡 trung bình ~6h → dời thêm **Temporal** (còn thiếu ~3h30).
+> - 🟡 trung bình > 6h → dời thêm **Temporal + Adaptive-RAG** (dư ~1h30) **và** giả định 6h/mốc của toán
+>   cả năm sai → dừng, quyết lại phạm vi cùng user (đúng luật đã ghi ở bản 10/09).
+>
+> **Hệ quả phải nói thẳng:** mỗi mốc dời là +5h đè lên tháng 10 (Eval — phase nặng nhất). Phương án B
+> **không giảm khối lượng**, chỉ dời chỗ đau. Hai gạt thật vẫn chỉ có: **giờ học/ngày** và **giờ/mốc**.
+
+> ### ✅ MỐC 1 ĐÓNG — 2026-09-13 22:33 (trễ 1 ngày so với hạn 12/09)
+> `recursive_chunk` = `split_by_separators` (giữ separator) + `merge_pieces`, **đã nối vào `/ingest`**.
+> Suite **76 passed** (71 + 5 test mới). Chi tiết buổi: [review-schedule.md § buổi 13/09](notes/review-schedule.md).
+> - **B5 giữ separator:** user chọn **phương án C** (`re.split` bắt nhóm) thay vì B — đắt hơn nhưng là cách
+>   thư viện thật làm, và mở đường cho offset. **C1 xong**; **C2 (offset để trích dẫn ngược) = MỐC MỚI, chưa xếp lịch** —
+>   dự kiến ~3-4h, đi cùng Metadata filtering vì offset cũng là một loại metadata của chunk.
+> - **B6 overlap: nợ có chủ ý** → [bug #34](notes/bug-log.md). `/ingest` vẫn nhận `chunk_overlap` nhưng chưa dùng.
+> - **Giờ-mốc thực tế của mốc 1: ~6h30** (07/09 ~2h · 11/09 ~30' · 13/09 ~4h) so với hộp **3h** → **vượt hơn gấp đôi**.
+>   ⚠️ Đây là **điểm dữ liệu đầu tiên** kiểm chứng giả định "6h/mốc": một mốc được xếp loại *dễ* đã ngốn 6h30.
+>   Giữ số này để so tại checkpoint 17/09 với Metadata filter (🔴, hộp 8h).
+> - **Tổng tháng 9: 3/12 mốc** (mốc 1 + 2 mốc đã đóng từ 06/09). Tiếp theo: **mốc 2 Metadata filtering 🔴**, mở sáng 14/09.
+
+---
+
+## 🎯 Tầm nhìn dự án
+
+**Nyxara Open** = AI Engineering Toolkit mã nguồn mở (Core MIT), phục vụ 3 mục tiêu cùng lúc:
+
+1. **Giáo trình sống** — học *đủ* mọi kỹ thuật RAG / Agent / MLOps hiện đại, không bỏ sót,
+   để có **phán đoán** chọn đúng cái đáng dùng.
+2. **Sản phẩm cộng đồng** — Core niche-agnostic, fork được, dùng thật.
+3. **Nền SaaS kiếm tiền** — lớp cloud bọc ngoài (billing, metering, entitlement) *không* đụng bộ não AI.
+
+Đích cá nhân: **pass phỏng vấn Senior AI Engineer**. Muốn vậy phải chứng minh được
+2 thứ mà mọi thư viện che mất: **tự implement được lõi** và **debug được khi nó hỏng**.
+
+---
+
+## 🧭 Phương pháp học (Senior mindset)
+
+> **Bối cảnh 2026:** AI gõ boilerplate hộ bạn. Giá trị còn lại của một kỹ sư là
+> **đọc-hiểu flow sâu + soi bug** (AI cũng viết bug như `>= 0` lẽ ra `>= 0.5`).
+> ❌ BỎ "nhớ hết code rồi gõ lại từ trí nhớ" — vô nghĩa. ✅ Hiểu để soi AI đúng/sai.
+
+**⚠️ Luật thép (không thương lượng):**
+> **Không code tay giỏi + không debug tốt → KHÔNG pass phỏng vấn Senior, và dự án
+> open source SẼ THẤT BẠI.** Contributor bỏ đi khi lõi là hộp đen không ai hiểu.
+> Vì vậy: **mọi kỹ thuật cốt lõi phải tự implement TRƯỚC khi cho phép dùng thư viện.**
+
+### 4 nguyên tắc gốc
+1. **Không pass, không hiểu → không đi tiếp.** Sai thì ở lại, giải thích, hỏi lại tới khi rõ.
+2. **Học = XÂY.** Mỗi kỹ thuật phải chạm tay vào code chạy được — không chỉ đọc hiểu.
+3. **Kỹ thuật là flag, mặc định TẮT.** Học ≠ phải bật. Eval mới quyết cái nào đáng bật.
+4. **Ghi WHY ngay** vào [notes/algorithms.md](notes/algorithms.md) + từ mới vào [notes/glossary.md](notes/glossary.md) — mỗi bước.
+5. **(mới, 2026-08-28) Đọng lại thật, không chỉ xây xong.** Xây được ≠ nhớ lâu — cần tự nhớ lại
+   không gợi ý (retrieval practice) + lặp lại cách quãng (spaced repetition). Chi tiết ở mục
+   "🧠 Phương pháp học 2.0" ngay dưới.
+
+### 🧠 Phương pháp học 2.0 — lớp đọng lại (thêm 2026-08-28)
+
+> **Vì sao có mục này:** sau 6.5 tuần (Phase 0→2.3), sản phẩm thật (66 test, note dài) nhưng
+> user tự nhận **đọng lại yếu** — hỏi lại là quên, code cũ mở ra không chắc còn hiểu. Gốc rễ:
+> thiếu lớp củng cố, và cách hỏi-đáp cũ (hint-chain quá vụn) vừa chậm vừa không test được hiểu
+> thật. Vòng 6 bước + code tay + Socratic **vẫn giữ nguyên** (không phải nguyên nhân) — thêm
+> đúng 2 lớp còn thiếu, không thay thế gì đã có.
+
+**a. Full-attempt trước, sửa 1 lần sau (bỏ hint-chain vụn).**
+Khi hỏi-đáp (kể cả trace-exercise §3.5 hay quiz active-recall): đưa **1 câu hỏi/tình huống đầy
+đủ**, không chẻ nhỏ thành nhiều câu con liên tiếp. User tự làm hết khả năng trước — kể cả
+sai/thiếu — Claude mới phản hồi **1 lần**, chỉ hết chỗ sai/thiếu cùng lúc. Chỉ hỏi lại từng
+mảnh nhỏ khi câu trả lời đầu quá lệch, không dùng làm mặc định.
+
+**b. Chốt hiểu bằng "giảng lại" (teach-back), không phải trả lời đúng/sai.**
+Cuối mỗi kỹ thuật (bước DOCUMENT của vòng 6 bước): đóng hết code/note, user **tự giảng lại
+nguyên lý/WHY bằng lời mình** như đang dạy người khác — KHÔNG phải chép code từ trí nhớ (giữ
+đúng luật cũ: nhớ hết code vô nghĩa, giá trị là hiểu để soi bug). Claude chỉ nghe, chỉ ra lỗ
+hổng trong lời giảng.
+
+**c. Code-tay-lại — chỉ phần lõi thuật toán, không phải cả file.**
+Riêng cho phần **đã được đánh dấu "code tay" lúc xây lần đầu** (công thức/vòng lặp cốt lõi —
+vd BM25 scoring, RRF merge, `diff_manifest` 3 nhánh, CRAG `decide()`, MMR selection — KHÔNG
+phải class/wiring/plumbing đã miễn code-tay từ đầu): trong buổi ôn cách quãng (mục d), dành
+10-15 phút viết lại đúng **logic/công thức** từ trí nhớ (không cần đúng tên biến), rồi so với
+file thật để tự thấy lệch chỗ nào. Đây là lớp bổ sung cho (b) — (b) test WHY, (c) test phản xạ
+tay/cú pháp (điểm yếu thật đã lộ ra ngày 2026-08-28, xem [notes/bug-log.md](notes/bug-log.md)
+nếu có ghi, hoặc phiên làm việc 2026-08-28).
+
+**d. Spaced repetition có lịch — file [notes/review-schedule.md](notes/review-schedule.md).**
+Mỗi kỹ thuật xong (qua được checkpoint (e)) → xếp lịch ôn lại ở +1 / +3 / +7 / +14 ngày. Đầu
+mỗi buổi, TRƯỚC khi học mới: check file này, nếu có mục tới hạn hôm nay → làm nhanh (b) giảng
+lại (mọi mục) + (c) code-tay-lại (chỉ mục tới hạn +7/+14, không phải mục nào cũng cần).
+
+**e. Checkpoint đóng-sách trước khi qua kỹ thuật/phase mới.**
+Không chuyển sang kỹ thuật tiếp theo nếu (b) giảng lại chưa trôi chảy — siết đúng nguyên tắc
+gốc #1 ở trên, chỉ thêm tiêu chí kiểm tra rõ ràng (giảng lại được = qua, ấp úng/thiếu mảng lớn
+= chưa qua, quay lại củng cố). Thà chậm 1 ngày còn hơn xây phase sau trên nền rỗng.
+
+**f. (vá 2026-09-01, ngay sau lần đầu áp dụng — thất bại thật, ghi lại để không lặp lại.)**
+Buổi đầu tiên áp dụng Method 2.0 (Trạm 2 của bài trace) vẫn dồn quá nhiều: nhảy qua 3 file
+(`hybrid_retriever.py` → `reranking_retriever.py` → `node.py`) trong 1 câu hỏi, không giải
+thích trước bối cảnh — user báo thẳng "không hiểu gì hết". Luật: trong 1 buổi chỉ mở **1
+file/1 khái niệm** tại 1 thời điểm; LUÔN giải thích bằng lời (khái niệm, vì sao hỏi cái này)
+**trước** khi đưa câu hỏi full-attempt (mục a) — kể cả câu hỏi "đầy đủ" cũng phải đủ ngữ cảnh
+để hiểu đang được hỏi gì, không phải chỉ đủ dữ kiện để trả lời đúng. "Đầy đủ" ở mục (a) nghĩa
+là đầy đủ 1 đơn vị hỏi (không chẻ vụn), KHÔNG phải gộp nhiều đơn vị/nhiều file thành 1 câu.
+
+### 🔨 Vòng 6 bước cho MỖI kỹ thuật cốt lõi (bắt buộc)
+```
+1. CODE TAY        ← tự viết lõi từ đầu (naive OK), KHÔNG import thư viện làm hộ
+2. BUG CỐ Ý        ← tự phá 1 chỗ (off-by-one, sai dấu, quên normalize, thiếu await)
+3. DEBUG BẰNG TAY  ← đọc trace, in số thật, tự tìm ra chỗ hỏng — KHÔNG hỏi AI ngay
+4. FIX             ← sửa, giải thích tại sao bug đó gây sai kết quả gì
+5. TEST            ← viết test bắt đúng ca bug vừa rồi (regression) + happy path
+6. DOCUMENT        ← WHY vào notes/algorithms.md · từ mới vào notes/glossary.md · bug vào notes/bug-log.md
+```
+> Sau khi PASS 6 bước → *mới* được thay bằng thư viện chuẩn (FlagEmbedding, rank-bm25…)
+> và so kết quả với bản tay. Thư viện là để **production**, bản tay là để **hiểu**.
+
+### 🧮 CTDLGT phải luyện song song (không tách rời)
+Mỗi kỹ thuật RAG là một bài CTDLGT trá hình — gọi tên hẳn ra để luyện có chủ đích:
+
+| Cấu trúc / thuật toán | Xuất hiện ở kỹ thuật nào |
+|---|---|
+| **Hash map / inverted index** | BM25 (term → posting list), dedup |
+| **Priority Queue / Heap** | top-k retrieval, MMR (chọn k phần tử tốt nhất) |
+| **Sliding Window** | chunking, context-window budgeting |
+| **Trie / prefix tree** | tokenizer, autocomplete, PII pattern matching |
+| **Graph (BFS/DFS, topo-sort)** | LangGraph state machine, GraphRAG multi-hop |
+| **Dynamic Programming** | edit distance (dedup near-duplicate), LCS |
+| **Set / Bloom filter** | dedup ở scale lớn, seen-check incremental ingest |
+| **Two-pointer / merge** | RRF (merge N ranked lists) |
+
+### Vòng chạy-sửa + 2 lớp lưới (luôn đúng)
+```
+viết/sửa → chạy → lỗi (còn gợi ý) → sửa → chạy lại → xanh → TEST vài ca
+```
+| Lỗi cú pháp | Lỗi logic |
+|---|---|
+| **Chạy** bắt (Python chỉ `^`) | **Test** bắt (gọi thử, so kết quả) — mắt người không bắt nổi |
+
+→ Không cần gõ đúng phát đầu. Senior cũng sửa 5 lần/30s. **Quen loop = kỹ năng thật.**
+
+**Nhịp:** 1 hàm nhỏ / ngày (code tay → soi → sửa → test) > đọc 5 file.
+
+---
+
+## 🏛️ Ranh giới Core ↔ Cloud (SaaS)
+
+> **2 lớp tách bạch — không trộn.** SaaS *thêm* lớp ngoài, không *thay* gì bên trong core.
+
+| | `nyxara-core` (repo này, MIT) | `nyxara-cloud` (lớp SaaS) |
+|---|---|---|
+| Vai trò | **Bộ não AI** — RAG, CRAG, agent, fine-tune, eval | **Vỏ thương mại** — bán được |
+| Chứa | Toàn bộ lộ trình AI engineer, niche-agnostic | auth, billing, account, dashboard, API gateway, metering |
+| `tenant_id` | **namespace** (kho của 1 niche) | **customer** (map account → namespace) |
+| Quan hệ | *bị gọi* — phơi API | *gọi vào* API của core |
+| License | MIT, fork tự do | đóng được, thương mại |
+
+**Cầu nối:** 1 *customer* (cloud) → ánh xạ thành 1 *tenant_id namespace* (core).
+Core không biết tới tiền/account; cloud không chứa logic AI.
+
+**CI enforce constitution:** reject `import stripe` / auth / billing trong core.
+Core phơi **Port** (interface), cloud cắm **Adapter** — ví dụ `EntitlementPort`, `MeteringPort`.
+
+**Vì sao tách:** (1) core sạch → học không nhiễu, fork được; (2) đổi mô hình kinh doanh
+không đụng bộ não; (3) "mọi lĩnh vực" = core niche-agnostic sẵn, cloud chỉ onboard theo niche.
+
+---
+
+# 📚 CÁC PHASE
+
+> Nhãn: 🛠️ **code tay** (học sâu, đủ 6 bước) · 📡 **radar** (biết để sau, làm khi gặp lỗi thật).
+> Độ ưu tiên: 🔴 Cao · 🟡 Trung bình · 🟢 Thấp/optional.
+> Trạng thái: ✅ Xong · 🔨 Đang làm · ⏳ Chưa bắt đầu.
+
+Thứ tự logic: **Foundation & Ingestion → Advanced RAG → Evaluation → Performance →
+Agent → Safety → Fine-tuning → MLOps → Community → SaaS Bridge.**
+
+---
+
+## Phase 0 — Foundation & Ingestion Pipeline
+
+> 🧭 **Mức học từ 17/09:** 🔴 #9 #11 · 🟡 #4 #8 #10 · 🟢 #2 #3 #5 · ✅ #1 #6 #7 — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> **Rác vào = rác ra.** Retrieval giỏi tới đâu cũng vô nghĩa nếu chunk sai. Đây là nền.
+
+### Kiến thức cốt lõi
+- **Chunking granularity** quyết định chất lượng retrieval: chunk quá to → nhiễu; quá nhỏ → mất ngữ cảnh.
+- Ingestion là **pipeline có trạng thái**: cùng 1 doc chạy lại không được nhân đôi (idempotent).
+- Doc thay đổi theo thời gian → cần **versioning** + **incremental ingest** thay vì re-ingest toàn bộ.
+
+> **🔨 Trạng thái (2026-08-14):** Mở rộng ingest từ "chỉ append-only" (Incremental ✅ cũ, chỉ
+> dedupe theo hash) thành **multi-store CRUD đồng bộ** (BM25 + Qdrant + DocStore ghi/xoá cùng lúc).
+> Lý do: ingest lại doc đã sửa/xoá đang để lại **orphan** trong BM25/Qdrant vì `pipeline.py` cũ
+> chưa có thao tác xoá — đúng ra thuộc Phase 7 (Data lifecycle: vector CRUD/delete/sync) nhưng
+> kéo sớm lên đây vì ingest cần nó ngay để không nợ kỹ thuật.
+> **Thứ tự (theo vòng 6 bước):**
+> 1. ✅ `BM25Index.remove_document` — **XONG 2026-08-14** (9 test pass, bug #20 — quên trừ
+>    `doc_count`, xem [bug-log](notes/bug-log.md))
+> 2. ✅ `VectorStore.delete` / `QdrantStore.delete` — **XONG 2026-08-14** (3 test pass, bug #21
+>    — `delete_points` không tồn tại, đúng là `client.delete`)
+> 3. ✅ `DocStore.delete(tenant_id, doc_id)` — **XONG 2026-08-14** (3 test pass, không bug —
+>    tiện thể tạo luôn `tests/infrastructure/adapters/docstore/` vì trước đó `InMemoryDocStore`
+>    chưa từng có test, kể cả `save`/`get`)
+> 4. ✅ Redesign manifest: `(tenant_id, doc_id) → {chunk_index: content_hash}` — **XONG
+>    2026-08-14** (`load_manifest`/`save_manifest`/`get_doc_manifest` trong `pipeline.py`,
+>    3 test pass, bug #22 — 2 lần thụt lề sai liên tiếp; giữ song song `load_seen`/`incremental_ingest`
+>    cũ, gộp lại ở bước 6 ráp orchestrator)
+> 5. ✅ Hàm diff thuần: `to_upsert` / `to_skip` / `to_delete` — **XONG 2026-08-14** (`diff_manifest`
+>    trong `pipeline.py`, so 2 manifest bằng `set` union + so hash từng `chunk_index`, 4 test pass,
+>    không bug — verify tay trước bằng ví dụ 4 case rồi mới viết test chính thức)
+> 6. ✅ Ráp `ingest_document` orchestrator (BM25Index + VectorStore + DocStore + Embedder) —
+>    **XONG 2026-08-14** (2 test integration pass: ghi đủ 3 store lần đầu + diff đúng lần 2
+>    (xoá/đổi/giữ nguyên), embed batch 1 lần không loop từng chunk; bug #23 — giả định sai thứ
+>    tự của `set()` khi viết assert, không phải bug ở `ingest_document`). **66/66 test toàn
+>    project pass.**
+> Toàn bộ pipeline ingest hợp nhất (Việc 1 của buổi) đã xong.
+>
+> **🔨 Trạng thái (2026-09-06) — Phase 0 gần đóng, còn 3 việc:**
+> - ✅ **Bug #25 FIX THẬT** (treo 14/08 → 06/09, 23 ngày). Manifest bỏ file trên đĩa, thành
+>   `dict` trong RAM (`app.state.manifest`) — chọn hướng *"cùng dễ vỡ"* thay vì *"cùng bền"*;
+>   hướng bền (Qdrant server thật + persistence cho BM25/DocStore) đẩy sang **Phase 5**.
+>   Test chặn tái phát: `test_restart_thi_quen_sach_khong_skip_oan` (2 khối `with TestClient`
+>   ngang hàng = 2 đời tiến trình), đã chứng minh đỏ được.
+> - ✅ **Bug #30** — `/ingest` báo cáo trung thực: `ingest_document` trả `dict[str,int]`,
+>   response thêm `chunk_upserted`/`chunk_skipped`/`chunk_deleted` (additive change).
+> - ✅ **Bug #31** — `lifespan` có phần shutdown, nhả model khỏi VRAM.
+> - ⬜ **Bug #29** — race condition `BM25Index.doc_count` (`threading.Lock`). Đã chẩn đoán xong
+>   05/09 (mất 56.9% số lần cộng khi 4 luồng), **chưa fix**.
+> - ⬜ **Trạm 4d** — `def` vs `async def` trong handler.
+> - ⬜ Nối `split_by_separators` vào pipeline (hàm mồ côi từ 17/07, có test xanh, không ai gọi).
+> Suite đo thật 06/09 trên Fedora 44 / Python 3.14.7: **70 passed in 127.34s**.
+>
+> ✅ **Việc 2 — `/ask` API (bọc `graph.py` vào FastAPI) — XONG 2026-08-14, verify qua HTTP
+> thật (không phải chỉ `pytest`):**
+> - `app/presentation/api/ask.py` — `POST /ask {tenant_id, query}` → `{answer}`.
+> - `app/presentation/api/ingest.py` — `POST /ingest {tenant_id, doc_id, text}` → tái dùng
+>   `ingest_document`, để có cách nạp data qua HTTP (không chỉ `pytest`).
+> - `app/main.py` — `lifespan` dựng 1 lần: `BGEEmbedder` → `QdrantStore`(`:memory:`) →
+>   `BM25Index` → `InMemoryDocStore` → `HybridRetriever` → **`BGEReranker` + `RerankingRetriever`**
+>   (bọc ngoài Hybrid, bắt buộc — `retrieve_node` cần `.search(tenant_id, query, candidate_k,
+>   top_k)` 4 tham số, không phải `HybridRetriever` trần chỉ có 3) → `OllamaGrader`/
+>   `OllamaGenerator` → `build_graph(...)`, lưu vào `app.state`.
+> - Cả 2 handler viết `def` (không `async def`) — tránh chặn event loop khi gọi model/HTTP
+>   đồng bộ bên trong (`graph.invoke`, `embedder.embed`, `vector_store.upsert`).
+> - **Verify thật:** `curl /ingest` rồi `curl /ask` với Ollama thật (qua Tailscale) → trả lời
+>   đúng bám nội dung đã ingest, không bịa.
+> - **3 bug thật gặp khi trace qua HTTP** (không cái nào `pytest` bắt được — bài học lớn nhất
+>   buổi này): #24 (thiếu tầng `RerankingRetriever`, `pytest` xanh vì Fake khớp sai giả định),
+>   #25 (`manifest.json` bền lệch pha 3 kho dễ vỡ khi `--reload` restart). Xem chi tiết
+>   [bug-log.md](notes/bug-log.md).
+> - Sơ đồ tổng thể (trace theo thứ tự): [notes/pipeline/](notes/pipeline/README.md).
+
+### Danh sách kỹ thuật
+
+| # | Kỹ thuật | Học được gì | Ưu tiên | CTDLGT |
+|---|----------|------------|---------|--------|
+| 1 | **Recursive character chunking** | tách theo phân cấp separator (`\n\n`→`\n`→` `) | 🔴 | Sliding window |
+| 2 | **Semantic chunking** | cắt theo điểm gãy ngữ nghĩa (embedding distance giữa câu) | 🟡 | — |
+| 3 | **Proposition chunking** | LLM tách doc thành mệnh đề độc lập, atomic | 🟢 | — |
+| 4 | **Parent-Child retrieval** | match chunk nhỏ, trả parent lớn → context đủ | 🟡 | Hash map (child→parent) |
+| 5 | **Multi-vector** | 1 doc → nhiều vector (summary + chunks) | 🟢 | — |
+| 6 | **Deduplication** | chặn chunk trùng/gần trùng (hash + near-dup) | 🔴 | Set / Bloom / edit-distance DP |
+| 7 | **Incremental ingest** | chỉ ingest phần mới/đổi (seen-check theo hash) | 🔴 | Hash set |
+| 8 | **Versioning** | giữ lịch sử chunk, rollback được | 🟡 | — |
+| 9 | **Document-based chunking** | cắt theo cấu trúc doc (heading → section → subsection). Heading do NGƯỜI viết = ranh giới ngữ nghĩa có sẵn → thường thắng Semantic mà rẻ hơn hàng trăm lần. Hợp Markdown/HTML/legal/technical doc | 🔴 | Cây phân cấp / stack (theo dõi heading level) |
+| 10 | **Contextual Retrieval** | LLM sinh 1–2 câu định vị chunk trong document → prepend vào chunk TRƯỚC khi embed. Trả giá lúc ingest thay vì lúc query | 🟡 | — |
+| 11 | **Document parsing — đọc file thật** (PDF có bảng · DOCX · HTML · scan cần OCR) | ⭐ **THÊM 2026-09-06 — lỗ hổng lớn nhất của roadmap.** Cả pipeline hiện bắt đầu từ `text: str` sẵn có, tức bỏ qua đúng chỗ RAG thật chết nhiều nhất. Học: layout-aware parsing · **bảng phải giữ cấu trúc** (bảng flatten thành text là mất nghĩa hoàn toàn) · header/footer/số trang là rác phải lọc · khi nào cần OCR và OCR sai thì hỏng gì downstream · chọn giữa parser rẻ (pypdf) vs layout-aware (Unstructured/Docling) và **cái giá từng cái** | 🔴 | Cây layout · state machine đọc bảng |
+
+### Cách học hiệu quả (code tay)
+- **CODE TAY:** viết `recursive_chunk(text, size, overlap)` bằng tay TRƯỚC — đừng gọi
+  `RecursiveCharacterTextSplitter`. Tự xử overlap bằng sliding window.
+- **BUG CỐ Ý:** đặt overlap > size, hoặc quên cộng offset → chunk mất chữ giữa 2 mảnh.
+- **DEBUG:** in `[(start, end)]` từng chunk, kiểm tra `chunk[i].end - overlap == chunk[i+1].start`.
+- **Dedup:** tự viết SHA-256 exact-dedup trước; rồi near-dup bằng MinHash/edit-distance để thấy DP thật.
+
+### Files gợi ý
+```
+app/application/chunking/recursive_chunker.py
+app/application/chunking/semantic_chunker.py
+app/application/ingestion/pipeline.py        # dedup + incremental + versioning
+app/domain/ports/chunker.py
+tests/application/test_recursive_chunker.py   # test overlap boundary
+```
+
+### Next steps
+Chunk đúng → embed → nạp Qdrant (Phase 1). Sau khi có Eval (Phase 3), quay lại A/B
+so recursive vs semantic chunking trên chính niche của bạn.
+
+> **Góc nhìn gom nhóm (2026-08-25):** #4 Parent-Child, #10 Contextual Retrieval (và *Late
+> Chunking* — đã cân nhắc và **loại**) đều chữa **cùng một bệnh**: chunk bị cắt rời khỏi document
+> nên vector mất ngữ cảnh. Khác nhau ở chỗ trả giá bằng gì (lúc query / lúc ingest / đổi interface).
+> *Late Chunking* loại vì phá hợp đồng port `Embedder` (`embed(texts) -> vectors` phải đổi thành
+> `embed_document(text, spans)`) — chi phí kiến trúc lớn, lợi ích chưa chứng minh.
+> *LLM-based chunking* loại: trùng lợi ích với #3 Proposition chunking nhưng đắt hơn.
+>
+> **Biến cần A/B ở Phase 3 (đừng để thành hằng số thiêng):** `chunk_size=200` ký tự và
+> `chunk_overlap=20` trong `app/presentation/api/ingest.py` là số gõ đại lúc dựng API, chưa ai đo.
+> BGE-M3 nuốt được 8192 token — 200 ký tự (~50 token) là *một lựa chọn*, không phải chân lý.
+
+---
+
+## ✅ Phase 1 — Vector Memory (Embedding + Qdrant + Tenant Isolation)
+
+> 🧭 **Mức học từ 17/09:** ✅ xong toàn bộ — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+**Trạng thái: ✅ XONG (2026-07-19)** — port Embedder/VectorStore + cosine similarity (tay) +
+BGEEmbedder + QdrantStore (DI constructor · upsert idempotent UUID5 · `search` có tenant filter
+→ `SearchHit`). Đã có test tenant-isolation + drill "silent failure" (bug #13). Bug đã ghi:
+#8 cosine · #10 ensure_collection · #11 rename biến · #12 point id UUID · #13 tenant leak · #14 API `.search`→`.query_points`.
+
+### Kiến thức học được
+- **Vector Embedding**: ánh xạ text → vector 1024 chiều bằng contrastive learning. Không phải hash — là learned representation từ hàng tỷ cặp câu.
+- **Cosine Similarity**: đo góc giữa 2 vector, invariant với magnitude. L2-normalized → rút gọn thành dot product.
+- **Tenant Isolation**: single-collection multi-tenancy với mandatory `tenant_id` filter. **Silent failure nếu bỏ filter** — đây là bug bảo mật tệ nhất: không crash, chỉ rò dữ liệu tenant khác.
+
+### Files sẽ build (gõ lại bằng tay)
+
+| File dự kiến | Mô tả |
+|------|-------|
+| `app/domain/ports/embedder.py` | Embedder Protocol — dim property + embed() method |
+| `app/domain/ports/vector_store.py` | VectorStore Protocol — SearchHit dataclass |
+| `app/infrastructure/adapters/embedder/bge_embedder.py` | BGEEmbedder — load BAAI/bge-m3, embed batch → list[list[float]] |
+| `app/infrastructure/adapters/vectorstore/qdrant_store.py` | QdrantStore — ensure_collection, upsert (idempotent UUID5), search với tenant filter |
+
+### Tests sẽ viết (mục tiêu)
+- `test_bge_embedder.py`: dim, empty guard, 1024 dims, batch
+- `test_qdrant_store.py`: ensure idempotent, upsert count, UUID5 deterministic, **tenant filter**, None payload
+
+### Debug drill (bước 2–3 của vòng học)
+Cố tình bỏ `tenant_id` filter trong 1 test → chứng minh nó *không* crash mà trả nhầm
+dữ liệu tenant khác. Bài học "silent failure" đắt giá nhất của multi-tenancy.
+
+---
+
+## 🔨 Phase 2 — Advanced Retrieval (Hybrid + Rerank + CRAG + …)
+
+> 🧭 **Mức học từ 17/09:** ✅ Hybrid/RRF/Rerank/CRAG · 🔴 #1 #2 · 🟡 #3 #4 #5 · 🟢 #6 #7 #8 — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> **Trạng thái:** 2.1 và 2.2 đã build lại xong bằng tay (2026-08-03/04), full trace +
+> test pass. 2.3 (CRAG) chưa bắt đầu — xem [🎯 Next Action](#-bảng-theo-dõi-tiến-độ-checklist).
+
+### 2.1 BM25 + Hybrid Retrieval + RRF — ✅ XONG 2026-08-03
+
+**Kiến thức học được:**
+- **TF-IDF vs BM25**: TF-IDF có 2 vấn đề — TF không saturation + không chuẩn hóa độ dài doc.
+  BM25 sửa bằng `k1` (TF saturation) và `b` (length normalization).
+```
+score(d,t) = IDF(t) × TF×(k1+1) / (TF + k1×(1-b+b×dl/avgdl))
+IDF(t)     = log((N - df + 0.5) / (df + 0.5) + 1)
+k1 = 1.5 (TF saturation)   ·   b = 0.75 (length normalization)
+```
+- **RRF — Reciprocal Rank Fusion**: cosine ∈ [0,1], BM25 ∈ [0,∞) — khác đơn vị, không cộng
+  trực tiếp. RRF chuyển cả 2 về **rank** → scale-invariant.
+```
+RRF(d) = Σ 1/(k + rank_i(d))    k=60 (Cormack 2009)
+```
+- **HybridRetriever flow:**
+```
+query
+  ├─→ embed(query) → Qdrant cosine (top 2k) → dense_ranked
+  ├─→ BM25.search(query, tenant_id) (top 2k) → bm25_ranked
+  └─→ RRF([dense_ranked, bm25_ranked]) → top_k RetrievalHit
+```
+
+**Files đã build:** `app/application/retrieval/bm25_index.py` · `rrf.py` · `hybrid_retriever.py`
+(⚠️ `app/domain/ports/retriever.py` — **chưa build**, `HybridRetriever` hiện là class cụ thể,
+chưa có Port riêng; để lại khi thật sự cần đổi implementation khác, tránh abstraction sớm)
+**Tests:** 16 test (`test_bm25_index.py` 8 · `test_rrf.py` 5 · `test_hybrid_retriever.py` 3) — pass, khớp tay
+**CTDLGT chạm tay:** inverted index (hash map term→postings), merge N ranked lists (two-pointer).
+**Bug thật gặp (xem [bug-log](notes/bug-log.md)):** #15 (`int | None` cần Python 3.10, dự án chạy 3.9)
+· #16 (thụt lề 2 lần: dead code chặn trước + unexpected indent) · #17 (`QdrantStore.search`
+trả UUID nội bộ thay vì `doc_id` gốc — phát hiện lúc ghép `HybridRetriever`, không phải lúc chạy).
+**Sơ đồ tổng:** [notes/pipeline/02-retrieval.md](notes/pipeline/02-retrieval.md).
+
+### 2.2 Cross-encoder Reranking (bge-reranker-v2-m3) — ✅ XONG 2026-08-04
+- **Bi-encoder vs Cross-encoder**: bi-encoder encode query/doc riêng rồi so vector.
+  Cross-encoder đọc query+doc **cùng 1 forward pass** → chính xác hơn nhưng chậm hơn.
+- **Vì sao 2 bước:** Hybrid lọc nhanh top-20/50 → cross-encoder chấm kỹ. Không thể
+  chạy cross-encoder trên 10,000 docs. RRF score bị **thay** bằng cross-encoder score.
+- **Lỗ hổng phát hiện khi ghép (không có trong kế hoạch ban đầu):** `HybridRetriever` chỉ trả
+  `(doc_id, score)`, không có text để đưa vào reranker → thêm `DocStore` (Port) +
+  `InMemoryDocStore` (adapter) + `RerankingRetriever` (nối Hybrid → tra text → rerank → sort)
+  để giải quyết. Production thật sẽ thay `InMemoryDocStore` bằng Postgres/Redis, giữ nguyên Port.
+
+**Files đã build:** `app/domain/ports/reranker.py` · `app/infrastructure/adapters/reranker/bge_reranker.py`
+· `app/domain/ports/doc_store.py` · `app/infrastructure/adapters/docstore/in_memory_doc_store.py`
+· `app/application/retrieval/reranking_retriever.py`
+**Tests:** 5 test (`test_bge_reranker.py` 2, model thật · `test_reranking_retriever.py` 2 ·
+`test_qdrant_store.py` +1 regression cho bug #17) — pass
+**Bug thật gặp:** nhầm model (`bge-m3` thay vì `bge-reranker-v2-m3`, khiến classifier head
+random-init) · gọi nhầm method (`.rerank()` không tồn tại, đúng là `compute_score()`).
+
+### 2.3 CRAG (Corrective RAG via LangGraph) — ✅ XONG 2026-08-12
+- **State machine**: `state` = "tờ giấy" chạy qua các **node** (trạm), điền dần từng ô.
+- **Node = hàm** (`state → dict`); **edge** = ray cố định; **conditional edge** = rẽ theo **router**.
+- **grade → verdict → correct**: LLM-as-judge chấm YES/NO từng doc → `decide()` đếm ra
+  CORRECT/AMBIGUOUS/INCORRECT (ngưỡng `>=0.6`/`<=0.0`, là tham số) → INCORRECT thì quay lại
+  `retrieve` (tìm rộng hơn). `attempts` (tăng trong `grade_node`, vì conditional edge không
+  được sửa state) guard chặn lặp vô hạn — verify bằng graph thật: luôn CORRECT → đi thẳng;
+  luôn INCORRECT → lặp đúng `max_attempts` lần rồi van an toàn cưỡng bức generate.
+- **Hạ tầng LLM thật lần đầu dùng trong dự án:** Ollama (`qwen2.5:3b`, CPU 4-core/16GB) chạy
+  trên server riêng, nối qua Tailscale (mesh VPN, không cần mở port ra Internet) — `grader.py`
+  (chấm YES/NO) và `generator.py` (sinh câu trả lời) đều gọi qua HTTP (`httpx`) tới cùng model.
+
+**Files đã build:** `app/application/generation/` → `state.py · node.py (retrieve/grade/generate) ·
+decision.py (decide/route) · graph.py` + `app/domain/ports/grader.py`, `generator.py` +
+`app/infrastructure/adapters/grader/ollama_grader.py`, `adapters/generator/ollama_generator.py`
+**Tests:** 17 test (`test_decision.py` 6 · `test_node.py` 4 · `test_graph.py` 2 e2e ·
+`test_ollama_grader.py` 5 mock · `test_ollama_generator.py` 3 mock) — tất cả pass, không cần mạng
+**Bug thật gặp:** `#18` httpx timeout mặc định 5s quá ngắn cho LLM · `#19` `.upper()` xong so
+sánh với chuỗi chữ thường → luôn `False` (xem [bug-log](notes/bug-log.md)).
+**CTDLGT chạm tay:** graph (node/edge, conditional routing, cycle guard qua `attempts`), closure
+(node "nhớ" dependency đã inject).
+
+### 2.4 Còn lại của Advanced RAG — ⏳ chưa build
+
+> 🧭 **Đồng bộ 2026-09-18:** cột **Ưu tiên** dưới đây đã chỉnh lại cho khớp **bản đồ lát cắt 17/09 (mục F)** —
+> mục F là nguồn sự thật, bảng này trước đó còn giữ mức cũ. Thêm cột **Lát** để khỏi phải dò lại.
+> Thay đổi thật: **#2 Query Transformation 🟡 → 🔴** · **#6 Adaptive-RAG 🟡 → 🟢**.
+
+| # | Kỹ thuật | Học được gì | Ưu tiên | Lát | CTDLGT |
+|---|----------|------------|---------|-----|--------|
+| 1 | **Metadata filtering** | lọc trước semantic search (dùng thật trong Comment Assistant) | 🔴 | **0** | Filter predicate tree |
+| 2 | **Query Transformation** (Multi-Query · HyDE · **Step-back**) | query↔doc space mismatch; mở rộng/nâng cấp query. **Miền luật:** dân hỏi *"mở quán cà phê cần giấy gì"*, luật viết *"đăng ký kinh doanh hộ cá thể"* | 🔴 | **2** | — |
+| 3 | **Temporal / Freshness-aware** + **time-decay** | `harvested_at` → payload Qdrant → recency scoring; chunk cũ = rác dù đúng topic. **Miền luật:** gắn với trạng thái **còn/hết hiệu lực**, không chỉ là mới/cũ | 🟡 | **4** | — |
+| 4 | **MMR** (Maximal Marginal Relevance) | tránh top-k gần trùng → bao phủ nhiều khía cạnh | 🟡 | **2** | Priority queue |
+| 5 | **Context Compression** + **Lost-in-the-Middle** | cắt nhiễu; LLM quên phần giữa → đặt chunk quan trọng ở đầu/cuối | 🟡 | **3** | — |
+| 6 | **Adaptive-RAG / Self-RAG** | quyết định *có nên retrieve không* ngay từ đầu (anh em ruột CRAG) | 🟢 | — | — |
+| 7 | **GraphRAG** (Knowledge Graph + multi-hop) | câu hỏi nối nhiều mẩu; vector thuần yếu chỗ này | 🟢 | — | **Graph BFS/DFS** |
+| 8 | **Multimodal RAG** | ảnh sản phẩm / bảng / PDF, transcript | 🟢 | — | — |
+
+### Cách học hiệu quả (code tay) cho 2.4
+- **MMR — bài CTDLGT đẹp nhất:** tự viết vòng chọn k phần tử, mỗi bước maximize
+  `λ·relevance − (1−λ)·max_sim_to_selected`. **BUG CỐ Ý:** đảo dấu `λ` → top-k quay ra
+  toàn bản trùng. **DEBUG:** in điểm marginal từng ứng viên mỗi vòng.
+- **Metadata filtering:** tự viết filter predicate trước khi đẩy xuống Qdrant `Filter` — hiểu
+  pre-filter (lọc rồi search) vs post-filter (search rồi lọc) khác nhau về recall thế nào.
+- **HyDE:** LLM sinh câu trả lời giả → embed *nó* thay vì query. In ra để thấy vì sao vá được mismatch.
+
+### Files gợi ý
+```
+app/application/services/mmr.py
+app/application/services/query_transform.py    # multi_query, hyde, step_back
+app/application/services/context_compressor.py
+app/application/graphrag/                       # entity extract → graph → multi-hop
+```
+
+### Next steps
+*(cập nhật 18/09 — theo lát cắt, không theo thứ tự bảng)* **Lát 0:** metadata filtering.
+**Lát 2:** Query Transformation (🔴) rồi MMR (🟡). **Lát 3:** compression. **Lát 4:** temporal theo hiệu lực.
+Adaptive-RAG / GraphRAG / Multimodal chỉ cần **nói được** — đọc ~1h, trả lời 3-5 câu đóng sách, không build.
+**Đừng build hết rồi mới đo** — mỗi cái xong đẩy qua Phase 3 (lát 1 dựng sẵn harness để làm đúng việc đó).
+
+---
+
+## Phase 3 — Evaluation Framework (đo trước, tin sau) ⭐ PHASE QUAN TRỌNG NHẤT
+
+> 🧭 **Mức học từ 17/09:** 🔴 #1-#6 · 🟡 #7 #9 · 🟢 #8 #10 #11 — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> **Không có eval = bay mù.** Mọi kỹ thuật ở Phase 2 chỉ được **bật** khi eval chứng minh
+> nó *thật sự* cải thiện. Đây là kỹ năng **phân biệt Senior với junior** rõ nhất: junior
+> "nghe nói kỹ thuật X hay nên bật", Senior "đo thấy X +6% context-recall trên golden set
+> nên bật, nhưng nó −40ms latency nên tắt cho niche realtime". **Câu phỏng vấn Senior kinh
+> điển: "Làm sao bạn biết thay đổi này tốt hơn?" — không trả lời được = trượt.**
+
+### Hai loại eval phải tách bạch (đừng lẫn)
+| | **Retrieval eval** (tầng tìm) | **Generation eval** (tầng sinh) |
+|---|---|---|
+| Đo cái gì | kho trả về đúng doc không | câu trả lời có đúng/bám context không |
+| Metric | Hit@k, MRR, NDCG, context-precision/recall | faithfulness, answer-relevancy, correctness |
+| Cần nhãn | doc nào đúng (relevance label) | câu trả lời chuẩn (hoặc LLM-judge) |
+| Rẻ/đắt | rẻ, deterministic — **chạy mỗi commit** | đắt (gọi LLM) — chạy theo mốc |
+
+> **Nguyên tắc:** debug retrieval eval TRƯỚC. Nếu kho trả sai doc thì LLM giỏi mấy cũng bịa.
+
+### Kiến thức cốt lõi (hiểu công thức, không chỉ gọi hàm)
+- **Hit@k / Recall@k**: trong top-k có ít nhất 1 doc đúng không / bắt được bao nhiêu % doc đúng.
+- **MRR** (Mean Reciprocal Rank) = trung bình `1/rank` của doc đúng đầu tiên — thưởng xếp hạng cao.
+- **NDCG**: có phân biệt mức độ liên quan (không chỉ đúng/sai) + phạt theo vị trí (log discount).
+- **RAGAS**: `faithfulness` = tỉ lệ claim trong answer *được context hậu thuẫn*;
+  `answer_relevancy` = answer có trả đúng câu hỏi; `context_precision` = doc đúng có xếp trên đầu không.
+- **Golden dataset**: (query, doc_đúng, answer_chuẩn) cố định + **versioned** (`golden/v1.jsonl`) —
+  đổi golden phải bump version, không sửa lén (nếu không A/B mất ý nghĩa).
+- **Regression set**: mỗi bug production → 1 ca vĩnh viễn ở đây, chống tái phát.
+- **A/B testing**: bật/tắt đúng **1 biến**, chạy cùng golden, so delta metric + **significance**
+  (n nhỏ thì +2% có thể là nhiễu — cần đủ mẫu).
+- **Online eval**: traffic thật, implicit feedback (click / user sửa / thumbs) — khác offline.
+- **LLM-judge calibration**: judge cũng lệch (thiên vị câu dài, vị trí) → phải đo agreement với
+  nhãn người (Cohen's κ) trước khi tin judge.
+- **Cost-Quality trade-off** (tư duy Senior cốt tử): eval **KHÔNG chỉ đo accuracy**. Mỗi kỹ thuật
+  còn có giá — `cost/query` (token), `latency` (p50/p95), `throughput`. Reranker +5% recall nhưng
+  +120ms có thể *không đáng* cho niche realtime. Senior quyết bằng **cả 2 trục** chất lượng ↔ chi phí.
+
+### Danh sách kỹ thuật
+
+| # | Kỹ thuật | Học được gì | Ưu tiên | CTDLGT / Code tay |
+|---|----------|------------|---------|--------|
+| 1 | **Retrieval metrics** (Hit@k · MRR · NDCG) | đo tầng tìm, deterministic, chạy mỗi commit | 🔴 | sort + log-discount |
+| 2 | **Custom LLM Judge** | tự viết prompt chấm + parse **structured** (JSON), retry | 🔴 | prompt eng + JSON parse |
+| 3 | **RAGAS** (faithfulness · relevancy · context precision/recall · answer correctness) | metric chuẩn ngành cho generation | 🔴 | — |
+| 4 | **Golden dataset** + versioning | chuẩn cố định, versioned (không sửa tùy hứng) | 🔴 | data management |
+| 5 | **Regression set** | mỗi bug → 1 test vĩnh viễn | 🔴 | — |
+| 6 | **A/B harness** + significance | so 2 cấu hình (vd: with/without MMR) | 🔴 | statistical testing |
+| 7 | **Judge calibration** (κ / Pearson vs nhãn người) | biết judge có đáng tin không | 🟡 | correlation metrics |
+| 8 | **Online eval** | traffic thật (click · dwell time · thumbs) | 🟡 | feedback loop |
+| 9 | **Cost & Efficiency metrics** | tokens · latency (p50/p95) · cost/query · throughput | 🔴 | profiling |
+| 10 | **Bias & Fairness check** | model có lệch theo niche / độ dài query không | 🟢 | statistical fairness |
+| 11 | **RAG vs long-context — đo để biết khi nào KHÔNG cần RAG** | ⭐ **THÊM 2026-09-06.** Context window đã dài ra rất nhiều, nên *"khi nào KHÔNG nên dùng RAG?"* là câu phân loại Senior. Dựng cùng một golden set, chạy 2 nhánh: (a) RAG top-k · (b) nhét thẳng cả document vào context. So **4 trục**: chất lượng · chi phí/query · độ trễ p95 · khả năng trích dẫn nguồn. Kết luận phải là **một ngưỡng cụ thể** ("dưới N nghìn token thì long-context thắng"), không phải cảm tính | 🔴 | — |
+
+### Cách học hiệu quả (code tay) — làm theo thứ tự
+1. **CODE TAY retrieval metrics TRƯỚC** (rẻ, deterministic): tự viết `hit_at_k`, `mrr`, `ndcg`
+   trên list rank + set doc đúng. Đây là bài **sort + reciprocal + log-discount** thuần.
+   → chạy được ngay trên pipeline đã có, chưa cần LLM.
+2. **CODE TAY `faithfulness_score()`**: tách answer thành claim, mỗi claim hỏi judge "có trong
+   context không", đếm tỉ lệ. RỒI mới so với `ragas` để kiểm chứng bản tay.
+3. **CODE TAY A/B harness**: hàm nhận `(pipeline_A, pipeline_B, golden)` → trả bảng delta metric.
+
+**BUG CỐ Ý (bắt buộc, 3 ca kinh điển):**
+- **Judge parse lỏng:** `"yes" in text` → câu *"No, this is not yes-worthy"* bị chấm YES.
+  **DEBUG:** log (raw_output, parsed) → thấy vì sao phải parse structured JSON/regex chặt.
+- **NDCG sai log base / off-by-one rank:** rank bắt đầu từ 0 thay vì 1 → discount lệch toàn bộ.
+  **DEBUG:** tính tay 3 doc, so với hàm.
+- **A/B rò biến:** đổi *2 thứ* cùng lúc (reranker + chunk size) → không biết cái nào gây delta.
+  **DEBUG:** kỷ luật "1 biến / 1 lần đo".
+- **Golden sửa ngầm:** đổi golden mà không bump version → A/B trước/sau so trên 2 bộ khác nhau,
+  kết luận vô nghĩa. **DEBUG:** log hash của dataset mỗi lần chạy, so hash trước/sau.
+
+### 🎯 Bài tập thực hành (làm đủ 4 — đây là "đồ án" của Phase 3)
+1. Xây **golden dataset 50–100 cặp** `(query, context, ideal_answer)` cho **niche của bạn**.
+2. Viết **custom judge** (code tay) → chạy → **so kết quả với RAGAS** để kiểm chứng bản tay.
+3. Chạy **A/B test** thật: `HybridRetriever` vs `Hybrid + MMR` trên golden → giữ/bỏ MMR theo số.
+4. Thêm **regression test** cho đúng bug bạn từng gặp (vd "Lost-in-the-Middle" ở Phase 2) →
+   nó thành lưới chống tái phát vĩnh viễn.
+
+### Files gợi ý
+```
+app/evaluation/
+├── judge.py                    # Custom LLM Judge + structured parse + retry
+├── metrics.py                  # faithfulness, relevancy — TỰ implement trước
+├── retrieval_metrics.py        # hit@k, mrr, ndcg — code tay, deterministic
+├── ragas_runner.py             # đối chiếu với bản tay
+├── ab_harness.py               # A/B + statistical significance
+├── calibration.py              # human vs LLM judge agreement (κ / Pearson)
+├── cost_metrics.py             # tokens · latency · cost/query · throughput
+├── golden/
+│   ├── v1.jsonl                # versioned — bump version khi đổi, không sửa lén
+│   └── v2.jsonl
+└── regression/
+    └── test_lost_in_middle.py  # mỗi bug production → 1 file ở đây
+tests/evaluation/test_retrieval_metrics.py   # tính tay đối chiếu
+```
+
+### Next steps
+1. **Tuần này:** xây Golden Dataset + Custom Judge (bài tập 1–2).
+2. Implement **A/B Harness** (bài tập 3).
+3. **Quay lại Phase 2** đo từng kỹ thuật (metadata filter, MMR, temporal, rerank…) →
+   **chỉ giữ cái thắng rõ rệt** trên golden của niche bạn (cả trục chất lượng ↔ cost).
+4. **Tích hợp eval vào CI:** mỗi PR phải **pass regression set** + không tụt metric quá ngưỡng.
+   → biến "đo trước, tin sau" thành **cổng tự động**, không phụ thuộc kỷ luật con người.             
+> Đây là **vòng lặp trung tâm của cả dự án**: *thêm kỹ thuật → eval → giữ/bỏ*.
+> Không có bước này, roadmap chỉ là sưu tầm kỹ thuật.
+
+---
+
+## Phase 3.5 — Query Performance (đo trước, tối ưu sau)
+
+> 🧭 **Mức học từ 17/09:** 🟡 #1 #6 (+ prompt caching) · 🟢 phần còn lại — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> **Premature optimization = bẫy kinh điển.** Chỉ tối ưu khi pipeline chạy đúng VÀ đã
+> profiling thấy chỗ nghẽn thật.
+
+| # | Kỹ thuật | Học được gì | Ưu tiên |
+|---|----------|------------|---------|
+| 1 | **Latency profiling** | đo từng chặng (embed/dense/sparse/rerank) trước khi đụng | 🔴 |
+| 2 | **Qdrant payload indexing** | index `tenant_id`/`timestamp`/`parent_id` → filter nhanh | 🟡 |
+| 3 | **HNSW tuning** (`m`, `ef_construct`, `ef_search`) | đánh đổi recall ↔ latency | 🟡 |
+| 4 | **Vector quantization** (scalar/product) | giảm RAM + tăng tốc, mất ít recall | 🟡 |
+| 5 | **Two-stage budget tuning** | cân `top_k` retrieve vs rerank (rerank đắt nhất) | 🟡 |
+| 6 | **Caching (Redis)** | cache embedding query + kết quả lặp | 🟡 |
+| 7 | **Async + batching** | embed/search song song, gộp batch | 🟡 |
+| 8 | **Semantic caching** | cache theo *ý nghĩa* (2 câu khác chữ cùng ý → hit) | 🟢 |
+
+### Cách học hiệu quả
+- **CODE TAY:** tự viết decorator `@timed` gom latency từng chặng vào dict trước khi
+  cắm LangFuse. Profiling bằng số thật, không đoán.
+- **BUG CỐ Ý:** semantic cache đặt ngưỡng cosine quá thấp (0.7) → trả cache cho câu khác ý.
+  **DEBUG:** log (query, matched_cache_query, sim) → thấy false-hit.
+
+**Files gợi ý:** `app/infrastructure/cache/semantic_cache.py` · `app/observability/timing.py`
+
+---
+
+## Phase 4 — Agentic Orchestrator (LangGraph)
+
+> 🧭 **Mức học từ 17/09:** 🔴 #1 #2 #5 #7 #8 #12 · 🟡 #4 #6 · 🟢 #3 #10 #11 — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> Từ RAG một phát → **agent nhiều bước** biết dùng tool, nhớ ngữ cảnh, có người gác cổng.
+
+### Kiến thức cốt lõi
+- **Multi-agent**: Supervisor điều phối → Researcher → Creator → Critic → Human gate.
+- **Tool calling** cần **structured output / constrained decoding**: ép JSON hợp lệ, retry khi lỗi.
+- **Memory**: multi-turn / thread memory — nhớ hội thoại, không single-shot.
+- **HITL** (human-in-the-loop): chặn hành động rủi ro chờ người duyệt.
+- **Tracing (LangFuse)**: soi agent nhiều bước chạy gì, hỏng ở node nào — KHÔNG thể thiếu.
+- **MCP (Model Context Protocol)**: chuẩn hiện đại gắn tool/context — học sớm, đừng tự chế.
+
+### Danh sách kỹ thuật
+
+| # | Kỹ thuật | Học được gì | Ưu tiên | CTDLGT |
+|---|----------|------------|---------|--------|
+| 1 | **Supervisor multi-agent** | điều phối nhiều agent | 🔴 | Graph |
+| 2 | **Tool calling** + structured output | ép JSON, retry | 🔴 | — |
+| 3 | **Intent triage** | phân loại comment: trả lời/lờ/đẩy người → tiết kiệm LLM | 🔴 | — |
+| 4 | **Multi-turn memory** | nhớ thread hội thoại | 🔴 | Ring buffer |
+| 5 | **Abstention "tôi không biết"** | từ chối có hiệu chỉnh thay vì đoán bừa | 🔴 | — |
+| 6 | **HITL gate** | người duyệt trước khi gửi | 🟡 | — |
+| 7 | **Tracing (LangFuse)** | step-level observability | 🔴 | — |
+| 8 | **MCP** | chuẩn gắn tool/context | 🟡 | — |
+| 9 | **Prompt engineering craft** (CoT, few-shot, dynamic example selection) | kỹ năng nền nhất | 🔴 | — |
+| 10 | **Query routing** (multi-source/multi-tool) | chọn kho/tool nào — sâu hơn intent triage | 🟡 | — |
+| 11 | **Human-feedback → training loop** | edit của người duyệt → data train (active learning) | 📡 🟢 | — |
+| 12 | **Agent evaluation — đo ĐƯỜNG ĐI, không chỉ đo câu trả lời** | ⭐ **THÊM 2026-09-06.** Phase 3 đo RAG = đo **kết quả cuối**; agent nhiều bước phải đo **trajectory**: chọn đúng tool không · số bước tới khi xong · có lặp/quẩn không · chi phí + token mỗi task · tỉ lệ chạm HITL gate. Cùng một bài học với bug #26/#29: **assert kết quả cuối là mù với bug nằm trong quá trình** — agent trả lời đúng bằng đường đi ngu ngốc vẫn là hỏng | 🔴 | Graph traversal · so khớp chuỗi hành động |
+
+### Cách học hiệu quả (code tay)
+- **CODE TAY:** tự dựng StateGraph supervisor bằng LangGraph (bạn đã làm CRAG — tái dùng skill).
+  Tự viết retry-loop cho tool call lỗi JSON TRƯỚC khi dùng structured-output helper.
+- **BUG CỐ Ý:** để supervisor không có điều kiện dừng → agent loop vô hạn gọi tool.
+  **DEBUG:** đọc LangFuse trace, đếm số vòng, thêm `max_steps` guard (như `attempts` ở CRAG).
+
+**Files gợi ý:** `app/application/agent/supervisor.py` · `app/application/agent/tools/` · `app/application/agent/memory.py`
+
+### Next steps
+Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự trói tay.
+
+---
+
+## Phase 5 — Safety & Guardrails (áo giáp)
+
+> 🧭 **Mức học từ 17/09:** 🔴 #1 · 🟢 phần còn lại — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> UGC (user-generated content) **không tin được**. Agent phơi ra internet cần giáp 2 chiều.
+
+### Danh sách kỹ thuật
+
+| # | Kỹ thuật | Học được gì | Lớp | Ưu tiên |
+|---|----------|------------|-----|---------|
+| 1 | **Prompt injection defense** | chặn input độc lái agent | core | 🔴 |
+| 2 | **PII redaction** | phát hiện + che SĐT/địa chỉ (PDPD/GDPR) | core | 🔴 |
+| 3 | **Toxicity / moderation** (in + out) | lọc chửi bới 2 chiều | core | 🟡 |
+| 4 | **Output sanitization** (XSS/markdown injection) | làm sạch *output* trước render — khác injection input | core | 🔴 |
+| 5 | **Red-teaming / jailbreak** | tự tấn công tìm lỗ trước kẻ xấu | core | 🟡 |
+| 6 | **Output guardrail framework** | tầng policy có hệ thống (ngoài Critic) | core | 🟡 |
+| 7 | **Self-consistency / SelfCheckGPT** | phát hiện bịa bằng sample nhiều lần so chéo | core | 🟢 |
+| 8 | **Graceful degradation** | Qdrant/LLM sập → xuống cấp êm | core | 🟡 |
+| 9 | **Rate limiting** | chặn spam | core *đo* · **cloud** *enforce* | 🟡 |
+| 10 | **Cost guard + circuit breaker** | chặn nổ bill | core *đo* · **cloud** *enforce* | 🔴 |
+| 11 | **SAST — quét lỗ hổng code tĩnh** (Fortify, Semgrep, Bandit) | khác hẳn 1-10 (an toàn *AI*) — đây là an toàn *code truyền thống* (SQL injection, dependency CVE...), quét trước khi build/deploy | CI/CD (không phải core AI) | 🟡 |
+
+### Cách học hiệu quả (code tay)
+- **CODE TAY PII:** tự viết Trie/regex matcher cho SĐT VN + email TRƯỚC khi dùng Presidio.
+  → luyện đúng CTDLGT **Trie/pattern matching**.
+- **BUG CỐ Ý (injection):** để prompt template nối thẳng UGC → nhét "ignore previous
+  instructions" thấy agent bị lái. **DEBUG:** thấy vì sao phải tách data/instruction (delimiter, role).
+- **Circuit breaker:** tự viết state machine CLOSED→OPEN→HALF_OPEN — lại là bài **state machine**.
+
+**Files gợi ý:** `app/safety/pii.py` · `app/safety/injection.py` · `app/safety/circuit_breaker.py` · `app/safety/sanitize.py`
+
+---
+
+## Phase 6 — Fine-tuning
+
+> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — chỉ nói được — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+| Kỹ thuật | Học được gì | Ưu tiên |
+|---|---|---|
+| **LoRA / QLoRA** trên `Qwen2.5-7B` | low-rank update math (tự tính ΔW = BA) | 🛠️ 🔴 |
+| **Synthetic data generation** | sinh data train khi data thật ít | 🛠️ 🟡 |
+| **GGUF quantization** (Q4/Q5/Q8) merge | nén model chạy local | 🛠️ 🟡 |
+| **Embedding / domain fine-tuning** | chỉnh bge-m3 cho niche | 🛠️ 🟡 |
+
+### Cách học hiệu quả (code tay)
+- **CODE TAY:** tự implement LoRA layer thuần PyTorch (`W + (B@A)*scale`) trên 1 linear nhỏ,
+  train toy task → hiểu vì sao chỉ update rank thấp mà vẫn học được. RỒI mới dùng PEFT.
+- **BUG CỐ Ý:** quên freeze base weights → mất điểm low-rank. **DEBUG:** đếm trainable params.
+
+**Files gợi ý:** `experiments/lora/manual_lora.py` · `experiments/lora/train_qwen.py`
+
+---
+
+## Phase 7 — MLOps & Production
+
+> 🧭 **Mức học từ 17/09:** 🟡 CI/CD · deploy + demo · load test · 🟢 phần còn lại — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> Phần **vector CRUD/delete/sync** của "Data lifecycle" bên dưới đã kéo sớm lên
+> [Phase 0](#phase-0--foundation--ingestion-pipeline) (2026-08-14) vì ingest cần nó ngay;
+> phần còn lại (embedding migration khi đổi model) vẫn nằm ở đây.
+
+| Kỹ thuật | Học được gì | Ưu tiên |
+|---|---|---|
+| **Model serving** (vLLM / TGI cho LLM · **NVIDIA Triton** cho model vision/đa dạng hơn, vd YOLO) | phục vụ inference throughput cao (paged attention, dynamic batching) | 🛠️ 🔴 |
+| **Observability stack** — **LGTM**: Prometheus (metric) + **Loki** (log) + **Tempo** (trace) + Grafana (dashboard), thu thập qua **Grafana Alloy/OpenTelemetry** (chuẩn chung, không lệ thuộc 1 hãng) | metric/log/trace/alert hạ tầng — 3 trụ observability tách bạch (metric đo *bao nhiêu*, log đo *chuyện gì xảy ra*, trace đo *chậm ở đâu trong chuỗi service*) | 🛠️ 🔴 |
+| **Load testing** (Locust) | giả lập nhiều user gọi `/ask` cùng lúc, đo hệ thống chịu được bao nhiêu request/s trước khi thật sự deploy | 🛠️ 🟡 |
+| **Data lifecycle** | vector CRUD/delete/sync · dedup · incremental · **embedding migration** (re-embed khi đổi model) | 🛠️ 🔴 |
+| **Drift detection** | data / embedding / concept drift — chất lượng tụt âm thầm | 🛠️ 🟡 |
+| **Eval-at-scale** | online eval · regression · prompt versioning · judge calibration | 🛠️ 🟡 |
+| **CI/CD** (Jenkins/GitHub Actions — build/test/deploy tự động mỗi lần push) | nền tảng đưa code lên production an toàn, lặp lại được | 🛠️ 🔴 |
+| **CI/CD retrain** + experiment tracking (W&B/MLflow) · versioning (DVC/HF) | reproducible ML — khác CI/CD ở trên (đây riêng cho vòng lặp retrain model) | 📡 🟢 |
+| **Canary / blue-green deploy** · DR/backup · scaling/backpressure | tung model an toàn, chịu tải | 📡 🟢 (nhiều phần **cloud**) |
+
+### Cách học hiệu quả
+- Phân biệt rạch ròi: **agent tracing (LangFuse, Phase 4)** ≠ **observability hạ tầng (Prometheus/Loki/Tempo)**.
+  Cái đầu cần lúc BUILD agent (soi 1 lần chạy agent cụ thể); cái sau đo cả hệ thống theo thời gian.
+- **Drift:** tự viết so phân bố embedding tuần này vs tuần trước (PSI / KL divergence) trước khi dùng tool.
+- **Load test:** chạy Locust nhắm vào `/ask` sau khi có endpoint thật (Việc 2 hôm nay) — đo p50/p95
+  latency khi có 10/50/100 user cùng hỏi, thấy điểm nghẽn thật (LLM call thường là nút cổ chai).
+
+**Files gợi ý:** `app/observability/metrics.py` · `ops/serving/vllm.yaml` · `app/lifecycle/reembed.py` · `ops/loadtest/locustfile.py`
+
+---
+
+## Phase 8 — Extensibility & Community (Open Source)
+
+> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — chỉ nói được — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> Open source thắng/thua ở chỗ **người lạ có mở rộng được không**. Lõi khó hiểu = chết.
+
+| Kỹ thuật | Học được gì | Ưu tiên |
+|---|---|---|
+| **Plugin system** (scraper / LLM client / retriever) | Port + Adapter, đăng ký động | 🛠️ 🔴 |
+| **Niche templates** | onboard 1 lĩnh vực mới bằng config | 🛠️ 🟡 |
+| **Benchmark suite** | so pipeline giữa các fork/niche | 🛠️ 🟡 |
+| **Documentation** (kiến trúc, WHY, sơ đồ) | contributor hiểu được lõi | 🔴 |
+| **Contributing guide** + code of conduct | hạ rào đóng góp | 🔴 |
+| **Examples** (runnable, copy-paste được) | người mới chạy được trong 5 phút | 🔴 |
+| **Analytics feedback loop** (Analyst role) | engagement → "cái gì hiệu quả" vào memory niche | 📡 🟢 |
+| **AI disclosure / watermarking** | ghi rõ nội dung AI (luật/nền tảng) | 📡 (**cloud**) |
+| **Bias / fairness audit** | model đối xử công bằng giữa nhóm | 📡 🟢 |
+
+### Cách học hiệu quả (code tay) — Plugin system từng bước
+> Đây là bài **Port/Adapter + Registry** thật, cực đáng làm tay vì open source sống nhờ nó.
+
+1. **CODE TAY registry đơn giản** (dict + decorator) trước khi nghĩ tới entry-points:
+```python
+# app/plugins/registry.py
+_REGISTRY: dict[str, dict[str, type]] = {}          # kind → {name → class}
+
+def register(kind: str, name: str):
+    def deco(cls):
+        if name in _REGISTRY.setdefault(kind, {}):    # ← chặn trùng tên
+            raise ValueError(f"plugin {kind}:{name} đã tồn tại")
+        _REGISTRY[kind][name] = cls
+        return cls
+    return deco
+
+def get(kind: str, name: str) -> type:
+    return _REGISTRY[kind][name]                       # KeyError = tên sai/chưa load
+```
+2. **Bắt plugin phải tuân Port:** trong `register`, assert `issubclass(cls, PORTS[kind])` →
+   plugin không implement đúng interface bị chặn *lúc đăng ký*, không phải lúc chạy giữa production.
+3. **Nâng lên entry-point discovery** (`importlib.metadata.entry_points`) để plugin ở *package
+   ngoài* tự nạp — đây là cách contributor cắm scraper mới mà không sửa core.
+
+**BUG CỐ Ý (3 ca thật của plugin system):**
+- **Trùng tên im lặng:** bỏ dòng chặn trùng → plugin B ghi đè A, A biến mất không báo.
+  **DEBUG:** thấy vì sao registry phải fail-loud khi trùng.
+- **Import side-effect:** decorator chạy lúc import → quên `import` module plugin thì `get()`
+  KeyError dù class có tồn tại. **DEBUG:** hiểu registration = side-effect của import.
+- **Plugin sai interface:** đăng ký class thiếu method của Port → chỉ nổ khi pipeline gọi tới.
+  **FIX:** kiểm ở bước 2 (assert issubclass) → chuyển lỗi runtime thành lỗi đăng ký.
+
+**Files gợi ý:** `app/plugins/registry.py` · `app/plugins/ports.py` · `tests/plugins/test_registry.py` (test trùng tên, tên sai, sai interface)
+
+- Mỗi kỹ thuật đã học ở Phase 0–7 → viết 1 **example runnable** + 1 đoạn doc WHY. Doc là
+  sản phẩm phụ của việc bạn đã hiểu thật.
+
+---
+
+## Phase 9 — SaaS Bridge (Cloud layer)
+
+> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — xét lại khi quay về N Assistant — xem [Bản đồ Phase → lát](#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+
+> **Không đụng bộ não.** Core phơi **Port**, cloud cắm **Adapter**. CI cấm import billing vào core.
+
+| Kỹ thuật | Học được gì | Lớp | Ưu tiên |
+|---|---|---|---|
+| **Usage metering** | đếm token/request/tenant → hóa đơn | Port ở core · enforce ở cloud | 🔴 |
+| **Feature guard / Entitlement Port** | bật/tắt kỹ thuật theo gói khách | Port ở core · policy ở cloud | 🔴 |
+| **Multi-tenancy enforcement** | siết `tenant_id` xuyên suốt, chống rò | core (đã có filter) + cloud (map customer) | 🔴 |
+| **Wallet / Credit + 2-pha hold/settle** | trừ tiền theo ngữ cảnh (xem memory authz-billing) | cloud | 🟡 |
+| **Rate/cost enforce theo customer** | chặn nổ bill từng khách | cloud | 🟡 |
+| **Data retention / right-to-be-forgotten** | xóa data theo yêu cầu (luật) | cloud | 📡 |
+
+### MeteringPort — hình dạng interface (core chỉ *đo*, không *tính tiền*)
+```python
+# app/domain/ports/metering.py — 0 import stripe, 0 khái niệm tiền
+class MeteringPort(Protocol):
+    def record(self, tenant_id: str, unit: str, qty: int, meta: dict) -> None: ...
+    # unit ∈ {"llm_input_token","llm_output_token","embed_call","rerank_call","search"}
+```
+- Core **emit sự kiện dùng** (bao nhiêu token, bao nhiêu search) theo `tenant_id`. Hết.
+- Cloud cắm adapter: gom event → tính tiền theo bảng giá gói → xuất hóa đơn. **Bảng giá KHÔNG
+  bao giờ ở core** (đổi giá không được rebuild bộ não). Core dùng `NullMeteringAdapter` khi chạy
+  standalone (fork MIT không cần billing vẫn chạy).
+
+### 2-phase hold/settle (cloud) — vì sao cần 2 pha
+> LLM streaming: **biết chi phí thật SAU khi sinh xong**, nhưng phải chặn TRƯỚC nếu hết credit.
+```
+1. HOLD (trước khi gọi LLM):  ước lượng max cost → giữ tạm trong ví (reserve).
+   ├─ ví đủ  → giữ, cho chạy
+   └─ ví thiếu → từ chối NGAY (chưa tốn LLM) → tránh "âm ví"
+2. SETTLE (sau khi LLM xong): biết token thật → trừ đúng số, HOÀN phần giữ dư.
+   └─ nếu request lỗi/hủy giữa chừng → RELEASE toàn bộ hold (không trừ oan).
+```
+- **Vì sao không trừ 1 pha:** trừ trước → không biết số thật, trừ thừa/thiếu; trừ sau → khách
+  hết tiền vẫn gọi được LLM (thủng bill). Hold/settle giải đúng cả 2.
+- Đây là **state machine** `HELD → SETTLED | RELEASED` — cùng họ với circuit breaker (Phase 5)
+  và CRAG (Phase 2). Idempotency key chống settle 2 lần khi retry. Xem memory `authz-billing-plan`.
+
+### Cách học hiệu quả (code tay)
+- **CODE TAY (core):** định nghĩa `MeteringPort` + `EntitlementPort` (interface thuần, 0 import
+  stripe). Viết **fake adapter** in-memory để test core; adapter thật (Stripe) ở repo cloud.
+- **CODE TAY (cloud):** tự viết ví hold/settle bằng dict `{tenant: balance, holds: {id: amount}}`
+  trước khi nghĩ tới DB. Test các đường: đủ tiền, thiếu tiền (từ chối ở HOLD), hủy giữa chừng (RELEASE).
+- **BUG CỐ Ý:**
+  - Đặt enforcement/bảng giá *trong* core → CI phải reject `import stripe`. Ranh giới sống nhờ test.
+  - Quên RELEASE khi request lỗi → tiền "kẹt hold" vĩnh viễn, ví tụt dần dù không tiêu.
+    **DEBUG:** log balance + holds mỗi request → thấy hold không được dọn.
+  - Settle 2 lần khi client retry (thiếu idempotency key) → trừ tiền gấp đôi.
+
+**Files gợi ý (core):** `app/domain/ports/metering.py` · `app/domain/ports/entitlement.py` · `app/domain/ports/null_adapters.py`
+**Files (cloud, repo khác):** `wallet/hold_settle.py` · adapter Stripe/billing · dashboard · gateway.
+
+---
+
+## ★ OPTIONAL — Visual & Character Engine (cần GPU, off main path)
+ComfyUI · Flux/SDXL · ControlNet · IP-Adapter/FaceID · character LoRA · img/text→video ·
+TTS clone (XTTS/CosyVoice) · ffmpeg auto-edit. Làm khi có nhu cầu thật + GPU.
+
+---
+
+## 🎯 Nguyên tắc bao trùm: Học vs. Production
+
+> Project build **tất cả** kỹ thuật để **HỌC cho biết** — nhưng một sản phẩm thật
+> **KHÔNG dùng hết**. Mỗi fork chỉ **bật đúng subset** niche cần (mọi kỹ thuật là
+> *flag, mặc định TẮT*). Học hết là để **có phán đoán** chọn đúng. **Eval (Phase 3)**
+> cho biết cái nào *thật sự đáng bật*. **Học một kỹ thuật ≠ phải deploy nó.**
+
+---
+
+## 📊 Tổng kết Tests
+
+```
+66 tests (2026-08-14) — Chunker 2 · Dedup 2 · Edit distance 5 · Pipeline 6 (+2 ingest_document,
+bug #22 #23) · Similarity 1 · BGEEmbedder 3 · QdrantStore 3 (+1 delete, bug #21) · BM25 9
+(+1 remove_document, bug #20) · InMemoryDocStore 3 (mới — chưa từng có test) · RRF 5 ·
+HybridRetriever 3 · Reranker 2 · RerankingRetriever 2 · CRAG: decision 6 · node 4 · graph 2 ·
+grader 5 · generator 3
+đếm lại bất cứ lúc nào bằng:  grep -rc "def test_" tests
+```
+> Trước reset có 74 test xanh (P1 vector 15 · BM25 13 · RRF 10 · Hybrid 11 · Reranker 6 · CRAG 12 · Chunker 4 · Ingestion 3).
+> Build lại tới đâu, con số bò lên tới đó. Cập nhật sau MỖI lần thêm test — lệch số = tài liệu mất tin cậy.
+> Quy ước: mỗi bug sửa ở bất kỳ phase nào → +1 regression test (nguyên tắc gốc #4) + ghi [notes/bug-log.md](notes/bug-log.md).
+
+---
+
+## ✅ Bảng theo dõi tiến độ (checklist)
+
+| Phase | Kỹ thuật | Trạng thái | 🎯 Next Action (việc kế tiếp cụ thể) |
+|---|---|---|---|
+| 0 | **Recursive** chunking ⚠️ · Document-based ⏳ · Semantic/Proposition ⏳ · Contextual Retrieval ⏳ | 🔨 | ⚠️ **Đã verify 2026-08-25: `/ingest` chạy Fixed-Size, KHÔNG phải Recursive** — `recursive_chunk` chỉ là sliding window theo chỉ số; `split_by_separators` (recursive thật) có test xanh nhưng không nơi nào trong `app/` gọi. Phải nối vào pipeline mới được đánh ✅. Sau đó: **Document-based** (Markdown heading; corpus thật sẵn = `Learning-document/`) |
+| 0 | Dedup (exact+near) ✅ · Incremental (append-only) ✅ · **Multi-store delete-aware ingest** 🔨 (kéo sớm từ Phase 7) | 🔨 | Đang làm `BM25Index.remove_document` (1/6 bước) → DocStore/VectorStore delete → manifest theo tenant/doc → diff → ingest orchestrator |
+| 1 | Embedding · Qdrant · Tenant Isolation | ✅ | **XONG 2026-07-19** — search + tenant filter + drill silent-failure (bug #13). 15 test |
+| 2 | BM25 · Hybrid · RRF | ✅ | **XONG 2026-08-03** — BM25 + RRF + HybridRetriever, 18 test. Phát hiện + fix bug #17 (QdrantStore trả UUID thay vì doc_id gốc) lúc ghép |
+| 2 | Cross-encoder Rerank | ✅ | **XONG 2026-08-04** — `Reranker`+`BGEReranker` (model thật, verify điểm 4.75/-2.07) · `DocStore`+`InMemoryDocStore` (lỗ hổng doc_id→text phát hiện khi ghép, đã vá) · `RerankingRetriever` nối Hybrid→text→rerank→sort. 22 test pass (18 retrieval + 2 reranker + 2 vectorstore regression) |
+| 2 | CRAG | ✅ | **XONG 2026-08-12** — `state.py`/`node.py`(retrieve+grade+generate)/`decision.py`/`graph.py` (`StateGraph`) + Ollama thật (`qwen2.5:3b` qua Tailscale) cho `grader.py`/`generator.py`. 17 test, verify e2e cả 2 nhánh (CORRECT đi thẳng, INCORRECT lặp rồi van an toàn). Bug #18 (timeout), #19 (case-sensitivity) |
+| 2 | Metadata filter · Query transform · Temporal · MMR · Compression · Adaptive/Self-RAG · GraphRAG · Multimodal | ⏳ | ⭐ **BẮT ĐẦU TẠI ĐÂY** — Metadata filtering → MMR |
+| 3 | Eval: Retrieval metrics · Judge · RAGAS · Golden · Regression · A/B · Cost/Efficiency · Calibration · Online · Bias · **CI gate** | ⏳ | **Ưu tiên song song P2:** code tay `hit@k/mrr/ndcg` → golden 50–100 cặp → A/B Hybrid vs Hybrid+MMR |
+| 3.5 | Profiling · Indexing · HNSW · Quantization · Caching · Semantic cache | ⏳ | Chỉ mở sau khi có eval — viết `@timed` đo từng chặng trước |
+| 4 | Agent: Supervisor · Tool · Triage · Memory · Abstention · HITL · Tracing · MCP | ⏳ | Tái dùng skill CRAG → dựng StateGraph supervisor + cắm LangFuse ngay |
+| 5 | Safety: Injection · PII · Toxicity · Sanitization · Red-team · Rate · Cost · Circuit breaker · Degradation | ⏳ | Code tay Trie/regex PII (SĐT VN) + circuit breaker state machine |
+| 6 | Fine-tune: LoRA/QLoRA · Synthetic · GGUF · Domain | ⏳ | Manual LoRA layer PyTorch (`W+BA·scale`) trên 1 linear toy |
+| 7 | MLOps: Serving · Observability · Data lifecycle · Drift · Canary | ⏳ | vLLM serve local + Prometheus metric cơ bản |
+| 8 | Extensibility: Plugin · Templates · Benchmark · Docs · Examples | ⏳ | Code tay registry dict+decorator (chặn trùng + assert Port) |
+| 9 | SaaS Bridge: Metering · Entitlement · Multi-tenancy enforce | ⏳ | Định nghĩa `MeteringPort`+`EntitlementPort` (0 stripe) + fake adapter |
+
+> **Nhịp sau reset:** đi tuần tự **P0 chunking → P1 vector → P2 lõi (bm25/rrf/hybrid/rerank/CRAG)**.
+> Khôi phục lõi cũ bằng tay trước (đã có kiến thức, nhanh hơn lần đầu). Tới **P3 eval** thì mở
+> song song để bắt đầu đo các kỹ thuật P2 mở rộng. Mỗi phần xong → cập nhật notes + số test.
+
+---
+
+## 📚 Tài liệu tham khảo
+
+| Tài liệu | Nội dung |
+|----------|---------|
+| [notes/](notes/) | Sổ tay học: design-system · algorithms · glossary · bug-log (viết ở bước 6 mỗi kỹ thuật) |
+| [README.vi.md](../README.vi.md) | Giới thiệu dự án, kiến trúc hệ thống |
+| Cormack et al. 2009 | Paper gốc RRF — `k=60` từ đây |
+| Robertson et al. 1994 | Paper gốc Okapi BM25 |
+| BAAI/bge-m3 | Model embedding 1024-dim, 100+ ngôn ngữ |
+| Lewis et al. 2020 | RAG paper gốc |
+| Yan et al. 2024 | CRAG (Corrective RAG) |
+| Asai et al. 2023 | Self-RAG |
+| Carbonell & Goldstein 1998 | MMR gốc |

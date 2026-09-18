@@ -82,7 +82,7 @@
   `origin/main` cục bộ (nó chỉ là bản chụp của lần fetch gần nhất, có thể cũ hàng ngày).
 - **Fix:** `git push origin main` → `d088681..2ca8279`.
 - **Test chặn tái phát:** chưa có. Hướng: hook `post-commit` cảnh báo khi `main` ahead, hoặc đưa
-  `git push` thành **dòng bắt buộc trong sổ giờ** cuối mỗi ca (xem [so-gio.md](./so-gio.md)).
+  `git push` thành **dòng bắt buộc trong sổ giờ** cuối mỗi ca (xem [archive/so-gio.md](../archive/so-gio.md)).
 - **Bài học / pattern:** cùng họ với bug #35 — *trạng thái thật khác trạng thái mình tưởng, và
   công cụ báo "ổn" vì nó đang trả lời một câu hỏi khác câu mình đang hỏi.* #35: tab VS Code trả
   lời "nội dung tôi đang giữ", không phải "nội dung trên đĩa". #36: `git status` trả lời "còn gì
