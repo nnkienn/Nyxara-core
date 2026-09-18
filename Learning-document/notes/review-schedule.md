@@ -55,6 +55,79 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 
 ---
 
+## 🏢 Slot công ty 2026-09-18 — VÒNG VẤN ĐÁP ĐẦU TIÊN THEO CÁCH MỚI (0 ✅ · 2 ⚠️ · 1 ❌)
+
+> ⚠️ **Máy:** buổi này làm ở **máy công ty**; code sáng 18/09 ở máy kia **chưa push**. Các sửa đổi hôm nay
+> chỉ nằm trong `Learning-document/` (note + drill mới tên riêng 18/09) — nhưng vẫn phải `git pull`/xử lý
+> merge trước khi làm tiếp ở máy kia.
+
+**Cách chạy (đúng thiết kế 17/09, mục I roadmap):** 3 câu đóng sách, nói to, Claude chấm **một lần**,
+hẹn lại ❌ +2 · ⚠️ +5 · ✅ +14. Ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questions.md).
+
+| Câu | Kết quả | Chỗ hỏng |
+|---|---|---|
+| 3.5 RRF | ⚠️ | WHY **lần đầu sạch** ("2 nhánh trả đại lượng khác nhau"). Công thức lệch: *"1/k+60"* → đúng là `1/(k + rank)`, `k`=60. Thiếu chữ "cộng dồn **theo doc_id**". |
+| 3.9 tenant | ❌ nửa sau | Qdrant = pre-filter ✅. BM25 → *"hình như search xong mới lọc"* ❌. **Không có bước lọc nào**: `self.index[tenant_id][term][doc_id]`, tenant là khoá ngoài cùng. |
+| 1.4 chunker | ⚠️ | Đúng 2 bước split + merge. *"Không gộp lại được"* = chép lại đề, **thiếu hậu quả** (mẩu 1 chữ → vector vô nghĩa). Lỗi "trả lời 1 trong 2 ý" đã gặp 16/09. |
+
+**🚨 Lỗ mới, nặng nhất buổi — [Cặp 15](./the-phan-biet.md):** user nói *"BM25 là thuật toán tìm kiếm
+**chính xác về ngữ nghĩa**"* — **đảo nhãn hoàn toàn**. Sai vế này thì không giải thích nổi *vì sao cần hybrid*,
+mà đó là câu mở đầu của mọi vòng phỏng vấn RAG. Khác Cặp 3 (hỏi "có phải model không"); cặp này hỏi
+"khớp theo cái gì". **Vá bằng bài đo, không giảng** — chạy `BM25Index` thật:
+`"xe hoi"` → `d1` 1.386 · `"o to"` → **rỗng** dù `d1` nói đúng về ô tô · `"oto"` → rỗng.
+Kèm luôn bằng chứng phân vùng: B hỏi thấy `d3`, A không bao giờ thấy `d3` dù nội dung y hệt `d1`;
+`doc_count = {A: 2, B: 1}` → **IDF tính riêng từng tenant** (1.386 vs 0.575 cho chữ y hệt).
+
+**Việc user tự nhận cuối buổi (ghi nguyên văn):** *"tôi mới phát hiện ra tôi chưa hoàn toàn trả lời
+thuần thục phỏng vấn được"*. → Đây là **phát hiện đúng lúc**, không phải tin xấu: mục K roadmap đặt lịch
+nộp đơn ~15/01/2027, còn ~17 tuần để biến "xây được" thành "nói ra được". Nhưng nó xác nhận: **slot công ty
+1h/ngày phải chạy đều**, không được cắt, vì đây là làn duy nhất luyện phần nói.
+
+**Việc lệch đề lặp lại:** hỏi *cơ chế chặn tenant*, user trả lời *việc tìm kiếm là gì*. Cùng dạng lỗi
+đọc đề của 16/09 (A3/A4/A7/A8 trả lời 1 trong 2-3 ý). Trong phỏng vấn, lỗi này đắt hơn lỗi kiến thức.
+
+### 🐍 Python thực tế — mẩu 1 XONG ([2026-09-18-congty-python.py](../drills/2026-09-18-congty-python.py))
+
+`doc_dong("user=kien action=login ms=120")` → `{'user':'kien','action':'login','ms':'120'}` ✅, thử thêm ca khác cũng đúng.
+
+**Năm vòng đỏ, KHÔNG vòng nào là lỗi logic** — mọi câu user nói bằng tiếng Việt đều đúng ngay lần đầu
+(cắt 2 lượt · `return` ngoài vòng `for` · ô 0 làm tên, ô 1 làm giá trị). Hỏng toàn ở **vỏ cú pháp**,
+đúng chẩn đoán đã dẫn tới Cách A ngày 17/09:
+1. `for pieces in dong:` → lặp qua **từng ký tự** (`'u','s','e','r'...`), phải `dong.split(" ")` trước.
+2. `pieces.split("=")` **không hứng giá trị trả về** — **lần thứ 4** dính dạng này (`chunk_count` 06/09 ·
+   `split_by_separators` mồ côi · schema `candidate_k`). Thói quen phải cài: gõ xong lời gọi hàm thì hỏi
+   *"ai đang hứng giá trị này?"*
+3. `so["temp"]` — nháy quanh **tên biến** (lặp lỗi A5 ngày 16/09) và `[]` đang **TRA** chứ không **GHI**.
+4. `so.add(result)` — `.add` là của **túi** (`set`, một mảnh), `so` là **sổ** (`dict`, hai mảnh: tên → giá trị).
+   Đúng lỗ nền `{}` set ↔ dict đã bóc ra 10/09.
+5. ⭐ **`so[temp[0]] = temp=[1]`** — một dấu `=` lạc chỗ, **KHÔNG NỔ PHÁT NÀO**: `temp` bị gán lại thành `[1]`,
+   sổ trả về `{'user': [1], 'action': [1], 'ms': [1]}`, sai sạch mà chạy trơn. Đây là loại bug sống được hàng
+   tuần trong repo thật — đáng nhớ hơn cả 4 lỗi trên.
+
+**Cách A chạy đúng như thiết kế:** chỗ tắc cuối cùng gỡ được bằng *user nói tiếng Việt → Claude dịch 1 dòng*
+(*"lấy ô 0 làm tên, ô 1 làm giá trị"* → `so[temp[0]] = temp[1]`). ⬜ Mẩu 2 (đếm lượt) và mẩu 3 (chậm nhất) để slot sau.
+
+### 🇬🇧 English — pitch 60 giây, lần đầu
+
+User tự viết bản thô → Claude sửa → bản chuẩn 4 đoạn. **Đóng sách nói lại: nhớ được đoạn 1** (BY HAND),
+**rơi 3/4 còn lại** (pivot · con số · bug log). Lỗi ngữ pháp chính: `a AI` → `an AI` · `build` → `built` ·
+`this is past` → `that was the earlier version` · `find law about this` → `looked into the legal side` ·
+`change the path` → `pivot` · `agent about VN law` → `a RAG system over Vietnamese legal documents`.
+
+**Cách ôn đã chốt (5'/buổi, đừng học thuộc chữ):** nhớ **4 cái móc** →
+`BY HAND` (embedding · BM25 · RRF · rerank · CRAG, no framework) · `PIVOT` (video tool → legal) ·
+`NUMBER` (61K điều, SOTA 0.8488, *"my next milestone"*) · `BUG LOG` (36 bug, test đỏ trước, vài cái chỉ lòi ra đa luồng).
+
+**Ba câu vặn vẹo đã soạn sẵn:** *why not LangChain* (→ kể bug #29 race) · *what's your number* (→ **nói thẳng
+chưa có**, đừng bịa) · *why Vietnamese law* (→ dữ liệu công khai + có nhãn + phải trích dẫn được điều khoản).
+
+**⏭️ Còn nợ (đừng để trôi):**
+- ⬜ Mẩu 2 + mẩu 3 của bài Python 18/09.
+- ⬜ Trả lời câu chốt đang treo: *nhánh nào trong hybrid bắt được truy vấn `"o to"`, vì sao*.
+- ⬜ Đọc to pitch 4 móc, đóng sách, 5' mỗi slot công ty.
+- ✅ Cặp phân biệt **RRF rank ↔ score** (nợ từ 15/09) — đã gộp vào [Cặp 15](./the-phan-biet.md), coi như trả.
+- ⬜ `so-gio.md` thiếu dòng 17/09 và 18/09.
+
 ## 📌 Kế hoạch 2026-09-14 (T2) — MỐC 2: Metadata filtering 🔴 (hộp cứng 8h)
 
 > Thứ tự do user chốt tối 13/09: **sáng sớm ở nhà = kỹ thuật mới** · **ở công ty = trace trạm 5** ·

@@ -37,7 +37,7 @@
 | 1.1 | 🟢 | Chunking là gì, vì sao không nhét cả document vào một embedding? | algorithms | ⬜ |
 | 1.2 | 🟢 | `size` và `overlap` là gì? Vì sao cần overlap? | algorithms | ⬜ |
 | 1.3 | 🟡 | Fixed-size vs Recursive chunking khác nhau chỗ nào? Kể một tình huống fixed-size cắt hỏng nghĩa. | 01-ingest | ⬜ |
-| 1.4 | 🟡 | Recursive splitter thật gồm **2 bước**, không phải 1 — kể ra. Vì sao thiếu bước gộp thì kết quả vô dụng? | bug-log | ⬜ |
+| 1.4 | 🟡 | Recursive splitter thật gồm **2 bước**, không phải 1 — kể ra. Vì sao thiếu bước gộp thì kết quả vô dụng? | bug-log | ⚠️ 18/09 → hẹn **23/09** *(kể đúng 2 bước, nhưng "không gộp lại được" mới là chép lại đề — thiếu HẬU QUẢ: mẩu 1 chữ → vector vô nghĩa)* |
 | 1.5 | 🟡 | Overlap quá lớn thì hỏng gì? Quá nhỏ thì hỏng gì? | algorithms | ⬜ |
 | 1.6 | 🔴 | Chọn `size` cho một corpus mới thì căn cứ vào đâu? (gợi ý: giới hạn model, độ dài câu hỏi, chi phí) | — | ⬜ |
 | 1.7 | 🔴 | Khi nào Document-based (theo heading) tốt hơn Recursive? Khi nào tệ hơn? | — | ⬜ |
@@ -66,9 +66,11 @@
 | 3.2 | 🟡 | IDF nghĩa là gì? Vì sao từ hiếm được điểm cao hơn? | algorithms | ⬜ |
 | 3.3 | 🟡 | `k1` và `b` điều khiển cái gì? | algorithms | ⬜ |
 | 3.4 | 🟡 | Kể một truy vấn mà **dense thua BM25**, và một truy vấn ngược lại. | algorithms | ⬜ |
-| 3.5 | 🟡 | RRF gộp kết quả bằng cách nào? Vì sao dùng **thứ hạng** chứ không dùng **điểm số**? | phan-biet Cặp 5 | ⬜ |
+| 3.5 | 🟡 | RRF gộp kết quả bằng cách nào? Vì sao dùng **thứ hạng** chứ không dùng **điểm số**? | phan-biet Cặp 5 | ⚠️ 18/09 → hẹn **23/09** *(vế WHY lần đầu trả lời sạch: "2 nhánh trả đại lượng khác nhau". Công thức lệch: nói "1/k+60", đúng là `1/(k+rank)` với `k`=60)* |
 | 3.6 | 🔴 | RRF có hằng số `k` — nó làm gì? Đặt quá nhỏ / quá lớn thì sao? | algorithms | ⬜ |
 | 3.7 | 🔴 | Nếu `doc_count` của BM25 bị đếm sai, kết quả xếp hạng sai kiểu gì? Ai phát hiện ra? | bug #29 | ⬜ |
+| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ❌ 18/09 → hẹn **20/09** *(trả lời ngược: "BM25 chính xác về ngữ nghĩa")* |
+| 3.9 | 🔴 | `tenant_id` chặn tài liệu tenant khác — ở nhánh Qdrant và nhánh BM25 là **cùng một cơ chế** không? Nêu tên file/dòng. | phan-biet Cặp 15 | ❌ 18/09 → hẹn **20/09** *(nói BM25 "search xong mới lọc"; thực ra PHÂN VÙNG bằng khoá dict, không có bước lọc nào)* |
 
 ## 4. Reranking
 
@@ -259,4 +261,4 @@ Mỗi vòng ghi 1 dòng. Chỉ tính câu **đã đóng tài liệu trả lời 
 
 | Ngày | Phạm vi | ✅ | ⚠️ | ❌ | Câu sai cần nhắm lại |
 |---|---|---|---|---|---|
-| | | | | | |
+| 2026-09-18 (slot công ty) | RRF · tenant filter · recursive chunking | 0 | 2 | 1 | 3.9 tenant **lọc ↔ phân vùng** (+2 → 20/09) · 3.8 BM25 mặt chữ ↔ nghĩa, **đảo nhãn** (+2 → 20/09) · 3.5 công thức `1/(k+rank)` (+5 → 23/09) · 1.4 thiếu hậu quả (+5 → 23/09) |
