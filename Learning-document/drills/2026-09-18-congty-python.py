@@ -39,6 +39,17 @@ def doc_dong(dong:str) -> dict:
 #   def dem_luot(log: list) -> dict:
 # Phải ra:  {'kien': 2, 'an': 2, 'binh': 1}
 # ✍️ GÕ Ở ĐÂY
+def dem_luot(log: list) -> dict:
+    so = {}                          # b1. cuon so rong, NGOAI vong for
+    for dong_chu in log:             # b2. di qua tung dong
+        dong = doc_dong(dong_chu)    # b3. doc dong do ra dict
+        ten = dong["user"]           # b4. moi ten user ra
+        if ten in so:                # b5. NEU ten da co trong so
+            so[ten] = so[ten] + 1    # b6.   tang len 1
+        else:                        # b7. NGUOC LAI (chua co)
+            so[ten] = 1              # b8.   dat vao so, cho 1
+    return so                        # b9. tra so ve
+
 
 
 

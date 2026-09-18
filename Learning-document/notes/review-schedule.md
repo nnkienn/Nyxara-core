@@ -189,6 +189,71 @@ chưa có**, đừng bịa) · *why Vietnamese law* (→ dữ liệu công khai 
 
 ---
 
+## 🌙 Ca tối 2026-09-18 (T6) 22:07 → ~22:55 (~50') — CA MỆT, VỪA OT VỀ
+
+> Áp [§3.9](../../CLAUDE.md): buổi bắt đầu sau 21h + vừa OT → **không đọc code lạ · không trace code cũ ·
+> không bài thiết kế**. Pre-filter Qdrant (việc chính của lát 0) **đẩy sang ca sáng 19/09**, đúng luật.
+> **Hụt ~1h10** so với slot tối 2h — ghi rõ, không giấu.
+
+**1. Drill ép chọn — [2026-09-18-toi-ep-chon-bm25-tenant.py](../drills/2026-09-18-toi-ep-chon-bm25-tenant.py) — 11/12**
+
+Nhắm đúng 2 câu hỏng nặng nhất slot công ty sáng cùng ngày.
+- **Ván 1 (BM25 trả CÓ/RỖNG): 5/5.** Câu ăn tiền nhất là câu 5 — hỏi `"thanh lap cong ty"` trên doc
+  `"thu tuc dang ky kinh doanh..."`, user tự trả **RỖNG** cho một doc *nói đúng về cái đang hỏi*.
+  ⇒ **Cặp 15 đã lật lại đúng chiều** sau đúng một ngày (sáng còn nói *"BM25 chính xác về ngữ nghĩa"*).
+- **Ván 3 (tenant): 3/3.** `KHÔNG VÀO ĐƯỢC` cho BM25 · `LỌC THẬT` cho Qdrant — đúng chỗ phân biệt.
+  ⇒ Câu **3.9 ❌ sáng nay coi như trả xong**, vẫn giữ lịch ôn 20/09 để xác nhận.
+- **Ván 2 (ép chọn nhánh): 3/4**, và có một chuyện đáng ghi:
+  - **Vòng 1 trả LỆCH ĐỀ** — đề hỏi `BM25`/`DENSE`, user trả `CÓ`/`RỖNG`. Mâu thuẫn lộ ra ngay:
+    **câu 2 và câu 6 là cùng một cảnh** (`"o to"` trên doc `"xe hoi"`) mà hai đáp án ngược nhau.
+    Cùng dạng lỗi **đọc đề** của 16/09 và của slot công ty sáng nay — **lần thứ 3**. Đây là lỗi đắt nhất
+    trong phỏng vấn, đắt hơn lỗi kiến thức.
+  - Vòng 2 đúng định dạng: **sai câu 8** — `"Nghi dinh 15/2022/ND-CP"` user chọn DENSE, đúng là **BM25**.
+
+**Vá câu 8 bằng bài đo, không giảng** — chạy `BM25Index` thật trên 3 nghị định:
+```
+hoi '15/2022/ND-CP'            -> [('nd-15', 0.970)]                      <- ĐÚNG MỘT doc
+hoi 'Nghi dinh'                -> [('nd-15', 1.131), ('nd-44', 1.073)]    <- lẫn, gần bằng điểm
+IDF:  nghi 0.470 · dinh 0.470 · 15/2022/nd-cp 0.981                       <- chữ hiếm nặng GẤP ĐÔI
+```
+Chữ càng hiếm → `doc_freq` càng nhỏ → IDF càng cao → BM25 càng chắc tay. Dense thì ngược: vector của
+một số hiệu **không neo vào đâu**. Hậu quả đúng miền pháp luật: hỏi đúng số hiệu, trả nhầm nghị định khác
+= **trích dẫn sai điều luật** — đúng thứ lát 3 phải chống.
+> **Hai cảnh phải nhớ thay cho nhãn:** `"o to"` = ca của DENSE · `15/2022/ND-CP` = ca của BM25.
+> Hai cảnh đó **là** lý do hybrid tồn tại.
+
+**2. Mẩu 2 bài Python `dem_luot` — LOGIC user tự ra, RUỘT Claude gõ (ghi trung thực)**
+
+- **Thuật toán đầu tiên user nói ra là SAI** và sai kiểu đáng giá: *"lấy dòng đầu làm chuẩn, dòng sau
+  giống thì tăng, khác thì đếm lại từ đầu"* — đó là đếm **dãy liên tiếp**, chỉ đúng nếu log đã xếp sẵn
+  theo user. Chạy tay trên 5 dòng log (các user **xen kẽ**) → ra `1`, không ra `{'kien': 2, ...}`.
+  Gỡ được bằng **một câu hỏi, một ô**: *"`count = 0` giữ được mấy con số?"* → user tự trả **1**, tự thấy
+  đích cần **3 số có tên** ⇒ phải là sổ `{}`. Sau đó user trả đúng cả 2 ca (đã có → tăng · chưa có → đặt `1`).
+- **Lỗ cú pháp chặn lại:** user không viết nổi câu *"tên này đã có trong sổ chưa"* ra Python.
+  Đưa 3 mảnh trên ví dụ khác hẳn (đếm loại văn bản): `in` · `so[k] = 1` · `so[k] = so[k] + 1`.
+- ⭐ **Bug im lặng đáng nhớ nhất buổi — `def` thụt vào 4 dấu cách.** `dem_luot` bị định nghĩa **bên trong**
+  `doc_dong` (comment `#` KHÔNG đóng khối). Chạy file: **không lỗi, không kết quả**. Gọi ra thì
+  `KeyError: 'dem_luot'`, mức ngoài cùng chỉ có `['dong', 'log', 'doc_dong']`.
+  **User tự tìm ra và tự sửa** sau khi thấy hiện trường ⇒ đây là **lượt debug thật của buổi**.
+  Đúng lỗ nền *"thụt lề = phạm vi"* đã bóc 10/09.
+- ⚠️ **User xin Claude gõ hộ** (*"mấy chỗ kia bạn tự sửa đi mất thời gian quá"*) — 22:45, vừa OT về, áp đúng
+  ngoại lệ *mệt/hết giờ* ở §3.6 mục 9. Claude dịch nguyên văn mã giả b1→b9 của user → chạy ra
+  `{'kien': 2, 'an': 2, 'binh': 1}`. **Buổi này KHÔNG tính là có lượt GÕ THẬT** — mẩu 3 sáng mai phải bù.
+- Lỗi chưa kịp lòi vì bị lỗi thụt lề che: `for pieces in log` nhưng gọi `doc_dong(piece)` —
+  **gõ sai tên biến**, cùng họ `so["temp"]` sáng nay.
+
+**⏸️ CHỖ DỪNG — ca sáng 19/09 làm từ đây:**
+1. **Việc chính (lát 0, cần đầu óc sạch):** pre-filter — dịch cây `and/or/not` → `Filter` của Qdrant
+   (`must`/`should`/`must_not`). Kèm câu phải trả lời được: *lọc sau thì `candidate_k` phải làm sao?*
+   Nối dây (metadata vào `ingest_document` + `QdrantStore.upsert` + kho metadata cho BM25) là việc Claude.
+2. **Bù lượt GÕ THẬT:** mẩu 3 `cham_nhat` — user gõ ruột, Claude không đụng.
+3. **Nợ mang sang:** `eq/ne/gt/gte/lt/lte/in` chưa vào [glossary.md](./glossary.md) ·
+   pitch tiếng Anh 4 móc chưa đọc to lại.
+4. **Lịch ôn:** 20/09 — câu 3.9 tenant + 3.8 BM25 · 23/09 — 3.5 công thức RRF + 1.4 hậu quả chunk 1 chữ.
+5. **Theo dõi:** lỗi **đọc đề** đã 3 lần. Sáng mai mỗi câu hỏi phải đọc lại *dạng trả lời* trước khi trả.
+
+---
+
 ## 📌 Kế hoạch 2026-09-14 (T2) — MỐC 2: Metadata filtering 🔴 (hộp cứng 8h)
 
 > Thứ tự do user chốt tối 13/09: **sáng sớm ở nhà = kỹ thuật mới** · **ở công ty = trace trạm 5** ·

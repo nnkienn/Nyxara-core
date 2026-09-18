@@ -397,6 +397,7 @@ vòng lặp để được chấm điểm (`bm25_index.py:51`). Hai con số `1.
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
 |---|---|---|---|
+| 2026-09-18 (tối) | Ép chọn BM25↔dense + tenant, 12 câu | **11/12** | Cặp 15 **đã lật đúng chiều** (ván 1 5/5, ván 3 3/3). Còn sai đúng 1 ô: số hiệu văn bản `15/2022/ND-CP` chọn DENSE, đúng là **BM25** (chữ hiếm → IDF cao). Vòng 1 trả **lệch đề** (CÓ/RỖNG thay vì BM25/DENSE) — lỗi đọc đề lần 3 |
 | 2026-09-03 sáng | ôn +1 (chưa drill) | **1/4** — trượt | Cặp 1 (`to_upsert`/`to_delete` — lẫn lần thứ 4), Cặp 3 (tưởng BM25 là model, cross-encoder không phải), Cặp 4 (tưởng cross-encoder "đắt và **rộng**") |
 | 2026-09-03 sáng | drill vòng 1 (12 câu) | **11/12** | Cặp 8 (đảo ngược bền/dễ vỡ: trả lời "manifest mất, BM25 còn") |
 | 2026-09-03 sáng | neo lại Cặp 8 + test 3 câu | **3/3** | — |
