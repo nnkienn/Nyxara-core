@@ -31,6 +31,30 @@ ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questio
 
 ## 📓 Nhật ký buổi
 
+### 2026-09-19 (T7) — 1 ca tối 20:40-22:50 (~2h10) · LÁT 0 · **BUỔI HỎNG**
+
+- Việc: pre-filter — dịch cây `and/or/not` sang `Filter` Qdrant. **Không hoàn thành.**
+- **0 lượt gõ code thật trong 100 phút đầu** — Claude cho đoán liên tiếp thay vì cho làm. Đúng loại
+  "buổi hỏng" mà CLAUDE.md §4 cấm. Lỗi ở cách dạy, không ở user.
+- **5 lần lỗi ĐỌC/CHÉP** (không phải lỗi hiểu): `năm` thay `nam` (3 lần) · `"Bộ Tài Chính"` C hoa
+  thay `"Bộ Tài chính"` · thiếu `}` đóng. → luật mới: **giá trị lấy từ dữ liệu thì COPY-PASTE, không gõ tay.**
+- Lẫn mới: **`must_not` bị hiểu thành ngăn CHỌN RA** (đúng là ngăn LOẠI RA) → the-phan-biet.
+- Lẫn mới: **`danh_gia` (chấm, cần metadata, ra True/False) ↔ `to_qdrant_filter` (dịch đơn, không cần
+  metadata, ra dict)** — user nói "tồn tại thì must, không tồn tại thì must_not" = giọng của hàm chấm.
+- Hai thứ học được thật: **bộ lọc sai không bao giờ nổ**, chỉ lặng lẽ trả sai → phải chạy trên kho nhỏ
+  đã biết đáp án. Và `unexpected EOF while parsing` = thiếu ngoặc đóng, con trỏ chỉ cuối file, không chỉ đúng chỗ.
+- User dừng buổi: *"không hiểu quả và cực kì mệt, suy sụp vì không đọc được code"*.
+
+**⚙️ ĐỔI PHƯƠNG PHÁP (chốt 19/09, KHOÁ tới 27/09 mới bàn lại):**
+Kỹ thuật **mới** → **PRIMM** (Claude viết bản chạy được → user đoán → chạy → soi → sửa vặt → gõ lại từ trắng).
+Kỹ thuật **đã đọc qua** → giữ **Cách A** (user mã giả, Claude dịch). Cách A không sai, 18/09 đo tốt —
+sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 học sinh) + Parsons problems
+(ghép code có sẵn ≈ hiệu quả ngang viết từ đầu, tải nhận thức thấp hơn nhiều).
+**Chấm bằng 2 số, tới 27/09:** (1) số lần tắc cứng phải hỏi Claude mới đi tiếp được ·
+(2) cuối mỗi kỹ thuật đóng file gõ lại từ trắng được hay không. Không khá hơn thì bỏ PRIMM.
+
+---
+
 ### 2026-09-18 (T6) — 3 ca, ~2h55 · LÁT 0
 
 **Ca sáng 06:01-07:05 (~55' giờ-mốc) — ngày đo chuẩn của Cách A**
@@ -63,14 +87,12 @@ ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questio
 
 ---
 
-## ⏸️ CHỖ DỪNG — ca sáng 19/09 làm từ đây
+## ⏸️ CHỖ DỪNG — sáng 20/09 làm từ đây
 
-1. **Bàn lại nhịp ngày** (user chốt tối 18/09 để dành cho ca sáng): xây ~70% · drill ~20% · meta ~5%.
-   Gồm cả **15' Python thuần mỗi ngày**, tách hẳn khỏi RAG — lỗ cú pháp đã chẩn 3 lần chưa vá.
-2. **Việc chính lát 0 (cần đầu óc sạch):** pre-filter — dịch cây `and/or/not` → `Filter` của Qdrant
-   (`must`/`should`/`must_not`). Câu phải trả lời được: *lọc sau thì `candidate_k` phải làm sao?*
-   Nối dây (metadata vào `ingest_document` + `QdrantStore.upsert` + kho metadata cho BM25) = việc Claude.
-3. **Bù lượt GÕ THẬT:** mẩu 3 `cham_nhat` trong [drill 18/09](../drills/2026-09-18-congty-python.py) —
-   user gõ ruột, Claude không đụng.
-4. **Nợ:** `eq/ne/gt/gte/lt/lte/in` chưa vào [glossary.md](./glossary.md) · pitch 4 móc chưa đọc to lại.
-5. **Theo dõi:** lỗi **đọc đề** đã 3 lần — mỗi câu hỏi phải đọc lại *dạng trả lời* trước khi trả.
+1. **Bài Parsons pre-filter** (Claude soạn sẵn tối 19/09): `to_qdrant_filter` bản ĐÃ CHẠY ĐƯỢC +
+   bản xáo dòng để user sắp lại. Chạy theo PRIMM: đoán → chạy → soi → sửa vặt → gõ lại từ trắng.
+   File: [drills/2026-09-19-to-qdrant-filter.py](../drills/2026-09-19-to-qdrant-filter.py) (bản ✍️ trắng, 0/8).
+2. **Vấn đáp tới hạn 20/09** — 3.9 tenant filtering · 3.8 BM25 khớp theo cái gì. Đóng sách, 10' đầu buổi.
+3. **Nợ cũ còn nguyên:** gõ ruột `cham_nhat` ([drill 18/09](../drills/2026-09-18-congty-python.py)) ·
+   `eq/ne/gt/gte/lt/lte` vào glossary · pitch 4 móc đọc to.
+4. **Theo dõi:** lỗi đọc đề/chép sai đã **8 lần** cộng dồn. Bắt buộc copy-paste giá trị, cấm gõ tay.
