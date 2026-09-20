@@ -87,7 +87,21 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
-## ⏸️ CHỖ DỪNG — sáng 20/09 làm từ đây
+### 2026-09-20 (CN) chiều 16:49-17:30 (~40', buổi NHẸ sau nghỉ, user báo chán)
+
+- Không đọc code lạ, không thiết kế. Chỉ: vá 1 chỗ lẫn + drill ép chọn + gõ ruột ngắn.
+- **Lẫn 1:** ô trong `{"range": {___: 2015}}` điền `"nam"` (tên trường) thay vì `"gte"` (phép so sánh).
+  Vá bằng in thật 3 biến → **drill ép chọn 3/3** ngay sau đó.
+- **Gõ ruột `to_range_clause`** ([drill](../drills/2026-09-20-chieu-go-ruot-range.py)) — **4/4 ca đúng**.
+  Hai vòng đỏ, cả hai là lỗi **chép máy móc từ file PRIMM**: `pred.keys()[0]` (quên bọc `list`) và
+  biến `phep` không tồn tại (file này đặt tên `op`). Không vòng nào là lỗi logic.
+- ⭐ **Tay đúng, miệng sai:** gõ đúng `pred[op][0]` nhưng hỏi *"`pred[op]` chứa gì"* thì trả `"gte"`.
+  → [Cặp 16](./the-phan-biet.md) — tái phát của "lỗi A" 15/09. Lần sau gặp: **dựng bài đo, cấm giảng lại.**
+- Chưa làm: vấn đáp 3.8/3.9 · PRIMM `to_qdrant_filter` (mục SOI + SỬA VẶT) · nợ cũ 18/09.
+
+---
+
+## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
 1. **Bài Parsons pre-filter** (Claude soạn sẵn tối 19/09): `to_qdrant_filter` bản ĐÃ CHẠY ĐƯỢC +
    bản xáo dòng để user sắp lại. Chạy theo PRIMM: đoán → chạy → soi → sửa vặt → gõ lại từ trắng.

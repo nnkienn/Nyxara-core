@@ -393,6 +393,22 @@ vòng lặp để được chấm điểm (`bm25_index.py:51`). Hai con số `1.
 
 ---
 
+## Cặp 16 — **KHOÁ** vs **GIÁ TRỊ TẠI KHOÁ**  (tái phát, 15/09 "lỗi A" → 20/09 chiều)
+
+```python
+pred = {"gte": ["nam", 2015]}
+op = list(pred.keys())[0]
+
+op       -> 'gte'            # KHOÁ
+pred[op] -> ['nam', 2015]    # GIÁ TRỊ TẠI KHOÁ
+```
+
+`list(d.keys())[0]` lấy **tên ngăn**. Muốn đồ trong ngăn thì phải tra thêm một nhịp: `d[<tên ngăn>]`.
+Hỏi 20/09: *"`pred[op]` chứa gì?"* → user trả `"gte"`, tức trả lại chính cái khoá.
+**Tay gõ đúng `pred[op][0]`, miệng nói sai** — thuộc thao tác, chưa thuộc nghĩa.
+15/09 đã dính đúng bệnh này (bài 6, 10: `list(d.keys())[0]` tưởng ra value) ⇒ **lần 2, không giảng lại,
+lần sau gặp là dựng bài đo ngay** (luật 09/09). Cùng họ với [Cặp 13b](#) (`[]` để số hay để khoá).
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |

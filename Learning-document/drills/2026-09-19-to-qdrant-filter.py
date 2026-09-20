@@ -23,7 +23,7 @@ def to_qdrant_filter(pred: dict) -> dict:
     # MẨU A — lá phép "eq". Trả ra dict có "key" và "match".
     # ✍️ GÕ Ở ĐÂY
     if phep == "eq":
-        
+        pass
 
     # MẨU B — lá phép so số: gt / gte / lt / lte. Trả ra dict có "key" và "range".
     #          (4 phép này gộp một nhánh được, tên phép đem dùng thẳng làm khoá trong range)
