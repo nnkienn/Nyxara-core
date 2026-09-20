@@ -262,3 +262,4 @@ Mỗi vòng ghi 1 dòng. Chỉ tính câu **đã đóng tài liệu trả lời 
 | Ngày | Phạm vi | ✅ | ⚠️ | ❌ | Câu sai cần nhắm lại |
 |---|---|---|---|---|---|
 | 2026-09-18 (slot công ty) | RRF · tenant filter · recursive chunking | 0 | 2 | 1 | 3.9 tenant **lọc ↔ phân vùng** (+2 → 20/09) · 3.8 BM25 mặt chữ ↔ nghĩa, **đảo nhãn** (+2 → 20/09) · 3.5 công thức `1/(k+rank)` (+5 → 23/09) · 1.4 thiếu hậu quả (+5 → 23/09) |
+| 2026-09-20 (tối, đo lại) | BM25 mặt chữ · tenant filter | 1 | 1 | 0 | 3.8 nói nhầm "rank" thay vì TF/IDF trên mặt chữ, không nêu được BM25 khớp theo cái gì (+5 → 25/09, đo bằng drill ép chọn) · 3.9 ✅ đủ đáp án + lý do (+14 → 04/10) |

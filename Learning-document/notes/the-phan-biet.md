@@ -409,6 +409,22 @@ Hỏi 20/09: *"`pred[op]` chứa gì?"* → user trả `"gte"`, tức trả lạ
 15/09 đã dính đúng bệnh này (bài 6, 10: `list(d.keys())[0]` tưởng ra value) ⇒ **lần 2, không giảng lại,
 lần sau gặp là dựng bài đo ngay** (luật 09/09). Cùng họ với [Cặp 13b](#) (`[]` để số hay để khoá).
 
+## Cặp 17 — ô **PHÉP** vs ô **KHOÁ CỐ ĐỊNH** trong tờ đơn Qdrant  (20/09 tối)
+
+```python
+{"key": "nam",          "range": {"gte": 2015}}       # ô này ĐIỀN TÊN PHÉP
+{"key": "loai_van_ban", "match": {"value": "Luật"}}   # ô này LUÔN LUÔN là "value"
+```
+
+`range` nhận **tên phép** (`gte`/`lt`/…) làm khoá — phép nào điền phép nấy.
+`match` **không nhận tên phép bao giờ**; khoá của nó chết cứng là `"value"`, dù đang dịch phép `eq`.
+Sai 20/09 tối: đoán ra `"match": {"eq": ...}` — lấy tên phép nhét vào ô khoá cố định.
+
+**Đây là chiều NGƯỢC của [Cặp 16](#) cùng ngày:** chiều 20/09 điền *tên trường* (`"nam"`) vào ô phép;
+tối 20/09 điền *tên phép* (`"eq"`) vào ô khoá cố định. Cùng một bệnh — **chưa phân biệt ô nào
+điền-theo-dữ-liệu, ô nào chết-cứng**. Đã sai 2 lần trong một ngày ⇒ theo luật 09/09, **lần sau
+dựng bài đo ép chọn ngay, cấm giảng lại**.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |

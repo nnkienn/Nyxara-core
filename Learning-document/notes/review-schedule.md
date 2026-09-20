@@ -12,8 +12,8 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **20/09** | 3.9 tenant filtering | *"search xong mới lọc"* — thực ra BM25 chặn bằng **khoá ngoài cùng**, doc tenant khác **không vào nổi** vòng chấm điểm. Tối 18/09 drill lại đúng 3/3, vẫn đo lại cho chắc |
-| **20/09** | 3.8 BM25 khớp theo cái gì | **Đảo nhãn hoàn toàn** (nói BM25 khớp *ngữ nghĩa*). Drill tối 18/09 đã lật lại 11/12 — đo lại đóng sách |
+| **25/09** | 3.8 BM25 khớp theo cái gì | 20/09 ⚠️: nói nhầm *"rank"* (rank là đầu vào của RRF, không phải của BM25), không nêu được **mặt chữ + TF/IDF**. Đo bằng drill ép chọn, không hỏi lại trần |
+| **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
 | **23/09** | 3.5 RRF | WHY sạch, nhưng công thức lệch: nói *"1/k+60"*, đúng là `1/(k + rank)` với `k=60`; thiếu chữ **cộng dồn theo `doc_id`** |
 | **23/09** | 1.4 Recursive chunker | Đúng 2 bước split+merge nhưng **thiếu hậu quả** (mẩu 1 chữ → vector vô nghĩa) |
 
@@ -101,12 +101,38 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-20 (CN) tối 18:43-20:05 (~1h20) · LÁT 0 · PRIMM buổi đầu
+
+- **Vấn đáp tới hạn:** 3.9 ✅ (tự nói đúng cả cơ chế: khoá ngầm ngoài cùng, BM25 chỉ chấm phần đã
+  qua lọc → +14, hẹn 04/10) · 3.8 ⚠️ (nói nhầm *"rank"*; rank là đầu vào RRF, không phải BM25 → 25/09).
+- **Trượt 3 lượt liên tiếp, cả 3 cùng MỘT lỗ: quên CÁI GỐC.** Đoán cây `and` → trả 2 dict rời, thiếu
+  `{"must": [...]}` bọc ngoài · đếm số lần gọi → nói 2, đúng là **3**. Lượt thứ 3 **không tính**:
+  bản in của Claude căn lề sai (dòng `trả ra` của #1 thụt 12 dấu, của #2/#3 thụt 14) → lỗi của Claude.
+- ⭐ **Miệng trượt nhưng TAY GÕ ĐÚNG.** [Gõ ruột gốc](../drills/2026-09-20-toi-go-ruot-goc.py) **4/6** —
+  và ca đúng bao gồm đúng cái ca đầu buổi đoán sai, có đủ `{"must": [...]}`. Ca `and` 3 lá cũng đúng.
+- 2 ca đỏ chung một gốc: ruột `or` thiếu `danh_sach_con = []`. **User tự tìm ra** bằng cách đặt ruột 1
+  cạnh ruột 2 — lượt debug thật của buổi. Chưa kịp sửa.
+- 🔴 **Nút thật của buổi:** *"viết xong cũng không biết hàm này đang làm gì"* → gõ được mà không có nghĩa.
+  Gỡ bằng kho 5 văn bản chạy thật: 5 vào, **2 sống**, `vb5` "Thông tư về thuế" đúng chủ đề vẫn bị cắt
+  vì `loai != Nghị định`. User tự gọi đúng tên: **metadata filtering**. Đúng luật 09/09 — số thật vào, lời nói không.
+- Lỗi chép cộng dồn: **10 lần** (tối nay thêm 2: `nghi_dinh` gõ tay · `2015` thay `2020`).
+- Lẫn mới: [Cặp 17](./the-phan-biet.md) — `match` khoá chết cứng `"value"` ↔ `range` điền tên phép.
+  Là chiều ngược của Cặp 16 **cùng ngày** ⇒ lần sau dựng bài đo, cấm giảng.
+- **Chấm PRIMM (số 1/2, hẹn 27/09):** tắc cứng phải hỏi Claude = **1 lần** (câu "hàm này làm gì").
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
-1. **Bài Parsons pre-filter** (Claude soạn sẵn tối 19/09): `to_qdrant_filter` bản ĐÃ CHẠY ĐƯỢC +
-   bản xáo dòng để user sắp lại. Chạy theo PRIMM: đoán → chạy → soi → sửa vặt → gõ lại từ trắng.
-   File: [drills/2026-09-19-to-qdrant-filter.py](../drills/2026-09-19-to-qdrant-filter.py) (bản ✍️ trắng, 0/8).
-2. **Vấn đáp tới hạn 20/09** — 3.9 tenant filtering · 3.8 BM25 khớp theo cái gì. Đóng sách, 10' đầu buổi.
-3. **Nợ cũ còn nguyên:** gõ ruột `cham_nhat` ([drill 18/09](../drills/2026-09-18-congty-python.py)) ·
+1. **Sửa ruột `or` cho 6/6** ([drill tối 20/09](../drills/2026-09-20-toi-go-ruot-goc.py), đang 4/6).
+   Thiếu đúng 1 dòng, user đã tự khoanh đúng chỗ tối qua — **để user tự thêm, Claude không gõ hộ.**
+   Xong 6/6 thì sang **GÕ LẠI TỪ TRẮNG** (bước 5 PRIMM) = số đo thứ 2 của PRIMM, hẹn chấm 27/09.
+2. **Câu bỏ dở tối qua** (hỏi lại đầu buổi, 1 phút): bỏ hẳn lọc metadata, để BM25 chấm cả 5 văn bản
+   thì `vb5` "Thông tư về kê khai thuế" **có** lọt vào kết quả không? → `CÓ`/`KHÔNG`.
+3. **Mục SỬA VẶT** trong [file PRIMM](../drills/2026-09-20-primm-to-qdrant-filter.py): V1 thêm phép
+   `in` · V2 gộp thân `and`/`or` · V3 bắt `{"not": [con1, con2]}` phải nổ.
+4. **Nợ cũ còn nguyên:** gõ ruột `cham_nhat` ([drill 18/09](../drills/2026-09-18-congty-python.py)) ·
    `eq/ne/gt/gte/lt/lte` vào glossary · pitch 4 móc đọc to.
-4. **Theo dõi:** lỗi đọc đề/chép sai đã **8 lần** cộng dồn. Bắt buộc copy-paste giá trị, cấm gõ tay.
+5. **Theo dõi:** lỗi đọc đề/chép sai đã **10 lần** cộng dồn. Bắt buộc copy-paste giá trị, cấm gõ tay.
+6. ⚠️ **Nhắc Claude:** nghĩa (hàm này để làm gì, nằm ở đâu trong luồng) phải nói **TRƯỚC** khi bắt gõ ruột.
+   Tối 20/09 làm ngược nên user gõ xong mới hỏi "hàm này đang làm gì".
