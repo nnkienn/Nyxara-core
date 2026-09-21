@@ -59,4 +59,24 @@ def dem_luot(log: list) -> dict:
 # Phải ra:  'binh'   (1200 ms)
 # Tự nghĩ: muốn biết "chậm nhất" thì trong lúc đi qua từng dòng phải NHỚ những gì?
 # ✍️ GÕ Ở ĐÂY
+def cham_nhat(log: list) -> str:
+    # b1. một biến max rỗng ngoài vòng for 
+    max = 0
+    name = {}
+    # b2. đi qua từng dòng
+    for dong_chu in log:     
+        dong = doc_dong(dong_chu)
+        
+    # b3. lấy cái thời gian và tên ra
+        time = dong["ms"]   
+        time = int(time)      
+       
+    # b4. nếu thời gian lớn hơn cái max 
+        if(time > max):
+            max = time
+            name = dong["user"]
+    # b5. cập nhập max = thời gian và ghi đè cái tên kèm với max
 
+        
+    return name
+    # b6. return ra cái max

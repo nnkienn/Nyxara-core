@@ -99,7 +99,11 @@
 
 > **Tạm ước:** 🔴 ~16 × 5h = 80h · 🟡 ~11 × 3h = 33h · 🟢 ~10h · trace Orchestrator ~4h → **~120h**.
 
-> ## G. Toán thời gian tới lúc nộp đơn (~15/01/2027, ~17 tuần)
+> ## G. Toán thời gian tới lúc nộp đơn (~15/02/2027, ~21 tuần)
+> ⚠️ **Đổi 21/09/2026 — user chốt: hạn là "qua Tết", không phải 15/01.** Tết 2027 = 06/02, đi làm lại ~15/02
+> ⇒ **+4-5 tuần** so bản cũ (~50h giờ-mốc), tổng **~250h** cho ~120h việc. Lý do đổi: mốc tháng 09
+> (lát 1 xong 30/09) đo ra **thiếu 10-15h**, và user chọn **giữ nguyên độ sâu, dời hạn** — không cắt bước.
+> Luật kèm theo: mốc tháng từ đây là **mốc chỉ hướng, không phải hạn**; hạn thật chỉ còn một cái là 15/02/2027.
 > | | Giờ-mốc có (sáng 1h30 + tối 1h40, 5 ngày/tuần, trừ 25% OT/đời thường) |
 > |---|---|
 > | Orchestrator 1h/ngày **nằm ngoài** 4h30 | **~200h** → đủ ~120h, dư ~80h (kể cả khi 🔴 tốn 8h: ~168h, vẫn đủ) |
@@ -113,7 +117,8 @@
 > | **10** | **🚀 DEMO LÊN MẠNG + repo public + bài viết đầu tiên** *(kéo từ tháng 12)* · Lát 2 |
 > | **11** | Lát 3 · **nộp đơn thăm dò 3-5 chỗ** *(lấy phản hồi thật, không đợi tới hạn)* · Lát 4 |
 > | **12** | Lát 5 · Lát 6 (Docker/CI, latency, README spec, port LangChain) · CV · **mock interview người thật** |
-> | **01/2027** | Nộp đơn diện rộng khi vẫn đi làm · 🟢 nói được |
+> | **01/2027** | **Tháng đệm** — bù phần trễ dồn lại của lát 1→6 · 🟢 nói được |
+| **02/2027** | **Nộp đơn diện rộng sau Tết (~15/02)** khi vẫn đi làm — hạn thật duy nhất |
 >
 > ⚠️ **Đổi 18/09:** deploy dời từ 12 lên **10**. Chuẩn Mid quốc tế mở đầu bằng *"đã ship ít nhất 1 RAG
 > cho người dùng thật"* — để demo tới tháng 12 là nộp đơn trước khi có bằng chứng đó. Repo nằm trên

@@ -393,7 +393,7 @@ vòng lặp để được chấm điểm (`bm25_index.py:51`). Hai con số `1.
 
 ---
 
-## Cặp 16 — **KHOÁ** vs **GIÁ TRỊ TẠI KHOÁ**  (tái phát, 15/09 "lỗi A" → 20/09 chiều)
+## Cặp 16 — **KHOÁ** vs **GIÁ TRỊ TẠI KHOÁ**  (tái phát 15/09 → 20/09 · ✅ **SẠCH 21/09**, 6/6 ép chọn)
 
 ```python
 pred = {"gte": ["nam", 2015]}
@@ -476,6 +476,8 @@ nhau là mất cả hai.
 | 2026-09-15 công ty | vòng 2 bài 6-10 | **1/5 sạch** (bài 7) | lỗi A `list(d.keys())[0]` tưởng ra value (6, 10) · lỗi B `for` chỉ đi lượt 1 (8, 9) |
 | 2026-09-15 công ty | chạy thật + in từng lượt | lỗi B lòi gốc | Cặp 14 — tưởng `q` là cả `qua` |
 | 2026-09-15 công ty | `so` + `qua` điền bảng lượt | **đúng** 2 cột `q` / `keys` | còn quên cặp `[0]` ngoài cùng ở cột "in ra" (L1 nhẹ) |
+| 2026-09-21 công ty | ép chọn Cặp 16+17, 10 câu | **9/10** | sai đúng câu `match` ⇒ **Cặp 17**. ⭐ **Cặp 16 SẠCH** — 6/6 khoá↔giá trị, kể cả câu lồng 2 nhịp `d[list(d.keys())[0]]` |
+| 2026-09-21 công ty | Cặp 17 sau khi đo bằng Qdrant thật (`MatchValue(eq=...)` nổ `value Field required`) | **2/2** | chưa coi là sạch — xen lại 2 câu đầu buổi sau |
 
 **Nhận xét 2026-09-15:** lỗi B sai 2 lần khi giảng bằng lời, chỉ bóc ra gốc khi user **tự nói ra cách
 mình đang nghĩ** (*"`q.keys()` ra `["cam","xoai","oi"]`"*) — rồi chạy thật in từng lượt là vào ngay.

@@ -14,8 +14,8 @@
 |---|---|---|
 | **25/09** | 3.8 BM25 khớp theo cái gì | 20/09 ⚠️: nói nhầm *"rank"* (rank là đầu vào của RRF, không phải của BM25), không nêu được **mặt chữ + TF/IDF**. Đo bằng drill ép chọn, không hỏi lại trần |
 | **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
-| **23/09** | 3.5 RRF | WHY sạch, nhưng công thức lệch: nói *"1/k+60"*, đúng là `1/(k + rank)` với `k=60`; thiếu chữ **cộng dồn theo `doc_id`** |
-| **23/09** | 1.4 Recursive chunker | Đúng 2 bước split+merge nhưng **thiếu hậu quả** (mẩu 1 chữ → vector vô nghĩa) |
+| **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
+| **05/10** | 1.4 Recursive chunker | 21/09 ✅ tự nói được hậu quả: vector rác toàn "thì/là/ở" vẫn chiếm chỗ top-k |
 
 **Cách ôn:** đóng sách, nói to, trả lời hết khả năng **rồi mới** mở note đối chiếu → chấm ✅/⚠️/❌ →
 ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questions.md) → hẹn lại.
@@ -122,17 +122,47 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-21 (T2) ca công ty 15:20-16:30 (~1h10) · Python thuần + drill
+
+- **Trả xong nợ `cham_nhat`** ([drill 18/09](../drills/2026-09-18-congty-python.py)) — **3/3 ca** kể cả ca bẫy
+  (lượt chậm nhất nằm giữa). **Ruột user gõ** ⇒ lượt gõ thật. Bài thiết kế chuỗi↔số chọn đúng, lý do tự nói.
+- User xin *"nói ra các bước"* → Claude KHÔNG cho danh sách bước, đổi thành **bảng 5 lượt 2 cột** (ms lớn nhất
+  tới giờ / tên lượt đó); điền xong thuật toán tự lộ. **Giữ cách này dùng lần sau.**
+- 2 bug, **user tự sửa sau khi Claude in số**: `'120' > 0` nổ `TypeError` (mọi giá trị ra từ `doc_dong` là
+  **chuỗi**) · `name = dong["user"]` đặt **ngoài** `if` → trả tên **lượt cuối**; bản gốc vẫn ra `'binh'`, chỉ
+  lòi khi **đảo ngược log** (ra `'kien'`) — sai mà xanh.
+- **Trượt 2 lượt liên tiếp, cả 2 lỗi ĐỌC** (trả lời theo `dem_luot` chứ không theo `cham_nhat`) → áp §6,
+  dừng hỏi, in bảng biến từng lượt. Vào ngay.
+- **Drill ép chọn Cặp 16+17: 9/10.** ⭐ **Cặp 16 SẠCH** (6/6, kể cả `d[list(d.keys())[0]]`). Sai câu `match`
+  ⇒ **Cặp 17 vẫn hở** → đo bằng Qdrant thật rồi ép chọn 2 câu → **2/2**.
+- ⚠️ **Lỗi Claude:** 3 câu drill dùng tên lớp thư viện (`MatchValue`, `Range`) user chưa gặp → *"không hiểu
+  câu hỏi"*. Đo một cặp thì cấm kéo từ vựng mới vào.
+- **Vấn đáp (làm sớm 2 ngày): 3.5 ✅ · 1.4 ✅**, cả hai từ ⚠️ lên, hẹn **05/10**. Lỗ còn lại là lỗ **miệng**:
+  tính đúng `vb7`=2 số hạng / `vb3`=1 nhưng phải nhắc mới nói ra *"cùng `doc_id`"* — **cuối buổi tự nói lại được**.
+  Luật rút ra: loại câu này **cấm trả lời bằng con số**, bắt nói tiêu chí thành lời.
+- **Tiếng Anh (bản viết đầu tiên, ~10')**: user tự viết 5 câu "what are you building" → Claude chỉnh, giữ ý.
+  3 lỗi lặp: `a` trước nguyên âm · `half past year` (chỉ dùng cho giờ) → `six months ago` · 3 động từ chồng nhau.
+  Nợ: **đọc to bản đã chỉnh 2 lượt**.
+- **Hạn nộp đơn đổi 15/01 → ~15/02/2027** ("qua Tết", user chốt hôm nay) — ghi ở [roadmap mục G+H](../LEARNING_ROADMAP.md).
+  Giữ độ sâu, dời hạn, không cắt bước. Mốc tháng từ đây là **mốc chỉ hướng**, hạn thật chỉ còn 15/02.
+- Lỗi chép cộng dồn **12** (+2). Slot Python ăn 35'/20' nên tiếng Anh bị dồn xuống ~10'.
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
 1. **Sửa ruột `or` cho 6/6** ([drill tối 20/09](../drills/2026-09-20-toi-go-ruot-goc.py), đang 4/6).
-   Thiếu đúng 1 dòng, user đã tự khoanh đúng chỗ tối qua — **để user tự thêm, Claude không gõ hộ.**
+   Thiếu đúng 1 dòng, user đã tự khoanh đúng chỗ — **để user tự thêm, Claude không gõ hộ.**
    Xong 6/6 thì sang **GÕ LẠI TỪ TRẮNG** (bước 5 PRIMM) = số đo thứ 2 của PRIMM, hẹn chấm 27/09.
-2. **Câu bỏ dở tối qua** (hỏi lại đầu buổi, 1 phút): bỏ hẳn lọc metadata, để BM25 chấm cả 5 văn bản
-   thì `vb5` "Thông tư về kê khai thuế" **có** lọt vào kết quả không? → `CÓ`/`KHÔNG`.
-3. **Mục SỬA VẶT** trong [file PRIMM](../drills/2026-09-20-primm-to-qdrant-filter.py): V1 thêm phép
+2. **Mục SỬA VẶT** trong [file PRIMM](../drills/2026-09-20-primm-to-qdrant-filter.py): V1 thêm phép
    `in` · V2 gộp thân `and`/`or` · V3 bắt `{"not": [con1, con2]}` phải nổ.
-4. **Nợ cũ còn nguyên:** gõ ruột `cham_nhat` ([drill 18/09](../drills/2026-09-18-congty-python.py)) ·
-   `eq/ne/gt/gte/lt/lte` vào glossary · pitch 4 móc đọc to.
-5. **Theo dõi:** lỗi đọc đề/chép sai đã **10 lần** cộng dồn. Bắt buộc copy-paste giá trị, cấm gõ tay.
+3. **Dọn `cham_nhat`** (2 dòng, 1 phút): `name = {}` khai dict nhưng giữ chuỗi · `max` trùng tên hàm
+   sẵn có của Python. Đặt lại 2 tên tiếng Anh.
+4. **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary. Tiếng Anh bản 1 **đã đọc to ✅** —
+   buổi sau viết bản 2: *"why did you switch to AI?"* ([english-speaking.md](./english-speaking.md)).
+5. **Theo dõi:** lỗi đọc đề/chép sai **12 lần** cộng dồn. Bắt buộc copy-paste giá trị, cấm gõ tay.
 6. ⚠️ **Nhắc Claude:** nghĩa (hàm này để làm gì, nằm ở đâu trong luồng) phải nói **TRƯỚC** khi bắt gõ ruột.
-   Tối 20/09 làm ngược nên user gõ xong mới hỏi "hàm này đang làm gì".
+7. ⚠️ **Nhắc Claude — 2 cách đã đo là ăn, dùng lại:** (a) user xin "cho các bước" → đưa **bảng số 2 cột
+   để user điền**, không đưa danh sách bước; (b) bài đo một cặp thì **cấm kéo từ vựng mới** vào câu hỏi.
+8. **Cặp 17 (`match` ↔ `range`)** mới chỉ 2/2 sau khi đo — chưa coi là sạch, **xen 2 câu ép chọn vào
+   đầu buổi sau**; sạch thì mới gỡ. Cặp 16 đã sạch, khỏi hỏi lại.
