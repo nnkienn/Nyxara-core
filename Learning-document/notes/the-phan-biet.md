@@ -425,6 +425,21 @@ tối 20/09 điền *tên phép* (`"eq"`) vào ô khoá cố định. Cùng mộ
 điền-theo-dữ-liệu, ô nào chết-cứng**. Đã sai 2 lần trong một ngày ⇒ theo luật 09/09, **lần sau
 dựng bài đo ép chọn ngay, cấm giảng lại**.
 
+## Cặp 18 — **tên biến** vs **tên hàm** đứng trước `(...)`  (22/09 sáng)
+
+```python
+list(d.keys())[0]        # list = HÀM có sẵn của Python -> chạy
+ten_hop_ngoai(d.keys())  # ten_hop_ngoai = BIẾN -> TypeError: 'dict' object is not callable
+list_out()               # list_out = BIẾN -> cùng lỗi
+```
+
+Dấu `(` đặt ngay sau một tên có nghĩa là **"gọi cái tên này như một hàm"**. Đặt tên biến vào đó
+thì nổ `TypeError: '<kiểu>' object is not callable`.
+**Sai 3 lần trong một buổi sáng 22/09** — lần nào cũng ở đúng chỗ đáng lẽ là `list`.
+Kèm theo: `CAY["ten_hop_ngoai"]` (bọc nháy quanh tên biến → `KeyError`) — cùng một bệnh, chưa
+tách được **cái tên** với **giá trị cái tên đang giữ**.
+⇒ Lần sau gặp: ép chọn `list(...)` ↔ `<biến>(...)`, cấm giảng.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -478,6 +493,8 @@ nhau là mất cả hai.
 | 2026-09-15 công ty | `so` + `qua` điền bảng lượt | **đúng** 2 cột `q` / `keys` | còn quên cặp `[0]` ngoài cùng ở cột "in ra" (L1 nhẹ) |
 | 2026-09-21 công ty | ép chọn Cặp 16+17, 10 câu | **9/10** | sai đúng câu `match` ⇒ **Cặp 17**. ⭐ **Cặp 16 SẠCH** — 6/6 khoá↔giá trị, kể cả câu lồng 2 nhịp `d[list(d.keys())[0]]` |
 | 2026-09-21 công ty | Cặp 17 sau khi đo bằng Qdrant thật (`MatchValue(eq=...)` nổ `value Field required`) | **2/2** | chưa coi là sạch — xen lại 2 câu đầu buổi sau |
+| 2026-09-22 sáng | Cặp 17 xen đầu buổi, 2 câu | **1/2** | sai lại đúng ô `match` (chọn `"eq"`). Chưa sạch sau 1 ngày |
+| 2026-09-22 sáng | Cặp 17 sau bài đo Qdrant thật (vòng 2: `eq` trên **số** cũng nổ) | **3/3** | chữ *"chuỗi"* trong tiêu chí của user là thứ làm hỏng — `match` chết cứng `"value"` bất kể chuỗi hay số |
 
 **Nhận xét 2026-09-15:** lỗi B sai 2 lần khi giảng bằng lời, chỉ bóc ra gốc khi user **tự nói ra cách
 mình đang nghĩ** (*"`q.keys()` ra `["cam","xoai","oi"]`"*) — rồi chạy thật in từng lượt là vào ngay.

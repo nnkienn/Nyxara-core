@@ -45,6 +45,7 @@ def to_qdrant_filter(pred: dict) -> dict:
 
     # RUỘT 2 — "or".  Giống hệt ruột 1, chỉ đổi tên hộp thành "should".
     if phep == "or":
+        danh_sach_con = []
         for con in pred[phep]:
             danh_sach_con.append(to_qdrant_filter(con))
         return {"should": danh_sach_con}

@@ -149,20 +149,49 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-22 (T3) ca sáng 05:00-05:55 (~55') · LÁT 0 · **ĐỔI BẬC BÀI**
+
+- Xen Cặp 17 đầu buổi: **1/2**, sai lại ô `match`. Dựng [bài đo Qdrant thật](../drills/2026-09-22-sang-do-cap17.py)
+  (`match: {"eq": ...}` **nổ lúc dựng tờ đơn**, chưa kịp đi tìm) → vòng 2 chứng minh `eq` trên **số** cũng nổ
+  ⇒ chữ *"chuỗi"* trong tiêu chí user là thứ làm hỏng. Ép chọn lại **3/3**.
+- **Sửa ruột `or` → 6/6.** `danh_sach_con = []` chỉ nằm trong nhánh `and`, nhánh `or` không thấy →
+  `UnboundLocalError`. User **không gỡ được, yêu cầu Claude viết hộ** — Claude sửa (đúng ngoại lệ §2).
+- 🔴 **User nổ giữa buổi:** *"đọc này tôi hiểu gì chết liền, mất cả buổi sáng để hỏi linh tinh"*. Hỏi lại thì
+  tắc **cả 4 chỗ cùng lúc**: đệ quy · dict lồng · cú pháp Python · không rõ hàm để làm gì.
+  ⇒ **Bài đệ quy là quá tầm**, lỗi ở Claude đã ném nó ra quá sớm. Bỏ đệ quy giữa buổi, lùi 1 bậc.
+- **Trạm mới 1 — [bóc lớp](../drills/2026-09-22-sang-boc-lop.py) 4/4**, kể cả ô 5 tầng ngoặc, tự gõ.
+  Claude in sẵn bảng `LOP 0..4` kèm cột `type`; luật một câu: *dict bóc bằng `["khoá"]`, list bóc bằng `[số]`*.
+- **Trạm mới 2 — [`to_and_clause` phẳng](../drills/2026-09-22-sang-and-phang.py) 3/3**, vòng `for` gọi
+  `to_leaf_clause`, **không đệ quy**. Lỗi duy nhất không-phải-cú-pháp: **quên cái bọc `{"must": ...}`** —
+  đúng lỗ đã trượt 3 lượt tối 20/09.
+- ⚠️ **Tất cả lỗi còn lại của buổi đều là VỎ CÚ PHÁP**, không lỗi logic nào: `list_out[]` thiếu `=` ·
+  thiếu `:` sau `for` · `list_out()` gọi biến như hàm · `{"must": list_out"}` nháy thừa · xoá nhầm dòng
+  comment của Claude. ⇒ [Cặp 18](./the-phan-biet.md) (tên biến ↔ tên hàm trước `(...)`), sai **3 lần/buổi**.
+- **Thêm 30' (07:05-07:25) — [`to_or_clause` + `to_not_clause` phẳng](../drills/2026-09-22-sang-or-not-phang.py) 4/4.**
+  `or` **xanh ngay lần đầu, 0 vòng đỏ** (lần đầu trong ngày). `not` 3 vòng đỏ nhưng **cả 3 là lỗi bóc lớp/chỉ số**,
+  không lỗi cú pháp nào: đưa cả list cho `to_leaf_clause` → `AttributeError: 'list' has no keys` ·
+  `pred["not"][1]` trên list 1 phần tử → `IndexError` (tái phát lỗi "đếm `[1]` từ 1" của 15/09) · quên bọc list.
+  ⇒ Vỏ cú pháp chặt lại thấy rõ trong 2h: đầu buổi 5 lỗi cú pháp liên tiếp, cuối buổi 0.
+- **Kết luận phương pháp:** user nói *"đọc không hiểu"* nhưng bóc 5 tầng ngoặc đúng ngay ⇒ nút thật là
+  **cú pháp trong tay**, không phải đầu. Hợp với ghi nhận cũ "hiểu nhưng không code lại được".
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
-1. **Sửa ruột `or` cho 6/6** ([drill tối 20/09](../drills/2026-09-20-toi-go-ruot-goc.py), đang 4/6).
-   Thiếu đúng 1 dòng, user đã tự khoanh đúng chỗ — **để user tự thêm, Claude không gõ hộ.**
-   Xong 6/6 thì sang **GÕ LẠI TỪ TRẮNG** (bước 5 PRIMM) = số đo thứ 2 của PRIMM, hẹn chấm 27/09.
-2. **Mục SỬA VẶT** trong [file PRIMM](../drills/2026-09-20-primm-to-qdrant-filter.py): V1 thêm phép
-   `in` · V2 gộp thân `and`/`or` · V3 bắt `{"not": [con1, con2]}` phải nổ.
-3. **Dọn `cham_nhat`** (2 dòng, 1 phút): `name = {}` khai dict nhưng giữ chuỗi · `max` trùng tên hàm
-   sẵn có của Python. Đặt lại 2 tên tiếng Anh.
-4. **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary. Tiếng Anh bản 1 **đã đọc to ✅** —
-   buổi sau viết bản 2: *"why did you switch to AI?"* ([english-speaking.md](./english-speaking.md)).
-5. **Theo dõi:** lỗi đọc đề/chép sai **12 lần** cộng dồn. Bắt buộc copy-paste giá trị, cấm gõ tay.
-6. ⚠️ **Nhắc Claude:** nghĩa (hàm này để làm gì, nằm ở đâu trong luồng) phải nói **TRƯỚC** khi bắt gõ ruột.
-7. ⚠️ **Nhắc Claude — 2 cách đã đo là ăn, dùng lại:** (a) user xin "cho các bước" → đưa **bảng số 2 cột
-   để user điền**, không đưa danh sách bước; (b) bài đo một cặp thì **cấm kéo từ vựng mới** vào câu hỏi.
-8. **Cặp 17 (`match` ↔ `range`)** mới chỉ 2/2 sau khi đo — chưa coi là sạch, **xen 2 câu ép chọn vào
-   đầu buổi sau**; sạch thì mới gỡ. Cặp 16 đã sạch, khỏi hỏi lại.
+1. ⭐ **BA HÀM PHẲNG ĐÃ SẠCH HẾT** (`and` 3/3 · `or`+`not` 4/4, đều user tự gõ).
+   Bậc kế: **gộp 3 hàm thành 1** — `to_qdrant_filter(pred)` nhìn `op` rồi rẽ nhánh sang đúng hàm.
+   Vẫn CHƯA đệ quy: ca thử chỉ gồm cây **1 tầng** (con toàn là lá). Đệ quy chỉ mở khi user tự hỏi
+   *"thế nếu con lại là một cây thì sao"* — lúc đó `to_leaf_clause` đổi thành gọi lại chính `to_qdrant_filter`,
+   đúng **một chữ**, và đó là toàn bộ bí mật của đệ quy.
+2. **Cú pháp Python là nút thật** — mỗi buổi phải có mẩu gõ ngắn riêng cho vỏ cú pháp
+   (`= []` · `:` cuối dòng mở khối · `(` sau tên = gọi hàm · nháy đóng mở). Xem [Cặp 18](./the-phan-biet.md).
+3. **Cặp 17** đã 1/2 → 3/3 sau bài đo. Xen lại **2 câu** đầu buổi sau lần nữa mới coi là sạch.
+4. **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · tiếng Anh bản 2 *"why did you switch to AI?"*
+   ([english-speaking.md](./english-speaking.md)) · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
+5. **Chưa làm (hoãn có chủ đích):** gõ lại từ trắng `to_qdrant_filter` (bước 5 PRIMM, số đo thứ 2).
+   Chỉ mở lại khi 3 hàm phẳng đã sạch — bắt gõ lại lúc chưa đọc nổi là chép mù.
+6. **Vấn đáp tới hạn gần nhất: 25/09** (3.8 BM25, đo bằng drill ép chọn).
+7. ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi**. Hỏi chậm lại
+   trên bài quá tầm = *"mất cả buổi sáng hỏi linh tinh"* (nguyên văn 22/09).
+8. **Theo dõi:** lỗi đọc đề/chép sai **12 lần** (22/09 không thêm — lỗi hôm nay là cú pháp, loại khác).
