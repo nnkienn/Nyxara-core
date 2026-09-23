@@ -177,7 +177,19 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-23 (T4) ca công ty 15:17 (~30', hụt giờ) · gym cú pháp ván 1
+
+- 22/09 chỉ có ca sáng, **ca công ty + ca tối không ghi → tính hụt**.
+- Gym ván 1: ô 1·2·5·9 đúng. **Hỏng chủ yếu vì ĐỌC ĐỀ, không phải logic:** ô 3 + ô 8 lấy nhầm từ `bag`
+  (đề bảo `D` / `CAY`) · đặt `key1` thay `key_1` · ô 6 `XS[2]` (đề bảo số âm). Vỏ cú pháp: `count == 0` ·
+  `XS.len()` · ô 10 thiếu `return`. User hết giờ, xin đáp án → Claude đưa (ngoại lệ §2), **user chưa gõ vào file**.
+- Luật mới: **copy-paste tên biến từ comment đề**, không gõ tay. Lỗi đọc/chép cộng dồn **15** (+3).
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
+
+0. **Đầu buổi sau:** gõ 6 dòng đáp án gym ván 1 vào file → chạy **10/10** (≤5'). Rồi mới vào mục 1.
 
 1. ⭐ **BA HÀM PHẲNG ĐÃ SẠCH HẾT** (`and` 3/3 · `or`+`not` 4/4, đều user tự gõ).
    Bậc kế: **gộp 3 hàm thành 1** — `to_qdrant_filter(pred)` nhìn `op` rồi rẽ nhánh sang đúng hàm.
@@ -194,4 +206,4 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 6. **Vấn đáp tới hạn gần nhất: 25/09** (3.8 BM25, đo bằng drill ép chọn).
 7. ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi**. Hỏi chậm lại
    trên bài quá tầm = *"mất cả buổi sáng hỏi linh tinh"* (nguyên văn 22/09).
-8. **Theo dõi:** lỗi đọc đề/chép sai **12 lần** (22/09 không thêm — lỗi hôm nay là cú pháp, loại khác).
+8. **Theo dõi:** lỗi đọc đề/chép sai **15 lần** (23/09 +3 ở gym ván 1: nhầm biến `bag`, tên `key1`).

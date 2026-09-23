@@ -11,44 +11,50 @@ XS = [10, 20, 30]
 # 1. Khai mot list RONG, dat ten la  bag
 # ✍️
 bag = None
+bag = []
 
 # 2. Them so 7 vao cuoi  bag  (mot dong, dung .append)
 # ✍️
-
+bag.append(7)
 
 # 3. Lay CHU dau tien trong cac khoa cua  D  -> phai ra "gte"
 # ✍️
-key_1 = None
+key1 = list(D.keys())[0]
 
 # 4. Dung bien  key_1  de lay gia tri tuong ung trong  D  -> ra ["nam", 2015]
 # ✍️
-val_1 = None
+val_1 = D[key1]
 
 # 5. Lay phan tu DAU TIEN cua  XS  -> ra 10
 # ✍️
-first = None
+first = XS[0]
 
 # 6. Lay phan tu CUOI cua  XS  bang so am -> ra 30
 # ✍️
-last = None
+last = XS[2]
 
 # 7. Dem  XS  co bao nhieu phan tu -> ra 3   (dung ham co san len)
 # ✍️
-n = None
+n = XS.len()
 
 # 8. Tu  CAY  lay ra con THU HAI -> ra {"lt": ["nam", 2020]}
 # ✍️
-child_2 = None
+child_2 = CAY["and"][list(bag.key[0])[1]]
 
 # 9. Viet ham tra ve mot dict co khoa "must", gia tri la  items  (dung 2 dong: def + return)
 # ✍️
 def wrap_must(items: list) -> dict:
-    pass
+    return {"must" : items}
 
 # 10. Viet ham dem so phan tu LON HON 15 trong mot list (4 dong: def, count=0, for+if, return)
 # ✍️
 def count_big(xs: list) -> int:
-    pass
+    count = 0
+    for child in xs :
+        if(child > 15):
+            count = count + 1
+    return count
+            
 
 
 # ═══════ TU DAY XUONG LA CUA CLAUDE — DUNG SUA ══════════════════
