@@ -8,4 +8,4 @@ contract tests for a port live alongside the adapter that implements it
 
 Every regression case from a fixed bug gets a permanent test here (or in
 `app/evaluation/regression/` for eval-layer bugs) — see
-[LEARNING_ROADMAP.md](../Learning-document/LEARNING_ROADMAP.md) §vòng 6 bước, bước 5.
+[CLAUDE.md §3](../CLAUDE.md) (vòng 6 bước), bước 5.

@@ -14,7 +14,7 @@ similar billing/auth logic to core will be rejected.
 
 ## 2. Every core technique must be hand-implemented before a library replaces it
 
-See [Learning-document/LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md) — the
+See [CLAUDE.md §3](CLAUDE.md) — the
 "vòng 6 bước" (6-step loop: hand-code → inject a bug → debug by hand → fix → test → document).
 A PR that swaps in a library for a technique that has no hand-built reference implementation
 and no test covering its known failure mode will be asked to add both first. This is what

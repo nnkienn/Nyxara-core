@@ -12,7 +12,7 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **25/09** | 3.8 BM25 khớp theo cái gì | 20/09 ⚠️: nói nhầm *"rank"* (rank là đầu vào của RRF, không phải của BM25), không nêu được **mặt chữ + TF/IDF**. Đo bằng drill ép chọn, không hỏi lại trần |
+| **25/09 → 28/09** *(công tác; tranh thủ được thì làm)* | 3.8 BM25 khớp theo cái gì | 20/09 ⚠️: nói nhầm *"rank"* (rank là đầu vào của RRF, không phải của BM25), không nêu được **mặt chữ + TF/IDF**. Đo bằng drill ép chọn, không hỏi lại trần |
 | **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
 | **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
 | **05/10** | 1.4 Recursive chunker | 21/09 ✅ tự nói được hậu quả: vector rác toàn "thì/là/ở" vẫn chiếm chỗ top-k |
@@ -187,23 +187,49 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-24 (T5) — **DỌN "HỌC LAN MAN"** (không có ca học)
+
+- Bạn của user đọc roadmap, chê *"lan man"*. Đo lại: từ 01/09 có **77 commit tài liệu, 10 commit `app/`**, commit
+  `app/` cuối là 13/09 · lát 0 ăn ~12-15h / hộp 8h mà **chưa dòng nào vào `app/`** · phương pháp đổi 4 lần trong 1 tuần.
+- Dọn: roadmap 364 → ~120 dòng (một lát, một tuần mẫu cố định, chế độ công tác) · 4 làn phụ → `side-lanes.md` ·
+  bản đồ Phase → `phases.md` · 19 drill cũ → `drills/archive/`. Bản đủ: `archive/2026-09-24-LEARNING_ROADMAP.md`.
+- **Luật mới: lát chỉ ĐÓNG khi code ở trong `app/` + pytest toàn bộ xanh.** Drill sạch mà `app/` trống thì lát vẫn MỞ.
+- 25-27/09 user đi công tác → **ngày nghỉ, không tính hụt** ([roadmap §5](../LEARNING_ROADMAP.md)).
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
-0. **Đầu buổi sau:** gõ 6 dòng đáp án gym ván 1 vào file → chạy **10/10** (≤5'). Rồi mới vào mục 1.
+### A. 25 → 27/09 (T6-CN) — công tác: ngày nghỉ, KHÔNG tính hụt
 
-1. ⭐ **BA HÀM PHẲNG ĐÃ SẠCH HẾT** (`and` 3/3 · `or`+`not` 4/4, đều user tự gõ).
-   Bậc kế: **gộp 3 hàm thành 1** — `to_qdrant_filter(pred)` nhìn `op` rồi rẽ nhánh sang đúng hàm.
-   Vẫn CHƯA đệ quy: ca thử chỉ gồm cây **1 tầng** (con toàn là lá). Đệ quy chỉ mở khi user tự hỏi
-   *"thế nếu con lại là một cây thì sao"* — lúc đó `to_leaf_clause` đổi thành gọi lại chính `to_qdrant_filter`,
-   đúng **một chữ**, và đó là toàn bộ bí mật của đệ quy.
-2. **Cú pháp Python là nút thật** — mỗi buổi phải có mẩu gõ ngắn riêng cho vỏ cú pháp
-   (`= []` · `:` cuối dòng mở khối · `(` sau tên = gọi hàm · nháy đóng mở). Xem [Cặp 18](./the-phan-biet.md).
-3. **Cặp 17** đã 1/2 → 3/3 sau bài đo. Xen lại **2 câu** đầu buổi sau lần nữa mới coi là sạch.
-4. **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · tiếng Anh bản 2 *"why did you switch to AI?"*
-   ([english-speaking.md](./english-speaking.md)) · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
-5. **Chưa làm (hoãn có chủ đích):** gõ lại từ trắng `to_qdrant_filter` (bước 5 PRIMM, số đo thứ 2).
-   Chỉ mở lại khi 3 hàm phẳng đã sạch — bắt gõ lại lúc chưa đọc nổi là chép mù.
-6. **Vấn đáp tới hạn gần nhất: 25/09** (3.8 BM25, đo bằng drill ép chọn).
-7. ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi**. Hỏi chậm lại
-   trên bài quá tầm = *"mất cả buổi sáng hỏi linh tinh"* (nguyên văn 22/09).
-8. **Theo dõi:** lỗi đọc đề/chép sai **15 lần** (23/09 +3 ở gym ván 1: nhầm biến `bag`, tên `key1`).
+Có 15-20' rảnh thì chọn **một** món ([roadmap §5](../LEARNING_ROADMAP.md)), không có thì thôi:
+- 📱 Vấn đáp **3.8 BM25 khớp theo cái gì** — nói to, đóng sách. Tiêu chí phải nói ra thành lời, không chỉ đáp số.
+- 📱 Đọc to 2 lượt bản tiếng Anh đã chỉnh 21/09 ([english-speaking.md](./english-speaking.md)).
+- 💻 Gym ván 1: gõ 6 dòng đáp án vào [file](../drills/gym-cu-phap-van-1.py) → chạy **10/10**.
+- **Tối CN 27/09 không bắt buộc tổng kết** — dời sang CN 04/10. Khoá PRIMM kéo tới **04/10** (số đo 2 chưa có, sẽ đo T3).
+
+### B. Tuần 28/09 → 04/10 — ĐÓNG LÁT 0 VÀO `app/`
+
+Mỗi ngày **một** việc XÂY. Chưa xong thì ngày sau làm tiếp, **cả chuỗi trôi nguyên vẹn**, không cắt bước.
+Lát 0 đóng ở **cây 1 tầng** (con toàn là lá) là đủ dùng cho metadata luật. Đệ quy là nâng cấp **một chữ**
+(`to_leaf_clause` → gọi lại `to_qdrant_filter`), chỉ mở khi user tự hỏi *"nếu con lại là một cây thì sao"*.
+
+| Ngày | Ca sáng — XÂY (75') | User làm | Claude làm |
+|---|---|---|---|
+| **T2 28/09** | Gộp 3 hàm phẳng → `to_qdrant_filter(pred)`, nhìn `op` rồi rẽ sang đúng hàm | gõ ruột `if/elif/return` | khung drill + ca thử cây 1 tầng |
+| **T3 29/09** | Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (= bước 5 PRIMM, số đo 2) | gõ ruột, đóng file drill | file khung trong adapter Qdrant + test |
+| **T4 30/09** | ⭐ **Bài thiết kế** (sáng T4 cố định): port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? → rồi nối dây | chốt + nói lý do và cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** · nối `upsert` lưu metadata vào payload + `search` nhận filter · user trace 1 lượt + giảng lại |
+| **T5 01/10** | Phía BM25: `danh_gia` (17-18/09) + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 của hybrid |
+| **T6 02/10** | Test đầu-cuối trên kho 5 văn bản đã biết đáp án (ca `vb5` Thông tư bị cắt) | **đoán kết quả trước**, chạy, đọc test | viết test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
+| **T7 03/10** | Dự phòng: việc trôi từ mấy ngày trước | | |
+| **CN 04/10** | **Tổng kết tuần** (roadmap §4) + chấm PRIMM bằng 2 số (tắc cứng · gõ lại từ trắng) → chốt tuần 05/10 | | |
+
+- **Tối** (≤20:30, không OT): làm tiếp việc XÂY của ca sáng. Muộn/OT: 45' — xen **2 câu Cặp 17** (đủ mới coi là sạch) + drill vỏ cú pháp.
+- **Công ty**: gym ván 2 nhắm vỏ cú pháp [Cặp 18](./the-phan-biet.md) (`= []` · `:` cuối dòng mở khối · `(` sau tên = gọi hàm · nháy) ·
+  vấn đáp tới hạn (3.8 nếu chưa làm · **04/10: 3.9**) · tiếng Anh bản 2 *"why did you switch to AI?"*.
+
+### C. Giữ nguyên
+
+- **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
+- ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi** (22/09).
+- **Theo dõi:** lỗi đọc đề/chép sai **15 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.

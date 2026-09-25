@@ -17,7 +17,7 @@ Mục đích số 1 **không phải** ship nhanh — nó là **giáo trình số
 VN** (Zalo Legal 61K điều, baseline NDCG@10 0.8488). **Chức danh nhắm = AI Backend / LLM Engineer**,
 không phải ML Engineer thuần (hồ sơ thật 2 năm fullstack, 0 năm AI). Làn **RA NGOÀI**: demo 10/2026.
 
-Lộ trình [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md) (lát cắt 0→6, mục F) ·
+Lộ trình [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md) (lát đang làm · tuần mẫu cố định · chế độ công tác) ·
 kho 10 Phase [phases.md](Learning-document/phases.md) (tra cứu, không đọc mỗi buổi).
 
 ---
@@ -103,7 +103,7 @@ Mốc chia là **giờ bắt đầu + có OT hay không**, không phải "sáng/
 - **"Hôm nay chỉ ôn lại"** → chỉ làm bước (1).
 - **"Dừng ở đây"** → ghi chỗ dừng vào `review-schedule.md` trước khi kết thúc.
 
-**NHỊP NGÀY (18/09, bảng đầy đủ ở [roadmap mục J2](Learning-document/LEARNING_ROADMAP.md)):** sáng 1h30 =
+**NHỊP NGÀY (18/09, bảng đầy đủ ở [roadmap §4 tuần mẫu](Learning-document/LEARNING_ROADMAP.md)):** sáng 1h30 =
 10' vấn đáp + **75' XÂY** + 5' note · công ty 1h = 20' gym cú pháp + 20' vấn đáp + 20' tiếng Anh · tối
 ≤20:30 = **105' XÂY** + 15' note · tối >21h hoặc OT = 30' drill + 15' gõ ruột, **45' là DỪNG**.
 Tỷ lệ **XÂY ~70% · DRILL ~20% · META ~5%** — ca sáng không bao giờ drill suông.
@@ -141,7 +141,7 @@ Lần `pytest` đầu tải ~4.4GB weights → ~18 phút; sau đó ~2 phút (**7
 ## 10. Trạng thái + đồng bộ 2 máy
 
 **Trạng thái hiện tại = chỗ dừng mới nhất trong [review-schedule.md](Learning-document/notes/review-schedule.md)**
-+ checklist cuối [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md). **Không chép lại vào đây.**
++ §2 ĐANG LÀM trong [LEARNING_ROADMAP.md](Learning-document/LEARNING_ROADMAP.md). **Không chép lại vào đây.**
 
 Qua git: `CLAUDE.md` · `Learning-document/` · `.claude/settings.json` · code + test. Không qua git:
 `~/.claude/` · `.env` · `.venv/` · `.vscode/`. Đổi máy: commit + push → máy kia `git pull`.

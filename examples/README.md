@@ -6,4 +6,4 @@ copy-paste được, người mới chạy trong 5 phút không cần đọc h�
 Quy ước đặt tên: `examples/<phase>_<technique>/` (vd `examples/00_recursive_chunking/`,
 `examples/01_hybrid_retrieval/`) — mỗi thư mục self-contained, có script chạy được +
 `README.md` ngắn giải thích WHY (không lặp lại toàn bộ lý thuyết, chỉ link về
-[LEARNING_ROADMAP.md](../Learning-document/LEARNING_ROADMAP.md)).
+[phases.md](../Learning-document/phases.md)).

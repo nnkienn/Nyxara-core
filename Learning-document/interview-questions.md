@@ -1,7 +1,7 @@
 # 🎤 Ngân hàng câu hỏi phỏng vấn — Junior → Senior AI Engineer
 
 > **Tạo 2026-09-06.** Mục đích: biến thứ đã xây thành thứ **nói ra được** trong phòng phỏng vấn
-> (qua Tết ~đầu 2027, xem [LEARNING_ROADMAP.md § DEADLINE](./LEARNING_ROADMAP.md)).
+> (qua Tết ~đầu 2027, xem [LEARNING_ROADMAP.md §1](./LEARNING_ROADMAP.md)).
 >
 > ## Cách dùng — ĐỌC TRƯỚC KHI DÙNG
 >
@@ -16,8 +16,8 @@
 > 3. Chấm vào cột trạng thái: ✅ trôi chảy · ⚠️ nói được nhưng lắp bắp/thiếu ý · ❌ không nói được.
 > 4. **Hẹn lại (từ 17/09):** ❌ → +2 ngày · ⚠️ → +5 ngày · ✅ → +14 ngày. Ghi vào cột trạng thái, vd `❌→19/09`.
 >
-> 🧭 **Từ 17/09 đích là AI Engineer mức Mid** ([LEARNING_ROADMAP § THIẾT KẾ LẠI](./LEARNING_ROADMAP.md)): ưu tiên 🟢 + 🟡 trước,
-> 🔴 để sau. Mục 11-18 thêm 17/09 theo 5 vòng phỏng vấn thật (roadmap mục K). Câu *(lát N)* = chưa học, đừng ôn trước.
+> 🧭 **Từ 17/09 đích là AI Engineer mức Mid** ([LEARNING_ROADMAP §1](./LEARNING_ROADMAP.md)): ưu tiên 🟢 + 🟡 trước,
+> 🔴 để sau. Mục 11-18 thêm 17/09 theo 5 vòng phỏng vấn thật ([side-lanes.md mục K](./side-lanes.md)). Câu *(lát N)* = chưa học, đừng ôn trước.
 >
 > ⚠️ **Đọc câu hỏi rồi đọc luôn đáp án = vô ích.** Cảm giác "à đúng rồi, mình biết mà" là
 > *ảo giác quen thuộc*, không phải trí nhớ. Chính nó làm hỏng 6.5 tuần đầu của dự án này.

@@ -14,4 +14,4 @@ mà mọi adapter ở `infrastructure/` phải tuân theo — domain không bi�
 | `entitlement.py` | 9 | Feature flag theo gói khách (cloud enforce) |
 | `null_adapters.py` | 9 | Fake/no-op adapter để core chạy standalone không cần cloud |
 
-Xem [LEARNING_ROADMAP.md](../../../Learning-document/LEARNING_ROADMAP.md) để biết method signature chi tiết từng port.
+Xem [phases.md](../../../Learning-document/phases.md) để biết method signature chi tiết từng port.

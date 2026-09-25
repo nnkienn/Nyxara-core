@@ -70,7 +70,7 @@ Chỉ sau 6 bước đó bạn mới thay bằng thư viện chuẩn (FlagEmbedd
 | Two-pointer / merge | RRF (gộp N ranked list) |
 
 > **Tài liệu học nằm ở [`Learning-document/`](./Learning-document/):**
-> [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) (con đường đầy đủ + bài code tay) và
+> [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) (kế hoạch hiện hành), [phases.md](./Learning-document/phases.md) (đủ 10 Phase) và
 > [`notes/`](./Learning-document/notes/) — **design-system**, **algorithms**, **glossary**, **bug-log**.
 
 ---
@@ -123,7 +123,8 @@ nyxara-core/
 │   ├── presentation/api/        # Router & schema FastAPI                             (rỗng)
 │   └── main.py                  # Composition root — hiện chỉ có /health
 ├── Learning-document/
-│   ├── LEARNING_ROADMAP.md      # ★ con đường học đầy đủ
+│   ├── LEARNING_ROADMAP.md      # kế hoạch hiện hành (một lát một lúc)
+│   ├── phases.md                # ★ con đường học đủ 10 Phase
 │   └── notes/                   # design-system · algorithms · glossary · bug-log
 ├── tests/                       # (rỗng — build lại từng test, TDD)
 ├── docker-compose.yml           # redis + qdrant + core-api
@@ -155,7 +156,7 @@ nyxara-core/
 
 ## 🗺️ Lộ trình — Con đường Học
 
-Các phase được sắp xếp để mỗi phase dạy bạn một tầng của hệ thống từ đầu. **Trạng thái là thật, không phải mơ ước — sau reset 2026-07, mọi thứ đang được build lại bằng tay.** Đánh số khớp với **[LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md)** chi tiết. **CORE** là con đường chính; **CLOUD** (Phase 9) là lớp thương mại tách riêng; **OPTIONAL** Visual nằm bên lề.
+Các phase được sắp xếp để mỗi phase dạy bạn một tầng của hệ thống từ đầu. **Trạng thái là thật, không phải mơ ước — sau reset 2026-07, mọi thứ đang được build lại bằng tay.** Đánh số khớp với **[phases.md](./Learning-document/phases.md)** chi tiết. **CORE** là con đường chính; **CLOUD** (Phase 9) là lớp thương mại tách riêng; **OPTIONAL** Visual nằm bên lề.
 
 | Phase | Nhánh | Chủ đề | Bạn xây & học gì | Trạng thái |
 |---|---|---|---|---|
@@ -214,7 +215,7 @@ curl http://localhost:8100/health
 | Qdrant (vector DB) | http://localhost:6353 |
 | Redis (broker) | localhost:6399 |
 
-> **Tiếp theo:** mở [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) và bắt đầu ở **Phase 0** —
+> **Tiếp theo:** mở [phases.md](./Learning-document/phases.md) và bắt đầu ở **Phase 0** —
 > tự build chunker, gài bug, debug, test, ghi notes. Tính năng sáng đèn dần theo lúc bạn build.
 
 ---

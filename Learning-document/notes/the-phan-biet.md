@@ -173,7 +173,7 @@ Có → state. Không có, mà nó là **tham số của hàm bọc ngoài** →
 | Có lệnh chặn bên trong (`time.sleep`) | vẫn song song, luồng khác chạy tiếp | **cả server đứng xếp hàng** |
 | Cần `Lock` cho state dùng chung? | ✅ CÓ — có luồng thật mới có ATM | ❌ không, nếu đoạn đọc-sửa-ghi không có `await` chen vào (nguyên tử sẵn) |
 
-**Số đo thật, tự chạy 2026-09-07** ([drills/2026-09-07-def-vs-async.py](../drills/2026-09-07-def-vs-async.py)) —
+**Số đo thật, tự chạy 2026-09-07** ([drills/archive/2026-09-07-def-vs-async.py](../drills/archive/2026-09-07-def-vs-async.py)) —
 2 endpoint thân giống hệt nhau, mỗi cái `time.sleep(2)`, bắn 3 request đồng thời:
 
 ```
@@ -218,7 +218,7 @@ Cùng họ với lỗi "gọi hàm mà không hứng giá trị trả về" (CLA
 
 > Lỗi dai nhất từ trước tới nay: 07/09 sai 1 lần, 09/09 sai thêm **3 lần liên tiếp** trong cùng
 > một buổi — luôn theo cùng một hướng: **gán quyết định skip cho 3 kho**. Chỉ vá được khi chạy
-> thật và in ra ([drills/2026-09-09-manifest-vs-kho.py](../drills/2026-09-09-manifest-vs-kho.py)).
+> thật và in ra ([drills/archive/2026-09-09-manifest-vs-kho.py](../drills/archive/2026-09-09-manifest-vs-kho.py)).
 
 |  | `manifest` — quyển **SỔ** | `BM25Index` / Qdrant / `DocStore` — **KỆ HÀNG** |
 |---|---|---|

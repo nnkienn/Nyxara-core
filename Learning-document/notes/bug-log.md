@@ -113,7 +113,7 @@ Suốt 30' cả hai bên đều tưởng file đã đúng. Chỉ `stat` mới n�
 **Chặn tái phát (chưa làm, việc đầu buổi 14/09):** đóng hẳn mọi tab mở từ trước 12/09 (`Cmd+W`, Don't Save) ·
 mở VS Code đúng thư mục `nyxara-core` thay vì thư mục cha (xem CLAUDE.md §7) · sau mỗi lần Claude ghi file từ
 terminal, user phải đóng/mở lại tab tương ứng trước khi gõ tiếp.
-**Tab còn nghi kẹt:** `Learning-document/drills/2026-09-11-merge-pieces-dong-sach.py` (mở 11/09 07:38).
+**Tab còn nghi kẹt:** `Learning-document/drills/archive/2026-09-11-merge-pieces-dong-sach.py` (mở 11/09 07:38).
 
 ### #34 — `/ingest` nhận `chunk_overlap` rồi vứt đi sau khi đổi sang `recursive_chunk`  ·  Phase 0  ·  thật  ·  phát hiện 2026-09-13  ·  ⬜ **nợ có chủ ý, trả ở B6**
 
@@ -317,7 +317,7 @@ kèm 1 test chứng minh overlap có tác dụng (assert chunk sau chứa đuôi
   `effective_k` xuống. Không còn phép gán nào lên tên `candidate_k` nên nó vẫn là closure, với tới
   được bình thường.
 - **Test chặn tái phát:** không cần test riêng — lỗi này nổ ngay lúc chạy, không thể lọt âm thầm.
-  (Đã drill riêng bằng tay: [drills/2026-09-05-closure.py](../drills/2026-09-05-closure.py) bài 3
+  (Đã drill riêng bằng tay: [drills/archive/2026-09-05-closure.py](../drills/archive/2026-09-05-closure.py) bài 3
   bắt tự **cố ý gây lại** lỗi này rồi tự sửa.)
 - **Bài học / pattern:** ❌ **KHÔNG dùng `nonlocal` để "chữa"** lỗi này, dù nó cũng làm hết nổ.
   `nonlocal` ghi đè **vĩnh viễn** vào túi biến closure — mà closure dùng chung cho **toàn bộ

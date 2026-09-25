@@ -71,7 +71,7 @@ Only after those six do you swap in the standard library (FlagEmbedding, rank-bm
 | Two-pointer / merge | RRF (merge N ranked lists) |
 
 > **Learning docs live in [`Learning-document/`](./Learning-document/):**
-> [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) (the full path + hand-code drills) and
+> [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) (current plan), [phases.md](./Learning-document/phases.md) (the full 10-phase path) and
 > [`notes/`](./Learning-document/notes/) — **design-system**, **algorithms**, **glossary**, **bug-log**.
 
 ---
@@ -145,7 +145,8 @@ nyxara-core/
 ├── examples/                                 # P8    one runnable example per technique
 ├── docs/                                     # P8    architecture docs for contributors
 ├── Learning-document/
-│   ├── LEARNING_ROADMAP.md                  # ★ the full learning path
+│   ├── LEARNING_ROADMAP.md                  # current plan (one slice at a time)
+│   ├── phases.md                            # ★ the full 10-phase learning path
 │   └── notes/                               # design-system · algorithms · glossary · bug-log
 ├── CONTRIBUTING.md                           # Core↔Cloud line + 6-step-loop rule for PRs
 ├── docker-compose.yml                        # redis + qdrant + core-api
@@ -177,7 +178,7 @@ nyxara-core/
 
 ## 🗺️ Roadmap — the Learning Path
 
-Phases are ordered so each teaches a layer of the stack from scratch. **Status is honest, not aspirational — after the 2026-07 reset, everything is being rebuilt by hand.** Numbering matches the detailed **[LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md)**. **CORE** phases are the main path; **CLOUD** (Phase 9) is a separate commercial layer; the **OPTIONAL** Visual track sits off to the side.
+Phases are ordered so each teaches a layer of the stack from scratch. **Status is honest, not aspirational — after the 2026-07 reset, everything is being rebuilt by hand.** Numbering matches the detailed **[phases.md](./Learning-document/phases.md)**. **CORE** phases are the main path; **CLOUD** (Phase 9) is a separate commercial layer; the **OPTIONAL** Visual track sits off to the side.
 
 | Phase | Track | Theme | What you build & learn | Status |
 |---|---|---|---|---|
@@ -236,7 +237,7 @@ curl http://localhost:8100/health
 | Qdrant (vector DB) | http://localhost:6353 |
 | Redis (broker) | localhost:6399 |
 
-> **Next:** open [LEARNING_ROADMAP.md](./Learning-document/LEARNING_ROADMAP.md) and start at **Phase 0** —
+> **Next:** open [phases.md](./Learning-document/phases.md) and start at **Phase 0** —
 > hand-build the chunker, plant a bug, debug it, test it, document it. Features light up as you build them.
 
 ---

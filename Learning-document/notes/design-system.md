@@ -30,7 +30,7 @@
   ở repo riêng (`nyxara-cloud`). `tenant_id` = **namespace**, KHÔNG phải customer.
 - **Vì sao:** core sạch để học + fork; đổi mô hình kinh doanh không đụng bộ não.
 - **Hệ quả:** CI **cấm** `import stripe` / auth / billing trong core. Core phơi Port
-  (`MeteringPort`, `EntitlementPort`), cloud cắm Adapter. Xem roadmap §Ranh giới Core↔Cloud.
+  (`MeteringPort`, `EntitlementPort`), cloud cắm Adapter. Xem [archive roadmap §Ranh giới Core↔Cloud](../archive/2026-09-24-LEARNING_ROADMAP.md).
 
 ### Reset 2026-07-13 — build lại từ đầu
 - **Quyết định:** xóa toàn bộ harvester + bộ não RAG cũ (kể cả 74 test đã xanh), giữ Docker +

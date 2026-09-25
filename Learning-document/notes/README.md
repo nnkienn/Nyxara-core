@@ -1,7 +1,7 @@
 # 📓 Notes — sổ tay học Nyxara
 
 > Đi kèm [LEARNING_ROADMAP.md](../LEARNING_ROADMAP.md) (*bản đồ*: làm gì, theo thứ tự nào) và
-> [phases.md](../phases.md) (*kho kiến thức* 10 Phase, tra cứu). Notes = *thứ đọng lại* sau mỗi bước code tay. Bước 6 của vòng học ("DOCUMENT") ghi vào
+> [phases.md](../phases.md) (*kho kiến thức* 10 Phase, tra cứu) · [side-lanes.md](../side-lanes.md) (*làn phụ*: phỏng vấn, Orchestrator, RA NGOÀI). Notes = *thứ đọng lại* sau mỗi bước code tay. Bước 6 của vòng học ("DOCUMENT") ghi vào
 > đây — **mỗi bước, không để sau.**
 
 | Sổ | Ghi cái gì | Khi nào viết |

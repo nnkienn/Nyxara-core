@@ -3,14 +3,36 @@
 > Tách khỏi `LEARNING_ROADMAP.md` ngày 2026-09-18. Đây là **kho tra cứu**: công thức, WHY,
 > gợi ý bug cố ý, file gợi ý. **Không phải thứ tự làm.**
 >
-> ⚠️ **Thứ tự làm = lát cắt 0→6** ở [LEARNING_ROADMAP.md mục F](LEARNING_ROADMAP.md).
-> Các Phase viết từ tháng 8, mục F viết 17/09 — **đá nhau thì lấy mục F**.
-> Mỗi Phase giờ chỉ có *một phần* được học sâu (🔴), phần còn lại 🟡 hoặc 🟢 — xem bản đồ trong mục F.
+> ⚠️ **Thứ tự làm = lát cắt 0→6** ở [LEARNING_ROADMAP.md](LEARNING_ROADMAP.md).
+> Các Phase viết từ tháng 8, bảng lát cắt viết 17/09 — **đá nhau thì lấy bảng lát cắt**.
+> Mỗi Phase chỉ có *một phần* được học sâu (🔴), phần còn lại 🟡 hoặc 🟢 — xem bản đồ ngay dưới.
+
+## Bản đồ Phase → lát cắt
+
+Các Phase **không bị xoá** — chúng là **kho kiến thức** (công thức, WHY, bug cố ý gợi ý). Thứ tự làm = lát 0→6.
+Mỗi Phase giờ chỉ có **một phần** được học sâu; phần còn lại ở mức 🟡 hoặc 🟢. Số `#` = số dòng trong bảng của Phase đó.
+
+| Phase | Đã xong | 🔴 Học sâu (lát) | 🟡 Nhỏ (lát) | 🟢 Chỉ nói được |
+|---|---|---|---|---|
+| **0** Ingestion | #1 recursive · #6 dedup · #7 incremental | #9 Document-based theo Điều/Khoản · #11 parse văn bản *(lát 2)* | #4 Parent-Child · #10 Contextual *(lát 2)* · #8 Versioning *(lát 4)* | #2 Semantic · #3 Proposition · #5 Multi-vector |
+| **1** Vector | ✅ toàn bộ | — | — | — |
+| **2** Retrieval | Hybrid · RRF · Rerank · CRAG | #1 Metadata filter *(lát 0)* · #2 Query Transform *(lát 2)* | #4 MMR *(lát 2)* · #5 Compression / Lost-in-the-Middle *(lát 3)* · #3 Temporal *(lát 4)* | #6 Adaptive-RAG · #7 GraphRAG · #8 Multimodal |
+| **3** Eval ⭐ | — | #1 Hit@k/MRR/NDCG · #4 Golden · #5 Regression · #6 A/B *(lát 1)* · #2 Judge · #3 Faithfulness *(lát 3)* | #7 Hiệu chỉnh judge *(lát 3)* · #9 Chi phí/latency *(lát 6)* | #8 Online eval · #10 Bias · #11 RAG vs long-context |
+| **3.5** Performance | — | — | #1 Đo latency từng chặng · #6 Cache + prompt caching *(lát 6)* | #2 Payload index · #3 HNSW · #4 Quantization · #5 Budget 2 tầng · #7 Async batching · #8 Semantic cache |
+| **4** Agent | — | #1 Supervisor · #2 Tool calling · #7 Tracing · #8 MCP · #12 Đo đường đi *(lát 5)* · #5 Từ chối *(lát 3)* | #4 Memory · #6 HITL *(lát 5)* | #3 Intent triage · #10 Routing · #11 Feedback → train · #9 Prompt craft *(luyện xuyên suốt, không thành mốc)* |
+| **5** Safety | — | #1 Chống prompt injection *(lát 3)* | — | #2 PII · #3 Moderation · #4 Output sanitization · #5 Red-team · #6-#11 |
+| **6** Fine-tune | — | — | — | Toàn bộ: LoRA/QLoRA · quantization · synthetic data · embedding FT |
+| **7** MLOps | Vector delete/sync (kéo lên P0) | — | CI/CD chạy regression eval · deploy + demo URL · Load test p50/p95 *(lát 6)* | Model serving (vLLM) · LGTM · Drift · Embedding migration · Retrain · Canary |
+| **8** Community | — | — | — | Toàn bộ (plugin registry, entry-points) |
+| **9** SaaS Bridge | Multi-tenancy (P1) | — | — | Toàn bộ (Metering/Entitlement Port) — xét lại khi quay về N Assistant |
+
+**Tóm lại, học sâu thật ở 5 Phase:** **0** (phần còn lại) · **2** (phần còn lại) · **3** · **4** · **5** (một mục).
+**3.5 và 7** học ở mức nhỏ trong lát 6. **6, 8, 9** chỉ học để nói được trong phỏng vấn.
 
 
 ## Phase 0 — Foundation & Ingestion Pipeline
 
-> 🧭 **Mức học từ 17/09:** 🔴 #9 #11 · 🟡 #4 #8 #10 · 🟢 #2 #3 #5 · ✅ #1 #6 #7 — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🔴 #9 #11 · 🟡 #4 #8 #10 · 🟢 #2 #3 #5 · ✅ #1 #6 #7 — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > **Rác vào = rác ra.** Retrieval giỏi tới đâu cũng vô nghĩa nếu chunk sai. Đây là nền.
 
@@ -132,7 +154,7 @@ so recursive vs semantic chunking trên chính niche của bạn.
 
 ## ✅ Phase 1 — Vector Memory (Embedding + Qdrant + Tenant Isolation)
 
-> 🧭 **Mức học từ 17/09:** ✅ xong toàn bộ — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** ✅ xong toàn bộ — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 **Trạng thái: ✅ XONG (2026-07-19)** — port Embedder/VectorStore + cosine similarity (tay) +
 BGEEmbedder + QdrantStore (DI constructor · upsert idempotent UUID5 · `search` có tenant filter
@@ -165,7 +187,7 @@ dữ liệu tenant khác. Bài học "silent failure" đắt giá nhất của m
 
 ## 🔨 Phase 2 — Advanced Retrieval (Hybrid + Rerank + CRAG + …)
 
-> 🧭 **Mức học từ 17/09:** ✅ Hybrid/RRF/Rerank/CRAG · 🔴 #1 #2 · 🟡 #3 #4 #5 · 🟢 #6 #7 #8 — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** ✅ Hybrid/RRF/Rerank/CRAG · 🔴 #1 #2 · 🟡 #3 #4 #5 · 🟢 #6 #7 #8 — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > **Trạng thái:** 2.1 và 2.2 đã build lại xong bằng tay (2026-08-03/04), full trace +
 > test pass. 2.3 (CRAG) chưa bắt đầu — xem [🎯 Next Action](#-bảng-theo-dõi-tiến-độ-checklist).
@@ -286,7 +308,7 @@ Adaptive-RAG / GraphRAG / Multimodal chỉ cần **nói được** — đọc ~1
 
 ## Phase 3 — Evaluation Framework (đo trước, tin sau) ⭐ PHASE QUAN TRỌNG NHẤT
 
-> 🧭 **Mức học từ 17/09:** 🔴 #1-#6 · 🟡 #7 #9 · 🟢 #8 #10 #11 — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🔴 #1-#6 · 🟡 #7 #9 · 🟢 #8 #10 #11 — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > **Không có eval = bay mù.** Mọi kỹ thuật ở Phase 2 chỉ được **bật** khi eval chứng minh
 > nó *thật sự* cải thiện. Đây là kỹ năng **phân biệt Senior với junior** rõ nhất: junior
@@ -395,7 +417,7 @@ tests/evaluation/test_retrieval_metrics.py   # tính tay đối chiếu
 
 ## Phase 3.5 — Query Performance (đo trước, tối ưu sau)
 
-> 🧭 **Mức học từ 17/09:** 🟡 #1 #6 (+ prompt caching) · 🟢 phần còn lại — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🟡 #1 #6 (+ prompt caching) · 🟢 phần còn lại — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > **Premature optimization = bẫy kinh điển.** Chỉ tối ưu khi pipeline chạy đúng VÀ đã
 > profiling thấy chỗ nghẽn thật.
@@ -423,7 +445,7 @@ tests/evaluation/test_retrieval_metrics.py   # tính tay đối chiếu
 
 ## Phase 4 — Agentic Orchestrator (LangGraph)
 
-> 🧭 **Mức học từ 17/09:** 🔴 #1 #2 #5 #7 #8 #12 · 🟡 #4 #6 · 🟢 #3 #10 #11 — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🔴 #1 #2 #5 #7 #8 #12 · 🟡 #4 #6 · 🟢 #3 #10 #11 — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > Từ RAG một phát → **agent nhiều bước** biết dùng tool, nhớ ngữ cảnh, có người gác cổng.
 
@@ -467,7 +489,7 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 
 ## Phase 5 — Safety & Guardrails (áo giáp)
 
-> 🧭 **Mức học từ 17/09:** 🔴 #1 · 🟢 phần còn lại — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🔴 #1 · 🟢 phần còn lại — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > UGC (user-generated content) **không tin được**. Agent phơi ra internet cần giáp 2 chiều.
 
@@ -500,7 +522,7 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 
 ## Phase 6 — Fine-tuning
 
-> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — chỉ nói được — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — chỉ nói được — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 | Kỹ thuật | Học được gì | Ưu tiên |
 |---|---|---|
@@ -520,7 +542,7 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 
 ## Phase 7 — MLOps & Production
 
-> 🧭 **Mức học từ 17/09:** 🟡 CI/CD · deploy + demo · load test · 🟢 phần còn lại — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🟡 CI/CD · deploy + demo · load test · 🟢 phần còn lại — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > Phần **vector CRUD/delete/sync** của "Data lifecycle" bên dưới đã kéo sớm lên
 > [Phase 0](#phase-0--foundation--ingestion-pipeline) (2026-08-14) vì ingest cần nó ngay;
@@ -551,7 +573,7 @@ Cắm LangFuse ngay từ agent đầu tiên — debug agent không trace = tự 
 
 ## Phase 8 — Extensibility & Community (Open Source)
 
-> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — chỉ nói được — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — chỉ nói được — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > Open source thắng/thua ở chỗ **người lạ có mở rộng được không**. Lõi khó hiểu = chết.
 
@@ -608,7 +630,7 @@ def get(kind: str, name: str) -> type:
 
 ## Phase 9 — SaaS Bridge (Cloud layer)
 
-> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — xét lại khi quay về N Assistant — xem [Bản đồ Phase → lát](LEARNING_ROADMAP.md#bản-đồ-10-phase-bên-dưới--thực-chất-học-gì-thêm-1709).
+> 🧭 **Mức học từ 17/09:** 🟢 toàn bộ — xét lại khi quay về N Assistant — xem [Bản đồ Phase → lát](#bản-đồ-phase--lát-cắt).
 
 > **Không đụng bộ não.** Core phơi **Port**, cloud cắm **Adapter**. CI cấm import billing vào core.
 
