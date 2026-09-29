@@ -200,17 +200,16 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
-### A. Từ 29/09 — giờ rảnh KHÔNG cố định → chạy theo HÀNG ĐỢI MẨU
+### A. Từ 29/09 — ca sáng + tối CỐ ĐỊNH chạy cột X · ca công ty KHÔNG cố định chạy cột N
 
-User báo sau công tác: *"tranh thủ được lúc nào tôi nhắn lúc đó"*. Thay lịch theo ngày bằng hàng đợi.
-**User chỉ cần nhắn 2 thứ: `rảnh mấy phút` + `tỉnh / mệt`.** Claude chọn mẩu, user không phải quyết.
+User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadmap §4). Chỉ **ca công ty** là
+*"tranh thủ được lúc nào tôi nhắn lúc đó"* — không biết trước mấy phút.
 
-**Luật chọn:**
-- **≥25' và tỉnh** → mẩu XÂY kế tiếp (cột X, đi đúng thứ tự, không nhảy cóc).
-- **<25' hoặc mệt** → một mẩu NHỎ (cột N), ưu tiên từ trên xuống.
-- Mẩu nào cũng **tự đóng được**: hết mẩu thì file chạy được + 1 dòng ghi vào nhật ký. Bị gọi đi giữa chừng →
-  lần sau làm lại đúng mẩu đó.
-- Mẩu ⭐ thiết kế chỉ làm khi **tỉnh và ≥25'** (CLAUDE.md §6). Không có ca như vậy thì mẩu XÂY dừng ở X4, chờ.
+- **Ca sáng / tối** → mẩu XÂY kế tiếp (cột X), **đi đúng thứ tự, không theo ngày** — xong X nào làm X kế.
+  ⭐ X3 thiết kế rơi vào ca sáng (hoặc tối bắt đầu ≤19:30, không OT) — CLAUDE.md §6.
+  Tối >21h hoặc OT → không làm X, chạy cột N (45' là DỪNG).
+- **Ca công ty** → user nhắn **`rảnh mấy phút`**, Claude lấy mẩu NHỎ (cột N) từ trên xuống, nhét vừa số phút.
+  Mỗi mẩu **tự đóng được**: hết mẩu thì file chạy được + 1 dòng nhật ký. Bị gọi đi giữa chừng → lần sau làm lại mẩu đó.
 
 | # | Mẩu XÂY (X) — lát 0 vào `app/` | User làm | Claude làm |
 |---|---|---|---|
