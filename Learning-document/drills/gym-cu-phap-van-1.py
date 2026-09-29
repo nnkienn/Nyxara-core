@@ -19,11 +19,11 @@ bag.append(7)
 
 # 3. Lay CHU dau tien trong cac khoa cua  D  -> phai ra "gte"
 # ✍️
-key1 = list(D.keys())[0]
+key_1 = list(D.keys())[0]
 
 # 4. Dung bien  key_1  de lay gia tri tuong ung trong  D  -> ra ["nam", 2015]
 # ✍️
-val_1 = D[key1]
+val_1 = D[key_1]
 
 # 5. Lay phan tu DAU TIEN cua  XS  -> ra 10
 # ✍️
@@ -31,15 +31,15 @@ first = XS[0]
 
 # 6. Lay phan tu CUOI cua  XS  bang so am -> ra 30
 # ✍️
-last = XS[2]
+last = XS[-1]
 
 # 7. Dem  XS  co bao nhieu phan tu -> ra 3   (dung ham co san len)
 # ✍️
-n = XS.len()
+n = len(XS)
 
 # 8. Tu  CAY  lay ra con THU HAI -> ra {"lt": ["nam", 2020]}
 # ✍️
-child_2 = CAY["and"][list(bag.key[0])[1]]
+child_2 = CAY["and"][1]
 
 # 9. Viet ham tra ve mot dict co khoa "must", gia tri la  items  (dung 2 dong: def + return)
 # ✍️

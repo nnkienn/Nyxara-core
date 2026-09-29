@@ -12,7 +12,7 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **25/09 → 28/09** *(công tác; tranh thủ được thì làm)* | 3.8 BM25 khớp theo cái gì | 20/09 ⚠️: nói nhầm *"rank"* (rank là đầu vào của RRF, không phải của BM25), không nêu được **mặt chữ + TF/IDF**. Đo bằng drill ép chọn, không hỏi lại trần |
+| **04/10** | 3.8 BM25 khớp theo cái gì | 29/09 ⚠️: ép chọn 4/5, câu lời có TF nhưng nói *"khớp theo văn bản"* (thiếu **mặt chữ**) + **thiếu IDF**. Lần sau: chỉ hỏi câu lời, phải đủ 3 ý |
 | **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
 | **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
 | **05/10** | 1.4 Recursive chunker | 21/09 ✅ tự nói được hậu quả: vector rác toàn "thì/là/ở" vẫn chiếm chỗ top-k |
@@ -198,6 +198,17 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-29 (T3) ca công ty 09:50-10:05 (~15') · hàng đợi mẩu lần đầu
+
+- Về sau 3 ngày công tác, không tranh thủ được món nào. Ca công ty giờ **không cố định** → chạy cột N.
+- **N1 gym ván 1: 10/10** ✅. Ô 3·4·7 sửa đúng ngay (tên `key_1`, `len(XS)`). Ô 6 `XS[-2]` → in bảng `-1/-2/-3` → đúng.
+  **Ô 8 trượt 2 lượt, cả 2 là lỗi ĐỌC**: chỉ đổi số cuối, để nguyên đoạn `list(bag.key[0])` dù đã bảo xoá hết.
+- **N2 vấn đáp 3.8: ⚠️** — ép chọn 4/5 (sai câu TF, chạy thật A 0.904 / B 0.47). Câu lời có TF, **thiếu mặt chữ
+  + IDF** → hẹn 04/10, lần sau chỉ hỏi câu lời.
+- Lỗi đọc/chép cộng dồn **17** (+2, ô 8).
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
 ### A. Từ 29/09 — ca sáng + tối CỐ ĐỊNH chạy cột X · ca công ty KHÔNG cố định chạy cột N
@@ -222,8 +233,8 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
 |---|---|---|
-| N1 | Gym ván 1 → chạy **10/10** (đang kẹt ở dòng `n = XS.len()`) | lỗi cú pháp: Claude chỉ thẳng dòng |
-| N2 | Vấn đáp **3.8 BM25** bằng drill ép chọn — **quá hạn từ 25/09** | nói tiêu chí thành lời, không chỉ đáp số |
+| ~~N1~~ | ✅ 29/09 Gym ván 1 **10/10** | |
+| ~~N2~~ | ✅ 29/09 Vấn đáp 3.8 làm xong (⚠️, hẹn 04/10) | |
 | N3 | Xen 2 câu **Cặp 17** (`match` ↔ `range`) | đủ 2/2 mới coi là sạch |
 | N4 | Tiếng Anh: đọc to bản 21/09 → viết bản 2 *"why did you switch to AI?"* | user viết, Claude chỉnh |
 | N5 | Gym ván 2 nhắm [Cặp 18](./the-phan-biet.md) (`= []` · `:` · `(` sau tên · nháy) | khi N1 xong |
@@ -236,4 +247,4 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 
 - **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
 - ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi** (22/09).
-- **Theo dõi:** lỗi đọc đề/chép sai **15 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
+- **Theo dõi:** lỗi đọc đề/chép sai **17 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
