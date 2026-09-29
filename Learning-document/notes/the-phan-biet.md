@@ -495,6 +495,7 @@ nhau là mất cả hai.
 | 2026-09-21 công ty | Cặp 17 sau khi đo bằng Qdrant thật (`MatchValue(eq=...)` nổ `value Field required`) | **2/2** | chưa coi là sạch — xen lại 2 câu đầu buổi sau |
 | 2026-09-22 sáng | Cặp 17 xen đầu buổi, 2 câu | **1/2** | sai lại đúng ô `match` (chọn `"eq"`). Chưa sạch sau 1 ngày |
 | 2026-09-22 sáng | Cặp 17 sau bài đo Qdrant thật (vòng 2: `eq` trên **số** cũng nổ) | **3/3** | chữ *"chuỗi"* trong tiêu chí của user là thứ làm hỏng — `match` chết cứng `"value"` bất kể chuỗi hay số |
+| 2026-09-29 công ty | Cặp 17 xen lại sau 7 ngày (có 3 ngày nghỉ), 2 câu | **2/2** | ⭐ **Cặp 17 SẠCH** — giữ được qua 7 ngày không ôn |
 
 **Nhận xét 2026-09-15:** lỗi B sai 2 lần khi giảng bằng lời, chỉ bóc ra gốc khi user **tự nói ra cách
 mình đang nghĩ** (*"`q.keys()` ra `["cam","xoai","oi"]`"*) — rồi chạy thật in từng lượt là vào ngay.

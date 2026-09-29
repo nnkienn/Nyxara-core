@@ -203,7 +203,7 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - Về sau 3 ngày công tác, không tranh thủ được món nào. Ca công ty giờ **không cố định** → chạy cột N.
 - **N1 gym ván 1: 10/10** ✅. Ô 3·4·7 sửa đúng ngay (tên `key_1`, `len(XS)`). Ô 6 `XS[-2]` → in bảng `-1/-2/-3` → đúng.
   **Ô 8 trượt 2 lượt, cả 2 là lỗi ĐỌC**: chỉ đổi số cuối, để nguyên đoạn `list(bag.key[0])` dù đã bảo xoá hết.
-- **N2 vấn đáp 3.8: ⚠️** — ép chọn 4/5 (sai câu TF, chạy thật A 0.904 / B 0.47). Câu lời có TF, **thiếu mặt chữ
+- **N3 Cặp 17: 2/2 → SẠCH** (giữ qua 7 ngày). **N2 vấn đáp 3.8: ⚠️** — ép chọn 4/5 (sai câu TF, chạy thật A 0.904 / B 0.47). Câu lời có TF, **thiếu mặt chữ
   + IDF** → hẹn 04/10, lần sau chỉ hỏi câu lời.
 - Lỗi đọc/chép cộng dồn **17** (+2, ô 8).
 
@@ -235,7 +235,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 |---|---|---|
 | ~~N1~~ | ✅ 29/09 Gym ván 1 **10/10** | |
 | ~~N2~~ | ✅ 29/09 Vấn đáp 3.8 làm xong (⚠️, hẹn 04/10) | |
-| N3 | Xen 2 câu **Cặp 17** (`match` ↔ `range`) | đủ 2/2 mới coi là sạch |
+| ~~N3~~ | ✅ 29/09 Cặp 17 **2/2 — SẠCH** | |
 | N4 | Tiếng Anh: đọc to bản 21/09 → viết bản 2 *"why did you switch to AI?"* | user viết, Claude chỉnh |
 | N5 | Gym ván 2 nhắm [Cặp 18](./the-phan-biet.md) (`= []` · `:` · `(` sau tên · nháy) | khi N1 xong |
 | — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
