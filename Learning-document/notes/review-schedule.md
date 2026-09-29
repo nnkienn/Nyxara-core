@@ -200,35 +200,40 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
-### A. 25 → 27/09 (T6-CN) — công tác: ngày nghỉ, KHÔNG tính hụt
+### A. Từ 29/09 — giờ rảnh KHÔNG cố định → chạy theo HÀNG ĐỢI MẨU
 
-Có 15-20' rảnh thì chọn **một** món ([roadmap §5](../LEARNING_ROADMAP.md)), không có thì thôi:
-- 📱 Vấn đáp **3.8 BM25 khớp theo cái gì** — nói to, đóng sách. Tiêu chí phải nói ra thành lời, không chỉ đáp số.
-- 📱 Đọc to 2 lượt bản tiếng Anh đã chỉnh 21/09 ([english-speaking.md](./english-speaking.md)).
-- 💻 Gym ván 1: gõ 6 dòng đáp án vào [file](../drills/gym-cu-phap-van-1.py) → chạy **10/10**.
-- **Tối CN 27/09 không bắt buộc tổng kết** — dời sang CN 04/10. Khoá PRIMM kéo tới **04/10** (số đo 2 chưa có, sẽ đo T3).
+User báo sau công tác: *"tranh thủ được lúc nào tôi nhắn lúc đó"*. Thay lịch theo ngày bằng hàng đợi.
+**User chỉ cần nhắn 2 thứ: `rảnh mấy phút` + `tỉnh / mệt`.** Claude chọn mẩu, user không phải quyết.
 
-### B. Tuần 28/09 → 04/10 — ĐÓNG LÁT 0 VÀO `app/`
+**Luật chọn:**
+- **≥25' và tỉnh** → mẩu XÂY kế tiếp (cột X, đi đúng thứ tự, không nhảy cóc).
+- **<25' hoặc mệt** → một mẩu NHỎ (cột N), ưu tiên từ trên xuống.
+- Mẩu nào cũng **tự đóng được**: hết mẩu thì file chạy được + 1 dòng ghi vào nhật ký. Bị gọi đi giữa chừng →
+  lần sau làm lại đúng mẩu đó.
+- Mẩu ⭐ thiết kế chỉ làm khi **tỉnh và ≥25'** (CLAUDE.md §6). Không có ca như vậy thì mẩu XÂY dừng ở X4, chờ.
 
-Mỗi ngày **một** việc XÂY. Chưa xong thì ngày sau làm tiếp, **cả chuỗi trôi nguyên vẹn**, không cắt bước.
-Lát 0 đóng ở **cây 1 tầng** (con toàn là lá) là đủ dùng cho metadata luật. Đệ quy là nâng cấp **một chữ**
-(`to_leaf_clause` → gọi lại `to_qdrant_filter`), chỉ mở khi user tự hỏi *"nếu con lại là một cây thì sao"*.
-
-| Ngày | Ca sáng — XÂY (75') | User làm | Claude làm |
+| # | Mẩu XÂY (X) — lát 0 vào `app/` | User làm | Claude làm |
 |---|---|---|---|
-| **T2 28/09** | Gộp 3 hàm phẳng → `to_qdrant_filter(pred)`, nhìn `op` rồi rẽ sang đúng hàm | gõ ruột `if/elif/return` | khung drill + ca thử cây 1 tầng |
-| **T3 29/09** | Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (= bước 5 PRIMM, số đo 2) | gõ ruột, đóng file drill | file khung trong adapter Qdrant + test |
-| **T4 30/09** | ⭐ **Bài thiết kế** (sáng T4 cố định): port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? → rồi nối dây | chốt + nói lý do và cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** · nối `upsert` lưu metadata vào payload + `search` nhận filter · user trace 1 lượt + giảng lại |
-| **T5 01/10** | Phía BM25: `danh_gia` (17-18/09) + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 của hybrid |
-| **T6 02/10** | Test đầu-cuối trên kho 5 văn bản đã biết đáp án (ca `vb5` Thông tư bị cắt) | **đoán kết quả trước**, chạy, đọc test | viết test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
-| **T7 03/10** | Dự phòng: việc trôi từ mấy ngày trước | | |
-| **CN 04/10** | **Tổng kết tuần** (roadmap §4) + chấm PRIMM bằng 2 số (tắc cứng · gõ lại từ trắng) → chốt tuần 05/10 | | |
+| X1 | Gộp 3 hàm phẳng → `to_qdrant_filter(pred)`, nhìn `op` rẽ sang đúng hàm (cây 1 tầng) | gõ ruột `if/elif/return` | khung drill + ca thử |
+| X2 | Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) | gõ ruột | file khung adapter Qdrant + test |
+| X3 | ⭐ Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
+| X4 | Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
+| X5 | Phía BM25: `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
+| X6 | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
 
-- **Tối** (≤20:30, không OT): làm tiếp việc XÂY của ca sáng. Muộn/OT: 45' — xen **2 câu Cặp 17** (đủ mới coi là sạch) + drill vỏ cú pháp.
-- **Công ty**: gym ván 2 nhắm vỏ cú pháp [Cặp 18](./the-phan-biet.md) (`= []` · `:` cuối dòng mở khối · `(` sau tên = gọi hàm · nháy) ·
-  vấn đáp tới hạn (3.8 nếu chưa làm · **04/10: 3.9**) · tiếng Anh bản 2 *"why did you switch to AI?"*.
+| # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
+|---|---|---|
+| N1 | Gym ván 1 → chạy **10/10** (đang kẹt ở dòng `n = XS.len()`) | lỗi cú pháp: Claude chỉ thẳng dòng |
+| N2 | Vấn đáp **3.8 BM25** bằng drill ép chọn — **quá hạn từ 25/09** | nói tiêu chí thành lời, không chỉ đáp số |
+| N3 | Xen 2 câu **Cặp 17** (`match` ↔ `range`) | đủ 2/2 mới coi là sạch |
+| N4 | Tiếng Anh: đọc to bản 21/09 → viết bản 2 *"why did you switch to AI?"* | user viết, Claude chỉnh |
+| N5 | Gym ván 2 nhắm [Cặp 18](./the-phan-biet.md) (`= []` · `:` · `(` sau tên · nháy) | khi N1 xong |
+| — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
 
-### C. Giữ nguyên
+- Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
+- **CN 04/10** vẫn tổng kết tuần + chấm PRIMM 2 số (nếu có tin nhắn tối CN). Hàng đợi này chạy tới khi giờ cố định trở lại.
+
+### B. Giữ nguyên
 
 - **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
 - ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi** (22/09).
