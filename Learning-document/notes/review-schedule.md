@@ -205,7 +205,10 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   **Ô 8 trượt 2 lượt, cả 2 là lỗi ĐỌC**: chỉ đổi số cuối, để nguyên đoạn `list(bag.key[0])` dù đã bảo xoá hết.
 - **N3 Cặp 17: 2/2 → SẠCH** (giữ qua 7 ngày). **N2 vấn đáp 3.8: ⚠️** — ép chọn 4/5 (sai câu TF, chạy thật A 0.904 / B 0.47). Câu lời có TF, **thiếu mặt chữ
   + IDF** → hẹn 04/10, lần sau chỉ hỏi câu lời.
-- Lỗi đọc/chép cộng dồn **17** (+2, ô 8).
+- **N5 gym ván 2: 10/10** (tới 11:55, xen việc công ty). ⭐ **0 lỗi cú pháp** trong 2 hàm `if/elif/else` + `for/append/return` —
+  đủ `:` mọi dòng mở khối. Vòng đỏ: ô 2 `stock = ["12"]` (ghi đè thay vì gán khoá) · ô 5 `list[...]` (**Cặp 18** tái phát, 1 lần) ·
+  ô 8 nhánh `>= 8` trả `"kha"` (lỗi chép, tự sửa sau khi xem bảng in). Đề không dấu → user khó đọc → **đề drill từ nay có dấu**.
+- N4 tiếng Anh **dời sang ca tối** (user chọn). Lỗi đọc/chép cộng dồn **18** (+2 ô 8 gym 1, +1 ô 8 gym 2).
 
 ---
 
@@ -236,8 +239,9 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~N1~~ | ✅ 29/09 Gym ván 1 **10/10** | |
 | ~~N2~~ | ✅ 29/09 Vấn đáp 3.8 làm xong (⚠️, hẹn 04/10) | |
 | ~~N3~~ | ✅ 29/09 Cặp 17 **2/2 — SẠCH** | |
-| N4 | Tiếng Anh: đọc to bản 21/09 → viết bản 2 *"why did you switch to AI?"* | user viết, Claude chỉnh |
-| N5 | Gym ván 2 nhắm [Cặp 18](./the-phan-biet.md) (`= []` · `:` · `(` sau tên · nháy) | khi N1 xong |
+| N4 | Tiếng Anh: đọc to bản 21/09 → viết bản 2 *"why did you switch to AI?"* — **29/09 dời sang ca tối** | user viết, Claude chỉnh |
+| ~~N5~~ | ✅ 29/09 Gym ván 2 **10/10**, 0 lỗi cú pháp trong hàm | |
+| N6 | Gym ván 3 (Claude soạn khi cần) — nhắm chỗ còn hở: gán khoá vào dict · `list(...)` ngoặc tròn | đề có dấu |
 | — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
 
 - Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
@@ -247,4 +251,4 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 
 - **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
 - ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi** (22/09).
-- **Theo dõi:** lỗi đọc đề/chép sai **17 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
+- **Theo dõi:** lỗi đọc đề/chép sai **18 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
