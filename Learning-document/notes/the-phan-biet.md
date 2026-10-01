@@ -440,6 +440,35 @@ Kèm theo: `CAY["ten_hop_ngoai"]` (bọc nháy quanh tên biến → `KeyError`)
 tách được **cái tên** với **giá trị cái tên đang giữ**.
 ⇒ Lần sau gặp: ép chọn `list(...)` ↔ `<biến>(...)`, cấm giảng.
 
+## Cặp 19 — DICT lấy bằng **KHOÁ** vs LIST lấy bằng **SỐ THỨ TỰ**  (ô 8 gym ván 1, 25/09 tối)
+
+```python
+CAY        = {"and": [ {"eq": [...]}, {"lt": [...]} ]}   # DICT -> CAY["and"]
+key        = CAY["and"]                                   # gia tri la LIST
+key.keys()        # ❌ AttributeError: list khong co keys()
+key["key_con"]    # ❌ TypeError: list indices must be integers
+key[1]            # ✅ phan tu THU HAI cua list
+```
+
+Bệnh: bóc được một lớp (`CAY["and"]`) rồi **vẫn dùng giọng của dict** cho cái vừa bóc ra. `keys()`
+và ngoặc-có-nháy chỉ thuộc về dict; list chỉ hiểu **số**. Kèm 2 lỗi vỏ đi cùng lần này: `.Keys()`
+(`K` hoa) và `key["key_con"]` (bọc nháy quanh tên biến → thành chuỗi chữ, cùng bệnh [Cặp 18](#cặp-18--tên-biến-vs-tên-hàm-đứng-trước-)).
+**Trượt 3 lượt liên tiếp trong cùng một buổi**, chỉ vào sau khi Claude in đường đi `CAY → CAY["and"] → [1]`.
+⇒ Lần sau: ép chọn *"cái này là dict hay list"* trên 6 biểu thức lồng, **cấm giảng lại**.
+
+## Cặp 20 — khoá của **LỚP NGOÀI** vs khoá của **CON bên trong**  (X1, 30/09 tối)
+
+```python
+pred = {"and": [{"eq": ["loai", "Luật"]}, {"gte": ["nam", 2020]}]}
+list(pred.keys())        # ['and']          <- pred chi co 1 khoa
+list(pred.keys())[0]     # 'and'            <- op
+pred["and"]              # LIST 2 dict con; 'eq' / 'gte' la khoa cua TUNG CON
+```
+
+Bệnh: hỏi `op` của cây `and` thì trả *"eq và gte"* — nhìn thấy chữ khoá ở lớp trong rồi tưởng `keys()`
+chui vào. `keys()` chỉ nhìn **một lớp ngoài cùng**. Ép chọn ngay sau khi in thật: **3/3**.
+⇒ Lần sau: ép chọn `op` trên 3 cây lồng, cấm giảng lại.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -495,7 +524,10 @@ nhau là mất cả hai.
 | 2026-09-21 công ty | Cặp 17 sau khi đo bằng Qdrant thật (`MatchValue(eq=...)` nổ `value Field required`) | **2/2** | chưa coi là sạch — xen lại 2 câu đầu buổi sau |
 | 2026-09-22 sáng | Cặp 17 xen đầu buổi, 2 câu | **1/2** | sai lại đúng ô `match` (chọn `"eq"`). Chưa sạch sau 1 ngày |
 | 2026-09-22 sáng | Cặp 17 sau bài đo Qdrant thật (vòng 2: `eq` trên **số** cũng nổ) | **3/3** | chữ *"chuỗi"* trong tiêu chí của user là thứ làm hỏng — `match` chết cứng `"value"` bất kể chuỗi hay số |
+| 2026-09-25 tối (công tác) | ép chọn BM25 (mặt chữ · TF · IDF · chuẩn hoá độ dài), 10 câu | **10/10** | 0 — nhưng **đóng sách kể ra thì rơi "độ dài văn bản"**, trả nhầm *"số lượng văn bản"* (= IDF). Chọn đúng ≠ dựng lại được ⇒ 3.8 chấm ⚠️ |
+| 2026-09-25 tối | gym ván 1 ô 8 (dict↔list) | **trượt 3 lượt** | ⇒ **Cặp 19** mới. Vào sau khi in đường đi `CAY["and"] → [1]` — đúng luật "sai lần 2 thì đo, đừng giảng" |
 | 2026-09-29 công ty | Cặp 17 xen lại sau 7 ngày (có 3 ngày nghỉ), 2 câu | **2/2** | ⭐ **Cặp 17 SẠCH** — giữ được qua 7 ngày không ôn |
+| 2026-09-30 tối | `op` = khoá lớp ngoài hay khoá của con, 3 câu (sau khi in thật) | **3/3** | ⇒ **Cặp 20** mới; trước đó trả *"eq và gte"* cho cây `and` |
 
 **Nhận xét 2026-09-15:** lỗi B sai 2 lần khi giảng bằng lời, chỉ bóc ra gốc khi user **tự nói ra cách
 mình đang nghĩ** (*"`q.keys()` ra `["cam","xoai","oi"]`"*) — rồi chạy thật in từng lượt là vào ngay.

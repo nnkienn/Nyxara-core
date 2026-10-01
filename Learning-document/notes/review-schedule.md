@@ -198,6 +198,17 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-09-25 (T6) ca tối 20:53-21:40 (~45', ngày công tác — không tính hụt) · ca tối muộn: drill + gõ ruột
+
+- **Drill ép chọn BM25 10 câu → 10/10** (mặt chữ↔nghĩa 6/6 · IDF chữ hiếm · chuẩn hoá độ dài · ô "tính BM25 có cần rank không" = `S`). Cặp 15 vẫn sạch, lỗi *"rank"* của 20/09 đã hết.
+- **Nhưng đóng sách kể ra thì rơi 1/3 đại lượng** → 3.8 chấm **⚠️**, hẹn 30/09 hỏi miệng. Bài học phương pháp: **10/10 ép chọn KHÔNG chứng minh dựng lại được** — có 2 phương án trước mắt thì chọn đúng, từ đầu trống thì thiếu. Trùng ghi nhận cũ "hiểu nhưng không code lại được", lần này ở mức nói.
+- Vào được sau khi chạy `BM25Index` thật: cùng `tf=2`, cùng `idf=0.1823`, `doc_len` **8 vs 170** → **0.3682 vs 0.2015**.
+- **Gym ván 1 chưa xong 10/10.** 3 vòng đỏ, gốc là **ô 8**: bóc được `CAY["and"]` rồi vẫn dùng giọng dict cho cái list vừa bóc (`key.Keys()` · `key["key_con"]`) ⇒ [Cặp 19](./the-phan-biet.md) mới, trượt 3 lượt, chỉ vào sau khi in đường đi.
+- Lỗi vỏ/chép của buổi: `XS.len()` · `.Keys()` K hoa · nháy quanh tên biến · **sửa `key1`→`key_1` ở ô 3 mà quên chỗ dùng ở ô 4** · `XS[2]` bỏ sót yêu cầu "số âm". Lỗi đọc đề/chép cộng dồn **→ 18** (+3).
+- ⚠️ User báo *"done tôi nghĩ vậy"* nhưng file vẫn nổ — **luật: chưa dán output thì chưa gọi là xong.**
+
+---
+
 ### 2026-09-29 (T3) ca công ty 09:50-10:05 (~15') · hàng đợi mẩu lần đầu
 
 - Về sau 3 ngày công tác, không tranh thủ được món nào. Ca công ty giờ **không cố định** → chạy cột N.
@@ -208,7 +219,18 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - **N5 gym ván 2: 10/10** (tới 11:55, xen việc công ty). ⭐ **0 lỗi cú pháp** trong 2 hàm `if/elif/else` + `for/append/return` —
   đủ `:` mọi dòng mở khối. Vòng đỏ: ô 2 `stock = ["12"]` (ghi đè thay vì gán khoá) · ô 5 `list[...]` (**Cặp 18** tái phát, 1 lần) ·
   ô 8 nhánh `>= 8` trả `"kha"` (lỗi chép, tự sửa sau khi xem bảng in). Đề không dấu → user khó đọc → **đề drill từ nay có dấu**.
-- N4 tiếng Anh **dời sang ca tối** (user chọn). Lỗi đọc/chép cộng dồn **18** (+2 ô 8 gym 1, +1 ô 8 gym 2).
+- N4 tiếng Anh **dời sang ca tối** (user chọn). Lỗi đọc/chép cộng dồn **21** (+2 ô 8 gym 1, +1 ô 8 gym 2).
+
+---
+
+### 2026-09-30 (T4) ca tối 20:37-21:10 (~35', dừng sớm vì mệt) · X1 xong
+
+- Đầu buổi: rebase máy nhà, gộp ghi chú 25/09 (chưa commit) với 5 commit 29/09 của máy công ty. Lỗi đọc/chép gộp lại = **21**.
+- **X1 `to_qdrant_filter` (cây 1 tầng + lá trần bọc `must`): 5/5** ✅ — [drill](../drills/2026-09-30-toi-x1-gop-ham.py). ⭐ **0 vòng đỏ cú pháp.**
+- Tắc trước khi gõ: không nhớ `op` giữ gì; với cây `and` trả lời *"eq và gte"* (khoá của CON) → in thật từng bước → ép chọn 3/3 ⇒ [Cặp 20](./the-phan-biet.md).
+- 2 vòng đỏ logic: nhánh 3 chép lặp `op == "or"` (tự sửa) · nhánh cuối gọi `to_not_clause` cho lá trần → `KeyError: 'not'`. Thấy *"khác chữ must"* nhưng không viết ra được → vào sau khi đặt cạnh `to_not_clause` của chính mình 22/09 + mã giả 4 bước.
+- Nợ tên: nhánh `else` đặt `value = []` · `key = <tờ đơn>` (tên ngược với thứ nó giữ) · `if(...)` thừa ngoặc → sửa khi gõ lại ở X2.
+- **X2 đã dựng khung, CHƯA gõ**: [qdrant_filter.py](../../app/infrastructure/adapters/vectorstore/qdrant_filter.py) ruột trống + 6 test đang đỏ. ⚠️ `pytest -q` toàn bộ hiện **6 failed** cho tới khi X2 xong.
 
 ---
 
@@ -227,8 +249,8 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 
 | # | Mẩu XÂY (X) — lát 0 vào `app/` | User làm | Claude làm |
 |---|---|---|---|
-| X1 | Gộp 3 hàm phẳng → `to_qdrant_filter(pred)`, nhìn `op` rẽ sang đúng hàm (cây 1 tầng) | gõ ruột `if/elif/return` | khung drill + ca thử |
-| X2 | Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) | gõ ruột | file khung adapter Qdrant + test |
+| ~~X1~~ | ✅ 30/09 **5/5** · Gộp 3 hàm phẳng → `to_qdrant_filter(pred)`, nhìn `op` rẽ sang đúng hàm (cây 1 tầng) | gõ ruột `if/elif/return` | khung drill + ca thử |
+| **X2 ← sáng 01/10** | Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) — khung + 6 test đã có; hỏi lại câu đoán *"`ValueError` của `like` do hàm nào ném"* | gõ ruột | file khung adapter Qdrant + test |
 | X3 | ⭐ Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
 | X4 | Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
 | X5 | Phía BM25: `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
@@ -243,7 +265,9 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~N5~~ | ✅ 29/09 Gym ván 2 **10/10**, 0 lỗi cú pháp trong hàm | |
 | N6 | Gym ván 3 (Claude soạn khi cần) — nhắm chỗ còn hở: gán khoá vào dict · `list(...)` ngoặc tròn | đề có dấu |
 | — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
+| N7 | Ép chọn **[Cặp 19](./the-phan-biet.md)** (dict↔list) 2 câu — nợ từ tối 25/09 | cấm giảng lại |
 
+- **User hẹn 30/09:** sáng 01/10 gõ lại X2 · tối 01/10 muốn đóng hết phần còn lại của lát (X3→X6; X3 thiết kế cần ca sáng hoặc tối ≤19:30).
 - Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
 - **CN 04/10** vẫn tổng kết tuần + chấm PRIMM 2 số (nếu có tin nhắn tối CN). Hàng đợi này chạy tới khi giờ cố định trở lại.
 
@@ -251,4 +275,4 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 
 - **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
 - ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi** (22/09).
-- **Theo dõi:** lỗi đọc đề/chép sai **18 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
+- **Theo dõi:** lỗi đọc đề/chép sai **21 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
