@@ -297,7 +297,8 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 - **C** — MCP server tra luật cho người ngoài dùng (Claude Desktop/Cursor), gắn lát 5. ~10-15h, lấy từ ~60h trống.
 - **B = DỰ ÁN SỐ 2 mới** — agent text-to-SQL trên Postgres (hỏi tiếng Việt → SQL → kết quả + câu SQL đã chạy; đo tỉ lệ đúng).
   ~30-40h, **ăn slot 1h/ngày cũ của Orchestrator**, không đụng giờ core. Python/FastAPI, dùng lại khung eval lát 1.
-- **Còn phải chốt ở CN 04/10:** B bắt đầu khi nào (gợi ý: sau lát 1, vì cần khung eval) · B áp **Cách A** cho lõi hay agent code
+- ✅ **B bắt đầu SAU LÁT 1** (user chốt 02/10). Bộ đo có sẵn: **ViText2SQL** (VinAI, ~10K câu tiếng Việt, chỉ dùng nghiên cứu/học) — vai trò như Zalo Legal ở core.
+- **Còn phải chốt ở CN 04/10:** tên B · B áp **Cách A** cho lõi hay agent code
   (agent code = đúng điểm yếu đã khiến Orchestrator bị chê) · B dùng dữ liệu bảng nào.
 
 ### A2. Bài thiết kế chờ — MẢNG DỮ LIỆU (user nêu 02/10, chưa sửa roadmap)
