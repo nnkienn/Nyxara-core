@@ -249,6 +249,18 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - ⚠️ **Lỗi Claude:** đố cú pháp `FieldCondition`/`MatchValue` — nối dây là việc của Claude (§2). User: *"bớt kiểu hỏi này, tốn thời gian"*.
 - **Mai/tối:** X5 — BM25 nhận cùng cây; **lúc đó mới nối `filter_tree` vào `HybridRetriever`** (nối sớm = Qdrant lọc, BM25 không → lệch im lặng).
 
+### 2026-10-02 (T6) ca tối 21:11-21:55 (~45', ca muộn, user báo còn sung) · ca công ty KHÔNG có (hụt ~1h)
+
+- **Cặp 21 trượt lại 2 vòng (0/2, 0/3)** — hình dung ổn định: *".append tạo list mới, gốc giữ nguyên"* = đúng là của **dấu `+`**.
+  Gỡ bằng in `+` cạnh `.append` + **user tự gõ ở REPL** → vào. Kiểm lại cuối ca: hiểu đúng (đọc đề sai: trả "list" cho câu hỏi số).
+- **N8 ôn toàn cảnh lát 0** — viết lại 4 bước VÀO→DỊCH→GHÉP→RA: đúng ý. Lẫn mới: tưởng `QdrantStore.search` chạy cả dense + BM25
+  → ép chọn 2/2 (dense · nhánh BM25 chưa lọc).
+- ⭐ **Gõ lại `to_qdrant_filter` từ trắng (+15h): 6/6 xanh lượt đầu, 0 vòng đỏ** (sáng: 5 lượt). Nợ tên `value`/`key` ngược.
+- ⭐ **Cặp 19 ép chọn 6/6 — SẠCH** (25/09 trượt 3 lượt).
+- X5a mở: khung `matches` + `leaf_matches` + 17 test → user tắc từ dòng đầu, hạ bậc còn `leaf_matches` (in đường đi 1 lá) → user dừng *"nghĩ không nổi"*.
+  ⚠️ **`pytest -q` toàn bộ hiện 17 failed** cho tới khi X5a xong.
+- Lỗi đọc đề cộng dồn **22**. Gym ván 3 đã soạn, chưa làm.
+
 ---
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
@@ -270,7 +282,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~X2~~ | ✅ 02/10 **6/6** · Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) — khung + 6 test đã có; hỏi lại câu đoán *"`ValueError` của `like` do hàm nào ném"* | gõ ruột | file khung adapter Qdrant + test |
 | ~~X3~~ | ✅ 02/10 chốt **A** · Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
 | ~~X4~~ | ✅ 02/10 (chưa nối `HybridRetriever` — dời sang X5) · Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
-| **X5 ← ca kế** | Phía BM25 + nối `filter_tree` qua `HybridRetriever` cho **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
+| **X5a ← SÁNG T7 03/10** | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
 | X6 | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
@@ -285,6 +297,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
 | N7 | Ép chọn **[Cặp 19](./the-phan-biet.md)** (dict↔list) 2 câu — nợ từ tối 25/09 | cấm giảng lại |
 
+- **T7 03/10 (user hẹn 02/10):** sáng X5a → gym ván 3 → tiếng Anh N4 → ôn lát 0 · rồi X5b → X6 = **đóng lát 0 cuối tuần**. Lát 1 cuối tuần chỉ **mở** (nạp 61K + Hit@k), không đóng kịp (~30h).
 - **User hẹn 30/09:** sáng 01/10 gõ lại X2 · tối 01/10 muốn đóng hết phần còn lại của lát (X3→X6; X3 thiết kế cần ca sáng hoặc tối ≤19:30).
 - Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
 - **CN 04/10** vẫn tổng kết tuần + chấm PRIMM 2 số (nếu có tin nhắn tối CN). Hàng đợi này chạy tới khi giờ cố định trở lại.
