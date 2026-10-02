@@ -289,7 +289,9 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 - Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
 - **CN 04/10** vẫn tổng kết tuần + chấm PRIMM 2 số (nếu có tin nhắn tối CN). Hàng đợi này chạy tới khi giờ cố định trở lại.
 
-### A1b. ✅ USER CHỐT 02/10 — bỏ Orchestrator, làm cả A + B + C (sửa roadmap ở tổng kết CN 04/10, theo luật §4)
+### A1b. ✅ USER CHỐT 02/10 — bỏ Orchestrator, làm cả A + B + C · **ĐÃ VÀO ROADMAP 02/10** (user yêu cầu sửa ngay)
+
+- **B đổi thành B1 = trợ lý tư vấn phòng khám THẬT** (FB Ads + Zalo) → [side-lanes mục L](../side-lanes.md). Việc của user trước khi lát 1 đóng: **xin phép phòng khám bằng văn bản** + gom hội thoại (ẩn danh).
 
 - **Bỏ Nyxara-Orchestrator** (bị chê *"không nhắm đúng thị trường, chả ai xài"*; user đồng ý: TypeScript · thị trường extension
   code đã bão hoà · agent code nên khó nhận là của mình).
@@ -301,7 +303,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 - **Còn phải chốt ở CN 04/10:** tên B · B áp **Cách A** cho lõi hay agent code
   (agent code = đúng điểm yếu đã khiến Orchestrator bị chê) · B dùng dữ liệu bảng nào.
 
-### A2. Bài thiết kế chờ — MẢNG DỮ LIỆU (user nêu 02/10, chưa sửa roadmap)
+### A2. ~~Bài thiết kế chờ — MẢNG DỮ LIỆU~~ → xong 02/10: không thêm lát data, xem A1b (user nêu 02/10, chưa sửa roadmap)
 
 User thấy lộ trình **thiếu kỹ năng xử lý dữ liệu**: ETL/pipeline · làm sạch · **SQL/Postgres** · crawl · queue · **chạy theo lịch**.
 Còn ~60h chưa phân (35 mục ≈ 137h / ~200h tới 15/02). **Cách chốt:** ca sáng, user mang **2-3 tin tuyển thật**

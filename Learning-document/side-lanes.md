@@ -7,7 +7,7 @@
 > |---|---|---|
 > | Slot công ty (mục I) | 1h/ngày | đang chạy |
 > | Chuẩn bị phỏng vấn (mục K) | nằm trong slot công ty | lý thuyết LLM 10/2026 · DSA 11/2026 · system design 12/2026 |
-> | Orchestrator (mục L) | 1h/ngày, **cắt đầu tiên** khi ngày ngắn | đang chạy (agent code) |
+> | Dự án số 2 — trợ lý tư vấn phòng khám (mục L) | 1h/ngày, **cắt đầu tiên** khi ngày ngắn | **sau khi lát 1 đóng** (Orchestrator bỏ 02/10) |
 > | RA NGOÀI (mục M) | ~2h/tuần | **khi lát 1 có số** (10/2026) — trước đó không làm |
 
 ## I. Nhánh song song (slot công ty 1h/ngày)
@@ -16,8 +16,6 @@
   cách nói) → user **đọc nhẩm** bản đã chỉnh cho quen miệng. Không bắt nói ngẫu hứng khi chưa có bản viết.
 - **Python thực tế (~15-20'):** 1 bài ngắn dict/chuỗi/logic đời thường — trị thẳng lỗ cú pháp.
 - **Câu phỏng vấn (~10-15'):** [interview-questions.md](interview-questions.md), theo lịch hẹn ❌/⚠️/✅.
-- **Orchestrator:** agent làm, user định hướng nghiên cứu. Muốn đưa vào CV cần **số benchmark thật**
-  (token/task thành công so với agent trực tiếp) + **user tự giảng lại được vòng Planner → Repair**.
 ## K. Chuẩn bị phỏng vấn — 5 vòng thật (rà 17/09 từ bộ câu hỏi phỏng vấn thật 2026)
 Ngân hàng câu hỏi: [interview-questions.md](interview-questions.md) (mục 11-18 thêm 17/09).
 
@@ -36,7 +34,7 @@ người mất hai năm thường là người đi học thay vì đi ship"*.
 
 **Hai lỗ so với chuẩn Mid, phải vá bằng lát cắt chứ không bằng học thêm:**
 1. *"Đã ship cho người dùng thật"* → deploy tháng 10 (mục H), UI React tự làm.
-2. *"3-5 dự án end-to-end"* → Nyxara-core + **Orchestrator tính là dự án số 2 chính thức**, không phải nhánh phụ.
+2. *"3-5 dự án end-to-end"* → Nyxara-core + **trợ lý tư vấn phòng khám (mục L) là dự án số 2** — có người dùng thật (đổi 02/10).
 
 **Từ khoá phải có trên CV** (JD Việt Nam gọi tên đích danh, thiếu là rớt vòng lọc trước khi ai nghe bạn nói):
 `LangChain` / `LangGraph` / `LlamaIndex` · `RAGAS` · `Graph RAG` · `Qdrant` · `FastAPI` · `Docker`.
@@ -58,27 +56,29 @@ Cả ba cái đầu đã được cắm vào lát 1/4/6 — **không cần học
 | Trình bày project (60 giây + bản 30' hỏi dồn), tiếng Việt + tiếng Anh | Soạn khung từ tháng 11, hoàn thiện sau lát 6, tự ghi âm | 11/2026 → 01/2027 | ~6h |
 | Hành vi STAR (5-6 chuyện, lấy từ bug-log + chuyện đổi nghề) | Soạn + nói to | 01/2027 | ~4h |
 **Tổng thêm ~53h.**
-## L. Nyxara-Orchestrator — **DỰ ÁN SỐ 2 CHÍNH THỨC** (nâng cấp 18/09, trước là "làn song song")
-⚠️ Đổi 18/09: thị trường muốn **3-5 dự án end-to-end**, bạn có 1. Orchestrator không còn là nhánh phụ —
-nó là dự án thứ hai trong CV. Vẫn cắt đầu tiên khi ngày ngắn, nhưng **không được bỏ hẳn**.
-- **Là sản phẩm thật, không chỉ bài thử nghiệm/benchmark** (user nói rõ 17/09). Repo: `~/My-project/Nyxara-Orchestrator`
-  (TypeScript, agent code là chính, user định hướng + kiểm). Roadmap riêng: `docs/ROADMAP.md` của repo đó (M0 → M7 ước 23-41 tuần).
-- **Giờ:** 1h/ngày, **nằm ngoài** 4h30 của Nyxara-core → tổng 5h30/ngày.
-- **Luật Nyxara-core (Cách A, không code hộ) KHÔNG áp cho repo này** — ở đó agent code.
+## L. Dự án số 2 — Trợ lý tư vấn phòng khám (repo `nyxara`) · chốt 02/10, thay Orchestrator
 
-| Thời gian | Orchestrator | Ra được gì |
-|---|---|---|
-| **09-10/2026** | M0 Baseline (tái hiện lỗi task lớn, chụp số N0) → M1 Đo lường (một lệnh so D1 agent trực tiếp vs N0) · **user trace + giảng lại được kiến trúc và harness benchmark (~4h)** | Bảng số đầu tiên |
-| **11-12/2026** | M2 — lát đầu (ngân sách theo model sau feature flag) → so D1 / N0 / N1 | Token cho mỗi task thành công, số thật |
-| **01-02/2027** | Chuẩn bị phát hành: chọn license (roadmap repo gợi ý Apache-2.0) · `SECURITY.md` + giải thích quyền ghi file/chạy lệnh · quickstart · CI kiểm VSIX · README chỉ ghi số đã đo | Đưa vào CV lúc phỏng vấn: repo + số benchmark + *"Marketplace preview Q1/2027"* |
-| **03/2027** | **Preview trên VS Code Marketplace** | Link Marketplace |
-| Sau đó | M3 → M7 | |
+**Vì sao đổi:** Orchestrator bị chê *"không nhắm đúng thị trường, chả ai xài"* — user đồng ý (TypeScript trong khi 7/10 tin
+đòi Python · thị trường extension code đã bão hoà · agent code nên khó nhận là của mình). Bản cũ: git history trước 02/10.
+Căn cứ chọn: [thi-truong-2026-10.md](notes/thi-truong-2026-10.md) — agent + tool calling là yêu cầu số 1 (8/10).
 
-- **Cộng hưởng không tốn giờ:** kỷ luật đo học bằng tay ở lát 1 Nyxara-core (golden, A/B một biến, regression) = kỷ luật M1 cần.
-- **Chưa nối kỹ thuật core ↔ Orchestrator** (vd MCP) trước Tết — khác ngôn ngữ, tốn giờ; xét lại cùng M5.
-- **Kể trong phỏng vấn:** *"tôi thiết kế nghiên cứu + benchmark + kiến trúc, dùng AI agent để code, tự kiểm chứng bằng số"* — chỉ nói được khi đã trace ở mốc 09-10.
-- ✅ **Luật ưu tiên khi ngày ngắn — user chốt 17/09:** tối 2h core → sáng 1h30 → slot công ty → **Orchestrator cắt đầu tiên, không tính hụt**.
-  Tối CN: 2 tuần liền Orchestrator ăn vào giờ core → hạ xuống 3 buổi/tuần.
+- **Là gì:** agent trả lời tin nhắn bệnh nhân cho **một phòng khám THẬT** user đang làm (đang tư vấn qua FB Ads + Zalo).
+  Đây là năng lực "AI Tư vấn Bệnh nhân" đã có trong README `nyxara`, **cắt gọn**.
+- **Phạm vi bản đầu — đúng 3 tool:** ① tra dịch vụ / bảng giá / giờ khám (RAG trên tài liệu phòng khám — dùng lõi `nyxara-core`)
+  · ② đặt / dời lịch hẹn (Postgres) · ③ chuyển lễ tân thật (HITL) khi hỏi triệu chứng, khiếu nại, hoặc agent không chắc.
+  Kênh: **giả lập trước**, nối Messenger / Zalo OA sau khi agent qua bộ đo.
+- **Bộ đo:** hội thoại thật của phòng khám **đã ẩn danh** → 100-200 ca có đáp án (tool đúng · tham số đúng · có chuyển người
+  khi phải chuyển). Chấm **tỉ lệ xong việc** + **số bước sai** + **số ca lẽ ra phải chuyển người mà không chuyển** (lỗi nặng nhất).
+- **Lấp lỗ tin tuyển:** agent + tool calling · structured output · API OpenAI/Anthropic · Postgres · async webhook · HITL ·
+  guardrails · **"đã ship cho người dùng thật"**.
+- ⚠️ **Luật không thương lượng:** không chẩn đoán, không kê đơn, luôn có disclaimer (README `nyxara`) · dữ liệu sức khoẻ là
+  **dữ liệu cá nhân nhạy cảm** (NĐ 13/2023) → phòng khám đồng ý bằng văn bản trước khi lấy hội thoại · **ẩn danh trước khi
+  rời máy phòng khám** · hội thoại thật **không bao giờ vào git**.
+- **Giờ:** slot 1h/ngày cũ của Orchestrator (~90h tới 15/02), ước **40-50h**. Cắt đầu tiên khi ngày ngắn.
+  **Bắt đầu SAU KHI LÁT 1 ĐÓNG** — dùng lại khung eval của lát 1. Trước đó: chỉ xin phép phòng khám + gom hội thoại (việc của user).
+- **Còn chốt ở buổi mở dự án:** lõi agent (luật chuyển người, chấm bộ đo) áp **Cách A** hay agent code — gợi ý Cách A cho lõi,
+  Claude viết nối kênh / webhook / UI, vì "agent code hết" là điểm yếu đã làm Orchestrator bị chê.
+
 ## M. RA NGOÀI — làn thứ tư, thêm 18/09 (~2h/tuần, cắt vào giờ Orchestrator khi cần)
 
 > **Vì sao thêm:** user nói *"phỏng vấn + project thực tế + hiểu sâu... vẫn cảm thấy chưa đủ"*.

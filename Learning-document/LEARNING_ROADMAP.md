@@ -6,7 +6,7 @@
 > File này giờ chỉ trả lời **làm gì, theo thứ tự nào**. Bản đầy đủ: [archive/2026-09-24-LEARNING_ROADMAP.md](archive/2026-09-24-LEARNING_ROADMAP.md).
 >
 > Tra cứu, **không đọc mỗi buổi**: [phases.md](phases.md) (kiến thức 10 Phase + bản đồ Phase → lát) ·
-> [side-lanes.md](side-lanes.md) (slot công ty · phỏng vấn · Orchestrator · RA NGOÀI).
+> [side-lanes.md](side-lanes.md) (slot công ty · phỏng vấn · **dự án số 2: trợ lý phòng khám** · RA NGOÀI).
 > Chỗ dừng từng buổi: [notes/review-schedule.md](notes/review-schedule.md).
 
 ---
@@ -38,12 +38,15 @@ Kế hoạch đóng lát 0: xem **tuần 28/09** ở [chỗ dừng](notes/review
 | Lát | Tính năng | 🔴 Sâu | 🟡 Nhỏ |
 |---|---|---|---|
 | **0** | **Metadata filter** ← đang ở đây | cây `and/or/not` → Qdrant + BM25 | — |
-| **1** | **Nền đo + LÊN MẠNG** — nạp 61K điều, đo baseline, deploy demo | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp bug cũ) | Bảng BM25 / dense / hybrid / +rerank so 0.8488 · RAGAS 1 lần đối chiếu · so 2-3 embedding · demo URL + UI React |
+| **1** | **Nền đo + LÊN MẠNG** — nạp 61K điều, đo baseline, deploy demo | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp bug cũ) | Bảng BM25 / dense / hybrid / +rerank so 0.8488 · RAGAS 1 lần đối chiếu · so 2-3 embedding · demo URL + UI React · **Docker + deploy lên cloud (Azure/AWS)** *(02/10)* |
 | **2** | **Retrieval pháp luật** | Chunk theo **Điều/Khoản** · Query Transform (đời thường → ngôn ngữ luật, HyDE) · Parse HTML/PDF | MMR · overlap (bug #34) · Parent-Child · Contextual |
-| **3** | **Trích dẫn, không bịa** | Trích Điều/Khoản (offset) · Judge + faithfulness · Từ chối "không có căn cứ" · Chống prompt injection | Hiệu chỉnh judge vs 50 nhãn tay · Lost-in-the-Middle |
+| **3** | **Trích dẫn, không bịa** | Trích Điều/Khoản (offset) · Judge + faithfulness · Từ chối "không có căn cứ" · Chống prompt injection | Hiệu chỉnh judge vs 50 nhãn tay · Lost-in-the-Middle · **adapter OpenAI/Anthropic: async + streaming + retry + chi phí** *(02/10)* |
 | **4** | **Hiệu lực + tham chiếu chéo** | — | Temporal/versioning theo hiệu lực · GraphRAG multi-hop trên dẫn chiếu pháp lý |
-| **5** | **Agent pháp lý + MCP** | Tool calling + structured output · Supervisor nhỏ · Tracing · Đo trajectory · MCP server tra luật | Memory hội thoại · HITL |
-| **6** | **Production + portfolio** | — | Docker + CI chạy regression eval · latency p50/p95 + cache + chi phí/query · README dạng spec · port lõi sang LangChain một lần · bài viết tiếng Anh |
+| **5** | **Agent pháp lý + MCP** | Tool calling + structured output · Supervisor nhỏ · Tracing · Đo trajectory · MCP server tra luật **cho người ngoài cắm vào Claude Desktop/Cursor** *(02/10)* | Memory hội thoại · HITL |
+| **6** | **Production + portfolio** | — | **`PgVectorStore` — đổi kho chỉ thay adapter** *(02/10)* · CI chạy regression eval · latency p50/p95 + cache + chi phí/query · README dạng spec · port lõi sang LangChain một lần · bài viết tiếng Anh |
+
+**Song song từ khi lát 1 đóng — dự án số 2:** trợ lý tư vấn phòng khám (repo `nyxara`, khách thật), slot 1h/ngày —
+xem [side-lanes.md mục L](side-lanes.md). Các mục *(02/10)* trong bảng: lấp lỗ từ [rà 10 tin tuyển](notes/thi-truong-2026-10.md).
 
 **Mức:** 🔴 = đủ 6 bước + A/B ra số (~5h, chưa kiểm chứng) · 🟡 = một bản chạy + một phép đo (~3h) ·
 🟢 = đọc ~1h + trả lời 3-5 câu phỏng vấn đóng sách (Fine-tune, Quantization, K8s, Drift… — xem bản đồ trong phases.md).
@@ -84,7 +87,7 @@ Mục đích: **không phải quyết định "hôm nay học gì"**. Mở máy 
   viết kế hoạch tuần sau vào chỗ dừng. **Đây là chỗ DUY NHẤT được sửa phương pháp / luật / roadmap.**
 
 **Tỷ lệ:** XÂY ~70% · DRILL ~20% · META ≤5%. Ca sáng không bao giờ drill suông.
-**Thứ tự cắt khi ngày ngắn:** Orchestrator → slot công ty → sáng → **tối giữ đến cùng**.
+**Thứ tự cắt khi ngày ngắn:** dự án số 2 → slot công ty → sáng → **tối giữ đến cùng**.
 Ngày OT: Claude **phải nói rõ** hụt bao nhiêu, tuần này hụt bao nhiêu — không im lặng.
 
 ---
