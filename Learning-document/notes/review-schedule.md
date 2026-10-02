@@ -296,7 +296,7 @@ Còn ~60h chưa phân (35 mục ≈ 137h / ~200h tới 15/02). **Cách chốt:**
 → Claude đối chiếu từng dòng với ~90 mục hiện có → chỉ thêm thứ tin tuyển đòi. Ba phương án Claude soạn sẵn
 (giảng kèm giá trước khi hỏi): **P1** gộp vào lát 1 (nạp 61K bằng pipeline thật: Postgres giữ metadata + job theo lịch) ·
 **P2** lát data riêng sau lát 1 (crawl vbpl văn bản mới → làm sạch → Postgres → queue embed) · **P3** chỉ 🟢 nói được.
-Chưa chốt thì **không** đụng X5/X6.
+X5/X6 lát 0 **chạy tiếp bình thường** — mảng này chỉ ảnh hưởng từ lát 1 trở đi.
 
 ### B. Giữ nguyên
 
