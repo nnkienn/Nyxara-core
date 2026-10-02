@@ -469,6 +469,19 @@ Bệnh: hỏi `op` của cây `and` thì trả *"eq và gte"* — nhìn thấy c
 chui vào. `keys()` chỉ nhìn **một lớp ngoài cùng**. Ép chọn ngay sau khi in thật: **3/3**.
 ⇒ Lần sau: ép chọn `op` trên 3 cây lồng, cấm giảng lại.
 
+## Cặp 21 — thứ `.append()` **TRẢ RA** vs cái list **SAU KHI** append  (X2, 02/10 sáng)
+
+```python
+bag = []
+x = bag.append(5)
+x      # None   <- lời gọi .append() luôn trả None
+bag    # [5]    <- nhưng list ĐÃ được nhét vào, gọi tên list là có
+```
+
+Bệnh: sửa 4 lượt liền vẫn để `.append(...)` bên phải `=` hoặc trong `return` → `{'must': None}`.
+Ép chọn lộ gốc: biết `x` là `None` nhưng tưởng **`bag` cũng `None`** → nên cứ cố hứng kết quả.
+⇒ `.append()` luôn **đứng riêng một dòng**; dòng sau dùng **tên list**. Lần sau: ép chọn 2 ô, cấm giảng.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
@@ -528,6 +541,7 @@ nhau là mất cả hai.
 | 2026-09-25 tối | gym ván 1 ô 8 (dict↔list) | **trượt 3 lượt** | ⇒ **Cặp 19** mới. Vào sau khi in đường đi `CAY["and"] → [1]` — đúng luật "sai lần 2 thì đo, đừng giảng" |
 | 2026-09-29 công ty | Cặp 17 xen lại sau 7 ngày (có 3 ngày nghỉ), 2 câu | **2/2** | ⭐ **Cặp 17 SẠCH** — giữ được qua 7 ngày không ôn |
 | 2026-09-30 tối | `op` = khoá lớp ngoài hay khoá của con, 3 câu (sau khi in thật) | **3/3** | ⇒ **Cặp 20** mới; trước đó trả *"eq và gte"* cho cây `and` |
+| 2026-10-02 sáng | `x = bag.append(5)` → `x`? `bag`? | **1/2** | `bag` đoán `None` (thật `[5]`) ⇒ **Cặp 21** mới. Sửa file đúng ngay sau khi in thật |
 
 **Nhận xét 2026-09-15:** lỗi B sai 2 lần khi giảng bằng lời, chỉ bóc ra gốc khi user **tự nói ra cách
 mình đang nghĩ** (*"`q.keys()` ra `["cam","xoai","oi"]`"*) — rồi chạy thật in từng lượt là vào ngay.

@@ -2,6 +2,7 @@
 # Distance/VectorParams: cấu hình khi TẠO kho (loại thước đo + kích thước vector).
 # PointStruct: khuôn dữ liệu cho 1 điểm lưu vào kho (id + vector + payload).
 import uuid
+from typing import Optional
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
@@ -9,6 +10,7 @@ from qdrant_client.models import PointStruct
 
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 from app.domain.ports.vector_store import SearchHit
+from app.infrastructure.adapters.vectorstore.qdrant_filter import to_qdrant_filter
 
 class QdrantStore:
     def __init__(self, client: QdrantClient, collection: str, dim: int):
@@ -25,20 +27,32 @@ class QdrantStore:
                 vectors_config=VectorParams(size=dim, distance=Distance.COSINE),
             )
 
-    def upsert(self, tenant_id: str, ids: list[str], texts: list[str], vectors: list[list[float]]) -> None:
+    def upsert(
+        self,
+        tenant_id: str,
+        ids: list[str],
+        texts: list[str],
+        vectors: list[list[float]],
+        metadatas: Optional[list[dict]] = None,
+    ) -> None:
         # zip khoá 3 danh sách song song lại, duyệt cùng lúc theo từng vị trí:
         # (ids[0], texts[0], vectors[0]), rồi (ids[1], texts[1], vectors[1])...
         # payload = dữ liệu "đính kèm" mỗi vector, để sau này biết nó thuộc tenant nào + text gốc.
         # uuid5(NAMESPACE, id) -> UUID cố định từ chuỗi id gốc: cùng id luôn ra cùng UUID
         # (Qdrant chỉ chấp nhận id dạng số nguyên hoặc UUID, không nhận string tuỳ ý)
         # + ingest lại cùng id -> ghi đè đúng điểm cũ, không tạo bản trùng (idempotent).
+        # metadata (loai/co_quan/nam...) nằm CÙNG TẦNG với tenant_id trong payload -> filter
+        # Qdrant đọc thẳng được bằng key="loai". Đặt metadata TRƯỚC, 3 trường hệ thống SAU:
+        # metadata lỡ có khoá "tenant_id" cũng không ghi đè được tenant thật.
+        if metadatas is None:
+            metadatas = [{} for _ in ids]
         points = [
             PointStruct(
                 id=str(uuid.uuid5(uuid.NAMESPACE_DNS, id)),
                 vector=vector,
-                payload={"tenant_id": tenant_id, "text": text, "doc_id": id},
+                payload={**metadata, "tenant_id": tenant_id, "text": text, "doc_id": id},
             )
-            for id, text, vector in zip(ids, texts, vectors)
+            for id, text, vector, metadata in zip(ids, texts, vectors, metadatas)
         ]
         self.client.upsert(
             collection_name=self.collection,
@@ -46,15 +60,25 @@ class QdrantStore:
         )
 
 
-    def search(self, tenant_id : str , query_vector: list[float], top_k: int)->list[SearchHit]:
-        filter = Filter(
-            must = [
-                FieldCondition(
-                    key= "tenant_id",
-                    match = MatchValue(value=tenant_id)
-                )
-            ]
-        )
+    def search(
+        self,
+        tenant_id: str,
+        query_vector: list[float],
+        top_k: int,
+        filter_tree: Optional[dict] = None,
+    ) -> list[SearchHit]:
+        # Khoá tenant LUÔN ở ngoài cùng. Bộ lọc của người dùng chỉ được LỒNG VÀO TRONG must
+        # cạnh nó (Qdrant cho Filter con nằm trong must) -> không cây nào nới được khoá tenant.
+        conditions = [
+            FieldCondition(
+                key= "tenant_id",
+                match = MatchValue(value=tenant_id)
+            )
+        ]
+        if filter_tree is not None:
+            # dịch cây trung lập -> dict Qdrant (hàm bạn gõ 02/10) -> Filter của thư viện
+            conditions.append(Filter(**to_qdrant_filter(filter_tree)))
+        filter = Filter(must=conditions)
         res = self.client.query_points(          # search -> query_points
             collection_name=self.collection,
             query=query_vector,                  # query_vector= -> query=

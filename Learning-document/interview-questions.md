@@ -152,6 +152,8 @@
 | 10.7 | 🔴 | *(chưa học)* **Khi nào KHÔNG nên dùng RAG?** Context window dài rồi — so RAG vs nhét thẳng document theo 4 trục: chất lượng · chi phí · độ trễ p95 · khả năng trích dẫn nguồn | — | ⬜ |
 | 10.8 | 🔴 | *(chưa học)* Đo một **agent nhiều bước** khác đo RAG ở chỗ nào? Kể 3 chỉ số chỉ có ý nghĩa với agent | — | ⬜ |
 | 10.9 | 🔴 | *(chưa học)* Agent trả lời **đúng** nhưng đi 11 bước và gọi nhầm tool 3 lần — tính là pass hay fail? Vì sao? | — | ⬜ |
+| 10.10 | 🟡 | Bộ lọc metadata: sao không để `HybridRetriever` dịch luôn sang dict Qdrant rồi truyền xuống `VectorStore.search`? Nêu 2 hậu quả (BM25 · đổi database). | X3 02/10 | ❌→04/10 |
+| 10.11 | 🟢 | Port là gì, adapter là gì? Lấy `VectorStore` / `QdrantStore` làm ví dụ. | X4 02/10 | ⚠️→07/10 |
 
 ## 11. Lý thuyết LLM *(🟢 đọc hiểu — slot công ty 10-11/2026)*
 
@@ -266,3 +268,4 @@ Mỗi vòng ghi 1 dòng. Chỉ tính câu **đã đóng tài liệu trả lời 
 | 2026-09-20 (tối, đo lại) | BM25 mặt chữ · tenant filter | 1 | 1 | 0 | 3.8 nói nhầm "rank" thay vì TF/IDF trên mặt chữ, không nêu được BM25 khớp theo cái gì (+5 → 25/09, đo bằng drill ép chọn) · 3.9 ✅ đủ đáp án + lý do (+14 → 04/10) |
 | 2026-09-25 (tối, công tác) | BM25 khớp theo cái gì (3.8) | 0 | 1 | 0 | 3.8 ⚠️ (+5 → **30/09, hỏi MIỆNG, không drill trước**): ép chọn 10/10 (mặt chữ 6/6 · IDF · chuẩn hoá độ dài · tách được rank-là-của-RRF) nhưng đóng sách **kể ra chỉ được 2/3 đại lượng**, rơi *độ dài văn bản*, trả nhầm *"số lượng văn bản"*. Chỉ vào sau khi chạy `BM25Index` thật: cùng `tf=2`, cùng `idf=0.1823`, `doc_len` 8 vs 170 → 0.3682 vs 0.2015 |
 | 2026-09-29 (ca công ty, quá hạn 4 ngày) | BM25 — ép chọn 5 câu + 1 câu lời | 0 | 1 | 0 | 3.8 ép chọn **4/5** (sai câu TF: chọn B 1 lần thay vì A 5 lần — chạy thật A 0.904 / B 0.47). Câu lời: có **TF** ✅, nhưng *"khớp theo văn bản"* (thiếu **mặt chữ**) và **thiếu IDF** dù câu 4 chọn đúng *"của" → THẤP* (+5 → 04/10) |
+| 2026-10-02 (sáng) | thiết kế filter (X3) · port/adapter | 0 | 1 | 1 | 10.10 ❌ không nói được, xin đáp án; sau khi in bảng *"4 chỗ biết Qdrant vs 1 chỗ"* thì trả đúng ô kiểm (+2 → 04/10) · 10.11 ⚠️ giảng lại đúng **ngay sau khi đọc** — chưa phải nhớ thật (+5 → 07/10) |

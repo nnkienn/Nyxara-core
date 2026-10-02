@@ -13,8 +13,10 @@
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
 | **04/10** | 3.8 BM25 khớp theo cái gì | 29/09 ⚠️: ép chọn 4/5, câu lời có TF nhưng nói *"khớp theo văn bản"* (thiếu **mặt chữ**) + **thiếu IDF**. Lần sau: chỉ hỏi câu lời, phải đủ 3 ý |
+| **04/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 02/10 ❌: không nói được 2 hậu quả (BM25 phải dịch lần 2 · đổi DB sửa 4 chỗ thay vì 1) |
 | **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
 | **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
+| **07/10** | 10.11 port / adapter là gì | 02/10 ⚠️: giảng lại đúng nhưng **ngay sau khi đọc** — lần sau đóng sách hẳn |
 | **05/10** | 1.4 Recursive chunker | 21/09 ✅ tự nói được hậu quả: vector rác toàn "thì/là/ở" vẫn chiếm chỗ top-k |
 
 **Cách ôn:** đóng sách, nói to, trả lời hết khả năng **rồi mới** mở note đối chiếu → chấm ✅/⚠️/❌ →
@@ -230,7 +232,22 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - Tắc trước khi gõ: không nhớ `op` giữ gì; với cây `and` trả lời *"eq và gte"* (khoá của CON) → in thật từng bước → ép chọn 3/3 ⇒ [Cặp 20](./the-phan-biet.md).
 - 2 vòng đỏ logic: nhánh 3 chép lặp `op == "or"` (tự sửa) · nhánh cuối gọi `to_not_clause` cho lá trần → `KeyError: 'not'`. Thấy *"khác chữ must"* nhưng không viết ra được → vào sau khi đặt cạnh `to_not_clause` của chính mình 22/09 + mã giả 4 bước.
 - Nợ tên: nhánh `else` đặt `value = []` · `key = <tờ đơn>` (tên ngược với thứ nó giữ) · `if(...)` thừa ngoặc → sửa khi gõ lại ở X2.
-- **X2 đã dựng khung, CHƯA gõ**: [qdrant_filter.py](../../app/infrastructure/adapters/vectorstore/qdrant_filter.py) ruột trống + 6 test đang đỏ. ⚠️ `pytest -q` toàn bộ hiện **6 failed** cho tới khi X2 xong.
+- **X2 đã dựng khung, CHƯA gõ**: [qdrant_filter.py](../../app/infrastructure/adapters/vectorstore/qdrant_filter.py) ruột trống + 6 test đang đỏ. → 02/10 X2 xong, `pytest -q` toàn bộ **86 passed**.
+
+---
+
+### 2026-10-02 (T6) ca sáng 05:15-06:20 (~65') · LÁT 0 · về sau công tác + bão 01/10 (BKK, không tính hụt)
+
+- **X2 ✅** `to_qdrant_filter` gõ lại từ trắng vào `app/` — logic chia đường đúng ngay; **6/6, suite 82 → 86 passed**.
+- Vòng đỏ: `pred.key()` (thiếu `s`) · rồi **4 lượt liền `{'must': None}`** — `.append()` nằm trong `return`/bên phải `=`.
+  Ép chọn lộ gốc: tưởng **cả list cũng `None`** sau append ⇒ [Cặp 21](./the-phan-biet.md). Lần 4 thêm `"value"` có nháy (chữ thay biến).
+- Câu đoán `like` → chọn `to_not_clause` ✗ → in đường đi → đúng `to_leaf_clause`; ô kiểm `gte` đúng.
+- **X3 ✅ chốt A — cây trung lập** (Claude chốt theo yêu cầu user). User không nói được lý do → 10.10 ❌ hẹn 04/10.
+- **X4 ✅** Claude viết: port có `metadatas`/`filter_tree` (mặc định `None`) · `QdrantStore` nối cây **cạnh** khoá tenant · 4 test kho nhỏ.
+  User *"từ khúc này không hiểu gì"* → tắc **3 chỗ** (lớp thư viện · tenant · port/adapter) → gỡ từng chỗ bằng chạy thật:
+  tenant (lộ hợp đồng công ty A cho B) ✅ · port/adapter (cắm `ListStore` 6 dòng vào cùng `HybridRetriever`) ✅ giảng lại 2 câu.
+- ⚠️ **Lỗi Claude:** đố cú pháp `FieldCondition`/`MatchValue` — nối dây là việc của Claude (§2). User: *"bớt kiểu hỏi này, tốn thời gian"*.
+- **Mai/tối:** X5 — BM25 nhận cùng cây; **lúc đó mới nối `filter_tree` vào `HybridRetriever`** (nối sớm = Qdrant lọc, BM25 không → lệch im lặng).
 
 ---
 
@@ -250,10 +267,10 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | # | Mẩu XÂY (X) — lát 0 vào `app/` | User làm | Claude làm |
 |---|---|---|---|
 | ~~X1~~ | ✅ 30/09 **5/5** · Gộp 3 hàm phẳng → `to_qdrant_filter(pred)`, nhìn `op` rẽ sang đúng hàm (cây 1 tầng) | gõ ruột `if/elif/return` | khung drill + ca thử |
-| **X2 ← sáng 01/10** | Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) — khung + 6 test đã có; hỏi lại câu đoán *"`ValueError` của `like` do hàm nào ném"* | gõ ruột | file khung adapter Qdrant + test |
-| X3 | ⭐ Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
-| X4 | Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
-| X5 | Phía BM25: `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
+| ~~X2~~ | ✅ 02/10 **6/6** · Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) — khung + 6 test đã có; hỏi lại câu đoán *"`ValueError` của `like` do hàm nào ném"* | gõ ruột | file khung adapter Qdrant + test |
+| ~~X3~~ | ✅ 02/10 chốt **A** · Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
+| ~~X4~~ | ✅ 02/10 (chưa nối `HybridRetriever` — dời sang X5) · Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
+| **X5 ← ca kế** | Phía BM25 + nối `filter_tree` qua `HybridRetriever` cho **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
 | X6 | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |

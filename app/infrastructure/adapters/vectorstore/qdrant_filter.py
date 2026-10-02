@@ -34,5 +34,14 @@ def to_not_clause(pred: dict) -> dict:
 
 # Cửa vào duy nhất: nhận MỘT pred, trả dict filter của Qdrant.
 def to_qdrant_filter(pred: dict) -> dict:
-    # ✍️ gõ lại TỪ TRẮNG (đóng file drill)
-    raise NotImplementedError
+    op = list(pred.keys())[0]
+    if op == "and":
+        return to_and_clause(pred)
+    elif op == "or":
+        return to_or_clause(pred)
+    elif op == "not":
+        return to_not_clause(pred)
+    else:
+        value = []
+        value.append(to_leaf_clause(pred))
+        return {"must" : value}
