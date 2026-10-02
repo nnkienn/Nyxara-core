@@ -281,6 +281,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | N4 | Tiếng Anh: đọc to bản 21/09 → viết bản 2 *"why did you switch to AI?"* — **29/09 dời sang ca tối** | user viết, Claude chỉnh |
 | ~~N5~~ | ✅ 29/09 Gym ván 2 **10/10**, 0 lỗi cú pháp trong hàm | |
 | N6 | Gym ván 3 (Claude soạn khi cần) — nhắm chỗ còn hở: gán khoá vào dict · `list(...)` ngoặc tròn | đề có dấu |
+| **N8 ← ca công ty 02/10** | **Ôn toàn cảnh lát 0** (user: *"còn mơ hồ quá mức"*). Claude in **một** đường đi thật: cây → `to_qdrant_filter` → `conditions` (tenant + cây) → Qdrant → kết quả kho 5 vb; user đọc rồi **tự vẽ lại bằng chữ** 4 mũi tên. Sau đó ép chọn Cặp 21 (2 ô). **Cấm** chuỗi câu đố cú pháp thư viện | không mở X5 trong ca này |
 | — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
 | N7 | Ép chọn **[Cặp 19](./the-phan-biet.md)** (dict↔list) 2 câu — nợ từ tối 25/09 | cấm giảng lại |
 
