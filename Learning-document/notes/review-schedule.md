@@ -289,6 +289,17 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 - Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
 - **CN 04/10** vẫn tổng kết tuần + chấm PRIMM 2 số (nếu có tin nhắn tối CN). Hàng đợi này chạy tới khi giờ cố định trở lại.
 
+### A1b. ✅ USER CHỐT 02/10 — bỏ Orchestrator, làm cả A + B + C (sửa roadmap ở tổng kết CN 04/10, theo luật §4)
+
+- **Bỏ Nyxara-Orchestrator** (bị chê *"không nhắm đúng thị trường, chả ai xài"*; user đồng ý: TypeScript · thị trường extension
+  code đã bão hoà · agent code nên khó nhận là của mình).
+- **A** — `nyxara-core` lấp 4 lỗ tin tuyển: cloud · adapter OpenAI/Anthropic · Docker kéo lên lát 1 · `PgVectorStore`. ~15-20h, lấy từ ~60h trống.
+- **C** — MCP server tra luật cho người ngoài dùng (Claude Desktop/Cursor), gắn lát 5. ~10-15h, lấy từ ~60h trống.
+- **B = DỰ ÁN SỐ 2 mới** — agent text-to-SQL trên Postgres (hỏi tiếng Việt → SQL → kết quả + câu SQL đã chạy; đo tỉ lệ đúng).
+  ~30-40h, **ăn slot 1h/ngày cũ của Orchestrator**, không đụng giờ core. Python/FastAPI, dùng lại khung eval lát 1.
+- **Còn phải chốt ở CN 04/10:** B bắt đầu khi nào (gợi ý: sau lát 1, vì cần khung eval) · B áp **Cách A** cho lõi hay agent code
+  (agent code = đúng điểm yếu đã khiến Orchestrator bị chê) · B dùng dữ liệu bảng nào.
+
 ### A2. Bài thiết kế chờ — MẢNG DỮ LIỆU (user nêu 02/10, chưa sửa roadmap)
 
 User thấy lộ trình **thiếu kỹ năng xử lý dữ liệu**: ETL/pipeline · làm sạch · **SQL/Postgres** · crawl · queue · **chạy theo lịch**.
