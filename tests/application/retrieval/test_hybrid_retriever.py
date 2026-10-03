@@ -19,7 +19,7 @@ class FakeVectorStore:
     def upsert(self, tenant_id, ids, texts, vectors) -> None:
         raise NotImplementedError("không cần cho test này")
 
-    def search(self, tenant_id: str, query_vector: list[float], top_k: int) -> list[SearchHit]:
+    def search(self, tenant_id, query_vector, top_k, filter_tree=None) -> list[SearchHit]:
         return self._hits[:top_k]
 
 
@@ -72,3 +72,24 @@ def test_top_k_truncates_final_result():
 
     assert len(result) == 1
     assert result[0][0] == "doc1"
+
+
+class RecordingVectorStore(FakeVectorStore):
+    def search(self, tenant_id, query_vector, top_k, filter_tree=None) -> list[SearchHit]:
+        self.received_filter_tree = filter_tree
+        return self._hits[:top_k]
+
+
+def test_filter_tree_reaches_both_branches():
+    # Qdrant (giả) đã lọc xong, chỉ trả doc2. doc1 (Thông tư) khớp "mèo đen" nhiều nhất ở BM25:
+    # nếu BM25 KHÔNG nhận cây thì RRF trộn doc1 trở lại, lên hạng 1 -> lộ văn bản đã bị loại.
+    bm25 = BM25Index()
+    bm25.add_document("t1", "doc1", "con mèo đen", {"loai": "Thông tư"})
+    bm25.add_document("t1", "doc2", "con mèo nâu", {"loai": "Nghị định"})
+    store = RecordingVectorStore([SearchHit(id="doc2", text="con mèo nâu", score=0.9)])
+    tree = {"eq": ["loai", "Nghị định"]}
+
+    result = HybridRetriever(FakeEmbedder(), store, bm25).search("t1", "mèo đen", top_k=5, filter_tree=tree)
+
+    assert store.received_filter_tree == tree
+    assert [doc_id for doc_id, _ in result] == ["doc2"]

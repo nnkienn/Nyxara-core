@@ -1,3 +1,5 @@
+from typing import Optional
+
 from app.application.retrieval.bm25_index import BM25Index
 from app.application.retrieval.rrf import reciprocal_rank_fusion
 from app.domain.ports.embedder import Embedder
@@ -17,14 +19,18 @@ class HybridRetriever:
         self.bm25_index = bm25_index
         self.rrf_k = rrf_k
 
-    def search(self, tenant_id: str, query: str, top_k: int) -> list[tuple[str, float]]:
+    # filter_tree = cây trung lập, chuyền xuống CẢ HAI nhánh: Qdrant tự dịch (pre-filter),
+    # BM25 chấm bằng matches (post-filter). Chỉ lọc một nhánh -> RRF trộn lại doc bị loại (lệch im lặng).
+    def search(
+        self, tenant_id: str, query: str, top_k: int, filter_tree: Optional[dict] = None
+    ) -> list[tuple[str, float]]:
         candidate_k = top_k * 2
 
         query_vector = self.embedder.embed([query])[0]
-        dense_hits = self.vector_store.search(tenant_id, query_vector, candidate_k)
+        dense_hits = self.vector_store.search(tenant_id, query_vector, candidate_k, filter_tree)
         dense_ranked = [hit.id for hit in dense_hits]
 
-        bm25_hits = self.bm25_index.search(tenant_id, query, candidate_k)
+        bm25_hits = self.bm25_index.search(tenant_id, query, candidate_k, filter_tree)
         bm25_ranked = [doc_id for doc_id, _ in bm25_hits]
 
         return reciprocal_rank_fusion(

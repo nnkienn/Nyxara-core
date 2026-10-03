@@ -1,5 +1,8 @@
-import math           
-from threading import Lock  
+import math
+from threading import Lock
+from typing import Optional
+
+from app.application.retrieval.metadata_filter import matches
 
 
 class BM25Index:
@@ -9,11 +12,16 @@ class BM25Index:
         self.index: dict[str, dict[str, dict[str, int]]] = {}
         self.doc_len: dict[str, dict[str, int]] = {}
         self.doc_count: dict[str, int] = {}
+        # metadata[tenant][doc_id] = {"loai": "Nghị định", "nam": 2020} — để search lọc theo cây trung lập
+        self.metadata: dict[str, dict[str, dict]] = {}
         self._lock = Lock()
 
-    def add_document(self, tenant_id: str, doc_id: str, text: str) -> None:
+    def add_document(
+        self, tenant_id: str, doc_id: str, text: str, metadata: Optional[dict] = None
+    ) -> None:
         with self._lock:
             tokens = text.lower().split()
+            self.metadata.setdefault(tenant_id, {})[doc_id] = metadata or {}
             self.doc_len.setdefault(tenant_id, {})[doc_id] = len(tokens)
             self.doc_count.setdefault(tenant_id, 0)
             self.doc_count[tenant_id] += 1
@@ -43,7 +51,9 @@ class BM25Index:
 
         return idf * (numerator / denominator)
 
-    def search(self, tenant_id: str, query: str, top_k: int) -> list[tuple[str, float]]:
+    def search(
+        self, tenant_id: str, query: str, top_k: int, filter_tree: Optional[dict] = None
+    ) -> list[tuple[str, float]]:
         tokens = query.lower().split()
         scores: dict[str, float] = {}
 
@@ -52,6 +62,16 @@ class BM25Index:
                 score = self._score(tenant_id, term, doc_id)
                 scores[doc_id] = scores.get(doc_id, 0.0) + score
 
+        # BM25 không có bộ lọc riêng -> chấm xong mới lọc (post-filter), cùng cây với Qdrant.
+        # Lọc TRƯỚC khi cắt top_k: cắt trước rồi mới lọc thì có thể còn thiếu (hoặc 0) kết quả.
+        if filter_tree is not None:
+            tenant_meta = self.metadata[tenant_id]
+            scores = {
+                doc_id: score
+                for doc_id, score in scores.items()
+                if matches(filter_tree, tenant_meta[doc_id])
+            }
+
         ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
         return ranked[:top_k]
     def remove_document(self, tenant_id : str , doc_id : str) -> None :
@@ -59,6 +79,7 @@ class BM25Index:
             if tenant_id in self.doc_len and doc_id in self.doc_len[tenant_id]:
                 del self.doc_len[tenant_id][doc_id]
                 self.doc_count[tenant_id] -= 1
+            self.metadata.get(tenant_id, {}).pop(doc_id, None)
 
             for term in list(self.index.get(tenant_id, {})):
                 if doc_id in self.index[tenant_id][term]:

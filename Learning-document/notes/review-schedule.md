@@ -16,6 +16,7 @@
 | **04/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 02/10 ❌: không nói được 2 hậu quả (BM25 phải dịch lần 2 · đổi DB sửa 4 chỗ thay vì 1) |
 | **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
 | **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
+| **08/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 03/10 ⚠️: nói được "doc1 lọt qua BM25" nhưng *"lọt vào cây khác"* — thiếu **RRF trộn 2 list** + **lỗi im lặng** |
 | **07/10** | 10.11 port / adapter là gì | 02/10 ⚠️: giảng lại đúng nhưng **ngay sau khi đọc** — lần sau đóng sách hẳn |
 | **05/10** | 1.4 Recursive chunker | 21/09 ✅ tự nói được hậu quả: vector rác toàn "thì/là/ở" vẫn chiếm chỗ top-k |
 
@@ -269,7 +270,13 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - Tắc từ đầu → hạ bậc 3 câu 1 dòng → vẫn tắc ở **dấu so sánh** + **quên `lt/lte` là gì** → Claude giảng thẳng + khung so le với `to_leaf_clause` (user: *"đừng hỏi vòng vo"*).
 - Vòng đỏ cú pháp: `metadata(fields)` (ngoặc tròn sau tên biến — lặp 22/09) · thiếu `:` sau `if`.
 - Lỗi logic: hàm bỏ quên `op` (luôn so `>=`) · `gt`↔`lt` đảo chiều dấu → in 2 ca fail, user tự sửa.
-- **Tiếp:** X5b → X6 = đóng lát 0. Nợ tên: `fields` → `field` · `child = leaf_matches(child, ...)` dùng 1 tên cho 2 thứ.
+- **X5b ✅ nối dây (Claude):** `BM25Index` lưu metadata + lọc bằng `matches` **trước** cắt `top_k` · `Hybrid`/`Reranking` chuyền
+  `filter_tree` xuống cả 2 nhánh · **109 passed**. Trace in thật: ô kiểm `top_k=1` ✗ (quên cắt) → `top_k=2` ✅.
+  Giảng lại "lọc trước cắt" ✅ (thiếu hậu quả *rỗng*) · "chuyền cả 2 nhánh" ⚠️ (nói "lọt vào cây khác", thiếu **RRF trộn** + **im lặng**).
+- ⚠️ **Chưa xử lý:** văn bản **thiếu trường** → `leaf_matches` nổ `KeyError`, Qdrant thì lặng lẽ loại ⇒ 2 nhánh lệch — **bài thiết kế
+  ca sáng** (lõi của user). · `pipeline.py` chưa truyền metadata cho 2 store (cần cho lát 1).
+- Bàn dự án 2: **đã xin phép phòng khám**, lấy hội thoại **T7 10/10** (ghi side-lanes L). User hỏi fine-tune → giữ 🟢, ứng viên nâng = FT `bge-m3`.
+- **Tiếp:** X6 = đóng lát 0. Nợ tên: `fields` → `field` · `child = leaf_matches(child, ...)` dùng 1 tên cho 2 thứ.
 
 ---
 
@@ -292,8 +299,8 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~X2~~ | ✅ 02/10 **6/6** · Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) — khung + 6 test đã có; hỏi lại câu đoán *"`ValueError` của `like` do hàm nào ném"* | gõ ruột | file khung adapter Qdrant + test |
 | ~~X3~~ | ✅ 02/10 chốt **A** · Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
 | ~~X4~~ | ✅ 02/10 (chưa nối `HybridRetriever` — dời sang X5) · Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
-| **X5a ✅ 03/10 · X5b ← TIẾP** | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
-| X6 | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
+| ~~X5~~ ✅ 03/10 (a+b) | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
+| **X6 ← TIẾP** | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
 |---|---|---|

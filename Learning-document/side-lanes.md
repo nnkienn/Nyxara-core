@@ -76,6 +76,7 @@ Căn cứ chọn: [thi-truong-2026-10.md](notes/thi-truong-2026-10.md) — agent
   rời máy phòng khám** · hội thoại thật **không bao giờ vào git**.
 - **Giờ:** slot 1h/ngày cũ của Orchestrator (~90h tới 15/02), ước **40-50h**. Cắt đầu tiên khi ngày ngắn.
   **Bắt đầu SAU KHI LÁT 1 ĐÓNG** — dùng lại khung eval của lát 1. Trước đó: chỉ xin phép phòng khám + gom hội thoại (việc của user).
+  ✅ **03/10: đã xin phép xong** · lấy hội thoại **T7 10/10** → ẩn danh **trên máy phòng khám** trước khi mang ra.
 - **Còn chốt ở buổi mở dự án:** lõi agent (luật chuyển người, chấm bộ đo) áp **Cách A** hay agent code — gợi ý Cách A cho lõi,
   Claude viết nối kênh / webhook / UI, vì "agent code hết" là điểm yếu đã làm Orchestrator bị chê.
 

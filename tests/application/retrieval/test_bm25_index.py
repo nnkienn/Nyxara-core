@@ -97,3 +97,38 @@ def test_add_document_an_toan_khi_nhieu_luong():
         sys.setswitchinterval(cu)
 
     assert index.doc_count["t1"] == SO_LUONG * MOI_LUONG
+
+
+# --- X5b: lọc theo cây trung lập (cùng cây Qdrant nhận) ---
+
+def _build_index_with_metadata() -> BM25Index:
+    idx = BM25Index()
+    idx.add_document("t1", "vb1", "mức phạt vi phạm giao thông", {"loai": "Nghị định", "nam": 2020})
+    idx.add_document("t1", "vb2", "mức phạt vi phạm giao thông cũ", {"loai": "Nghị định", "nam": 2010})
+    idx.add_document("t1", "vb5", "mức phạt vi phạm giao thông", {"loai": "Thông tư", "nam": 2021})
+    return idx
+
+
+def test_search_without_filter_returns_all_matching_docs():
+    results = _build_index_with_metadata().search("t1", "mức phạt", top_k=10)
+    assert sorted(doc_id for doc_id, _ in results) == ["vb1", "vb2", "vb5"]
+
+
+def test_search_with_filter_tree_keeps_only_matching_docs():
+    tree = {"and": [{"eq": ["loai", "Nghị định"]}, {"gte": ["nam", 2015]}]}
+    results = _build_index_with_metadata().search("t1", "mức phạt", top_k=10, filter_tree=tree)
+    assert [doc_id for doc_id, _ in results] == ["vb1"]
+
+
+def test_filter_runs_before_top_k_cut():
+    # vb2 dài hơn -> điểm BM25 thấp nhất. Cắt top_k=1 TRƯỚC rồi mới lọc thì mất trắng;
+    # lọc TRƯỚC rồi mới cắt thì vẫn còn đúng vb2.
+    tree = {"lt": ["nam", 2015]}
+    results = _build_index_with_metadata().search("t1", "mức phạt", top_k=1, filter_tree=tree)
+    assert [doc_id for doc_id, _ in results] == ["vb2"]
+
+
+def test_remove_document_drops_metadata():
+    idx = _build_index_with_metadata()
+    idx.remove_document("t1", "vb1")
+    assert "vb1" not in idx.metadata["t1"]

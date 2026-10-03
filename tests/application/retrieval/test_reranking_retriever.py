@@ -21,7 +21,7 @@ class FakeVectorStore:
     def upsert(self, tenant_id, ids, texts, vectors) -> None:
         raise NotImplementedError("không cần cho test này")
 
-    def search(self, tenant_id: str, query_vector: list[float], top_k: int) -> list[SearchHit]:
+    def search(self, tenant_id, query_vector, top_k, filter_tree=None) -> list[SearchHit]:
         return self._hits[:top_k]
 
 
