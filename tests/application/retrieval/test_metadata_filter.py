@@ -13,6 +13,7 @@ VB5 = {"loai": "Thông tư", "nam": 2021}
         ({"eq": ["loai", "Nghị định"]}, VB1, True),
         ({"eq": ["loai", "Nghị định"]}, VB5, False),
         ({"gt": ["nam", 2020]}, VB1, False),
+        ({"gt": ["nam", 2015]}, VB1, True),
         ({"gte": ["nam", 2020]}, VB1, True),
         ({"lt": ["nam", 2015]}, VB2, True),
         ({"lte": ["nam", 2009]}, VB2, False),

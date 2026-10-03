@@ -482,6 +482,17 @@ Bệnh: sửa 4 lượt liền vẫn để `.append(...)` bên phải `=` hoặc
 Ép chọn lộ gốc: biết `x` là `None` nhưng tưởng **`bag` cũng `None`** → nên cứ cố hứng kết quả.
 ⇒ `.append()` luôn **đứng riêng một dòng**; dòng sau dùng **tên list**. Lần sau: ép chọn 2 ô, cấm giảng.
 
+## Cặp 22 — hàm **DỊCH** (`to_qdrant_filter` → dict) vs hàm **CHẤM** (`matches` → True/False)  (X5a, 03/10 · tái phát từ 19/09)
+
+| | `to_qdrant_filter(pred)` | `matches(pred, metadata)` |
+|---|---|---|
+| cần metadata văn bản? | **không** — chỉ viết câu hỏi | **có** — tự trả lời trên 1 văn bản |
+| trả ra | dict `{"must": [...]}` gửi Qdrant | **một** `True`/`False` |
+| `and` | gom con vào `"must"` | một con sai → `False` ngay; hết vòng → `True` |
+
+Bệnh: chép nguyên `to_and_clause`/`to_or_clause` sang `matches` → ra `{'must': [True, False]}`. Khung rẽ
+`op` **giống**, thứ trả về **khác**. Lần sau: ép chọn 2 ô *"hàm này trả dict hay bool?"*, cấm giảng.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |

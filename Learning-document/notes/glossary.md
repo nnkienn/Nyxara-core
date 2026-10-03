@@ -80,4 +80,7 @@
 - **Length normalization / `b`** — phạt doc **dài** (dài thì tự nhiên TF cao, không công bằng với doc ngắn đậm đặc). `dl/avgdl` = độ dài doc / độ dài trung bình. `b=0` tắt phạt, `b=1` phạt tối đa, mặc định `b=0.75`.
 - **BM25** — công thức chấm điểm sparse, ghép 3 viên gạch: `IDF × (TF bão hoà theo k1) × (phạt độ dài theo b)`. Doc chứa nhiều lần một từ HIẾM và ngắn gọn = điểm cao nhất.
 
+## Lọc metadata (lát 0)
+- **Toán tử lá** — `eq` (equal) `==` bằng · `ne` (not equal) `!=` khác · `gt` (greater than) `>` lớn hơn · `gte` (… or equal) `>=` · `lt` (less than) `<` nhỏ hơn · `lte` (… or equal) `<=`. Nhớ: **g** = lớn, **l** = nhỏ, đuôi **e** = "hoặc bằng".
+
 ## (Thêm nhóm/từ mới bên dưới)

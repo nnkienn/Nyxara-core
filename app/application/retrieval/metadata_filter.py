@@ -16,10 +16,37 @@
 
 
 def leaf_matches(pred: dict, metadata: dict) -> bool:
-    # ✍️ gõ ruột
-    raise NotImplementedError
+    op = list(pred.keys())[0]
+    fields , value = pred[op][0] , pred[op][1]
+    actual = metadata[fields]
+    if op == "gte":
+        return actual >= value
+    if op == "gt":
+        return actual > value
+    if op == "eq":
+        return actual == value
+    if op == "lt":
+        return actual < value
+    if op == "lte":
+        return actual <= value
+    raise ValueError(f"unsupported leaf operator: {op}")
 
 
 def matches(pred: dict, metadata: dict) -> bool:
-    # ✍️ gõ ruột
-    raise NotImplementedError
+    op = list(pred.keys())[0]
+    if op == "and":
+        for child in pred["and"]:
+            child = (leaf_matches(child,metadata))
+            if child == False:
+                return False
+        return True
+    elif op == "or":
+        for child in pred["or"]:
+            child = leaf_matches(child,metadata)
+            if child == True:
+                return True
+        return False
+    elif op == "not":
+        return not leaf_matches(pred["not"][0],metadata)
+    else:
+        return leaf_matches(pred,metadata)

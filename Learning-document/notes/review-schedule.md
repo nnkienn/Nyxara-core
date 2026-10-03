@@ -261,6 +261,16 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   ⚠️ **`pytest -q` toàn bộ hiện 17 failed** cho tới khi X5a xong.
 - Lỗi đọc đề cộng dồn **22**. Gym ván 3 đã soạn, chưa làm.
 
+### 2026-10-03 (T7) ca công ty từ 10:11 · LÁT 0 · ✅ X5a xong
+
+- ✅ **`leaf_matches` 8/8** (Claude thêm ca `gt 2015` — ca `gt 2020` cũ pass nhờ may) → ✅ **`matches` 18/18 · suite 104 passed, 0 failed**.
+- `matches`: chép nguyên bộ dịch Qdrant sang (ra `{'must': [True, False]}`) ⇒ **[Cặp 22](./the-phan-biet.md)**. Sau đó `and` vướng
+  `"andor"` · `out == False` (so cả list) · `return True` trong vòng `for`; **`or` tự lật đúng lượt đầu**; `not` 3 lượt (`child` không tồn tại · thiếu `return` · đưa cả cây).
+- Tắc từ đầu → hạ bậc 3 câu 1 dòng → vẫn tắc ở **dấu so sánh** + **quên `lt/lte` là gì** → Claude giảng thẳng + khung so le với `to_leaf_clause` (user: *"đừng hỏi vòng vo"*).
+- Vòng đỏ cú pháp: `metadata(fields)` (ngoặc tròn sau tên biến — lặp 22/09) · thiếu `:` sau `if`.
+- Lỗi logic: hàm bỏ quên `op` (luôn so `>=`) · `gt`↔`lt` đảo chiều dấu → in 2 ca fail, user tự sửa.
+- **Tiếp:** X5b → X6 = đóng lát 0. Nợ tên: `fields` → `field` · `child = leaf_matches(child, ...)` dùng 1 tên cho 2 thứ.
+
 ---
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
@@ -282,7 +292,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~X2~~ | ✅ 02/10 **6/6** · Vào `app/`: **gõ lại TỪ TRẮNG** `to_qdrant_filter` (bước 5 PRIMM, số đo 2) — khung + 6 test đã có; hỏi lại câu đoán *"`ValueError` của `like` do hàm nào ném"* | gõ ruột | file khung adapter Qdrant + test |
 | ~~X3~~ | ✅ 02/10 chốt **A** · Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
 | ~~X4~~ | ✅ 02/10 (chưa nối `HybridRetriever` — dời sang X5) · Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
-| **X5a ← SÁNG T7 03/10** | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
+| **X5a ✅ 03/10 · X5b ← TIẾP** | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
 | X6 | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
@@ -327,6 +337,6 @@ Còn ~60h chưa phân (35 mục ≈ 137h / ~200h tới 15/02). **Cách chốt:**
 
 ### B. Giữ nguyên
 
-- **Nợ cũ:** `eq/ne/gt/gte/lt/lte` vào glossary · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
+- **Nợ cũ:** ~~`eq/ne/gt/gte/lt/lte` vào glossary~~ ✅ 03/10 · dọn 2 tên trong `cham_nhat` (`name = {}` · `max`).
 - ⚠️ **Nhắc Claude:** user tắc 4 chỗ cùng lúc thì **hạ bậc bài, đừng hạ tốc độ hỏi** (22/09).
 - **Theo dõi:** lỗi đọc đề/chép sai **21 lần**. Tên biến lấy từ đề → **copy-paste**, không gõ tay.
