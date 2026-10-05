@@ -12,13 +12,13 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **04/10** | 3.8 BM25 khớp theo cái gì | 29/09 ⚠️: ép chọn 4/5, câu lời có TF nhưng nói *"khớp theo văn bản"* (thiếu **mặt chữ**) + **thiếu IDF**. Lần sau: chỉ hỏi câu lời, phải đủ 3 ý |
-| **04/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 02/10 ❌: không nói được 2 hậu quả (BM25 phải dịch lần 2 · đổi DB sửa 4 chỗ thay vì 1) |
-| **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
-| **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
+| **10/10** | 3.8 BM25 khớp theo cái gì | 05/10 ⚠️: câu lời đủ 3 ý (từ khoá · TF · IDF) nhưng ô kiểm nói *"của" IDF cao* — **ngược chiều**, in thật mới lật. Lần sau: hỏi chiều IDF bằng 2 chữ thật |
+| **07/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 05/10 ❌ lần 2: câu 1 trả "lọc trước cắt sau" ⇒ [Cặp 23](./the-phan-biet.md); câu 2 nói "sửa port". Sau in thật + ép chọn thì nói lại đủ 2 ý — lần sau hỏi trần, đóng sách |
+| **10/10** | 3.9 tenant filtering | 05/10 ⚠️: `tenant_id` + trước chấm điểm, **không tự nêu vì sao** (dựng cảnh mới ra "rỗng"; thiếu ý bảo mật). Lần sau hỏi cả câu 3.9 trong ngân hàng (2 nhánh có cùng cơ chế không) |
+| **10/10** | 3.5 RRF | 05/10 ⚠️: công thức + số hạng tự đúng; lý do tưởng cosine/BM25 **"cùng đại lượng"** → in thật mới ra. Lần sau hỏi: cosine trần bao nhiêu, BM25 trần bao nhiêu |
 | **08/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 03/10 ⚠️: nói được "doc1 lọt qua BM25" nhưng *"lọt vào cây khác"* — thiếu **RRF trộn 2 list** + **lỗi im lặng** |
 | **07/10** | 10.11 port / adapter là gì | 02/10 ⚠️: giảng lại đúng nhưng **ngay sau khi đọc** — lần sau đóng sách hẳn |
-| **05/10** | 1.4 Recursive chunker | 21/09 ✅ tự nói được hậu quả: vector rác toàn "thì/là/ở" vẫn chiếm chỗ top-k |
+| **07/10** | 1.4 Recursive chunker | 05/10 ❌ không nhớ 2 bước (21/09 từng ✅) → in `size=60`: 30 mẩu vs 3 mẩu → nói đúng hậu quả. Lần sau hỏi trần |
 
 **Cách ôn:** đóng sách, nói to, trả lời hết khả năng **rồi mới** mở note đối chiếu → chấm ✅/⚠️/❌ →
 ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questions.md) → hẹn lại.
@@ -277,6 +277,16 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   ca sáng** (lõi của user). · `pipeline.py` chưa truyền metadata cho 2 store (cần cho lát 1).
 - Bàn dự án 2: **đã xin phép phòng khám**, lấy hội thoại **T7 10/10** (ghi side-lanes L). User hỏi fine-tune → giữ 🟢, ứng viên nâng = FT `bge-m3`.
 - **Tiếp:** X6 = đóng lát 0. Nợ tên: `fields` → `field` · `child = leaf_matches(child, ...)` dùng 1 tên cho 2 thứ.
+
+### 2026-10-05 (T2) ca công ty từ 09:13 · CN 04/10 không có ca (tổng kết tuần + chốt B vẫn treo)
+
+- Gym ván 3 trên máy này **còn trắng** (tối 03/10 làm dở rồi ngủ quên, không lưu) → làm lại từ đầu.
+- **10.10 ❌ lần 2** → [Cặp 23](./the-phan-biet.md). In thật `matches(dict Qdrant)` nổ `TypeError` + ép chọn → nói lại đủ 2 hậu quả. Hẹn 07/10.
+- **3.8 ⚠️** đủ 3 ý nhưng IDF ngược chiều ("của" cao) → in IDF thật 0.1466 vs 1.9924 → đúng. Hẹn 10/10.
+- **3.9 ⚠️** đúng `tenant_id` + trước chấm, thiếu vì sao → cảnh `top_k=5` toàn của A → "rỗng". Hẹn 10/10.
+- **3.5 ⚠️** công thức + số hạng đúng; tưởng cosine/BM25 "cùng đại lượng" → in BM25 thật 3.741 vs cosine ≤1. Hẹn 10/10.
+- **1.4 ❌** không nhớ CẮT → GỘP → in 30 mẩu vs 3 mẩu → nói đúng hậu quả. Hẹn 07/10. **Vấn đáp: 0 ✅ · 3 ⚠️ · 2 ❌** — 21/09 các câu ✅ sau 14 ngày rơi hết.
+- ⚠️ Lỗi Claude: hỏi "rảnh mấy phút" 2 lần — ca công ty không có số phút, đã ghi ở mục A.
 
 ---
 

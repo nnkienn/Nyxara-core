@@ -493,6 +493,16 @@ Bệnh: sửa 4 lượt liền vẫn để `.append(...)` bên phải `=` hoặc
 Bệnh: chép nguyên `to_and_clause`/`to_or_clause` sang `matches` → ra `{'must': [True, False]}`. Khung rẽ
 `op` **giống**, thứ trả về **khác**. Lần sau: ép chọn 2 ô *"hàm này trả dict hay bool?"*, cấm giảng.
 
+## Cặp 23 — **TRONG BM25 lọc ở bước nào** vs **port nhận CÂY hay DICT QDRANT**  (vấn đáp 10.10, 05/10)
+
+| | lọc trước, cắt `top_k` sau | port nhận cây trung lập |
+|---|---|---|
+| câu hỏi | trong **một** nhánh, lọc đứng trước hay sau bước cắt? | giữa **hai** nhánh, gửi xuống dạng gì? |
+| sai thì sao | cắt trước → doc đạt điều kiện bị cắt mất → ra ít/rỗng | nhận dict Qdrant → BM25 phải **dịch ngược** (2 bộ dịch phải khớp, lệch = im lặng) · đổi DB sửa nhiều chỗ thay vì **1 adapter** |
+
+Bệnh: hỏi 10.10 thì trả lời "lọc trước cắt sau" — đều là "BM25 + lọc" nên lẫn. Lần sau: ép chọn 2 ô
+*"câu này hỏi về THỨ TỰ trong 1 nhánh hay DẠNG chuyền giữa 2 nhánh?"*, cấm giảng.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
