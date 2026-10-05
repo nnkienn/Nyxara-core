@@ -17,8 +17,8 @@
 
 def leaf_matches(pred: dict, metadata: dict) -> bool:
     op = list(pred.keys())[0]
-    fields , value = pred[op][0] , pred[op][1]
-    actual = metadata[fields]
+    field , value = pred[op][0] , pred[op][1]
+    actual = metadata[field]
     if op == "gte":
         return actual >= value
     if op == "gt":
@@ -36,7 +36,7 @@ def matches(pred: dict, metadata: dict) -> bool:
     op = list(pred.keys())[0]
     if op == "and":
         for child in pred["and"]:
-            child = (leaf_matches(child,metadata))
+            child = leaf_matches(child,metadata)
             if child == False:
                 return False
         return True

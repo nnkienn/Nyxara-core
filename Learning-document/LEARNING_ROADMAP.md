@@ -18,6 +18,11 @@ Bằng chứng: Nyxara-core miền **pháp luật VN** (Zalo Legal 61,4K điều
 HF `GreenNode/zalo-ai-legal-text-retrieval-vn`) + **bảng số thật** + **demo người lạ dùng được**.
 Độ sâu **giữ nguyên** (vòng 6 bước cho mọi 🔴) — thiếu giờ thì việc trôi nguyên vẹn, không cắt bước.
 
+**Portfolio = 3 loại project (user chốt 04/10), không thêm dự án thứ tư:**
+**Nghiên cứu** = Nyxara Open (câu hỏi + bộ đo Zalo Legal + số trước/sau) · **Thời sự** = MCP server tra luật (lát 5) ·
+**Kinh tế** = **Nyxara Care** (phòng khám thật, người dùng thật — [side-lanes L](side-lanes.md)).
+**Thân chữ T = RAG có đo lường** (retrieval + eval ⭐) trên luật tiếng Việt, rồi đưa vào agent. *Không* phải deep learning: fine-tune chỉ 🟢.
+
 ---
 
 ## 2. ĐANG LÀM — lát 0: Metadata filter
@@ -45,7 +50,7 @@ Kế hoạch đóng lát 0: xem **tuần 28/09** ở [chỗ dừng](notes/review
 | **5** | **Agent pháp lý + MCP** | Tool calling + structured output · Supervisor nhỏ · Tracing · Đo trajectory · MCP server tra luật **cho người ngoài cắm vào Claude Desktop/Cursor** *(02/10)* | Memory hội thoại · HITL |
 | **6** | **Production + portfolio** | — | **`PgVectorStore` — đổi kho chỉ thay adapter** *(02/10)* · CI chạy regression eval · latency p50/p95 + cache + chi phí/query · README dạng spec · port lõi sang LangChain một lần · bài viết tiếng Anh |
 
-**Song song từ khi lát 1 đóng — dự án số 2:** trợ lý tư vấn phòng khám (repo `nyxara`, khách thật), slot 1h/ngày —
+**Song song từ khi lát 1 đóng — dự án số 2:** **Nyxara Care**, trợ lý tư vấn phòng khám (repo riêng `nyxara-care`, khách thật), slot 1h/ngày —
 xem [side-lanes.md mục L](side-lanes.md). Các mục *(02/10)* trong bảng: lấp lỗ từ [rà 10 tin tuyển](notes/thi-truong-2026-10.md).
 
 **Mức:** 🔴 = đủ 6 bước + A/B ra số (~5h, chưa kiểm chứng) · 🟡 = một bản chạy + một phép đo (~3h) ·

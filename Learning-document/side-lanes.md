@@ -56,7 +56,7 @@ Cả ba cái đầu đã được cắm vào lát 1/4/6 — **không cần học
 | Trình bày project (60 giây + bản 30' hỏi dồn), tiếng Việt + tiếng Anh | Soạn khung từ tháng 11, hoàn thiện sau lát 6, tự ghi âm | 11/2026 → 01/2027 | ~6h |
 | Hành vi STAR (5-6 chuyện, lấy từ bug-log + chuyện đổi nghề) | Soạn + nói to | 01/2027 | ~4h |
 **Tổng thêm ~53h.**
-## L. Dự án số 2 — Trợ lý tư vấn phòng khám (repo `nyxara`) · chốt 02/10, thay Orchestrator
+## L. Dự án số 2 — Nyxara Care, trợ lý tư vấn phòng khám (**repo riêng `nyxara-care`**) · chốt 02/10, thay Orchestrator
 
 **Vì sao đổi:** Orchestrator bị chê *"không nhắm đúng thị trường, chả ai xài"* — user đồng ý (TypeScript trong khi 7/10 tin
 đòi Python · thị trường extension code đã bão hoà · agent code nên khó nhận là của mình). Bản cũ: git history trước 02/10.
@@ -77,8 +77,12 @@ Căn cứ chọn: [thi-truong-2026-10.md](notes/thi-truong-2026-10.md) — agent
 - **Giờ:** slot 1h/ngày cũ của Orchestrator (~90h tới 15/02), ước **40-50h**. Cắt đầu tiên khi ngày ngắn.
   **Bắt đầu SAU KHI LÁT 1 ĐÓNG** — dùng lại khung eval của lát 1. Trước đó: chỉ xin phép phòng khám + gom hội thoại (việc của user).
   ✅ **03/10: đã xin phép xong** · lấy hội thoại **T7 10/10** → ẩn danh **trên máy phòng khám** trước khi mang ra.
-- **Còn chốt ở buổi mở dự án:** lõi agent (luật chuyển người, chấm bộ đo) áp **Cách A** hay agent code — gợi ý Cách A cho lõi,
-  Claude viết nối kênh / webhook / UI, vì "agent code hết" là điểm yếu đã làm Orchestrator bị chê.
+- ✅ **Chốt 04/10:** tên **Nyxara Care** (cùng họ với Nyxara Open → portfolio đọc thành một hệ) · lõi agent (luật chuyển người,
+  chấm bộ đo) áp **Cách A**, Claude viết nối kênh / webhook / UI · dữ liệu = **phòng khám thật**: bảng giá + toàn bộ tin nhắn
+  khách xuất từ **Pancake** (tuần 05→11/10). Bản xuất Pancake có tên/SĐT/ID Facebook → **ẩn danh trên máy phòng khám trước**, không vào git.
+- ✅ **Chốt 04/10 tối — repo RIÊNG `nyxara-care`**, không làm trong core, không dùng lại repo `nyxara` (README cũ hứa cả content
+  pipeline + sàng lọc triệu chứng — rộng và trái luật "không chẩn đoán"). Care **cài core như thư viện** (pip từ git) để tra
+  bảng giá/dịch vụ: cắm adapter của Care vào port của core = bằng chứng sống cho thiết kế hexagonal. Core giữ trung lập, không dính dữ liệu bệnh nhân.
 
 ## M. RA NGOÀI — làn thứ tư, thêm 18/09 (~2h/tuần, cắt vào giờ Orchestrator khi cần)
 

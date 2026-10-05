@@ -12,9 +12,9 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **04/10** | 3.8 BM25 khớp theo cái gì | 29/09 ⚠️: ép chọn 4/5, câu lời có TF nhưng nói *"khớp theo văn bản"* (thiếu **mặt chữ**) + **thiếu IDF**. Lần sau: chỉ hỏi câu lời, phải đủ 3 ý |
-| **04/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 02/10 ❌: không nói được 2 hậu quả (BM25 phải dịch lần 2 · đổi DB sửa 4 chỗ thay vì 1) |
-| **04/10** | 3.9 tenant filtering | 20/09 ✅ đủ đáp án + lý do (khoá ngầm ngoài cùng, BM25 chỉ chấm doc đã qua lọc) |
+| **09/10** | 3.8 BM25 khớp theo cái gì | 04/10 ⚠️ (lần 3): hướng TF/IDF đúng nhưng **lẫn tên** ("ipf", gán hướng TF cho IDF) · thiếu **mặt chữ** (lần 2 liên tiếp) · thiếu **độ dài văn bản**. Lần sau: mở `BM25Index`, **viết comment cạnh từng biến** (đại lượng gì, tăng/giảm điểm) → đóng file → nói lại |
+| **09/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 04/10 ⚠️: (a) ✅ BM25 phải dịch ngược · (b) chỉ nói "sửa ít hơn", **không gọi tên chỗ sửa** (đúng: chỉ `qdrant_store.py` gọi `to_qdrant_filter` → đổi DB = 1 adapter mới) |
+| **18/10** | 3.9 tenant filtering | 04/10 ✅ (sau khi Claude hỏi lại bằng filter in thật): `tenant_id == A` ở `must` ngoài cùng chặn cây tấn công |
 | **05/10** | 3.5 RRF | 21/09 ✅ công thức + WHY + số hạng + **tự nói ra "cùng `doc_id`"** cuối buổi. Lần sau hỏi thẳng, không cho tính thay |
 | **08/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 03/10 ⚠️: nói được "doc1 lọt qua BM25" nhưng *"lọt vào cây khác"* — thiếu **RRF trộn 2 list** + **lỗi im lặng** |
 | **07/10** | 10.11 port / adapter là gì | 02/10 ⚠️: giảng lại đúng nhưng **ngay sau khi đọc** — lần sau đóng sách hẳn |
@@ -280,6 +280,19 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-10-04 (CN) ca tối 19:50-21:40 (~1h50) · LÁT 0 · X6 dựng, chưa đóng
+
+- Vấn đáp 3 câu tới hạn: **3.8 ⚠️** (lẫn tên TF/IDF, thiếu mặt chữ + độ dài) · **10.10 ⚠️** (từ ❌; không gọi tên chỗ sửa) · **3.9 ✅** (câu (a) Claude phải hỏi lại bằng filter in thật; câu (b) đề lệch code — BM25 đã tách theo tenant, không tính).
+- Nợ tên: `fields` → `field` ✅ · `child` → `matched` **chưa làm** (user: *"chả biết đặt tên gì"*; Claude đưa luật "tên = câu hỏi biến trả lời").
+- **X6:** Claude viết [test đầu-cuối](../../tests/application/retrieval/test_hybrid_filter_end_to_end.py) — Qdrant `:memory:` + BM25 thật + `HybridRetriever`, kho 5 vb + 1 vb tenant B → **9/10**.
+  Ca đỏ = **lỗi thật**: cây có `tenant_id` → BM25 `leaf_matches` nổ `KeyError` (metadata BM25 không có trường đó), Qdrant chạy đúng. ⇒ bài thiết kế "thiếu trường" **ca sáng 05/10**.
+- User *"chưa hiểu gì phần nối port"* → Claude mở bằng script "camera" + 5 câu đoán → user: **"giảng nghiêm túc đi, kiểu này không học được"** → giảng thẳng 6 mục (bài toán · cây trung lập · port/adapter · pre/post-filter · Hybrid 2 nhánh · ai viết gì).
+- Giảng lại ngay sau đó: đúng khung 6 mục, **thiếu WHY** (BM25 vì sao lọc sau + lọc trước khi cắt · vì sao phải lọc cả 2 nhánh) · thiếu tenant · mục 2 nói ngược (mỗi kho tự dịch cây, không phải cây hiểu ngôn ngữ kho) · chưa ghép **hàm nào ở nhánh nào**. Giảng ngay sau khi đọc ⇒ chưa tính là nhớ.
+- Tổng kết tuần ✅ · chốt B = **Nyxara Care, repo riêng `nyxara-care`**, Cách A, dữ liệu Pancake · khung 3 loại project vào roadmap §1.
+  Repo `nyxara` cũ: user thấy nhà tuyển dụng không cần → đề xuất **chuyển private** (chưa làm, chờ user). Gym ván 3 mở 22:05 → dừng, **chưa gõ ô nào** (mệt).
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
 ### A. Từ 29/09 — ca sáng + tối CỐ ĐỊNH chạy cột X · ca công ty KHÔNG cố định chạy cột N
@@ -300,7 +313,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~X3~~ | ✅ 02/10 chốt **A** · Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
 | ~~X4~~ | ✅ 02/10 (chưa nối `HybridRetriever` — dời sang X5) · Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
 | ~~X5~~ ✅ 03/10 (a+b) | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
-| **X6 ← TIẾP** | Test đầu-cuối trên kho 5 văn bản (ca `vb5` Thông tư bị cắt) | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
+| **X6 ← sáng 05/10** | Test đầu-cuối **đã có, 9/10**. Còn: bài thiết kế *"văn bản thiếu trường"* (Claude giảng 2-3 phương án + giá) → user sửa `leaf_matches` → 10/10 + suite xanh | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
 |---|---|---|
@@ -314,8 +327,8 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | — | **04/10: vấn đáp 3.9** · **05/10: 3.5 + 1.4** | chèn lên đầu cột N khi tới hạn |
 | N7 | Ép chọn **[Cặp 19](./the-phan-biet.md)** (dict↔list) 2 câu — nợ từ tối 25/09 | cấm giảng lại |
 
-- **T7 03/10 (user hẹn 02/10):** sáng X5a → gym ván 3 → tiếng Anh N4 → ôn lát 0 · rồi X5b → X6 = **đóng lát 0 cuối tuần**. Lát 1 cuối tuần chỉ **mở** (nạp 61K + Hit@k), không đóng kịp (~30h).
-- **User hẹn 30/09:** sáng 01/10 gõ lại X2 · tối 01/10 muốn đóng hết phần còn lại của lát (X3→X6; X3 thiết kế cần ca sáng hoặc tối ≤19:30).
+- **Tuần 05→11/10:** sáng T2 05/10 đóng X6 → **LÁT 0 ĐÓNG** → mở lát 1 (nạp 61K + Hit@k). Vấn đáp: 05/10 3.5 + 1.4 · 07/10 10.11 · 08/10 Hybrid 2 nhánh · 09/10 3.8 + 10.10. T7 10/10 lấy hội thoại phòng khám.
+- **Phần Claude nối dây:** giảng thẳng có cấu trúc + code thật TRƯỚC, việc làm sau — không mở bằng đố/đoán (user 04/10).
 - Lát 0 đóng ở **cây 1 tầng** là đủ. Đệ quy = nâng cấp **một chữ**, chỉ mở khi user tự hỏi *"nếu con lại là cây thì sao"*.
 - **CN 04/10** vẫn tổng kết tuần + chấm PRIMM 2 số (nếu có tin nhắn tối CN). Hàng đợi này chạy tới khi giờ cố định trở lại.
 
@@ -330,8 +343,8 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 - **B = DỰ ÁN SỐ 2 mới** — agent text-to-SQL trên Postgres (hỏi tiếng Việt → SQL → kết quả + câu SQL đã chạy; đo tỉ lệ đúng).
   ~30-40h, **ăn slot 1h/ngày cũ của Orchestrator**, không đụng giờ core. Python/FastAPI, dùng lại khung eval lát 1.
 - ✅ **B bắt đầu SAU LÁT 1** (user chốt 02/10). Bộ đo có sẵn: **ViText2SQL** (VinAI, ~10K câu tiếng Việt, chỉ dùng nghiên cứu/học) — vai trò như Zalo Legal ở core.
-- **Còn phải chốt ở CN 04/10:** tên B · B áp **Cách A** cho lõi hay agent code
-  (agent code = đúng điểm yếu đã khiến Orchestrator bị chê) · B dùng dữ liệu bảng nào.
+- ✅ **Chốt CN 04/10:** B = **Nyxara Care** · lõi áp **Cách A** · dữ liệu phòng khám thật (bảng giá + tin nhắn từ Pancake, tuần sau) → [side-lanes L](../side-lanes.md).
+  Dòng text-to-SQL ở trên là phương án cũ trước khi đổi sang phòng khám.
 
 ### A2. ~~Bài thiết kế chờ — MẢNG DỮ LIỆU~~ → xong 02/10: không thêm lát data, xem A1b (user nêu 02/10, chưa sửa roadmap)
 
