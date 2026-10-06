@@ -309,7 +309,7 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - X6: in thật trường thiếu → Qdrant `eq` không khớp / `not` khớp, BM25 nổ `KeyError`. Giảng A nổ · B `False` · C `True` + giá.
 - User hỏi "chuẩn là gì" → B (khớp kho ghép cặp; SQL khác). Lần đầu hướng dẫn "chưa chuyên nghiệp" → giảng lại 5 mục (bài toán · `in` · guard · trace · việc) thì gõ được.
 - User gõ guard `if field not in metadata: return False` → **119 passed**.
-- Nợ: kiểm tên trường ở cửa vào (gõ sai `"nma"` hiện ra rỗng im lặng) · tên `child` trong `matches`.
+- Nợ: kiểm tên trường ở cửa vào (gõ sai `"nma"` hiện ra rỗng im lặng) · ~~tên `child`~~ ✅ 07:15 → `matched` (and + or).
 
 ---
 

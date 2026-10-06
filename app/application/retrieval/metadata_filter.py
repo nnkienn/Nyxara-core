@@ -38,14 +38,14 @@ def matches(pred: dict, metadata: dict) -> bool:
     op = list(pred.keys())[0]
     if op == "and":
         for child in pred["and"]:
-            child = leaf_matches(child,metadata)
-            if child == False:
+            matched = leaf_matches(child,metadata)
+            if not matched:
                 return False
         return True
     elif op == "or":
         for child in pred["or"]:
-            child = leaf_matches(child,metadata)
-            if child == True:
+            matched = leaf_matches(child,metadata)
+            if matched == True:
                 return True
         return False
     elif op == "not":
