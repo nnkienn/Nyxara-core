@@ -303,7 +303,7 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
-### 2026-10-06 (T3) ca tối ~45' (mệt, OT) · **LÁT 0 ĐÓNG**
+### 2026-10-06 (T3) ca sáng từ 06:45 ~45' (mệt sau OT tối 05/10) · **LÁT 0 ĐÓNG**
 
 - Gộp git: tối 04/10 (máy nhà, chưa commit) + ca cty 05/10 → bảng hạn lấy bản 05/10.
 - X6: in thật trường thiếu → Qdrant `eq` không khớp / `not` khớp, BM25 nổ `KeyError`. Giảng A nổ · B `False` · C `True` + giá.
