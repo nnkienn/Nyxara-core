@@ -303,6 +303,16 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-10-06 (T3) ca tối ~45' (mệt, OT) · **LÁT 0 ĐÓNG**
+
+- Gộp git: tối 04/10 (máy nhà, chưa commit) + ca cty 05/10 → bảng hạn lấy bản 05/10.
+- X6: in thật trường thiếu → Qdrant `eq` không khớp / `not` khớp, BM25 nổ `KeyError`. Giảng A nổ · B `False` · C `True` + giá.
+- User hỏi "chuẩn là gì" → B (khớp kho ghép cặp; SQL khác). Lần đầu hướng dẫn "chưa chuyên nghiệp" → giảng lại 5 mục (bài toán · `in` · guard · trace · việc) thì gõ được.
+- User gõ guard `if field not in metadata: return False` → **119 passed**.
+- Nợ: kiểm tên trường ở cửa vào (gõ sai `"nma"` hiện ra rỗng im lặng) · tên `child` trong `matches`.
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
 ### A. Từ 29/09 — ca sáng + tối CỐ ĐỊNH chạy cột X · ca công ty KHÔNG cố định chạy cột N
@@ -323,7 +333,7 @@ User báo sau công tác: **ca sáng và ca tối vẫn bình thường** (roadm
 | ~~X3~~ | ✅ 02/10 chốt **A** · Bài thiết kế: port `VectorStore.search` nhận **cây trung lập** hay **dict Qdrant đã dịch**? | chốt + lý do + cái giá | giảng 2-3 phương án kèm giá **trước khi hỏi** |
 | ~~X4~~ | ✅ 02/10 (chưa nối `HybridRetriever` — dời sang X5) · Nối dây: `upsert` lưu metadata vào payload · `search` nhận filter | trace 1 lượt + giảng lại | viết nối dây |
 | ~~X5~~ ✅ 03/10 (a+b) | `leaf_matches` trước (bản in 1 lá ở cuối nhật ký 02/10; 2 dòng đầu chép từ `to_leaf_clause`) → `matches` · test `-k leaf` rồi cả file · **X5b** sau đó: `BM25Index` lưu metadata + `HybridRetriever` chuyền cây xuống **cả hai** nhánh · `danh_gia` + `post_filter` → `app/`, tên tiếng Anh | gõ lại từ trắng | khung + test + nối vào nhánh BM25 |
-| **X6 ← sáng 05/10** | Test đầu-cuối **đã có, 9/10**. Còn: bài thiết kế *"văn bản thiếu trường"* (Claude giảng 2-3 phương án + giá) → user sửa `leaf_matches` → 10/10 + suite xanh | **đoán trước**, chạy, đọc test | test · `pytest -q` toàn bộ xanh → commit → **LÁT 0 ĐÓNG** |
+| ~~X6~~ ✅ 06/10 | Test đầu-cuối 10/10 · văn bản thiếu trường → lá `False` (phương án B, khớp Qdrant) · suite 119 passed | — | — |
 
 | # | Mẩu NHỎ (N) — 10-20' | Ghi chú |
 |---|---|---|

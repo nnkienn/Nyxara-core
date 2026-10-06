@@ -18,6 +18,8 @@
 def leaf_matches(pred: dict, metadata: dict) -> bool:
     op = list(pred.keys())[0]
     field , value = pred[op][0] , pred[op][1]
+    if field not in metadata: 
+        return False
     actual = metadata[field]
     if op == "gte":
         return actual >= value
