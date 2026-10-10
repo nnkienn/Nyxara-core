@@ -372,7 +372,7 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   · `rr`↔`total_rr` · tự viết vẫn `total_rr == 0`, `results.index`. Hẹn **11/10 kiểm tra không gợi ý**: lời → tính tay → tự viết → trace.
   Cách dạy user xin: 1 câu/lượt · bài ngắn · cố định dữ liệu · nói rõ "1 lần tìm" hay "cả bộ" + k bao nhiêu · **không dùng "dòng" cho lần tìm**.
 
-### 2026-10-10 (T7) ca tối 20:10-21:14 · LÁT 1 · áp cách dạy mới (CLAUDE.md §5.1)
+### 2026-10-10 (T7) ca tối 20:10-22:20 · LÁT 1 · áp cách dạy mới (CLAUDE.md §5.1)
 - `mrr` trong `app/`: `results.index` → `top_k.index` (lỗi F báo cáo ChatGPT, tự sửa) → **129 passed**.
 - BUG CỐ Ý [mrr-bug-1010.py](../drills/mrr-bug-1010.py) (chia số lần TRÚNG): tự nói "chia tổng results", sửa đúng. Bug làm 788 câu phồng 0.562 → 0.685.
 - **BM25 Zalo 788: MRR@10 = 0.562** · Hit@10 0.821. MRR còn thiếu: gõ lại đóng sách 11/10 (hẹn với ChatGPT) → qua thì MRR ĐÓNG.
@@ -380,7 +380,7 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - Câu hỏi 1 việc/lượt chạy tốt hơn hẳn sáng nay: 1 lần "không hiểu câu hỏi" (câu ghép, trước khi đổi cách) rồi trơn.
 - 21:15 user chọn học tiếp → **NDCG mở**: MRR không phân biệt [A✓ B✗ C✓] với [A✓ B✗ D✗] ✅ · DCG = `1 + 1/log2(4)` = 1.5 ✅ (tự dùng công thức).
   **IDCG trả "2"** (quên giảm giá ở danh sách lý tưởng) → *"lú quá"* — lỗi Claude mở IDCG quá sớm + lỡ dùng "dòng". Giảng IDCG = điểm tối đa,
-  NDCG = 1.50/1.63 ≈ 0.92. User nghỉ ~21:50. CLAUDE.md §5 viết lại + §6 luật dừng (user yêu cầu).
+  NDCG = 1.50/1.63 ≈ 0.92. User nghỉ 22:20. CLAUDE.md §5 viết lại + §6 luật dừng (user yêu cầu).
 - **CN 11/10 bắt đầu từ:** (1) *"Kiểm tra lại Hit@k và MRR, không gợi ý trước"*: lời → tính tay dữ liệu MỚI → tự viết 2 hàm → trace (hẹn với ChatGPT) ·
   (2) NDCG: user giảng lại DCG bằng ví dụ A/B/C → IDCG từng bước (hỏi giá trị thứ hạng 2 trong danh sách lý tưởng trước) → NDCG 0.92 · chưa code.
 
