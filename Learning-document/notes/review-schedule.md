@@ -15,8 +15,8 @@
 | **12/10** | 3.8 BM25 khớp theo cái gì | 10/10 ❌: IDF `"của"` cao (lần 2, user: đọc nhầm) · câu rỗng "không biết" · thiếu độ dài + mặt chữ. Lần sau: hỏi **1 chữ hiếm đứng một mình** ([Cặp 27](./the-phan-biet.md)) + đòi lại ví dụ `xe máy`↔`mô tô` |
 | **12/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 07/10 ⚠️ (lên từ ❌): (a) BM25 không hiểu dict Qdrant ✅ · (b) chỉ nói "cấu trúc khác, không dịch được" — **chưa gọi tên chỗ phải sửa** (`HybridRetriever` thay vì chỉ thêm adapter). Lần sau hỏi thẳng "đổi Postgres thì sửa file nào"
 | **12/10** | 3.9 tenant filtering | 10/10 ❌: lý do bảo mật ✅ nhưng nói **"cùng cơ chế qua filter"** — BM25 **phân vùng** khoá dict, Qdrant **lọc** (lỗi 18/09 tái phát). Ép chọn sau đó 2/2. Lần sau: hỏi lại nguyên câu |
-| **10/10** | 3.5 RRF | 05/10 ⚠️: công thức + số hạng tự đúng; lý do tưởng cosine/BM25 **"cùng đại lượng"** → in thật mới ra. Lần sau hỏi: cosine trần bao nhiêu, BM25 trần bao nhiêu |
-| **10/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 08/10 ❌ (lần 2): đoán doc1 *"không"* lọt — quên nhánh BM25 không lọc + **RRF trộn 2 list** (doc1 2015 còn xếp trên doc3 hợp lệ); ý "không báo lỗi" ✅ |
+| **15/10** | 3.5 RRF | 10/10 ⚠️: tự nói "không cùng đơn vị" + tính đúng `1/62+1/61`, nhưng tưởng BM25 trần = 1 (in thật mới lật) · lỡ nói "RRF bỏ vector" (đúng: bỏ ĐIỂM, giữ rank 2 nhánh). Lần sau: hỏi trần không gợi ý |
+| **15/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 10/10 ✅ (lên từ ❌×2) trên ví dụ cố định d1/d2/d3: d2 2015 **có** lọt · sửa = BM25 lọc trước RRF · cắt top_k trước lọc → sót d1. Hẹn ngắn để kiểm lại **không ví dụ dựng sẵn** |
 | **14/10** | 10.11 port / adapter là gì | 09/10 ⚠️ (lên từ ❌): port ✅ · adapter chỉ nói "bộ chuyển đổi" — thiếu **dịch lời gọi của core sang API công nghệ cụ thể** |
 | **21/10** | 1.4 Recursive chunker | 07/10 ✅ hỏi trần: CẮT → GỘP + hậu quả "mẩu lẻ tẻ vô nghĩa" (gọi nhầm là "cây" — là danh sách mẩu) |
 
@@ -366,6 +366,23 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - ⚠️ User nói nhiều lần **"thuật toán OK, còn mù mờ MRR khác Hit@k chỗ nào"** — 4 cách giảng chưa đọng; cách cuối: **đậu/rớt ↔ bao nhiêu điểm**.
 - **Tối nay bắt đầu:** (0) 2 ô Hit/MRR của sếp (đã hỏi cuối ca sáng) · (1) sửa cụm `len(results)` → `.index` → 10 passed ·
   (2) chạy `mrr` trên 788 câu thật cạnh Hit@1/3/5/10 — **để số thật làm rõ khái niệm** · rồi mới BUG CỐ Ý theo A0.
+
+- **Chiều 10/10, học ngoài với ChatGPT (~2h, user báo cáo):** Hit@k + MRR. Nắm thêm: **1 lần tìm → 1 RR** (đúng đầu tiên rồi dừng,
+  từng trả 1/2 + 1/5) · mẫu số tính cả lần trượt · MRR 0.65 ≠ "65%". Còn hở: lẫn **k · rank · số lần tìm** · index↔rank (+1 thừa/thiếu)
+  · `rr`↔`total_rr` · tự viết vẫn `total_rr == 0`, `results.index`. Hẹn **11/10 kiểm tra không gợi ý**: lời → tính tay → tự viết → trace.
+  Cách dạy user xin: 1 câu/lượt · bài ngắn · cố định dữ liệu · nói rõ "1 lần tìm" hay "cả bộ" + k bao nhiêu · **không dùng "dòng" cho lần tìm**.
+
+### 2026-10-10 (T7) ca tối 20:10-21:14 · LÁT 1 · áp cách dạy mới (CLAUDE.md §5.1)
+- `mrr` trong `app/`: `results.index` → `top_k.index` (lỗi F báo cáo ChatGPT, tự sửa) → **129 passed**.
+- BUG CỐ Ý [mrr-bug-1010.py](../drills/mrr-bug-1010.py) (chia số lần TRÚNG): tự nói "chia tổng results", sửa đúng. Bug làm 788 câu phồng 0.562 → 0.685.
+- **BM25 Zalo 788: MRR@10 = 0.562** · Hit@10 0.821. MRR còn thiếu: gõ lại đóng sách 11/10 (hẹn với ChatGPT) → qua thì MRR ĐÓNG.
+- Vấn đáp 3.5 ⚠️ · Hybrid ✅ (→15/10 cả hai). 1 lỗi đọc (d1↔d2).
+- Câu hỏi 1 việc/lượt chạy tốt hơn hẳn sáng nay: 1 lần "không hiểu câu hỏi" (câu ghép, trước khi đổi cách) rồi trơn.
+- 21:15 user chọn học tiếp → **NDCG mở**: MRR không phân biệt [A✓ B✗ C✓] với [A✓ B✗ D✗] ✅ · DCG = `1 + 1/log2(4)` = 1.5 ✅ (tự dùng công thức).
+  **IDCG trả "2"** (quên giảm giá ở danh sách lý tưởng) → *"lú quá"* — lỗi Claude mở IDCG quá sớm + lỡ dùng "dòng". Giảng IDCG = điểm tối đa,
+  NDCG = 1.50/1.63 ≈ 0.92. User nghỉ ~21:50. CLAUDE.md §5 viết lại + §6 luật dừng (user yêu cầu).
+- **CN 11/10 bắt đầu từ:** (1) *"Kiểm tra lại Hit@k và MRR, không gợi ý trước"*: lời → tính tay dữ liệu MỚI → tự viết 2 hàm → trace (hẹn với ChatGPT) ·
+  (2) NDCG: user giảng lại DCG bằng ví dụ A/B/C → IDCG từng bước (hỏi giá trị thứ hạng 2 trong danh sách lý tưởng trước) → NDCG 0.92 · chưa code.
 
 ---
 

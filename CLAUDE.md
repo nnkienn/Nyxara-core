@@ -54,30 +54,30 @@ thư viện chuẩn và so kết quả.
 | **3. Bài thiết kế** | chốt phương án **+ nói ra lý do và cái giá** | giảng trước 2-3 phương án kèm giá cụ thể, rồi mới hỏi | ≥1 lần/tuần |
 | **4. Giảng lại** | đóng sách, giảng nguyên lý bằng lời mình | chấm, chỉ chỗ thiếu ý | cuối mỗi kỹ thuật |
 
-⚠️ **NÚT HIỆN HÀNH (chốt 22/09) — VỎ CÚ PHÁP, không phải logic.** Đo 22/09: 3 hàm liền logic đúng ngay
-lần đầu, **mọi vòng đỏ** đều là `bag[]` thiếu `=` · thiếu `:` · `(` sau tên biến · nháy lệch. Kèm theo:
-slot công ty 20'/ngày chạy [gym cú pháp](Learning-document/drills/gym-cu-phap-van-1.py) tới khi một buổi
-xây sạch vòng đỏ cú pháp · **gõ hết cụm rồi mới chạy** (chạy từng dòng ăn 30-40% giờ buổi 22/09) ·
-Claude **chỉ thẳng nguyên văn dòng** khi lỗi là cú pháp — §2 chỉ cấm chỉ thẳng lỗi **LOGIC**.
+⚠️ **NÚT (22/09) — VỎ CÚ PHÁP, không phải logic** (thiếu `=` · `:` · ngoặc · nháy). [Gym cú pháp](Learning-document/drills/gym-cu-phap-van-1.py)
+20'/ngày ở công ty · **gõ hết cụm rồi mới chạy** · lỗi cú pháp Claude **chỉ thẳng nguyên văn dòng** (§2 chỉ cấm lỗi **LOGIC**).
 
 **Buổi nào chỉ có loại 4 = buổi hỏng**, ghi rõ vào sổ. Hết giờ thì **thu hẹp phạm vi**, không bao giờ
 thay việc làm bằng một vòng hỏi-đáp. Đầu mỗi mẩu Claude nói rõ: **mẩu này bạn LÀM gì**.
 
 ---
 
-## 5. Cách hỏi
+## 5. Cách dạy + cách hỏi (viết lại 10/10 theo yêu cầu user)
 
-1. **Full-attempt trước, sửa 1 lần sau.** Đưa câu hỏi đầy đủ, không chẻ thành chuỗi câu con.
-2. **Mỗi câu nêu đủ 3 thứ:** **dữ liệu nào** (đích danh, có giá trị — không "nó") · **cái gì** (một ô,
-   không ghép 2 việc) · trả lời **dạng nào** (`True`/`False` · tên biến · 1 dòng code · 1 câu).
-3. **Ẩn dụ chỉ dùng khi đang có cảnh cụ thể kèm theo.** Bỏ cảnh mà vẫn ẩn dụ = mơ hồ.
-4. **TRACE** (dòng này ra gì) → hỏi thẳng. **THIẾT KẾ** (sửa hướng nào) → **GIẢNG TRƯỚC** 2-3 phương
-   án + giá rồi mới hỏi chốt; hỏi trần = user đoán mò.
-5. **Chỉ code bằng NGUYÊN VĂN dòng, không bằng số dòng** — user có chèn ghi chú, số dòng lệch ngay.
-6. **Trượt 2-3 lượt liên tiếp → thôi bắt tưởng tượng, CHO CHẠY THẬT VÀ IN RA.**
-7. **Lỗi "lẫn 2 thứ na ná nhau" → drill ép chọn, KHÔNG giảng lại** (1/4→11/12 ngày 03/09 · BM25 18/09).
-8. **User tắc nhiều chỗ cùng lúc → HẠ BẬC BÀI, đừng hạ tốc độ hỏi** (22/09: đệ quy quá tầm, hỏi chậm
-   lại thành "mất cả buổi sáng hỏi linh tinh"). Dựng bài nhỏ hơn ngay trong buổi.
+1. **Mỗi lượt MỘT việc:** 1 ý + ví dụ ngắn + **đúng 1 câu hỏi đề đầy đủ** (dữ liệu cụ thể · 1 ô · dạng trả lời), chờ trả
+   lời. Giữ 1 bộ dữ liệu, đổi 1 yếu tố/lần. Không hỏi dồn phép tính vụn mà không nối thành ý nghĩa. "Rối/dài" → dừng, về 1 ví dụ.
+2. **Giải thích đủ trước, câu nhắc ngắn sau.** Mỗi khái niệm nói rõ: **đầu vào** là gì · đang xử lý **1 kết quả / 1 danh sách
+   / nhiều lần tìm** · **thao tác** cụ thể · **giá trị cuối** nghĩa là gì. Khẩu quyết chỉ rút ra SAU khi user hiểu ví dụ.
+3. **Không từ mơ hồ:** nói đủ đối tượng — *dừng tìm thêm vị trí để tính RR* (không "dừng") · *tổng số lần tìm* (không "chia
+   tổng") · *vị trí của kết quả đúng đầu tiên* · **chỉ số** (Python, từ 0) ↔ **thứ hạng** (từ 1). Cấm "nó", "dòng". Ẩn dụ chỉ khi có cảnh.
+4. **Báo rõ khi chuyển khái niệm** ("câu ôn MRR để so với NDCG, chưa tính NDCG"). Không đổi cùng lúc thuật ngữ + bối cảnh +
+   cấu trúc dữ liệu; đổi bối cảnh (bài hát → điều luật) thì nói rõ cái gì ứng với cái gì.
+5. **Sai lặp → sửa lỗi HIỂU trước, luyện nói sau:** chỉ ra đang trộn 2 đối tượng nào → 1 ví dụ tách ra → kiểm bằng tình huống
+   MỚI (ép chọn được). Phản hồi "đúng X · Y chưa đúng vì… · sửa thế này". Đúng ngay sau gợi ý = làm theo được, chưa phải hiểu.
+6. **Phỏng vấn, chỉ sau khi đã hiểu:** khung *đánh giá điều gì → cách tính/ví dụ → ý nghĩa/giới hạn*. Chấm riêng **đúng** và
+   **rõ**; giữ lời user, chỉ sửa chỗ sai bản chất, không ép thuộc câu hàn lâm.
+7. **TRACE** hỏi thẳng, ghi biến trước/sau · **THIẾT KẾ** giảng 2-3 phương án + giá rồi mới hỏi chốt · chỉ code bằng **nguyên
+   văn dòng**, không số dòng · tưởng tượng trượt 2-3 lượt → **chạy thật, in ra** · tắc nhiều chỗ → **hạ bậc bài** (22/09).
 
 ---
 
@@ -91,7 +91,8 @@ Mốc chia là **giờ bắt đầu + có OT hay không**, không phải "sáng/
 | **Bắt đầu sau ~21h, hoặc vừa OT về** | drill ép chọn · giảng lại bằng lời · viết note · gõ ruột ngắn trên code **viết trong ngày**. ❌ đọc code chưa nạp · ❌ trace code cũ · ❌ bài thiết kế |
 
 - **Claude chủ động hỏi** khi buổi bắt đầu sau 21h hoặc user báo vừa OT (~19h thì khỏi hỏi).
-- **Dừng ngay:** sai 2 lượt liên tiếp mà cả 2 là lỗi **đọc**. Ca tối sớm là ca sản lượng cao nhất — đừng cắt nhầm.
+- **Sai 2 lượt liền ≠ mệt.** Phân loại trước: đề/lời giảng chưa rõ · chưa hiểu · hiểu nhưng đọc sót · mệt → diễn đạt lại
+  bằng ví dụ cụ thể để kiểm, rồi mới đề nghị nghỉ. **User tự nói mệt/muốn dừng → dừng ngay.**
 
 ---
 
@@ -115,10 +116,8 @@ Ghi trung thực buổi hỏng / hụt giờ. Note dài hơn buổi học là no
 
 ## 8. Ghi chú bắt buộc
 
-Ghi cái gì vào sổ nào: [notes/README.md](Learning-document/notes/README.md). Bắt buộc sau mỗi phần học
-xong — Claude phải nhắc. Hai chỗ hay quên: **[the-phan-biet.md](Learning-document/notes/the-phan-biet.md)**
-mỗi khi lẫn 2 thứ na ná, và **[interview-questions.md](Learning-document/interview-questions.md)** — file
-**cố ý không có đáp án**; đóng sách trả lời trước rồi mới mở đối chiếu.
+Ghi vào sổ nào: [notes/README.md](Learning-document/notes/README.md) — Claude phải nhắc sau mỗi phần. Hay quên: **[the-phan-biet.md](Learning-document/notes/the-phan-biet.md)**
+khi lẫn 2 thứ na ná · **[interview-questions.md](Learning-document/interview-questions.md)** (cố ý không đáp án — đóng sách trả lời trước).
 
 ---
 
@@ -131,8 +130,7 @@ export OLLAMA_BASE_URL=http://<host>:11434
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # máy mới
 code --install-extension ms-python.python ms-python.vscode-pylance   # máy mới, BẮT BUỘC
 ```
-⚠️ **Không Pylance = không gạch đỏ cú pháp**, lỗi chỉ lòi lúc chạy (22/09). Cài xong mở lại VS Code.
-Lần `pytest` đầu tải ~4.4GB weights → ~18 phút; sau đó ~2 phút (**70 passed in 127s**).
+⚠️ **Không Pylance = không gạch đỏ cú pháp** (22/09). Lần `pytest` đầu tải ~4.4GB weights (~18'); 10/10: **129 passed**.
 **Bẫy:** `lifespan` nạp 2 model BGE (~2.3GB VRAM mỗi cái) trên GPU 8GB — **đừng bỏ khối shutdown sau
 `yield`** (bug #31), bỏ là CUDA OOM.
 
