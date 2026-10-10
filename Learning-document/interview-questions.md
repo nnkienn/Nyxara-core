@@ -37,7 +37,7 @@
 | 1.1 | 🟢 | Chunking là gì, vì sao không nhét cả document vào một embedding? | algorithms | ⬜ |
 | 1.2 | 🟢 | `size` và `overlap` là gì? Vì sao cần overlap? | algorithms | ⬜ |
 | 1.3 | 🟡 | Fixed-size vs Recursive chunking khác nhau chỗ nào? Kể một tình huống fixed-size cắt hỏng nghĩa. | 01-ingest | ⬜ |
-| 1.4 | 🟡 | Recursive splitter thật gồm **2 bước**, không phải 1 — kể ra. Vì sao thiếu bước gộp thì kết quả vô dụng? | bug-log | ❌ 05/10 → hẹn **07/10** *(không nhớ 2 bước CẮT → GỘP; 21/09 từng ✅)* |
+| 1.4 | 🟡 | Recursive splitter thật gồm **2 bước**, không phải 1 — kể ra. Vì sao thiếu bước gộp thì kết quả vô dụng? | bug-log | ✅ 07/10 → hẹn **21/10** |
 | 1.5 | 🟡 | Overlap quá lớn thì hỏng gì? Quá nhỏ thì hỏng gì? | algorithms | ⬜ |
 | 1.6 | 🔴 | Chọn `size` cho một corpus mới thì căn cứ vào đâu? (gợi ý: giới hạn model, độ dài câu hỏi, chi phí) | — | ⬜ |
 | 1.7 | 🔴 | Khi nào Document-based (theo heading) tốt hơn Recursive? Khi nào tệ hơn? | — | ⬜ |
@@ -69,8 +69,8 @@
 | 3.5 | 🟡 | RRF gộp kết quả bằng cách nào? Vì sao dùng **thứ hạng** chứ không dùng **điểm số**? | phan-biet Cặp 5 | ⚠️ 05/10 → hẹn **10/10** *(công thức + số hạng đúng; lý do: tưởng cosine và BM25 "cùng đại lượng" — thiếu **khác thang đo, BM25 không trần**)* |
 | 3.6 | 🔴 | RRF có hằng số `k` — nó làm gì? Đặt quá nhỏ / quá lớn thì sao? | algorithms | ⬜ |
 | 3.7 | 🔴 | Nếu `doc_count` của BM25 bị đếm sai, kết quả xếp hạng sai kiểu gì? Ai phát hiện ra? | bug #29 | ⬜ |
-| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ⚠️ 05/10 → hẹn **10/10** *(IDF ngược chiều lúc đầu)* |
-| 3.9 | 🔴 | `tenant_id` chặn tài liệu tenant khác — ở nhánh Qdrant và nhánh BM25 là **cùng một cơ chế** không? Nêu tên file/dòng. | phan-biet Cặp 15 | ⚠️ 05/10 → hẹn **10/10** *(thiếu vì sao; 18/09 ❌ nói BM25 "search xong mới lọc", thực ra PHÂN VÙNG bằng khoá dict)* |
+| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ❌ 10/10 → hẹn **12/10** *(IDF sai chiều lần 2 · câu rỗng không biết)* |
+| 3.9 | 🔴 | `tenant_id` chặn tài liệu tenant khác — ở nhánh Qdrant và nhánh BM25 là **cùng một cơ chế** không? Nêu tên file/dòng. | phan-biet Cặp 15 | ❌ 10/10 → hẹn **12/10** *(lại nói "cùng cơ chế" — lỗi 18/09; trước đó 05/10 thiếu vì sao; 18/09 ❌ nói BM25 "search xong mới lọc", thực ra PHÂN VÙNG bằng khoá dict)* |
 
 ## 4. Reranking
 
@@ -152,8 +152,8 @@
 | 10.7 | 🔴 | *(chưa học)* **Khi nào KHÔNG nên dùng RAG?** Context window dài rồi — so RAG vs nhét thẳng document theo 4 trục: chất lượng · chi phí · độ trễ p95 · khả năng trích dẫn nguồn | — | ⬜ |
 | 10.8 | 🔴 | *(chưa học)* Đo một **agent nhiều bước** khác đo RAG ở chỗ nào? Kể 3 chỉ số chỉ có ý nghĩa với agent | — | ⬜ |
 | 10.9 | 🔴 | *(chưa học)* Agent trả lời **đúng** nhưng đi 11 bước và gọi nhầm tool 3 lần — tính là pass hay fail? Vì sao? | — | ⬜ |
-| 10.10 | 🟡 | Bộ lọc metadata: sao không để `HybridRetriever` dịch luôn sang dict Qdrant rồi truyền xuống `VectorStore.search`? Nêu 2 hậu quả (BM25 · đổi database). | X3 02/10 | ❌→07/10 |
-| 10.11 | 🟢 | Port là gì, adapter là gì? Lấy `VectorStore` / `QdrantStore` làm ví dụ. | X4 02/10 | ⚠️→07/10 |
+| 10.10 | 🟡 | Bộ lọc metadata: sao không để `HybridRetriever` dịch luôn sang dict Qdrant rồi truyền xuống `VectorStore.search`? Nêu 2 hậu quả (BM25 · đổi database). | X3 02/10 | ⚠️ 07/10 →12/10 |
+| 10.11 | 🟢 | Port là gì, adapter là gì? Lấy `VectorStore` / `QdrantStore` làm ví dụ. | X4 02/10 | ❌ 07/10 →09/10 |
 
 ## 11. Lý thuyết LLM *(🟢 đọc hiểu — slot công ty 10-11/2026)*
 
@@ -275,3 +275,7 @@ Mỗi vòng ghi 1 dòng. Chỉ tính câu **đã đóng tài liệu trả lời 
 | 2026-10-05 (ca công ty) | tenant filtering (3.9) | 0 | 1 | 0 | 3.9 ⚠️: tự nói `tenant_id` + **trước** chấm điểm, nhưng không nêu vì sao; dựng cảnh post-filter `top_k=5` toàn của A → trả "rỗng" đúng. Thiếu ý khoá bảo mật (quên lọc = lộ) (+5 → 10/10) |
 | 2026-10-05 (ca công ty) | RRF (3.5) | 0 | 1 | 0 | 3.5 ⚠️: công thức `Σ 1/(k+rank)` + số hạng `1/(1+60) + 1/(3+60)` tự đúng. Lý do mơ hồ ("kết quả không giống nhau"), rồi nói **"cùng đại lượng chứ"** — tưởng cosine và BM25 cùng thang. In BM25 thật 2.544/3.741 cạnh cosine ≤1 → nói đúng "BM25 quyết định" (+5 → 10/10) |
 | 2026-10-05 (ca công ty) | recursive chunker (1.4) | 0 | 0 | 1 | 1.4 ❌ "không nhớ" cả 2 bước. In thật `size=60`: chỉ bước cắt → 30 mẩu `'Điều '` `'9. '`… · cắt + gộp → 3 mẩu → nói đúng "top-5 toàn từ rời rạc vô nghĩa" (thiếu: mẩu khớp `khiếu` không chứa "90 ngày") (+2 → 07/10) |
+| 2026-10-07 (tối muộn) | chunker · port trung lập · port/adapter | 1 | 1 | 1 | 1.4 ✅ CẮT→GỘP (+14 → 21/10) · 10.10 ⚠️ thiếu "sửa `HybridRetriever`" (+5 → 12/10) · 10.11 ❌ chỉ gán nhãn; hạ về ví dụ `Store` 20 dòng, tự gõ `TupleStore` chạy đúng (+2 → 09/10) |
+| 2026-10-08 (tối muộn) | Hybrid chuyền cây 2 nhánh | 0 | 0 | 1 | ❌ lần 2: đoán doc1 (2015) *không* lọt — quên BM25 không lọc + **RRF trộn 2 list** (doc1 còn xếp trên doc3 hợp lệ); "không báo lỗi" ✅ (+2 → 10/10) |
+| 2026-10-09 (ca tối) | port/adapter (10.11) | 0 | 1 | 0 | 10.11 ⚠️: port ✅ · `VectorStore` port / `QdrantStore` adapter / đổi DB viết thêm adapter ✅ · adapter chỉ "bộ chuyển đổi" — thiếu **dịch lời gọi core sang API công nghệ** (+5 → 14/10) |
+| 2026-10-10 (ca sáng) | BM25 (3.8) · tenant (3.9) | 0 | 0 | 2 | 3.8 ❌: TF ✅, IDF mờ, thiếu độ dài + mặt chữ · IDF `"của"` **cao** (sai chiều lần 2) · câu rỗng "không biết" → đáp `xe máy`↔`mô tô` (+2 → 12/10) · 3.9 ❌: nói **"cùng cơ chế qua filter"** (= lỗi 18/09; BM25 phân vùng khoá dict) · lý do bảo mật ✅ (+2 → 12/10). Ép chọn sau đó 5/6 + 2/3 |

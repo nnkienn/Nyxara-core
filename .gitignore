@@ -34,3 +34,6 @@ raw_data_lake/
 .idea/
 .vscode/
 .DS_Store
+
+# Zalo Legal 61K điều (115MB) — tải lại từ HF GreenNode/zalo-ai-legal-text-retrieval-vn
+data/

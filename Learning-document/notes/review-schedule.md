@@ -12,13 +12,13 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **10/10** | 3.8 BM25 khớp theo cái gì | 05/10 ⚠️: câu lời đủ 3 ý (từ khoá · TF · IDF) nhưng ô kiểm nói *"của" IDF cao* — **ngược chiều**, in thật mới lật. Lần sau: hỏi chiều IDF bằng 2 chữ thật |
-| **07/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 05/10 ❌ lần 2: câu 1 trả "lọc trước cắt sau" ⇒ [Cặp 23](./the-phan-biet.md); câu 2 nói "sửa port". Sau in thật + ép chọn thì nói lại đủ 2 ý — lần sau hỏi trần, đóng sách |
-| **10/10** | 3.9 tenant filtering | 05/10 ⚠️: `tenant_id` + trước chấm điểm, **không tự nêu vì sao** (dựng cảnh mới ra "rỗng"; thiếu ý bảo mật). Lần sau hỏi cả câu 3.9 trong ngân hàng (2 nhánh có cùng cơ chế không) |
+| **12/10** | 3.8 BM25 khớp theo cái gì | 10/10 ❌: IDF `"của"` cao (lần 2, user: đọc nhầm) · câu rỗng "không biết" · thiếu độ dài + mặt chữ. Lần sau: hỏi **1 chữ hiếm đứng một mình** ([Cặp 27](./the-phan-biet.md)) + đòi lại ví dụ `xe máy`↔`mô tô` |
+| **12/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 07/10 ⚠️ (lên từ ❌): (a) BM25 không hiểu dict Qdrant ✅ · (b) chỉ nói "cấu trúc khác, không dịch được" — **chưa gọi tên chỗ phải sửa** (`HybridRetriever` thay vì chỉ thêm adapter). Lần sau hỏi thẳng "đổi Postgres thì sửa file nào"
+| **12/10** | 3.9 tenant filtering | 10/10 ❌: lý do bảo mật ✅ nhưng nói **"cùng cơ chế qua filter"** — BM25 **phân vùng** khoá dict, Qdrant **lọc** (lỗi 18/09 tái phát). Ép chọn sau đó 2/2. Lần sau: hỏi lại nguyên câu |
 | **10/10** | 3.5 RRF | 05/10 ⚠️: công thức + số hạng tự đúng; lý do tưởng cosine/BM25 **"cùng đại lượng"** → in thật mới ra. Lần sau hỏi: cosine trần bao nhiêu, BM25 trần bao nhiêu |
-| **08/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 03/10 ⚠️: nói được "doc1 lọt qua BM25" nhưng *"lọt vào cây khác"* — thiếu **RRF trộn 2 list** + **lỗi im lặng** |
-| **07/10** | 10.11 port / adapter là gì | 02/10 ⚠️: giảng lại đúng nhưng **ngay sau khi đọc** — lần sau đóng sách hẳn |
-| **07/10** | 1.4 Recursive chunker | 05/10 ❌ không nhớ 2 bước (21/09 từng ✅) → in `size=60`: 30 mẩu vs 3 mẩu → nói đúng hậu quả. Lần sau hỏi trần |
+| **10/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 08/10 ❌ (lần 2): đoán doc1 *"không"* lọt — quên nhánh BM25 không lọc + **RRF trộn 2 list** (doc1 2015 còn xếp trên doc3 hợp lệ); ý "không báo lỗi" ✅ |
+| **14/10** | 10.11 port / adapter là gì | 09/10 ⚠️ (lên từ ❌): port ✅ · adapter chỉ nói "bộ chuyển đổi" — thiếu **dịch lời gọi của core sang API công nghệ cụ thể** |
+| **21/10** | 1.4 Recursive chunker | 07/10 ✅ hỏi trần: CẮT → GỘP + hậu quả "mẩu lẻ tẻ vô nghĩa" (gọi nhầm là "cây" — là danh sách mẩu) |
 
 **Cách ôn:** đóng sách, nói to, trả lời hết khả năng **rồi mới** mở note đối chiếu → chấm ✅/⚠️/❌ →
 ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questions.md) → hẹn lại.
@@ -313,7 +313,84 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 
 ---
 
+### 2026-10-07 (T4) ca tối 21:47-23:10 (~80', ca muộn) · **LÁT 1 MỞ** (dữ liệu)
+
+- Hụt: 06/10 chỉ 45' sáng, không ca cty/tối · 07/10 không ca sáng/cty → ~1,5 ngày trống.
+- Vấn đáp đóng sách: **1.4 ✅** (→21/10) · **10.10 ⚠️** lên từ ❌ (→12/10) · **10.11 ❌** (→09/10).
+- 10.11: Claude giảng bằng code dự án (Qdrant + `Filter`) → user *"khó hiểu quá"* ⇒ **hạ bậc** về ví dụ
+  20 dòng `Store`/`ListStore`/`DictStore`, chạy thật in ra → ép chọn a/b/c ✅ → gõ `TupleStore` ✅.
+- Lỗi cú pháp: `Class` hoa · `def __init__` gõ 2 lần. Tự bỏ `.values()` khi đổi sang tuple ✅.
+- Bỏ Cặp 19. User đòi **mở lát 1 luôn** (22:15): Claude tải Zalo Legal → `data/` (gitignore) — 61.425 điều ·
+  **788 câu test** (roadmap ghi 818 — sửa) · 793 cặp qrels. Giảng Hit@k (YouTube + bảng 3 lần tìm) → **chưa thông
+  sau 3 lượt**, quá 45' ⇒ dừng; in thật `results[:k]` k=1..3 cho đọc, không hỏi.
+- Mai sáng: **mở đầu bằng bản in `hit_show`** (1 câu, k=1..3), user tự nói Hit@1/Hit@3 → rồi gõ `hit_at_k`
+  trên 788 câu. Cộng vấn đáp Hybrid 2 nhánh. Đừng giảng Hit@k lần 4 bằng lời — cho làm.
+- User không chịu dừng → chạy thật `BM25Index` trên 61K × 100 câu: A text Hit@5 0.71 · B title+text 0.75 → vẫn
+  *"mông lung"* (dồn 5 thứ 1 lần). Hạ về **"điểm thi"** (đề 788 câu · máy khoanh k điều · đúng/sai · điểm) → user
+  tự nói **"câu đúng chia tổng câu"** ✅. Phát hiện: `BM25Index` gốc **chạy 61K không nổi** — để user tự soi (lát 1).
+- User đòi học tiếp (22:50) → gõ `hit_at_k` ([drill](../drills/hit-at-k.py)): đúng B1 đếm · B4 chia; sai `.len()`
+  + **2 vòng `for` lồng, so list `==` chuỗi, không dùng `k`** → in 9 dòng False. User xin đáp án → Claude đưa lời
+  giải + trace; user *"vẫn chưa hiểu lắm"*, dừng ~23:10. **Chưa gõ lại.** Nút thật: **list lồng list + chỉ số `i`**.
+- Mai sáng: (1) chấm tay 3 câu trên giấy · (2) in `results[i]`, `results[i][:k]`, `answers[i]` cho i=0..2 ·
+  (3) gõ lại 5 dòng từ trắng. Nếu `[i][:k]` còn rối → drill riêng list lồng 10' trước.
+
+### 2026-10-08 (T5) ca tối 21:20-22:10 (~50', ca muộn, không OT) · LÁT 1
+- Ca sáng + cty 08/10 không có. Vấn đáp Hybrid 2 nhánh **❌** (→10/10) — giảng bằng bảng RRF k=60.
+- Hit@k đoán `0 · 1/3 · 0` → lẫn 2 cặp: **"k dòng đầu" ↔ "dòng thứ k"** · **Hit 1 câu (0/1) ↔ điểm cả đề (chia)**.
+  Ép chọn 3/4 (còn hở cặp 1) → 4/4 ✅.
+- Gõ lại `hit_at_k` (vào file cũ [hit-at-k.py](../drills/hit-at-k.py)): 2 thiếu `:` · `result` thiếu `s` · `==` → `in`;
+  **tự sửa `hits = top_k + 1`** → xanh 0.333/0.666.
+- Claude nối [hit-real.py](../drills/hit-real.py): BM25 tối giản 61K × 788 câu, cache `data/zalo_legal/bm25_top10_test.json`.
+- Dừng ~22:10: user *"chưa hiểu phép toán Hit@k, tự nghiền ngẫm"*. Mẩu 5 (vòng `for` k=1,3,5,10 + đoán chiều x/y/z) chưa gõ.
+
+### 2026-10-09 (T6) — ca 16:15 (đứt quãng) + ca tối 21:10-22:30 (~1h20, user chọn "buổi mới 2h") · LÁT 1
+- Vấn đáp 10.11 **⚠️** (→14/10): port ✅ · adapter chỉ "bộ chuyển đổi" — thiếu *dịch lời gọi core sang API công nghệ cụ thể*.
+- Hit@k chấm tay 3 câu (chữ cái, có câu mẫu) ✅ sau khi đề mã dài bị *"không hiểu đề"*. Vòng `for` k=1,3,5,10: `:` · `k`↔`x` · chép `4` thay `5`.
+- Giảng toàn cảnh lát 1 (câu 7 thật: "hầm" kéo Điều 47 lên dòng 1) → giảng lại 4 bước ✅, nhưng nói *"không có xe máy"* = tưởng máy đọc nội dung — **máy chỉ so mã qrels**.
+- Câu 42: đọc đúng dòng 1 nhưng ghi Hit = **1/42** → lẫn lần 2 *1 câu ↔ cả đề* (lấy `i` làm mẫu số) → ép chọn 4/4 → [Cặp 24](./the-phan-biet.md).
+- **`hit_at_k` vào `app/evaluation/metrics.py`** — closed-book **không gõ được** ("không biết gõ gì") → Claude giảng 5 mục, user gõ **có nhìn**; thiếu `:` → **5 passed · suite 124**. Hỏi được `[:k]` là gì → in thật.
+- Baseline BM25 tối giản 788 câu: **Hit@1 0.42 · @3 0.66 · @5 0.75 · @10 0.82**.
+- Drill `:` — 2/4 rồi 3/4: **sót `else` cả 2 ván**, sót `def` 1 lần. Câu "từ khoá nào kéo Điều sai lên" bỏ qua 3 lần.
+- Học thêm 22:30-22:50 (user chưa buồn ngủ): mã giả 4 bước đóng sách ✅ (thiếu `i`) · điền ô `i=1`: **đếm từ 1** (`results[1]` → lấy hàng 0) + `[:2]` ra 1 chữ → ép chọn `[1]`/`[:1]` 4/4 · `i=2` 3/4: `results[2]` ra **`"remix"`** = lẫn **list lồng: `[2]` lấy CẢ HÀNG (1 câu) ↔ `[2][x]` lấy 1 điều**.
+- 22:55 user hỏi trễ bao nhiêu → Claude tính ~44h ≈ 29 ca XÂY (lạc quan; Hit@k thật ~2× ước) · **user chốt: GIỮ NGUYÊN kế hoạch, tự bù giờ** — tổng kết CN 11/10 chỉ đo giờ thật, không mở lại câu re-plan.
+- **T7 10/10:** xem [A0 ở chỗ dừng](#-chỗ-dừng--buổi-sau-làm-từ-đây) — (0) 3' ép chọn list lồng `results[i]` ↔ `results[i][j]` · (1) 2' ép chọn `:` có `else`/`def` · (2) **CỬA: gõ lại `hit_at_k` ĐÓNG SÁCH** vào file trắng, chạy 5 test · qua → mở **MRR** (giảng 5 mục trước). Trượt cửa → mã giả tiếng Việt 4 bước trước rồi gõ.
+
+### 2026-10-10 (T7) ca sáng 06:02-07:40 (98') · LÁT 1
+- Ép chọn list lồng 3/4 + `:` 2/2 (`def`/`else` sạch) · chỉ số↔dòng: `results[1][2]` ra `"remix"` (đếm từ 1) → ép chọn 2/2.
+- Vấn đáp 3.8 ❌ · 3.9 ❌ (→12/10, chi tiết ở bảng trên). Ép chọn IDF/phân vùng 5/6 + 2/3 → [Cặp 27](./the-phan-biet.md).
+- **CỬA `hit_at_k` đóng sách: QUA** — 4 bước logic đúng ngay; 1 gõ nhầm `hits-hits+1` · 1 `return` thụt trong `for` (tự tìm từ bản in) → 5/5.
+- MRR: giảng 5 mục → *"chưa hiểu"* → cảnh 1 câu → chấm tay cột dòng 4/4 nhưng mẫu số luôn `1/3` → ép chọn 4/4 →
+  [Cặp 26](./the-phan-biet.md). Giảng thêm: phân bố dòng thật 788 câu · Lan/Minh · vì sao `1/dòng` · reranker không làm Hit@10 nhúc nhích.
+- Gõ `mrr` vào `app/`: dòng cộng `1/(len(results)+1)` (hỏi "đề mấy câu" thay vì "đáp án ở đâu"). Claude viết 5 test MRR → **2 đỏ / 10**.
+  User tự chỉ đúng dòng cộng sai. Hết giờ, chưa sửa xong.
+- ⚠️ User nói nhiều lần **"thuật toán OK, còn mù mờ MRR khác Hit@k chỗ nào"** — 4 cách giảng chưa đọng; cách cuối: **đậu/rớt ↔ bao nhiêu điểm**.
+- **Tối nay bắt đầu:** (0) 2 ô Hit/MRR của sếp (đã hỏi cuối ca sáng) · (1) sửa cụm `len(results)` → `.index` → 10 passed ·
+  (2) chạy `mrr` trên 788 câu thật cạnh Hit@1/3/5/10 — **để số thật làm rõ khái niệm** · rồi mới BUG CỐ Ý theo A0.
+
+---
+
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
+
+### A0. ⭐ T7 10/10 — 6h (sáng 2h + tối 4h) · user chốt: **ĐÓNG MRR + NDCG@10** (đủ 6 bước mỗi cái)
+
+| Ca | Phút | Việc |
+|---|---|---|
+| Sáng | 5' | Ép chọn list lồng (`results[i]` ↔ `results[i][j]`) + `:` (`else`/`def`) |
+| | 10' | Vấn đáp **3.8 BM25** (hỏi chiều IDF bằng 2 chữ thật) · **3.9 tenant** (hỏi cả câu 3.9) |
+| | 15' | **CỬA:** gõ `hit_at_k` đóng sách vào file trắng → 5 test. Trượt → mã giả 4 bước rồi gõ |
+| | 80' | **MRR ca 1** — giảng 5 mục · ép chọn **dòng đếm từ 1 ↔ chỉ số đếm từ 0** · chấm tay bảng chữ cái · gõ vào `app/evaluation/metrics.py` (CODE TAY) · Claude viết test → suite xanh |
+| | 10' | Note |
+| Tối | 10' | Vấn đáp **3.5 RRF** (cosine trần bao nhiêu, BM25 trần bao nhiêu) · **Hybrid 2 nhánh** |
+| | ~120' | **MRR ca 2** — BUG CỐ Ý (Claude cài lỗi logic) → user DEBUG + FIX · chạy 788 câu thật, đọc MRR cạnh Hit@k · **gõ lại đóng sách** · DOCUMENT → **MRR ĐÓNG** |
+| | ~110' | **NDCG@10** — giảng 5 mục (DCG · `log2` · IDCG · nhiều điều đúng) · chấm tay · gõ vào `app/` · test · chạy 788 câu. Không kịp đóng → **phần còn dở làm nốt CN** (đã mở T7, không tính là "mới") · nghỉ 10' mỗi ~1h |
+
+### A0b. CN 11/10 — 6h · **KHÔNG kỹ thuật mới** (user chốt): ôn + trace + luyện code + việc cho bớt chán
+- Tổng kết tuần 10-20' (roadmap §4): giờ thật Hit@k / MRR / NDCG · số vấn đáp · số lần tắc.
+- Gõ lại đóng sách `hit_at_k` · `mrr` · `ndcg_at_k` (spaced, cách ≥12h) · vấn đáp các câu ⚠️/❌ còn treo.
+- Trace đường đi thật 1 câu: cây lọc → `HybridRetriever` → 2 nhánh → RRF (vá câu Hybrid ❌ 2 lần).
+- **Cho bớt chán:** "đố máy" — user tự gõ câu hỏi đời thường (vd phạt vượt đèn đỏ) → BM25 trả top-5 → user tự chấm bằng mắt, so MRR.
+- **T2 12/10:** mục mới kế tiếp của lát 1 = **A/B harness** (vẫn lát 1, chưa sang lát 2).
+
 
 ### A. Từ 29/09 — ca sáng + tối CỐ ĐỊNH chạy cột X · ca công ty KHÔNG cố định chạy cột N
 

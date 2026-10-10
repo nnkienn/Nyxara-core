@@ -503,6 +503,36 @@ Bệnh: chép nguyên `to_and_clause`/`to_or_clause` sang `matches` → ra `{'mu
 Bệnh: hỏi 10.10 thì trả lời "lọc trước cắt sau" — đều là "BM25 + lọc" nên lẫn. Lần sau: ép chọn 2 ô
 *"câu này hỏi về THỨ TỰ trong 1 nhánh hay DẠNG chuyền giữa 2 nhánh?"*, cấm giảng.
 
+## Cặp 24 — Hit của **MỘT câu** (0/1) vs Hit@k của **CẢ ĐỀ** (chia)  (lát 1, 08/10 + 09/10)
+
+| | một câu | cả đề |
+|---|---|---|
+| ra gì | **0 hoặc 1**, không bao giờ có phép chia | số trúng / **tổng số câu (788)** |
+| code | `answers[i] in results[i][:k]` | `hits / len(results)` |
+
+Bệnh: 08/10 đề 1 câu ra `1/3` · 09/10 câu 42 ra `1/42` (lấy số thứ tự `i` làm mẫu số). Cặp phụ cùng bài:
+**"k dòng ĐẦU" (`[:k]`) ↔ "dòng THỨ k" (`[k-1]`)** — 08/10 ra Hit@3 = 0 khi đáp án ở dòng 2. Ép chọn 4/4 cả hai.
+
+## Cặp 25 — dòng **CẦN `:`** vs dòng **KHÔNG `:`**  (09/10, thiếu `:` 4 lần trong 2 ngày)
+
+Cần `:` = dòng **mở khối thụt lề**: `def` · `class` · `for` · `while` · `if` · `elif` · **`else`**. Kiểm: dòng dưới thụt vào thêm?
+Bệnh: sót **`else`** 2/2 ván (chữ ngắn, không điều kiện → tưởng không mở khối) · sót `def` 1 lần.
+
+## Cặp 26 — MRR: mẫu số 1 câu = **DÒNG CỦA ĐÁP ÁN** vs **TỔNG SỐ DÒNG (k) / số câu**  (lát 1, 10/10)
+
+| | đúng | bệnh |
+|---|---|---|
+| điểm 1 câu | `1 / dòng của điều đúng` (dòng 2 → 1/2) | `1 / k` (mọi câu 1/3) · code `1/(len(results)+1)` |
+| hậu quả | dòng 1 ≠ dòng 3 | câu nào trúng cũng bằng điểm → **MRR thành Hit@k × hằng số** |
+
+Kèm: chia cho **tổng số câu**, không phải "số câu đúng" (100 câu trượt 99 → 0.01, không phải 1.0). Ép chọn 4/4.
+Neo khái niệm: **Hit@k = đậu/rớt · MRR = bao nhiêu điểm**.
+
+## Cặp 27 — IDF của **một chữ HIẾM đứng một mình** (10/10)
+
+So 2 chữ cụ thể thì đúng 3/3, nhưng hỏi một chữ hiếm đứng riêng (`"ma túy"` 40 điều · "càng ít điều") thì chọn **thấp** 2/2 — chữ "ít" kéo sang "thấp".
+Neo: **IDF = độ HIẾM → hiếm CAO · rác THẤP** (`"của"` 0.0165 · `"karaoke"` 9.31). User tự nói: đọc nhầm.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
