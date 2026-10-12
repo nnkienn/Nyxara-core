@@ -66,10 +66,12 @@ thay việc làm bằng một vòng hỏi-đáp. Đầu mỗi mẩu Claude nói 
 
 1. **Mỗi lượt MỘT việc:** 1 ý + ví dụ ngắn + **đúng 1 câu hỏi đề đầy đủ** (dữ liệu cụ thể · 1 ô · dạng trả lời), chờ trả
    lời. Giữ 1 bộ dữ liệu, đổi 1 yếu tố/lần. Không hỏi dồn phép tính vụn mà không nối thành ý nghĩa. "Rối/dài" → dừng, về 1 ví dụ.
+   **Câu hỏi tự đứng được (12/10):** viết thành câu hoàn chỉnh, **chép lại đủ dữ liệu + bối cảnh + đang hỏi khái niệm gì** dù phía trên đã có; cấm hỏi cụt.
 2. **Giải thích đủ trước, câu nhắc ngắn sau.** Mỗi khái niệm nói rõ: **đầu vào** là gì · đang xử lý **1 kết quả / 1 danh sách
    / nhiều lần tìm** · **thao tác** cụ thể · **giá trị cuối** nghĩa là gì. Khẩu quyết chỉ rút ra SAU khi user hiểu ví dụ.
 3. **Không từ mơ hồ:** nói đủ đối tượng — *dừng tìm thêm vị trí để tính RR* (không "dừng") · *tổng số lần tìm* (không "chia
    tổng") · *vị trí của kết quả đúng đầu tiên* · **chỉ số** (Python, từ 0) ↔ **thứ hạng** (từ 1). Cấm "nó", "dòng". Ẩn dụ chỉ khi có cảnh.
+   **Thuật ngữ khó dịch giữ tiếng Anh** (IDCG · ideal ranking · discount…) + giải thích nghĩa; cấm tự chế tên Việt (12/10).
 4. **Báo rõ khi chuyển khái niệm** ("câu ôn MRR để so với NDCG, chưa tính NDCG"). Không đổi cùng lúc thuật ngữ + bối cảnh +
    cấu trúc dữ liệu; đổi bối cảnh (bài hát → điều luật) thì nói rõ cái gì ứng với cái gì.
 5. **Sai lặp → sửa lỗi HIỂU trước, luyện nói sau:** chỉ ra đang trộn 2 đối tượng nào → 1 ví dụ tách ra → kiểm bằng tình huống

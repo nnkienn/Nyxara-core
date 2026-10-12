@@ -533,6 +533,12 @@ Neo khái niệm: **Hit@k = đậu/rớt · MRR = bao nhiêu điểm**.
 So 2 chữ cụ thể thì đúng 3/3, nhưng hỏi một chữ hiếm đứng riêng (`"ma túy"` 40 điều · "càng ít điều") thì chọn **thấp** 2/2 — chữ "ít" kéo sang "thấp".
 Neo: **IDF = độ HIẾM → hiếm CAO · rác THẤP** (`"của"` 0.0165 · `"karaoke"` 9.31). User tự nói: đọc nhầm.
 
+## Cặp 28 — `results` (**CẢ BỘ**, list các list) vs `top_k` (**1 LẦN TÌM**, list chuỗi)  (lát 1, 11/10)
+
+Viết `results.index(answers[i])` **3 lần** (ChatGPT 10/10 · `app/` tối 10/10 · cửa MRR 11/10) → `ValueError: not in list`.
+Gốc: nói `results[0]` là "chuỗi" — đúng là **danh sách** `["dieu_5", ...]`. Ép chọn 2/2: `"c" in [["a","b"],["c","d"]]` → False · `["c","d"] in ...` → True.
+Neo: **tìm chuỗi thì tìm trong `top_k`** — `results` chỉ chứa danh sách.
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |

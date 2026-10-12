@@ -384,6 +384,20 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - **CN 11/10 bắt đầu từ:** (1) *"Kiểm tra lại Hit@k và MRR, không gợi ý trước"*: lời → tính tay dữ liệu MỚI → tự viết 2 hàm → trace (hẹn với ChatGPT) ·
   (2) NDCG: user giảng lại DCG bằng ví dụ A/B/C → IDCG từng bước (hỏi giá trị thứ hạng 2 trong danh sách lý tưởng trước) → NDCG 0.92 · chưa code.
 
+### 2026-10-11 (CN) — chỉ có cửa MRR, không ghi note hôm đó
+- CỬA `mrr` đóng sách [mrr-cua-1110.py](../drills/mrr-cua-1110.py) **5/5** (chạy lại 12/10) → **MRR ĐÓNG**. Thêm [Cặp 28](./the-phan-biet.md) (`results` ↔ `top_k`).
+
+### 2026-10-12 (T2) ca tối 20:51-23:25 · LÁT 1 · NDCG khái niệm, chưa code
+- Quên công thức DCG (chỉ nhớ "xét cả vị trí sau") → giảng lại → DCG [B,A,C] = 1.13 ✅ (ra phép tính, thiếu số).
+- **IDCG: lỗi "= 2" (quên discount) tái phát lần 2** → sửa → chó/mèo/gà tự áp discount ✅. Lẫn DCG↔IDCG 1 lần (chấm list máy thay ideal ranking).
+- Câu P/Q (cùng DCG, khác số đáp án) chọn sai P → ẩn dụ Nam 8/10 vs Hoa 8/100 → hiểu.
+- Phỏng vấn: câu 1 NDCG vs MRR ⚠️→✅ (ví dụ đầu sai cặp, tự nghĩ cặp chó/mèo đúng) · câu 2 vì sao chia IDCG ⚠️ (ý đúng, thiếu số retrieval) · câu 3 IDCG tính thế nào: user mệt, Claude đưa đáp án.
+- CLAUDE.md §5.1 + §5.3: câu hỏi tự đứng được · giữ thuật ngữ tiếng Anh (user yêu cầu). Lỗi Claude: 1 bộ số 2b chọn sai.
+- **Sáng 13/10 bắt đầu từ:** gõ `ndcg_at_k` vào `app/` theo 4 mẩu, mỗi mẩu kèm 1 câu định nghĩa: (1) điểm 1 thứ hạng `1/log2(r+1)`, chỉ số→thứ hạng
+  (nối MRR `index+1`) · (2) DCG 1 lần tìm = cộng mọi kết quả đúng (vs MRR dừng ở cái đầu) · (3) IDCG = DCG ideal ranking, `min(số đáp án, k)` ô
+  · (4) NDCG từng lần → chia **tổng số lần tìm** (giống Hit@k/MRR). ⚠️ `answers` thành list các list (nhiều đáp án/lần tìm) ·
+  ôn 3.8 / 10.10 / 3.9 dời sang tối 13/10 · câu 3 phỏng vấn (IDCG 2 đáp án) hỏi lại không gợi ý.
+
 ---
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
