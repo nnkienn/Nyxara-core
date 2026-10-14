@@ -3,10 +3,12 @@
 
 def hit_at_k(results: list[list[str]], answers: list[str], k: int) -> float:
     hits = 0 
-    for i in range(len(results)):
-        top_k = results[i][:k]
-        if answers[i] in top_k:
-            hits= hits+1
+    for answer in answers[i]:
+        for i in range(len(results)):
+            top_k = results[i][:k]
+            if answer in top_k:
+                hits= hits+1
+                break
     return hits / len(results)
 def mrr(results: list[list[str]], answers: list[str], k: int) -> float:
     total_rr = 0 

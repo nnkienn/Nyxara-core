@@ -12,12 +12,12 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **12/10** | 3.8 BM25 khớp theo cái gì | 10/10 ❌: IDF `"của"` cao (lần 2, user: đọc nhầm) · câu rỗng "không biết" · thiếu độ dài + mặt chữ. Lần sau: hỏi **1 chữ hiếm đứng một mình** ([Cặp 27](./the-phan-biet.md)) + đòi lại ví dụ `xe máy`↔`mô tô` |
+| **16/10** | 3.8 BM25 khớp theo cái gì | 14/10 ❌: IDF "xuất hiện nhiều → cao" (**lần 3**) · câu rỗng trống · nhánh vector "để lọc trước" (sai) · thiếu độ dài. Lần sau: khung 3 dòng đóng sách + 1 chữ hiếm đứng một mình ([Cặp 27](./the-phan-biet.md)) |
 | **12/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 07/10 ⚠️ (lên từ ❌): (a) BM25 không hiểu dict Qdrant ✅ · (b) chỉ nói "cấu trúc khác, không dịch được" — **chưa gọi tên chỗ phải sửa** (`HybridRetriever` thay vì chỉ thêm adapter). Lần sau hỏi thẳng "đổi Postgres thì sửa file nào"
 | **12/10** | 3.9 tenant filtering | 10/10 ❌: lý do bảo mật ✅ nhưng nói **"cùng cơ chế qua filter"** — BM25 **phân vùng** khoá dict, Qdrant **lọc** (lỗi 18/09 tái phát). Ép chọn sau đó 2/2. Lần sau: hỏi lại nguyên câu |
 | **15/10** | 3.5 RRF | 10/10 ⚠️: tự nói "không cùng đơn vị" + tính đúng `1/62+1/61`, nhưng tưởng BM25 trần = 1 (in thật mới lật) · lỡ nói "RRF bỏ vector" (đúng: bỏ ĐIỂM, giữ rank 2 nhánh). Lần sau: hỏi trần không gợi ý |
 | **15/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 10/10 ✅ (lên từ ❌×2) trên ví dụ cố định d1/d2/d3: d2 2015 **có** lọt · sửa = BM25 lọc trước RRF · cắt top_k trước lọc → sót d1. Hẹn ngắn để kiểm lại **không ví dụ dựng sẵn** |
-| **14/10** | 10.11 port / adapter là gì | 09/10 ⚠️ (lên từ ❌): port ✅ · adapter chỉ nói "bộ chuyển đổi" — thiếu **dịch lời gọi của core sang API công nghệ cụ thể** |
+| **16/10** | 10.11 port / adapter là gì | 14/10 ❌ đóng sách trống; nói lại sau câu mẫu: "kết quả thô **của core**" (đúng: của Qdrant) · "**sửa** 1 chỗ" (đúng: viết thêm adapter) · ví dụ Qdrant chưa nêu nó dịch gì |
 | **21/10** | 1.4 Recursive chunker | 07/10 ✅ hỏi trần: CẮT → GỘP + hậu quả "mẩu lẻ tẻ vô nghĩa" (gọi nhầm là "cây" — là danh sách mẩu) |
 
 **Cách ôn:** đóng sách, nói to, trả lời hết khả năng **rồi mới** mở note đối chiếu → chấm ✅/⚠️/❌ →
@@ -397,6 +397,28 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   (nối MRR `index+1`) · (2) DCG 1 lần tìm = cộng mọi kết quả đúng (vs MRR dừng ở cái đầu) · (3) IDCG = DCG ideal ranking, `min(số đáp án, k)` ô
   · (4) NDCG từng lần → chia **tổng số lần tìm** (giống Hit@k/MRR). ⚠️ `answers` thành list các list (nhiều đáp án/lần tìm) ·
   ôn 3.8 / 10.10 / 3.9 dời sang tối 13/10 · câu 3 phỏng vấn (IDCG 2 đáp án) hỏi lại không gợi ý.
+
+### 2026-10-13 (T3) ca công ty từ 16:41 (~25', vừa làm task cty) · LÁT 1 · ôn Hit@k + MRR tính tay
+- ⚠️ User báo CN 11/10 + T2 12/10 **có học**, nhưng `origin/main` vẫn dừng ở 10/10 → **máy nhà chưa push**. Tối nay push rồi bổ sung nhật ký 2 buổi đó.
+- Hit@k: *"không nhớ"* → nhắc 1 ví dụ → Hit@2/Hit@3 đúng ngay.
+- RR: lần đầu trả **2/5** (lấy độ dài danh sách làm mẫu số) → giảng → 1/3 ✅ → ép chọn tình huống mới 1/4 ✅.
+- MRR cả bộ: lần trượt RR=0 ✅ (sau 1 lần sai ghi RR=1) · đổi k=5→3 **quên tính lại RR lần 2** (đề ghi k lẫn trong câu — Claude: từ giờ k đặt trong khung dữ liệu).
+- **Lỗi lặp 2 lần: ghi THỨ HẠNG vào chỗ RR** ("lần 2 là 4", "lần 4 RR = 2"). User: gõ nhầm do đang làm task. Kiểm: RR luôn ≤ 1. Hay gọi `mrr@1/2/3` cho từng lần tìm (lẫn `@k` ↔ lần tìm).
+- NDCG (`[D,A,C,B,E]`, đúng A+C): chọn log đúng nhưng **cộng log** (1.58+2) → giảng "1 ÷ log" → tính sai 5.58 (đang làm task).
+  User tự nói *"nhầm DCG/IDCG/NDCG"* → bảng 3 cột (câu hỏi gì · danh sách nào) → ép chọn **3/3** → IDCG = 1 + 0.63 = 1.63 ✅
+  (**hết lỗi 10/10** quên giảm giá thứ hạng 2) → NDCG = 1.13/1.63 ≈ 0.69 ✅.
+- **Lỗi gốc của cả buổi (3 lần): đưa SỐ CHIA vào chỗ ĐIỂM** — thứ hạng↔RR (2 lần), log↔điểm (1 lần). Kiểm: điểm 1 văn bản đúng luôn ≤ 1.
+- +10' cuối: MRR tình huống mới (k=3, 1 lần trượt) **4 RR đúng sạch** → MRR tính tay QUA (nhưng 3 lần dừng ở RR, không chia ra số MRR cuối).
+- NDCG mới không gợi ý (`[P,Q,R]`, đúng Q) ❌: DCG = **1.58** (số chia, lần 4) · IDCG = 1.58 (**không đưa Q lên đầu** danh sách lý tưởng) · NDCG = 1.
+- **Lần sau:** NDCG dữ liệu mới không gợi ý lần nữa — kiểm riêng 2 chỗ: điểm = 1 ÷ log · danh sách lý tưởng **xếp lại** đúng lên đầu. Sạch → gõ `ndcg_at_k` vào `app/`.
+
+### 2026-10-14 (T4) ca công ty từ 08:54 (đứt quãng) · LÁT 1
+- Máy cty: test đã đổi sang **danh sách văn bản đúng / lần tìm** (`[["a"], ...]`), `hit_at_k`/`mrr` chưa theo → 10 đỏ. `origin` vẫn chưa có buổi 11-12/10.
+- Mẩu 1 NDCG không gợi ý (`[M,N,P,Q]`, đúng N+Q, k=4) ✅: điểm = 1 ÷ log ✅ · lý tưởng `[N,Q,M,P]` ✅ · NDCG = 1.06/1.63 ✅ + nghĩa "so với danh sách hoàn hảo" ✅.
+  **Hết cả 2 lỗi 13/10.** Còn: 3/3 ô dừng ở công thức, không ra số cuối (≈0.65).
+- Mẩu 2 vấn đáp 10.11 ❌ (+2 → 16/10). User yêu cầu: ôn phỏng vấn giảng câu mẫu nghiêm túc, không đố (a)/(b)/(c).
+  Hỏi cách nhớ lâu → rút **khung 3 dòng** + chuỗi neo `VectorStore.search → QdrantStore → query_points → SearchHit`. Nói lại 3 dòng ✅ sạch (thiếu tên ví dụ). 16/10 kiểm đóng sách bằng khung này.
+- Vấn đáp 3.8 ❌ (+2 → 16/10): IDF sai chiều lần 3. Ép chọn `"ma túy"` 40/61K → cao ✅. Nói lại khung 3 dòng ✅, **tự lấy ví dụ mới** `ma túy đá`↔`methamphetamine` (gọi nhầm "ketamin").
 
 ---
 
