@@ -420,6 +420,16 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   Hỏi cách nhớ lâu → rút **khung 3 dòng** + chuỗi neo `VectorStore.search → QdrantStore → query_points → SearchHit`. Nói lại 3 dòng ✅ sạch (thiếu tên ví dụ). 16/10 kiểm đóng sách bằng khung này.
 - Vấn đáp 3.8 ❌ (+2 → 16/10): IDF sai chiều lần 3. Ép chọn `"ma túy"` 40/61K → cao ✅. Nói lại khung 3 dòng ✅, **tự lấy ví dụ mới** `ma túy đá`↔`methamphetamine` (gọi nhầm "ketamin").
 
+### 2026-10-14 (T4) ca tối ~21:00-22:20 · LÁT 1 · `hit_at_k` + `mrr` theo answers list-các-list · `ndcg_at_k` vào `app/` · **139 passed**
+- Merge máy nhà (11-12/10) + máy cty (14/10). `hit_at_k`: đảo vòng ✅ · `answers` ↔ `answers[i]` (lần 1) · `break` ngang `if` → sửa ✅.
+- `mrr`: đoán duyệt theo `answers[i]` ra **1/2** (thật 1/3) → hiểu phải duyệt `top_k` ✅ · lại `doc in answers` (**lần 2** lẫn list-các-list) · `index(answers[i])` → `doc` ✅ · thiếu `break` → sửa ✅.
+- `ndcg_at_k` 3 mẩu, **Claude dẫn từng bước — CHƯA phải tự viết**: `for i in results` (lặp list thay chỉ số) · quên `+1` thứ hạng, rồi sửa
+  sai cả công thức thành `log2(rank)` (bù trừ, chia 0) · `dcg = 0` ngoài vòng ✅ tự chọn đúng · IDCG nói miệng "1 + 1/2" (**lẫn RR của MRR, lần 2 sau 13/10**)
+  → ca k=3 tự đọc công thức đúng ✅ · cú pháp: `for x in số` / `range(len(số)` / `math.log` ↔ `log2` / `lo2` / `answer` thiếu s (**2 lần**).
+- Nyxara Care: tạo repo **`nyxara-care`** (private) + AGENTS.md 11 task cho Codex · **T1 xong** (khung + Docker + `/health`). Trước lát 1 đóng → chỉ Codex dựng, không ăn giờ XÂY.
+- **Sáng 15/10 bắt đầu từ:** CỬA đóng sách `ndcg_at_k` file trắng (mã giả tiếng Việt 4 bước trước) → giảng lại 3 metric bằng khung 3 dòng
+  → Claude cài BUG CỐ Ý vào `metrics.py` (bước 2/6). Cặp mới cho [the-phan-biet](./the-phan-biet.md): `answers` ↔ `answers[i]` · RR `1/rank` ↔ điểm NDCG `1/log2(rank+1)`.
+
 ---
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
