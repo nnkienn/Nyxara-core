@@ -1,5 +1,7 @@
 """Retrieval metrics — chấm điểm danh sách máy khoanh so với đáp án (lát 1)."""
 
+import math
+
 
 def hit_at_k(results: list[list[str]], answers: list[list[str]], k: int) -> float:
     hits = 0 
@@ -21,3 +23,7 @@ def mrr(results: list[list[str]], answers: list[list[str]], k: int) -> float:
                 total_rr += rr
                 break
     return total_rr / len(results)
+
+
+def ndcg_at_k(results: list[list[str]], answers: list[list[str]], k: int) -> float:
+    raise NotImplementedError
