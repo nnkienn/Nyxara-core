@@ -69,7 +69,7 @@
 | 3.5 | 🟡 | RRF gộp kết quả bằng cách nào? Vì sao dùng **thứ hạng** chứ không dùng **điểm số**? | phan-biet Cặp 5 | ⚠️ 05/10 → hẹn **10/10** *(công thức + số hạng đúng; lý do: tưởng cosine và BM25 "cùng đại lượng" — thiếu **khác thang đo, BM25 không trần**)* |
 | 3.6 | 🔴 | RRF có hằng số `k` — nó làm gì? Đặt quá nhỏ / quá lớn thì sao? | algorithms | ⬜ |
 | 3.7 | 🔴 | Nếu `doc_count` của BM25 bị đếm sai, kết quả xếp hạng sai kiểu gì? Ai phát hiện ra? | bug #29 | ⬜ |
-| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ❌ 10/10 → hẹn **12/10** *(IDF sai chiều lần 2 · câu rỗng không biết)* |
+| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ❌ 14/10 → hẹn **16/10** *(IDF sai chiều lần 3 · câu rỗng trống · nhánh vector "để lọc trước")* |
 | 3.9 | 🔴 | `tenant_id` chặn tài liệu tenant khác — ở nhánh Qdrant và nhánh BM25 là **cùng một cơ chế** không? Nêu tên file/dòng. | phan-biet Cặp 15 | ❌ 10/10 → hẹn **12/10** *(lại nói "cùng cơ chế" — lỗi 18/09; trước đó 05/10 thiếu vì sao; 18/09 ❌ nói BM25 "search xong mới lọc", thực ra PHÂN VÙNG bằng khoá dict)* |
 
 ## 4. Reranking
@@ -279,3 +279,5 @@ Mỗi vòng ghi 1 dòng. Chỉ tính câu **đã đóng tài liệu trả lời 
 | 2026-10-08 (tối muộn) | Hybrid chuyền cây 2 nhánh | 0 | 0 | 1 | ❌ lần 2: đoán doc1 (2015) *không* lọt — quên BM25 không lọc + **RRF trộn 2 list** (doc1 còn xếp trên doc3 hợp lệ); "không báo lỗi" ✅ (+2 → 10/10) |
 | 2026-10-09 (ca tối) | port/adapter (10.11) | 0 | 1 | 0 | 10.11 ⚠️: port ✅ · `VectorStore` port / `QdrantStore` adapter / đổi DB viết thêm adapter ✅ · adapter chỉ "bộ chuyển đổi" — thiếu **dịch lời gọi core sang API công nghệ** (+5 → 14/10) |
 | 2026-10-10 (ca sáng) | BM25 (3.8) · tenant (3.9) | 0 | 0 | 2 | 3.8 ❌: TF ✅, IDF mờ, thiếu độ dài + mặt chữ · IDF `"của"` **cao** (sai chiều lần 2) · câu rỗng "không biết" → đáp `xe máy`↔`mô tô` (+2 → 12/10) · 3.9 ❌: nói **"cùng cơ chế qua filter"** (= lỗi 18/09; BM25 phân vùng khoá dict) · lý do bảo mật ✅ (+2 → 12/10). Ép chọn sau đó 5/6 + 2/3 |
+| 2026-10-14 (ca công ty) | port/adapter (10.11) | 0 | 0 | 1 | 10.11 ❌ đóng sách "không nhớ". Nghe câu mẫu xong nói lại: đủ 3 phần + "dịch 2 chiều" ✅ · sai: chiều ra nhận kết quả thô **"của core"** (đúng: của công nghệ/Qdrant) · "đổi pgvector **sửa** 1 chỗ" (đúng: **viết thêm** adapter, core không sửa) · ví dụ Qdrant chỉ gán nhãn. Nói lại ngay sau khi nghe ≠ nhớ (+2 → 16/10) |
+| 2026-10-14 (ca công ty) | BM25 (3.8) | 0 | 0 | 1 | 3.8 ❌: mặt chữ ✅ · TF ✅ · IDF "xuất hiện nhiều → cao" (**sai chiều lần 3**, tự mâu thuẫn với "từ không giá trị") · thiếu độ dài · câu rỗng trống · nhánh vector "để lọc trước khi tìm" (sai: vector để khớp NGHĨA) (+2 → 16/10) |
