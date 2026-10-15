@@ -10,37 +10,38 @@ NAMES = ["an", "binh"]
 
 
 # 1. Thêm vào dict  SCORES  khoá "chi" với giá trị 5  (một dòng, ngoặc vuông + dấu =; KHÔNG gán cho biến khác)
-# ✍️
-SCORES_STEP_1 = None   # ← xoá cả dòng này, gõ dòng của bạn thay vào
+
+SCORES["chi"] = 5
 
 # 2. Đổi điểm của "an" trong  SCORES  thành 8  (một dòng)
 # ✍️
-SCORES_STEP_2 = None   # ← xoá cả dòng này, gõ dòng của bạn thay vào
+
+SCORES["an"] = 8
 
 # 3. Lấy các KHOÁ của  SCORES  thành một list, cất vào biến  people   -> ra ["an", "binh", "chi"]
 # ✍️
-people = None
+people = list(SCORES.keys())
 
 # 4. Lấy list nằm dưới khoá "or" của  PRED , cất vào biến  children   -> ra list 2 dict con
 # ✍️
-children = None
 
+children = PRED["or"]
 # 5. Lấy dict con THỨ HAI trong  children , cất vào biến  second   -> ra {"gte": ["nam", 2020]}
 # ✍️
-second = None
+second = children[1]
 
 # 6. Lấy số 2020 từ  second , cất vào biến  year   (bóc 2 lớp: khoá "gte" rồi vị trí)
 # ✍️
-year = None
+year = second["gte"][1]
 
 # 7. Tạo list MỚI  bigger  = NAMES nối thêm "chi" bằng DẤU +  (NAMES phải giữ nguyên 2 tên)
 # ✍️
-bigger = None
+bigger = NAMES + ["chi"]
 
 # 8. Dùng .append nhét "dung" vào  bigger  (một dòng, KHÔNG có dấu =)
 #    rồi ở dòng dưới: cất  len(bigger)  vào biến  count   -> ra 4
 # ✍️
-count = None
+count = bigger.append("dung")
 
 
 # 9. Viết hàm  collect_ops : nhận list các dict con, trả LIST các khoá ngoài cùng của từng con
@@ -48,15 +49,29 @@ count = None
 #    (list rỗng + for + list(...keys())[0] + append trên DÒNG RIÊNG + return tên list)
 # ✍️
 def collect_ops(items: list) -> list:
-    return None
-
+    array = []
+    for child in items:
+        key = list(child.keys())[0]
+        array.append(key)    
+    return array
 
 # 10. Viết hàm  count_letters : nhận một chuỗi, trả DICT đếm mỗi chữ xuất hiện mấy lần
 #     vd count_letters("aba") -> {"a": 2, "b": 1}
 #     (dict rỗng + for + if chữ đã có trong dict thì +1, không thì gán 1 + return)
 # ✍️
 def count_letters(text: str) -> dict:
-    return None
+    count = 0
+    dict={}
+    for index in text:
+        if index in text:
+           dict = {"index" : count + 1}
+        else:
+            
+            
+
+            
+            
+    return {i : count}
 
 
 # ═══════ TỪ ĐÂY XUỐNG LÀ CỦA CLAUDE — ĐỪNG SỬA ══════════════════
