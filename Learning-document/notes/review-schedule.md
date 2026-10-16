@@ -12,12 +12,12 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **16/10** | 3.8 BM25 khớp theo cái gì | 14/10 ❌: IDF "xuất hiện nhiều → cao" (**lần 3**) · câu rỗng trống · nhánh vector "để lọc trước" (sai) · thiếu độ dài. Lần sau: khung 3 dòng đóng sách + 1 chữ hiếm đứng một mình ([Cặp 27](./the-phan-biet.md)) |
-| **12/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 07/10 ⚠️ (lên từ ❌): (a) BM25 không hiểu dict Qdrant ✅ · (b) chỉ nói "cấu trúc khác, không dịch được" — **chưa gọi tên chỗ phải sửa** (`HybridRetriever` thay vì chỉ thêm adapter). Lần sau hỏi thẳng "đổi Postgres thì sửa file nào"
+| **21/10** | 3.8 BM25 khớp theo cái gì | 16/10 ⚠️ (lên từ ❌): mặt chữ · TF · IDF · độ dài ✅ · **IDF chữ hiếm 40/61K → cao ✅ (lần đầu đúng chiều đóng sách)**. Sai: rỗng "vì IDF = 0" (đúng: **không điều nào chứa chữ → 0 ứng viên được chấm**) · ví dụ `ma túy đá` không rỗng (tách `ma`/`túy`/`đá` đều có trong sổ — chạy thật kho 3 điều: điều "khai thác đá" đứng đầu). Câu kiểm `chất methamphetamine` ✅ không rỗng nhờ `chất` (chưa nêu tên điều + điểm thấp). Lần sau: ví dụ rỗng = `methamphetamine` · ví dụ "trả về nhưng sai điều" = `ma túy đá` |
+| **21/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 16/10 ⚠️ (giữ như 07/10): (a) BM25 không hiểu ✅ · (b) "không có chỗ đổi" — **lần 2 chưa gọi tên file** (đúng: sửa `HybridRetriever` trong core + `PgVectorStore` phải đọc cú pháp Qdrant). Trả lời 1 câu, quá ngắn. Claude giảng sơ đồ 2 nhánh + câu mẫu |
 | **20/10** | 3.9 tenant filtering | 15/10 ⚠️ (lên từ ❌): "không cùng cơ chế" ✅ · bảo mật ✅ · BM25 thiếu chữ **phân vùng** (`self.index[tenant_id]`), lẫn với `filter_tree` · thiếu ý post-filter làm `top_k` rỗng. Lần sau: hỏi lại nguyên câu |
 | **20/10** | 3.5 RRF | 15/10 ⚠️: công thức ✅ · khác đại lượng ✅ · BM25 trần "2" (10/10 nói 1) — **không có trần**, cộng theo số chữ query · hậu quả mơ hồ, thiếu "BM25 lấn át vector". Nói lại câu mẫu 3/4 (thiếu giới hạn, gọi "nhánh Qdrant"). Ca X/Y (10 chữ × 1 BM25 + cosine) ❌: lấy 1 điểm cho cả văn bản → "cosine quyết định". **20/10: làm lại ca P/Q (6 chữ × 1.5, cosine 0.40 vs 0.98) TRƯỚC khi hỏi 3.5** |
 | **15/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 10/10 ✅ (lên từ ❌×2) trên ví dụ cố định d1/d2/d3: d2 2015 **có** lọt · sửa = BM25 lọc trước RRF · cắt top_k trước lọc → sót d1. Hẹn ngắn để kiểm lại **không ví dụ dựng sẵn** |
-| **16/10** | 10.11 port / adapter là gì | 14/10 ❌ đóng sách trống; nói lại sau câu mẫu: "kết quả thô **của core**" (đúng: của Qdrant) · "**sửa** 1 chỗ" (đúng: viết thêm adapter) · ví dụ Qdrant chưa nêu nó dịch gì |
+| **21/10** | 10.11 port / adapter là gì | 16/10 ⚠️ (lên từ ❌): định nghĩa port/adapter ✅ · dịch 2 chiều ✅ · đổi DB = **thêm** adapter ✅ · tự thêm test bằng fake + cái giá ✅. **Thiếu cả phần ví dụ** (lần 2): không nêu `VectorStore`/`QdrantStore`, `query_points`, `SearchHit`; "dịch thô ngược lên" thiếu "của Qdrant → `SearchHit`". Lần sau: bắt đầu câu trả lời BẰNG ví dụ |
 | **21/10** | 1.4 Recursive chunker | 07/10 ✅ hỏi trần: CẮT → GỘP + hậu quả "mẩu lẻ tẻ vô nghĩa" (gọi nhầm là "cây" — là danh sách mẩu) |
 
 **Cách ôn:** đóng sách, nói to, trả lời hết khả năng **rồi mới** mở note đối chiếu → chấm ✅/⚠️/❌ →
@@ -429,6 +429,19 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - Nyxara Care: tạo repo **`nyxara-care`** (private) + AGENTS.md 11 task cho Codex · **T1 xong** (khung + Docker + `/health`). Trước lát 1 đóng → chỉ Codex dựng, không ăn giờ XÂY.
 - **Sáng 15/10 bắt đầu từ:** CỬA đóng sách `ndcg_at_k` file trắng (mã giả tiếng Việt 4 bước trước) → giảng lại 3 metric bằng khung 3 dòng
   → Claude cài BUG CỐ Ý vào `metrics.py` (bước 2/6). Cặp mới cho [the-phan-biet](./the-phan-biet.md): `answers` ↔ `answers[i]` · RR `1/rank` ↔ điểm NDCG `1/log2(rank+1)`.
+
+### 2026-10-16 (T6) ca công ty từ 09:18 (đứt quãng) · LÁT 1 · vấn đáp 3 câu
+- Không thấy note 15/10 (chỉ có điểm 3.5 + 3.9 trong bảng); cửa NDCG sáng 15/10 coi như **chưa làm**.
+- 3.8 ⚠️ · 10.11 ⚠️ · 10.10 ⚠️ — cả ba lên/giữ, hẹn **21/10** (chi tiết ở bảng trên). **IDF chữ hiếm đúng chiều lần đầu đóng sách.**
+- Lẫn mới: rỗng "vì IDF = 0" ↔ **0 ứng viên** (chạy thật kho 3 điều, `ma túy đá` → điều "khai thác đá" đứng đầu).
+- Câu kiểm nhánh Elastic: đặt bộ dịch ở `metadata_filter.py` / core → [Cặp 22](./the-phan-biet.md) tái phát theo thư mục; sửa đúng **sau gợi ý**.
+- Cửa NDCG từng bước: DCG ✅ sau 2 lần sửa (`for answer in answers` — **lẫn `answers`↔`answers[i]` lần 3**, gọi `['a','b']` là "chuỗi" · `index(answers[i])`/`index(answers)` → `index(answer)`).
+  IDCG: tính tay ✅ (không ra số cuối, lần 3) · **mở `metrics.py` → cửa KHÔNG tính**, làm lại đóng sách sau ≥ vài giờ · hỏi vì sao `min`, `range(1, n+1)` → giảng.
+  Lẫn mới: **"máy trượt → IDCG = 1"** (đúng: IDCG chỉ theo số văn bản đúng; `["a","b"]` → 1.63) — 2 lượt.
+- **User tự phát hiện:** `answers[i] = []` / `results = []` → `ZeroDivisionError` ở cả 3 metric. Claude giảng A/B/C, chốt **A (raise ValueError)** — user nhờ dạy, không tự chốt.
+  Giảng lại: ý 1 ✅ · cái giá (cả lượt đo dừng) ❌ · lẫn "bỏ qua" (chỉ cho bộ cố ý không đáp án) với Zalo. **Việc treo: thêm kiểm đầu vào vào `metrics.py` + test.**
+- **Cửa `ndcg_at_k` đóng sách** — file [ndcg-cua-1610.py](../drills/ndcg-cua-1610.py): làm lại từ trắng (user hứa trong 16/10).
+- Còn treo: Hybrid 2 nhánh (quá hạn 15/10, hỏi không ví dụ dựng sẵn).
 
 ---
 

@@ -493,6 +493,10 @@ Bệnh: sửa 4 lượt liền vẫn để `.append(...)` bên phải `=` hoặc
 Bệnh: chép nguyên `to_and_clause`/`to_or_clause` sang `matches` → ra `{'must': [True, False]}`. Khung rẽ
 `op` **giống**, thứ trả về **khác**. Lần sau: ép chọn 2 ô *"hàm này trả dict hay bool?"*, cấm giảng.
 
+**Tái phát 16/10 — theo THƯ MỤC:** thêm nhánh Elastic → đặt bộ dịch vào `metadata_filter.py`, rồi `application/retrieval/` (core),
+dù chính mình nói "core không được biết cú pháp Elastic". Neo: **file chứa cú pháp công nghệ (Qdrant/Elastic/Postgres) → `infrastructure/adapters/`**;
+`metadata_filter.py` = CHẤM, ở core, không phải port. Đúng sau gợi ý = chưa tính hiểu → 21/10 hỏi lại không gợi ý.
+
 ## Cặp 23 — **TRONG BM25 lọc ở bước nào** vs **port nhận CÂY hay DICT QDRANT**  (vấn đáp 10.10, 05/10)
 
 | | lọc trước, cắt `top_k` sau | port nhận cây trung lập |

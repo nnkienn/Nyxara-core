@@ -69,7 +69,7 @@
 | 3.5 | 🟡 | RRF gộp kết quả bằng cách nào? Vì sao dùng **thứ hạng** chứ không dùng **điểm số**? | phan-biet Cặp 5 | ⚠️ 15/10 → hẹn **20/10** *(BM25 trần "2" — không có trần)* · ⚠️ 05/10 *(công thức + số hạng đúng; lý do: tưởng cosine và BM25 "cùng đại lượng" — thiếu **khác thang đo, BM25 không trần**)* |
 | 3.6 | 🔴 | RRF có hằng số `k` — nó làm gì? Đặt quá nhỏ / quá lớn thì sao? | algorithms | ⬜ |
 | 3.7 | 🔴 | Nếu `doc_count` của BM25 bị đếm sai, kết quả xếp hạng sai kiểu gì? Ai phát hiện ra? | bug #29 | ⬜ |
-| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ❌ 14/10 → hẹn **16/10** *(IDF sai chiều lần 3 · câu rỗng trống · nhánh vector "để lọc trước")* |
+| 3.8 | 🟡 | BM25 khớp theo **mặt chữ** hay theo **nghĩa**? Cho một truy vấn mà nó trả về **rỗng** dù kho có đúng tài liệu đó. | phan-biet Cặp 15 | ⚠️ 16/10 → hẹn **21/10** *(IDF đúng chiều ✅; rỗng nói "IDF = 0" — đúng là 0 ứng viên; `ma túy đá` không rỗng)* · ❌ 14/10 *(IDF sai chiều lần 3 · câu rỗng trống · nhánh vector "để lọc trước")* |
 | 3.9 | 🔴 | `tenant_id` chặn tài liệu tenant khác — ở nhánh Qdrant và nhánh BM25 là **cùng một cơ chế** không? Nêu tên file/dòng. | phan-biet Cặp 15 | ⚠️ 15/10 → hẹn **20/10** *(đúng "không cùng cơ chế"; thiếu chữ phân vùng ở BM25)* · ❌ 10/10 *(lại nói "cùng cơ chế" — lỗi 18/09; trước đó 05/10 thiếu vì sao; 18/09 ❌ nói BM25 "search xong mới lọc", thực ra PHÂN VÙNG bằng khoá dict)* |
 
 ## 4. Reranking
@@ -152,8 +152,8 @@
 | 10.7 | 🔴 | *(chưa học)* **Khi nào KHÔNG nên dùng RAG?** Context window dài rồi — so RAG vs nhét thẳng document theo 4 trục: chất lượng · chi phí · độ trễ p95 · khả năng trích dẫn nguồn | — | ⬜ |
 | 10.8 | 🔴 | *(chưa học)* Đo một **agent nhiều bước** khác đo RAG ở chỗ nào? Kể 3 chỉ số chỉ có ý nghĩa với agent | — | ⬜ |
 | 10.9 | 🔴 | *(chưa học)* Agent trả lời **đúng** nhưng đi 11 bước và gọi nhầm tool 3 lần — tính là pass hay fail? Vì sao? | — | ⬜ |
-| 10.10 | 🟡 | Bộ lọc metadata: sao không để `HybridRetriever` dịch luôn sang dict Qdrant rồi truyền xuống `VectorStore.search`? Nêu 2 hậu quả (BM25 · đổi database). | X3 02/10 | ⚠️ 07/10 →12/10 |
-| 10.11 | 🟢 | Port là gì, adapter là gì? Lấy `VectorStore` / `QdrantStore` làm ví dụ. | X4 02/10 | ❌ 07/10 →09/10 |
+| 10.10 | 🟡 | Bộ lọc metadata: sao không để `HybridRetriever` dịch luôn sang dict Qdrant rồi truyền xuống `VectorStore.search`? Nêu 2 hậu quả (BM25 · đổi database). | X3 02/10 | ⚠️ 16/10 → hẹn **21/10** *(BM25 ✅; đổi DB lần 2 chưa gọi tên `HybridRetriever`)* · ⚠️ 07/10 →12/10 |
+| 10.11 | 🟢 | Port là gì, adapter là gì? Lấy `VectorStore` / `QdrantStore` làm ví dụ. | X4 02/10 | ⚠️ 16/10 → hẹn **21/10** *(định nghĩa + 2 chiều + thêm adapter ✅; thiếu cả ví dụ VectorStore/QdrantStore/SearchHit)* · ❌ 14/10 · ❌ 07/10 →09/10 |
 
 ## 11. Lý thuyết LLM *(🟢 đọc hiểu — slot công ty 10-11/2026)*
 
