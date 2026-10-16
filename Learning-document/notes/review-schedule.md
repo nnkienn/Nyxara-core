@@ -16,7 +16,7 @@
 | **21/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 16/10 ⚠️ (giữ như 07/10): (a) BM25 không hiểu ✅ · (b) "không có chỗ đổi" — **lần 2 chưa gọi tên file** (đúng: sửa `HybridRetriever` trong core + `PgVectorStore` phải đọc cú pháp Qdrant). Trả lời 1 câu, quá ngắn. Claude giảng sơ đồ 2 nhánh + câu mẫu |
 | **20/10** | 3.9 tenant filtering | 15/10 ⚠️ (lên từ ❌): "không cùng cơ chế" ✅ · bảo mật ✅ · BM25 thiếu chữ **phân vùng** (`self.index[tenant_id]`), lẫn với `filter_tree` · thiếu ý post-filter làm `top_k` rỗng. Lần sau: hỏi lại nguyên câu |
 | **20/10** | 3.5 RRF | 15/10 ⚠️: công thức ✅ · khác đại lượng ✅ · BM25 trần "2" (10/10 nói 1) — **không có trần**, cộng theo số chữ query · hậu quả mơ hồ, thiếu "BM25 lấn át vector". Nói lại câu mẫu 3/4 (thiếu giới hạn, gọi "nhánh Qdrant"). Ca X/Y (10 chữ × 1 BM25 + cosine) ❌: lấy 1 điểm cho cả văn bản → "cosine quyết định". **20/10: làm lại ca P/Q (6 chữ × 1.5, cosine 0.40 vs 0.98) TRƯỚC khi hỏi 3.5** |
-| **15/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 10/10 ✅ (lên từ ❌×2) trên ví dụ cố định d1/d2/d3: d2 2015 **có** lọt · sửa = BM25 lọc trước RRF · cắt top_k trước lọc → sót d1. Hẹn ngắn để kiểm lại **không ví dụ dựng sẵn** |
+| **21/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 16/10 tối ⚠️ (tụt từ ✅): câu 1 trả "BM25 giỏi khớp chính xác" — **lẫn giá trị nhánh BM25 ↔ lọc trên nhánh BM25**, chiều ngược ("tốt lọt ra" thay vì "bị cấm lọt vào"). Chạy thật `ND100_2019` → đảo nhánh ✅. Lọc sau RRF: không nhớ → giảng (cắt trước, lọc sau = **thiếu**, có khi 0) → ca 5 nghị định cũ ra **0** ✅. Lần sau: hỏi nguyên câu, đóng sách, cả 2 ý |
 | **21/10** | 10.11 port / adapter là gì | 16/10 ⚠️ (lên từ ❌): định nghĩa port/adapter ✅ · dịch 2 chiều ✅ · đổi DB = **thêm** adapter ✅ · tự thêm test bằng fake + cái giá ✅. **Thiếu cả phần ví dụ** (lần 2): không nêu `VectorStore`/`QdrantStore`, `query_points`, `SearchHit`; "dịch thô ngược lên" thiếu "của Qdrant → `SearchHit`". Lần sau: bắt đầu câu trả lời BẰNG ví dụ |
 | **21/10** | 1.4 Recursive chunker | 07/10 ✅ hỏi trần: CẮT → GỘP + hậu quả "mẩu lẻ tẻ vô nghĩa" (gọi nhầm là "cây" — là danh sách mẩu) |
 
@@ -430,6 +430,18 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
 - **Sáng 15/10 bắt đầu từ:** CỬA đóng sách `ndcg_at_k` file trắng (mã giả tiếng Việt 4 bước trước) → giảng lại 3 metric bằng khung 3 dòng
   → Claude cài BUG CỐ Ý vào `metrics.py` (bước 2/6). Cặp mới cho [the-phan-biet](./the-phan-biet.md): `answers` ↔ `answers[i]` · RR `1/rank` ↔ điểm NDCG `1/log2(rank+1)`.
 
+### 2026-10-15 (T5) ca tối 21:37-22:40 (mệt, trễ) · LÁT 1 · trace tay 3 metric trên iPad · ⚠️ sáng 15/10 không có CỬA đóng sách
+- Bộ dữ liệu: `results=[[A,B,C],[D,E,F]]` · `answers=[[B,C],[X]]` · k=3 → Hit 0.5 · MRR 0.25 · NDCG 0.35.
+- Trạm 1 `hit_at_k`: 2 hàng ✅ · `answer` ghi A (lấy từ `top_k`, đúng là B từ `answers[i]`) · **`hits` về 0 khi lần tìm trượt** → in thật
+  từng bước → 3 lần tìm ✅ (sau 1 lần trả `1/3` = lẫn `hits` ↔ `return`).
+- Trạm 2 `mrr`: return 0.25 ✅ · rank 2 / rr 0.5 ✅ · "có break" ở hàng False (`break` nằm trong `if`) · `total_rr` ghi 0.25 (**lẫn tổng dồn ↔ return, lần 2**)
+  → ép chọn RR 1 + 0.5: `total_rr` 1.5 · return 0.75 ✅.
+- Trạm 3 NDCG: **quên định nghĩa DCG** (Hit/MRR nói được, An/Bình nói được) → giảng lại 3 câu DCG/IDCG/NDCG trên `[A,B,C]`.
+  Câu `[B,A,C]` đúng B+C → trả **2.1** (đúng 1.5) — cộng cả điểm ô sai A. Hết giờ, chưa sửa.
+- Cặp mới cho the-phan-biet: **tổng dồn (`hits`/`total_rr`) ↔ giá trị `return`** · `dcg = 0` trong vòng ↔ `hits = 0` ngoài vòng.
+- **Sáng 16/10 bắt đầu từ:** (1) 5' làm lại `[B,A,C]` đúng B+C → DCG (chỉ cộng ô đúng) · (2) nói khung 3 câu DCG/IDCG/NDCG đóng sách
+  · (3) CỬA: gõ `ndcg_at_k` file trắng (mã giả 4 bước trước) · rồi vấn đáp tới hạn 16/10 (3.8 · 10.11). Phần mới chỉ mở khi CỬA qua.
+
 ### 2026-10-16 (T6) ca công ty từ 09:18 (đứt quãng) · LÁT 1 · vấn đáp 3 câu
 - Không thấy note 15/10 (chỉ có điểm 3.5 + 3.9 trong bảng); cửa NDCG sáng 15/10 coi như **chưa làm**.
 - 3.8 ⚠️ · 10.11 ⚠️ · 10.10 ⚠️ — cả ba lên/giữ, hẹn **21/10** (chi tiết ở bảng trên). **IDF chữ hiếm đúng chiều lần đầu đóng sách.**
@@ -442,6 +454,19 @@ sai là dùng nó cho thứ user chưa đọc bao giờ. Căn cứ: PRIMM (~500 
   Giảng lại: ý 1 ✅ · cái giá (cả lượt đo dừng) ❌ · lẫn "bỏ qua" (chỉ cho bộ cố ý không đáp án) với Zalo. **Việc treo: thêm kiểm đầu vào vào `metrics.py` + test.**
 - **Cửa `ndcg_at_k` đóng sách** — file [ndcg-cua-1610.py](../drills/ndcg-cua-1610.py): làm lại từ trắng (user hứa trong 16/10).
 - Còn treo: Hybrid 2 nhánh (quá hạn 15/10, hỏi không ví dụ dựng sẵn).
+
+### 2026-10-16 (T6) ca tối 20:29-21:40 · LÁT 1 · mệt cuối buổi, user xin dừng
+- **CỬA `ndcg_at_k` đóng sách** ([ndcg-cua-1610-toi.py](../drills/ndcg-cua-1610-toi.py)) **7/7 ⚠️ trong 19'** · bỏ bước mã giả.
+  `answers[i]` · `min(len(answers[i]), k)` · `range(1, n+1)` ✅ (3 chỗ lẫn sáng nay). Lỗi: `results.index` → `top_k` (tự sửa) ·
+  `log2` → `math.log2` (tự) · **`dcg =` ↔ `dcg +=`** (sau gợi ý — lẫn tổng dồn ↔ gán đè **lần 3**).
+- Ép chọn IDCG khi máy trượt **2/3**: câu 1 vẫn "1.0" (đúng 1.63, **lần 3**) → in vòng IDCG của chính user (không đọc `results`) →
+  2 câu sau ✅. Gốc lẫn: 1 văn bản đúng thì IDCG = 1 thật.
+- Vấn đáp Hybrid 2 nhánh ⚠️ → 21/10 (chi tiết ở bảng trên).
+- Việc treo kiểm đầu vào: Claude viết `_check_inputs` + 9 test, **cài bug** `if not answers:` (đúng: `answers[i]`).
+  User đọc output đúng (NDCG chia 0 · Hit/MRR lặng lẽ tính trượt) · chọn sai dòng 1 lần (`if not results`) · chỉ đúng dòng **sau 2 gợi ý**.
+  **CHƯA SỬA** — file vẫn `if not answers:`, suite **3 failed, 145 passed**. Cặp `answers` ↔ `answers[i]` **lần 4**.
+- **Buổi sau bắt đầu từ:** (1) gõ sửa dòng `if not answers:` → suite xanh → commit · (2) nói lại đóng sách **cái giá** của phương án A
+  (sáng nay ❌) · (3) ép chọn IDCG lần nữa (số mới) trước khi mở việc mới.
 
 ---
 

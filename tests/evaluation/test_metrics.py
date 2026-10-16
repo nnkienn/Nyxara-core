@@ -118,3 +118,25 @@ def test_ndcg_ideal_ranking_has_at_most_k_slots():
 def test_ndcg_averages_over_searches():
     # lần 1 hoàn hảo (1.0) · lần 2 trượt (0) -> 0.5
     assert ndcg_at_k([["a", "x"], ["x", "y"]], [["a"], ["b"]], 2) == pytest.approx(0.5)
+
+
+# ---- Kiểm đầu vào (phương án A, 16/10): đầu vào hỏng -> ValueError ở cả 3 metric ----
+ALL_METRICS = [hit_at_k, mrr, ndcg_at_k]
+
+
+@pytest.mark.parametrize("metric", ALL_METRICS)
+def test_empty_results_raises(metric):
+    with pytest.raises(ValueError):
+        metric([], [], 3)
+
+
+@pytest.mark.parametrize("metric", ALL_METRICS)
+def test_results_and_answers_length_mismatch_raises(metric):
+    with pytest.raises(ValueError):
+        metric([["a"], ["b"]], [["a"]], 3)
+
+
+@pytest.mark.parametrize("metric", ALL_METRICS)
+def test_search_with_no_correct_document_raises(metric):
+    with pytest.raises(ValueError):
+        metric([["a", "b"], ["c", "d"]], [["a"], []], 3)
