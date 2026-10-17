@@ -12,7 +12,7 @@
 >
 > **Quy trình bắt buộc cho mỗi câu — đúng thứ tự này:**
 > 1. **Đóng hết tài liệu.** Trả lời **thành tiếng** hoặc gõ ra, hết khả năng.
-> 2. **Rồi mới** mở note đối chiếu.
+> 2. **Rồi mới** mở note đối chiếu — câu đã học có **câu mẫu** trong [thẻ ôn](./on-tap/README.md) (giấu sau ▶).
 > 3. Chấm vào cột trạng thái: ✅ trôi chảy · ⚠️ nói được nhưng lắp bắp/thiếu ý · ❌ không nói được.
 > 4. **Hẹn lại (từ 17/09):** ❌ → +2 ngày · ⚠️ → +5 ngày · ✅ → +14 ngày. Ghi vào cột trạng thái, vd `❌→19/09`.
 >

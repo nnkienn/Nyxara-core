@@ -25,16 +25,17 @@ HF `GreenNode/zalo-ai-legal-text-retrieval-vn`) + **bảng số thật** + **dem
 
 ---
 
-## 2. ĐANG LÀM — lát 0: Metadata filter
+## 2. ĐANG LÀM — lát 1: Nền đo
 
-Cây `and/or/not` → bộ lọc Qdrant **và** lọc BM25, trên metadata văn bản luật (loại · cơ quan · năm).
-Đã có (drill, user tự gõ): `to_and_clause` · `to_or_clause` · `to_not_clause` phẳng · `post_filter`.
+Lát 0 (metadata filter) **ĐÓNG 06/10** — ôn ở [thẻ 03](on-tap/03-metadata-filter.md).
+Lát 1 đã có trong `app/`: Hit@k · MRR · NDCG@k + kiểm đầu vào (148 passed, 17/10) — ôn ở [thẻ 06-08](on-tap/README.md).
+Kế tiếp: **A/B harness** → regression set → bảng BM25 / dense / hybrid so 0.8488 → demo + deploy.
 
 > ⚠️ **LUẬT ĐÓNG LÁT (mới 24/09):** một lát chỉ **ĐÓNG** khi code nằm trong **`app/`**, có test, và
 > `.venv/bin/python -m pytest -q` **toàn bộ xanh**. Drill là phòng tập, **không phải sản phẩm** —
 > drill sạch mà `app/` trống thì lát vẫn MỞ.
 
-Kế hoạch đóng lát 0: xem **tuần 28/09** ở [chỗ dừng](notes/review-schedule.md).
+Chỗ dừng từng buổi: [notes/review-schedule.md](notes/review-schedule.md).
 
 ---
 
@@ -42,8 +43,8 @@ Kế hoạch đóng lát 0: xem **tuần 28/09** ở [chỗ dừng](notes/review
 
 | Lát | Tính năng | 🔴 Sâu | 🟡 Nhỏ |
 |---|---|---|---|
-| **0** | **Metadata filter** ← đang ở đây | cây `and/or/not` → Qdrant + BM25 | — |
-| **1** | **Nền đo + LÊN MẠNG** — nạp 61K điều, đo baseline, deploy demo | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp bug cũ) | Bảng BM25 / dense / hybrid / +rerank so 0.8488 · RAGAS 1 lần đối chiếu · so 2-3 embedding · demo URL + UI React · **Docker + deploy lên cloud (Azure/AWS)** *(02/10)* |
+| **0** | **Metadata filter** ✅ đóng 06/10 | cây `and/or/not` → Qdrant + BM25 | — |
+| **1** | **Nền đo + LÊN MẠNG** ← đang ở đây — nạp 61K điều, đo baseline, deploy demo | Hit@k · MRR · NDCG@10 (code tay) · A/B harness · regression set (gộp bug cũ) | Bảng BM25 / dense / hybrid / +rerank so 0.8488 · RAGAS 1 lần đối chiếu · so 2-3 embedding · demo URL + UI React · **Docker + deploy lên cloud (Azure/AWS)** *(02/10)* |
 | **2** | **Retrieval pháp luật** | Chunk theo **Điều/Khoản** · Query Transform (đời thường → ngôn ngữ luật, HyDE) · Parse HTML/PDF | MMR · overlap (bug #34) · Parent-Child · Contextual |
 | **3** | **Trích dẫn, không bịa** | Trích Điều/Khoản (offset) · Judge + faithfulness · Từ chối "không có căn cứ" · Chống prompt injection | Hiệu chỉnh judge vs 50 nhãn tay · Lost-in-the-Middle · **adapter OpenAI/Anthropic: async + streaming + retry + chi phí** *(02/10)* |
 | **4** | **Hiệu lực + tham chiếu chéo** | — | Temporal/versioning theo hiệu lực · GraphRAG multi-hop trên dẫn chiếu pháp lý |

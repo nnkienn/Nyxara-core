@@ -118,7 +118,7 @@ Ghi trung thực buổi hỏng / hụt giờ. Note dài hơn buổi học là no
 
 ## 8. Ghi chú bắt buộc
 
-Ghi vào sổ nào: [notes/README.md](Learning-document/notes/README.md) — Claude phải nhắc sau mỗi phần. Hay quên: **[the-phan-biet.md](Learning-document/notes/the-phan-biet.md)**
+Lối vào: [Learning-document/README.md](Learning-document/README.md). Kỹ thuật xong 6 bước → Claude viết **thẻ ôn** [on-tap/](Learning-document/on-tap/README.md) (khuôn 6 mục, số chạy thật). Hay quên: **[the-phan-biet.md](Learning-document/notes/the-phan-biet.md)**
 khi lẫn 2 thứ na ná · **[interview-questions.md](Learning-document/interview-questions.md)** (cố ý không đáp án — đóng sách trả lời trước).
 
 ---
