@@ -45,5 +45,4 @@ raw_data_lake/
 htmlcov/
 
 # Skills / agent config — chỉ dùng local, không cần trong image
-.skills/
 .agent/
