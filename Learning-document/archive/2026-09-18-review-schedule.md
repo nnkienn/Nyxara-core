@@ -61,7 +61,7 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 > không ép tiến độ. **giờ-mốc ~55'** (trừ ~10' sửa CLAUDE.md).
 
 **Xong:**
-1. **Vòng đoán `not`** (nợ từ 17/09) — [drills/2026-09-18-not-doan.py](../drills/2026-09-18-not-doan.py), đã đổi thẻ
+1. **Vòng đoán `not`** (nợ từ 17/09) — [drills/archive/2026-09-18-not-doan.py](../drills/archive/2026-09-18-not-doan.py), đã đổi thẻ
    sang **metadata văn bản luật thật** (`loai_van_ban · co_quan · nam · con_hieu_luc`), bỏ `lang/year` đồ chơi.
    Dòng 1 ✅ · **dòng 2 ❌** · dòng 3 đúng đáp án nhưng lý do chưa chắc → kiểm lại bằng Thông tư 08/2010, **4/4 ô đúng** ⇒ hiểu thật.
 2. **Lỗi DUY NHẤT của cả vòng: VÀ ↔ HOẶC** — thấy con đầu trượt là chặn luôn, không xét con 2. Vá bằng kho 3 văn bản
@@ -70,7 +70,7 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
 3. **Bug cố ý mẩu D lộ diện:** `not` nhận 2 con thì lấy `[0]`, **vứt con thứ 2 không nói gì**. User chốt phương án (b) →
    thêm guard `len(pred["not"]) != 1` → `ValueError`. Chạy: 1 con ✅ · 2 con NỔ · 0 con NỔ.
 4. **CODE TAY (Cách A, lần đầu):** user viết mã giả tiếng Việt cho `loc_sau(danh_sach_doc_id, bo_loc, kho_metadata)`
-   → [drills/2026-09-18-loc-sau.py](../drills/2026-09-18-loc-sau.py). Claude dịch **nguyên văn, giữ nguyên chỗ thiếu**.
+   → [drills/archive/2026-09-18-loc-sau.py](../drills/archive/2026-09-18-loc-sau.py). Claude dịch **nguyên văn, giữ nguyên chỗ thiếu**.
    - Làm bằng tay trước (3 tờ giấy, tờ luật `nam > 2020`) → chọn đúng `luat-dn-2020`.
    - Mã giả user có 3/5 bước. **Thiếu: khởi tạo `danh_sach_ra = []` và `return`** — cả hai lòi ra bằng chạy thật
      (`NameError` → rồi `None`), user tự nói ra cả hai. Dạng "làm xong mà không hứng kết quả" — **tái phát lần 4**.
@@ -93,7 +93,7 @@ Mốc +1 đầu tiên áp dụng thật đã **trượt 3/4 câu** dù hôm trư
   một VIỆC LÀM** (code tay mã giả, hoặc tìm lỗi trên code Claude viết). Hết giờ thì thu hẹp phạm vi, không thay bằng hỏi-đáp.
   Claude đã chạy gần trọn ca sáng bằng hỏi-đáp — đọc nhầm Cách A thành "user trả lời bằng miệng".
 
-5. **GÕ THẬT (bù cuối buổi, theo luật mới)** — [drills/2026-09-18-post-filter.py](../drills/2026-09-18-post-filter.py):
+5. **GÕ THẬT (bù cuối buổi, theo luật mới)** — [drills/archive/2026-09-18-post-filter.py](../drills/archive/2026-09-18-post-filter.py):
    user tự gõ ruột `post_filter`, **tên tiếng Anh**, **XANH NGAY LẦN ĐẦU, 0 lượt đỏ** → `['luat-dn-2020']`.
    Hai thứ thiếu trong mã giả (`list_out = []` ngoài vòng for · `return`) thì lúc gõ tay đã tự có.
 
@@ -145,7 +145,7 @@ nộp đơn ~15/01/2027, còn ~17 tuần để biến "xây được" thành "n�
 **Việc lệch đề lặp lại:** hỏi *cơ chế chặn tenant*, user trả lời *việc tìm kiếm là gì*. Cùng dạng lỗi
 đọc đề của 16/09 (A3/A4/A7/A8 trả lời 1 trong 2-3 ý). Trong phỏng vấn, lỗi này đắt hơn lỗi kiến thức.
 
-### 🐍 Python thực tế — mẩu 1 XONG ([2026-09-18-congty-python.py](../drills/2026-09-18-congty-python.py))
+### 🐍 Python thực tế — mẩu 1 XONG ([2026-09-18-congty-python.py](../drills/archive/2026-09-18-congty-python.py))
 
 `doc_dong("user=kien action=login ms=120")` → `{'user':'kien','action':'login','ms':'120'}` ✅, thử thêm ca khác cũng đúng.
 
@@ -195,7 +195,7 @@ chưa có**, đừng bịa) · *why Vietnamese law* (→ dữ liệu công khai 
 > không bài thiết kế**. Pre-filter Qdrant (việc chính của lát 0) **đẩy sang ca sáng 19/09**, đúng luật.
 > **Hụt ~1h10** so với slot tối 2h — ghi rõ, không giấu.
 
-**1. Drill ép chọn — [2026-09-18-toi-ep-chon-bm25-tenant.py](../drills/2026-09-18-toi-ep-chon-bm25-tenant.py) — 11/12**
+**1. Drill ép chọn — [2026-09-18-toi-ep-chon-bm25-tenant.py](../drills/archive/2026-09-18-toi-ep-chon-bm25-tenant.py) — 11/12**
 
 Nhắm đúng 2 câu hỏng nặng nhất slot công ty sáng cùng ngày.
 - **Ván 1 (BM25 trả CÓ/RỖNG): 5/5.** Câu ăn tiền nhất là câu 5 — hỏi `"thanh lap cong ty"` trên doc
