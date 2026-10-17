@@ -543,6 +543,12 @@ Viết `results.index(answers[i])` **3 lần** (ChatGPT 10/10 · `app/` tối 10
 Gốc: nói `results[0]` là "chuỗi" — đúng là **danh sách** `["dieu_5", ...]`. Ép chọn 2/2: `"c" in [["a","b"],["c","d"]]` → False · `["c","d"] in ...` → True.
 Neo: **tìm chuỗi thì tìm trong `top_k`** — `results` chỉ chứa danh sách.
 
+## Cặp 29 — **IDCG** (một tổng, lớn dần theo số văn bản đúng) vs **NDCG tối đa = 1**  (lát 1, 17/10)
+
+Trả "IDCG = 1" **4 lần** (16/10 ×3 · 17/10 ×1) dù máy trượt hết. Gốc lộ 17/10: hiểu *ideal ranking* là **một vị trí** ("thứ hạng 1 là tốt nhất")
+— đúng là **cả danh sách**: mọi văn bản đúng chiếm thứ hạng 1, 2, 3… → IDCG = DCG của danh sách đó = **tổng**. Không đọc `results`.
+Ép chọn: 3 đúng → 2.13 · 2 đúng (máy trúng hạng 1) → 1.63 ✅ không bảng. Neo: **bằng 1 là NDCG; IDCG chỉ = 1 khi có đúng 1 văn bản đúng.**
+
 ## Nhật ký drill
 
 | Ngày | Vòng | Kết quả | Cặp còn sai |
