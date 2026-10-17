@@ -545,8 +545,9 @@ Neo: **tìm chuỗi thì tìm trong `top_k`** — `results` chỉ chứa danh s�
 
 ## Cặp 29 — **IDCG** (một tổng, lớn dần theo số văn bản đúng) vs **NDCG tối đa = 1**  (lát 1, 17/10)
 
-Trả "IDCG = 1" **4 lần** (16/10 ×3 · 17/10 ×1) dù máy trượt hết. Gốc lộ 17/10: hiểu *ideal ranking* là **một vị trí** ("thứ hạng 1 là tốt nhất")
-— đúng là **cả danh sách**: mọi văn bản đúng chiếm thứ hạng 1, 2, 3… → IDCG = DCG của danh sách đó = **tổng**. Không đọc `results`.
+Trả "IDCG = 1" **4 lần** (16/10 ×3 · 17/10 ×1). **Gốc — user tự nói 17/10:** *"chỉ nhìn đáp án `d2` máy trúng, đưa nó lên đầu — sắp lại `results`
+cho tốt nhất, chứ không đưa `answers` vào"*. Đúng: ideal ranking dựng **từ `answers`** (cả văn bản máy bỏ sót), chiếm thứ hạng 1, 2, 3… → IDCG = **tổng**.
+Dựng từ `results` thì bỏ sót không bị phạt — NDCG chỉ còn chấm thứ tự. Neo: **IDCG không đọc `results`.**
 Ép chọn: 3 đúng → 2.13 · 2 đúng (máy trúng hạng 1) → 1.63 ✅ không bảng. Neo: **bằng 1 là NDCG; IDCG chỉ = 1 khi có đúng 1 văn bản đúng.**
 
 ## Nhật ký drill
