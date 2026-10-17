@@ -193,7 +193,7 @@ ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questio
 
 ### 2026-10-17 (T7) ca tối 21:45-~22:15 · LÁT 1 · mệt, giữ luật >21h = 45'
 - (1) Sửa `if not answers:` → `answers[i]` **sau khi in giá trị lượt `i=1`** (không tự nhớ ra) · tự xoá kiểm thừa trong `mrr`/`ndcg_at_k`
-  nhưng **xoá mất `:` của `for`** → SyntaxError → sửa. **148 passed**, commit `a5d102f`. `hit_at_k` còn 1 bản kiểm thừa (vô hại, dọn sau).
+  nhưng **xoá mất `:` của `for`** → SyntaxError → sửa. **148 passed**, commit `a5d102f`. kiểm thừa trong `hit_at_k` cũng đã xoá.
 - (2) Cái giá phương án A ⚠️ (lên từ ❌): "chặn luôn, không ra NDCG" ✅ · nói "mấy câu đầu không đo được" — đúng là **mất cả 787 câu tốt** (kiểm chạy trước khi chấm).
 - (3) IDCG: "1" **lần 4** → in vòng IDCG thật → ép chọn IDCG↔NDCG ⚠️ (tự sửa) → gốc lộ: **ideal ranking = 1 vị trí** → bảng 2 hàng → 2.13 ·
   câu mới không bảng (2 đúng, máy trúng hạng 1) **1.63 ✅**. → [Cặp 29](./the-phan-biet.md).
