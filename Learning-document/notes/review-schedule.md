@@ -12,10 +12,10 @@
 
 | Hạn | Câu | Lần trước hỏng gì |
 |---|---|---|
-| **21/10** | 3.8 BM25 khớp theo cái gì | 16/10 ⚠️ (lên từ ❌): mặt chữ · TF · IDF · độ dài ✅ · **IDF chữ hiếm 40/61K → cao ✅ (lần đầu đúng chiều đóng sách)**. Sai: rỗng "vì IDF = 0" (đúng: **không điều nào chứa chữ → 0 ứng viên được chấm**) · ví dụ `ma túy đá` không rỗng (tách `ma`/`túy`/`đá` đều có trong sổ — chạy thật kho 3 điều: điều "khai thác đá" đứng đầu). Câu kiểm `chất methamphetamine` ✅ không rỗng nhờ `chất` (chưa nêu tên điều + điểm thấp). Lần sau: ví dụ rỗng = `methamphetamine` · ví dụ "trả về nhưng sai điều" = `ma túy đá` |
+| **24/10** | 3.8 BM25 khớp theo cái gì | **22/10 ❌** (xuống từ ⚠️): mặt chữ ✅ · nêu đủ TF/IDF/độ dài/tham số ✅ · **TF ngược chiều** ("càng nhiều → càng thấp") · **IDF ngược chiều lần 4** ("nhiều trong kho → rác → điểm cao") · độ dài không nói chiều · ví dụ rỗng `xe ô tô` ↔ kho chỉ có `car` ✅ (thiếu "0 ứng viên"). Vá bằng ép chọn số thật. Cũ 16/10 ⚠️ (lên từ ❌): mặt chữ · TF · IDF · độ dài ✅ · **IDF chữ hiếm 40/61K → cao ✅ (lần đầu đúng chiều đóng sách)**. Sai: rỗng "vì IDF = 0" (đúng: **không điều nào chứa chữ → 0 ứng viên được chấm**) · ví dụ `ma túy đá` không rỗng (tách `ma`/`túy`/`đá` đều có trong sổ — chạy thật kho 3 điều: điều "khai thác đá" đứng đầu). Câu kiểm `chất methamphetamine` ✅ không rỗng nhờ `chất` (chưa nêu tên điều + điểm thấp). Lần sau: ví dụ rỗng = `methamphetamine` · ví dụ "trả về nhưng sai điều" = `ma túy đá` |
 | **21/10** | 10.10 vì sao port nhận cây trung lập, không nhận dict Qdrant | 16/10 ⚠️ (giữ như 07/10): (a) BM25 không hiểu ✅ · (b) "không có chỗ đổi" — **lần 2 chưa gọi tên file** (đúng: sửa `HybridRetriever` trong core + `PgVectorStore` phải đọc cú pháp Qdrant). Trả lời 1 câu, quá ngắn. Claude giảng sơ đồ 2 nhánh + câu mẫu |
-| **20/10** | 3.9 tenant filtering | 15/10 ⚠️ (lên từ ❌): "không cùng cơ chế" ✅ · bảo mật ✅ · BM25 thiếu chữ **phân vùng** (`self.index[tenant_id]`), lẫn với `filter_tree` · thiếu ý post-filter làm `top_k` rỗng. Lần sau: hỏi lại nguyên câu |
-| **20/10** | 3.5 RRF | 15/10 ⚠️: công thức ✅ · khác đại lượng ✅ · BM25 trần "2" (10/10 nói 1) — **không có trần**, cộng theo số chữ query · hậu quả mơ hồ, thiếu "BM25 lấn át vector". Nói lại câu mẫu 3/4 (thiếu giới hạn, gọi "nhánh Qdrant"). Ca X/Y (10 chữ × 1 BM25 + cosine) ❌: lấy 1 điểm cho cả văn bản → "cosine quyết định". **20/10: làm lại ca P/Q (6 chữ × 1.5, cosine 0.40 vs 0.98) TRƯỚC khi hỏi 3.5** |
+| **27/10** | 3.9 tenant filtering | **22/10 ⚠️** (giữ): khác cơ chế ✅ · Qdrant chung collection + trường `tenant_id` ✅ (thiếu "điều kiện `must`, lọc trong lúc tìm") · BM25 gọi là "pre-filtering" — **thiếu chữ PHÂN VÙNG lần 3** (`self.index[tenant_id]`, kho riêng, IDF riêng) · thiếu post-filter → `top_k` rỗng. Cũ 15/10 ⚠️ (lên từ ❌): "không cùng cơ chế" ✅ · bảo mật ✅ · BM25 thiếu chữ **phân vùng** (`self.index[tenant_id]`), lẫn với `filter_tree` · thiếu ý post-filter làm `top_k` rỗng. Lần sau: hỏi lại nguyên câu |
+| **05/11** | 3.5 RRF | **22/10 ✅** (lên từ ⚠️×2): cộng `1/(60+rank)` theo cùng văn bản · BM25 càng khớp càng cao (hết "trần 2") · lấn át + sai im lặng. Ca P/Q: lại lấy điểm 1 chữ cho cả văn bản (1.9 thay 9.40) → vá bằng ca 3 chữ × 0.2 ✅. Lần sau: nói rõ "thang đo khác nhau" + điều chỉ có ở 1 danh sách. Cũ 15/10 ⚠️: công thức ✅ · khác đại lượng ✅ · BM25 trần "2" (10/10 nói 1) — **không có trần**, cộng theo số chữ query · hậu quả mơ hồ, thiếu "BM25 lấn át vector". Nói lại câu mẫu 3/4 (thiếu giới hạn, gọi "nhánh Qdrant"). Ca X/Y (10 chữ × 1 BM25 + cosine) ❌: lấy 1 điểm cho cả văn bản → "cosine quyết định". **20/10: làm lại ca P/Q (6 chữ × 1.5, cosine 0.40 vs 0.98) TRƯỚC khi hỏi 3.5** |
 | **21/10** | Vì sao `HybridRetriever` chuyền cây xuống **cả hai** nhánh | 16/10 tối ⚠️ (tụt từ ✅): câu 1 trả "BM25 giỏi khớp chính xác" — **lẫn giá trị nhánh BM25 ↔ lọc trên nhánh BM25**, chiều ngược ("tốt lọt ra" thay vì "bị cấm lọt vào"). Chạy thật `ND100_2019` → đảo nhánh ✅. Lọc sau RRF: không nhớ → giảng (cắt trước, lọc sau = **thiếu**, có khi 0) → ca 5 nghị định cũ ra **0** ✅. Lần sau: hỏi nguyên câu, đóng sách, cả 2 ý |
 | **21/10** | 10.11 port / adapter là gì | 16/10 ⚠️ (lên từ ❌): định nghĩa port/adapter ✅ · dịch 2 chiều ✅ · đổi DB = **thêm** adapter ✅ · tự thêm test bằng fake + cái giá ✅. **Thiếu cả phần ví dụ** (lần 2): không nêu `VectorStore`/`QdrantStore`, `query_points`, `SearchHit`; "dịch thô ngược lên" thiếu "của Qdrant → `SearchHit`". Lần sau: bắt đầu câu trả lời BẰNG ví dụ |
 | **21/10** | 1.4 Recursive chunker | 07/10 ✅ hỏi trần: CẮT → GỘP + hậu quả "mẩu lẻ tẻ vô nghĩa" (gọi nhầm là "cây" — là danh sách mẩu) |
@@ -199,12 +199,48 @@ ghi vào [interview-questions.md § Nhật ký vấn đáp](../interview-questio
   câu mới không bảng (2 đúng, máy trúng hạng 1) **1.63 ✅**. → [Cặp 29](./the-phan-biet.md).
 - **Buổi sau (CN 18/10 sáng) bắt đầu từ:** 3' ép chọn Cặp 29 (số mới, không bảng) → **mở A/B harness** (giảng 5 mục trước). Nợ nền đã trả đủ.
 
+### 2026-10-19 (T2) ca công ty từ ~08:50 · CARE · buổi META (chỉ chốt kế hoạch, chưa XÂY)
+- Care T1–T18 + nghiệm thu xong (agent nối dây 14→18/10); còn đúng 5 hàm code tay.
+- **User chốt:** ① **Care thay core ở mọi ca một thời gian** (core dừng lát 1, `ndcg_at_k` dở IDCG) ·
+  ② sổ Care **chung sổ này**, nhãn `CARE` · ③ phần luyện phỏng vấn để ở repo **private** riêng (repo này public).
+- Cách dạy Care = CLAUDE.md core (luật ở `nyxara-care/CLAUDE.md` trỏ về đây). Roadmap/side-lanes L **sửa chính thức tối CN 25/10** (luật §4).
+- ⚠️ Cái giá: lát 1 đứng ~1 tháng → mốc tháng 10 (demo + lát 2) trễ tương ứng.
+
+### 2026-10-22 (T5) ca công ty 09:14-10:16 (~1h) · CARE · chỉ vấn đáp (đúng luật ca công ty)
+- **Hụt 20→22/10 sáng** (~3 ngày, user chạy job ngoài, không học). Lịch interview-prep 20–22/10 trôi nguyên (DSA #1–4, bài 01/02/b1).
+- `parsing.py` có thân hàm **AI sinh** (không phải user) → đưa về `NotImplementedError`; sau đó user tự xoá cả hàm (chờ gõ lại tối nay).
+- Ca P/Q: tổng P ra 1.9 — **lại lấy điểm 1 chữ cho cả điều** (lỗi 15/10) → ca 3 chữ × 0.2 ✅ (đọc đề sót: hỏi BM25 trả tổng).
+- **3.5 ✅** (lên từ ⚠️×2) · **3.9 ⚠️** (BM25 gọi "pre-filter", thiếu PHÂN VÙNG lần 3; câu kiểm IDF theo ngăn ✅) · **3.8 ❌** (TF + IDF nói ngược chiều).
+- 3.8 ép chọn **2/3** (sai ô độ dài: chọn điều 170 chữ) — **tay chọn đúng, miệng nói ngược**. Nói lại theo mẫu "càng ___ thì càng ___, vì ___" → 3/3 đúng chiều (thiếu "vì" ở câu độ dài, nói "ký tự" thay "chữ").
+- Còn quá hạn: 10.10 · 10.11 · 1.4 · Hybrid 2 nhánh.
+- **Học tiếp (user đòi "code luôn", giờ hành chính) — XÂY `parse_tool_call` nhánh đơn đúng:** chạy đúng cho cả 3 tool. Gỡ 2 hiểu lầm: "chỉ cho đặt lịch?" · "khách hỏi gì cũng được" (khách ↔ đơn LLM, ép chọn ✅).
+  Tắc ở `args = ...` → user "viết luôn" (Claude đưa). Lỗi: `tools(...)` (Cặp 18) · trả `{ }` cho câu ngoặc lấy khoá · `args.model` (chép tên) · thiếu `return` · ô `args` dựng lại `SearchClinicInfoArgs` (vào sau 1 lượt).
+  Bỏ skip 2 test → **2 failed** (`JSONDecodeError`, `ValidationError`) — chờ `try/except`. User: *"hiểu hàm làm gì nhưng code lại không được"*; tóm tắt đúng ~70%, hổng: tưởng hàm "gọi thẳng vào DB".
+- ⚠️ Claude hiểu nhầm *"sao mà kịp"* thành xin gõ hộ → viết ruột, user chặn: *"tôi tự viết"*. Đã hoàn tác.
+- **Chiều (đứt quãng tới 16:07) — ⭐ user GÕ LẠI TỪ TRẮNG, từng dòng một:** 4 dòng nhánh đúng, 3 vòng đỏ đều vỏ/chép (`arguments_json()` · `raw.tool_name` · `arguments=`), **`model_validate` đúng lượt đầu** (sáng phải nhờ viết hộ).
+  Drill [try/except](../drills/2026-10-22-try-except.py) ✅ (sót xoá dòng ngoài `try` → bài học "try chỉ che dòng bên trong") · đoán output ✅.
+  Vào `app/`: user **tự gõ cả 3 nhánh lỗi**, gồm `KeyError` tool bịa (Claude chưa nhắc) → **3 passed** (Claude thêm test tool bịa). Thiết kế `Exception` ↔ `ValidationError`: chọn B ✅, cái giá ✅, lý do qua ép chọn.
+- **`parse_tool_call` XANH** (bước CODE TAY + TEST). Còn: BUG CỐ Ý → DEBUG → FIX → DOCUMENT · giảng lại 4 trạm (LLM → parse → run_agent → tool.run).
+- `handoff.py` dòng 7 có chữ `co` lạc (user gõ nhầm) → `make test` toàn bộ + lint đỏ, chờ user xoá.
+
 ---
 
 ## ⏸️ CHỖ DỪNG — buổi sau làm từ đây
 
 > Chỗ dừng mới nhất = dòng **"Buổi sau bắt đầu từ"** ở cuối buổi gần nhất trong Nhật ký phía trên.
 > Kế hoạch cũ (A0 · A0b · hàng đợi X/N · A1b · A2): [archive/2026-10-17-review-schedule.md](../archive/2026-10-17-review-schedule.md).
+
+### ⭐ TỪ 19/10 — CARE THAY CORE (chỗ dừng của core = "Buổi sau bắt đầu từ" ngày 17/10 trong Nhật ký)
+- **Ca theo user 19/10:** tối = XÂY · sáng = luyện code tay + ôn phỏng vấn · công ty = chỉ việc nhẹ (giờ hành chính không nghĩ được).
+- **XÂY tiếp:** `parse_tool_call` (Cách A) → vòng 6 bước → `review_reply` → `decide_handoff` → `run_agent` → `score`.
+  **Tối 19/10 mở bằng:** câu "cách B" — `'{"action": "book", "time": "08:00", "patient_phone": "0901234567"}'` → `ToolCall` hay `ToolCallError`, thiếu trường nào
+  (đã giảng: vai trò 5 hàm · lỗi định dạng ↔ lỗi nghiệp vụ · LLM bịa giá trị thiếu parse không bắt được) → rồi user viết mã giả.
+  Câu mẩu 1 (`ToolCall.args` kiểu gì, `top_k` mấy) chưa trả lời.
+- **Buổi XÂY kế:** `parse_tool_call` **xanh 3/3** → vòng 6 bước tiếp: Claude cài **BUG CỐ Ý** (logic) → user debug + fix · gõ lại đóng sách (cách ≥12h) · giảng lại 4 trạm · rồi mở `review_reply`. Câu kiểm treo: "trả `ToolCall` cho đơn huỷ → DB đã huỷ chưa?".
+- **Sáng 23/10 (T6):** DSA 217 + 242 · phỏng vấn thử #1 — user chọn dời hay làm để đo mốc. **3.8 hẹn 24/10**: mở bằng câu độ dài kèm "vì".
+- ~~Sáng 20/10: vấn đáp core 3.9 + 3.5~~ ✅ 22/10.
+- **Vấn đáp:** câu core tới hạn ở bảng trên vẫn ôn 10' đầu ca sáng. Câu phỏng vấn ngoài AI/RAG + bài luyện code ở repo private `interview-prep` (clone vào `~/interview-prep`) — lịch ôn của chúng nằm ở đó.
+- **Còn treo của core khi quay lại:** cửa `ndcg_at_k` đóng sách · ~~kiểm đầu vào `metrics.py` + test~~ ✅ 17/10 · Hybrid 2 nhánh.
 
 ### B. Giữ nguyên
 
