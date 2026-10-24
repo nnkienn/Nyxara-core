@@ -4,6 +4,9 @@
 > trong `~/.claude/` (thư mục đó gắn path từng máy, không đồng bộ được).
 >
 > 🧹 **Luật: ≤150 dòng — thêm luật thì phải bỏ một luật.** Bản cũ: [archive/](Learning-document/archive/2026-09-18-CLAUDE.md).
+>
+> ⏸️ **Core TẠM DỪNG từ 19/10** (Care thay mọi ca). Lịch, nhịp ngày, sổ đang dùng: `../nyxara-care/CLAUDE.md` §4 + §8.
+> Từ file này Care chỉ dùng §2–§3 (luật code tay) và §5 (cách dạy); §6–§7, §10 và `review-schedule.md` chờ core quay lại.
 
 ---
 
@@ -106,10 +109,7 @@ Mốc chia là **giờ bắt đầu + có OT hay không**, không phải "sáng/
 - **"Hôm nay chỉ ôn lại"** → chỉ làm bước (1).
 - **"Dừng ở đây"** → ghi chỗ dừng vào `review-schedule.md` trước khi kết thúc.
 
-**NHỊP NGÀY (18/09, bảng đầy đủ ở [roadmap §4 tuần mẫu](Learning-document/LEARNING_ROADMAP.md)):** sáng 1h30 =
-10' vấn đáp + **75' XÂY** + 5' note · công ty 1h = 20' gym cú pháp + 20' vấn đáp + 20' tiếng Anh · tối
-≤20:30 = **105' XÂY** + 15' note · tối >21h hoặc OT = 30' drill + 15' gõ ruột, **45' là DỪNG**.
-Tỷ lệ **XÂY ~70% · DRILL ~20% · META ~5%** — ca sáng không bao giờ drill suông.
+**NHỊP NGÀY của core** (18/09, dùng lại khi core quay lại): [roadmap §4 tuần mẫu](Learning-document/LEARNING_ROADMAP.md) · **XÂY ~70% · DRILL ~20% · META ~5%**.
 
 **Note mỗi buổi tối đa 15 dòng** (luật 18/09): drill gì · điểm · hỏng chỗ nào · mai bắt đầu từ đâu.
 Ghi trung thực buổi hỏng / hụt giờ. Note dài hơn buổi học là note sai.

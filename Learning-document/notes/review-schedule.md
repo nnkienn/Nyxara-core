@@ -1,5 +1,8 @@
 # 🔁 Lịch ôn + nhật ký buổi
 
+> ⏸️ **ĐÓNG BĂNG từ 24/10** — core tạm dừng từ 19/10, vấn đáp core bỏ từ 23/10. Không ghi thêm, không ra đề từ bảng
+> tới hạn bên dưới. Sổ đang dùng: xem `nyxara-care/CLAUDE.md` §4. Khi core quay lại: dời hạn cả bảng rồi mới dùng.
+
 > 🧹 **Dọn 2026-09-18:** file này từng 1.300 dòng (nhật ký từ 04/09, cộng bảng ôn +1/+3/+7/+14 đã bị
 > thay từ 17/09). Toàn bộ bản cũ: [archive/2026-09-18-review-schedule.md](../archive/2026-09-18-review-schedule.md).
 >
