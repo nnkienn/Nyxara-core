@@ -21,7 +21,7 @@ HF `GreenNode/zalo-ai-legal-text-retrieval-vn`) + **bảng số thật** + **dem
 **Portfolio = 3 loại project (user chốt 04/10), không thêm dự án thứ tư:**
 **Nghiên cứu** = Nyxara Open (câu hỏi + bộ đo Zalo Legal + số trước/sau) · **Thời sự** = MCP server tra luật (lát 5) ·
 **Kinh tế** = **Nyxara Care** (phòng khám thật, người dùng thật — [side-lanes L](side-lanes.md)).
-**Thân chữ T = RAG có đo lường** (retrieval + eval ⭐) trên luật tiếng Việt, rồi đưa vào agent. *Không* phải deep learning: fine-tune chỉ 🟢.
+**Thân chữ T = RAG có đo lường** (retrieval + eval ⭐) trên luật tiếng Việt, rồi đưa vào agent. *Không* phải deep learning, nhưng **fine-tune embedding/reranker là 🔴** (sửa 27/10, task T31 của Care, có số NDCG trước/sau); LoRA LLM làm ở Care (T32).
 
 ---
 

@@ -5,8 +5,8 @@
 >
 > 🧹 **Luật: ≤150 dòng — thêm luật thì phải bỏ một luật.** Bản cũ: [archive/](Learning-document/archive/2026-09-18-CLAUDE.md).
 >
-> ⏸️ **Core TẠM DỪNG từ 19/10** (Care thay mọi ca). Lịch, nhịp ngày, sổ đang dùng: `../nyxara-care/CLAUDE.md` §4 + §8.
-> Từ file này Care chỉ dùng §2–§3 (luật code tay) và §5 (cách dạy); §6–§7, §10 và `review-schedule.md` chờ core quay lại.
+> ⏸️ **Core TẠM DỪNG từ 19/10**, lịch/nhịp/sổ ở `../nyxara-care/CLAUDE.md` §4 + §8 (Care dùng §2–§3, §5 của file này). **Quay lại ~07/12 cho T31**
+> (sửa 27/10): đóng `ndcg_at_k` + bảng BM25/dense/hybrid làm baseline → **fine-tune embedding/reranker** trên Zalo Legal, số trước/sau (định nghĩa: Care AGENTS.md §8).
 
 ---
 
