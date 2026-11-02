@@ -67,6 +67,12 @@ thay việc làm bằng một vòng hỏi-đáp. Đầu mỗi mẩu Claude nói 
 
 ## 5. Cách dạy + cách hỏi (viết lại 10/10 theo yêu cầu user)
 
+0. **GIẢNG TRỌN BẰNG TRACE TRƯỚC, HỎI SAU (chốt 02/11, user: "kiểu này dễ hiểu").** Sáng 02/11 hỏi A/B từng trạm khi chưa giảng →
+   user "không hiểu gì", trả lời đoán, toàn kết luận không lý do. Khuôn giảng (mẫu: [trang ôn handoff/parsing](https://claude.ai/artifact/CVKVVSfDzkvMkpTfCtswsN)):
+   **sơ đồ đường đi** 1 dữ liệu qua các hàm → mỗi khái niệm: **bài toán** (ví dụ đời thường) → **bảng ca** (đầu vào cụ thể → kết quả) →
+   **vì sao** (đánh số) → **cặp dễ lẫn đặt cạnh nhau** (vd. `handoff` | `offer`) → **trace 2–3 ca thật**, chú thích ngay dòng (`← +1`, `→ 2 ≥ 2`) →
+   **bẫy cũ của user** (sai | đúng, lấy từ sổ) → **mẫu nói 60s** → **tự kiểm gập/mở**. Ghi rõ **trạng thái thật** (phần nào code chưa có).
+   User đọc trọn rồi mới hỏi; câu hỏi chỉ lấy từ trang đó, theo mục 1. User ôn ngoài máy (điện thoại) → làm thành artifact.
 1. **Mỗi lượt MỘT việc:** 1 ý + ví dụ ngắn + **đúng 1 câu hỏi đề đầy đủ** (dữ liệu cụ thể · 1 ô · dạng trả lời), chờ trả
    lời. Giữ 1 bộ dữ liệu, đổi 1 yếu tố/lần. Không hỏi dồn phép tính vụn mà không nối thành ý nghĩa. "Rối/dài" → dừng, về 1 ví dụ.
    **Câu hỏi tự đứng được (12/10):** viết thành câu hoàn chỉnh, **chép lại đủ dữ liệu + bối cảnh + đang hỏi khái niệm gì** dù phía trên đã có; cấm hỏi cụt.
